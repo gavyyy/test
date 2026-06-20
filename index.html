@@ -247,6 +247,59 @@
         .clear-btn:active {
             background-color: #545b62;
         }
+
+        /* Web Application Custom Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-box {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #111;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .modal-btn-yes {
+            background-color: #0076d6;
+            color: white;
+        }
+        .modal-btn-no {
+            background-color: #6c757d;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -316,7 +369,17 @@
 
     <div class="action-buttons">
         <button class="clear-btn" onclick="clearForm()">🧹 Clear</button>
-        <button class="save-btn" onclick="saveDailyLog()">💾 Save Daily Log File</button>
+        <button class="save-btn" onclick="showLunchModal()">💾 Save Daily Log File</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="lunch-modal">
+    <div class="modal-box">
+        <div class="modal-title">Did you take a break/lunch today?</div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-yes" onclick="handleLunchDecision(true)">Yes</button>
+            <button class="modal-btn modal-btn-no" onclick="handleLunchDecision(false)">No</button>
+        </div>
     </div>
 </div>
 
@@ -463,7 +526,6 @@
         const isOneMan = crewValue === "1";
         currentActiveCrew = isOneMan ? "1 Man" : "2 Man";
         
-        // Dynamic visibility treatment for Crew Member interface field
         const crewMemberField = document.getElementById('crew-member-container');
         if (isOneMan) {
             crewMemberField.style.display = 'none';
@@ -513,7 +575,31 @@
         }
     }
 
-    function saveDailyLog() {
+    // Modal Control Logic
+    function showLunchModal() {
+        document.getElementById('lunch-modal').style.display = 'flex';
+    }
+
+    function handleLunchDecision(tookBreak) {
+        // Close modal immediately
+        document.getElementById('lunch-modal').style.display = 'none';
+        
+        let lunchLogLine = "No break taken";
+        
+        if (tookBreak) {
+            // Re-enables the interactive text prompt for timeframe entry
+            const lunchStart = prompt("Enter Lunch START Time (e.g., 12:00 PM or 12:00):", "12:00 PM");
+            const lunchEnd = prompt("Enter Lunch END Time (e.g., 12:30 PM or 12:30):", "12:30 PM");
+            if (lunchStart || lunchEnd) {
+                lunchLogLine = (lunchStart || "N/A") + " to " + (lunchEnd || "N/A");
+            }
+        }
+        
+        // Execute compilation
+        generateFile(lunchLogLine);
+    }
+
+    function generateFile(lunchLogLine) {
         const now = new Date();
         const dateStr = now.toLocaleDateString();
         const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -527,17 +613,6 @@
         let isOneMan = currentActiveCrew === "1 Man";
         if (isOneMan) {
             crewMemberName = "N/A (1 Man Crew)";
-        }
-
-        let lunchLogLine = "No break taken";
-        const tookBreak = confirm("Did you take a break/lunch today?");
-        
-        if (tookBreak) {
-            const lunchStart = prompt("Enter Lunch START Time (e.g., 12:00 PM or 12:00):", "12:00 PM");
-            const lunchEnd = prompt("Enter Lunch END Time (e.g., 12:30 PM or 12:30):", "12:30 PM");
-            if (lunchStart || lunchEnd) {
-                lunchLogLine = (lunchStart || "N/A") + " to " + (lunchEnd || "N/A");
-            }
         }
 
         let logContent = "====================================\n   DOM/SC NORM DAILY LOG REPORT\n====================================\nDate: " + dateStr + "\nTime: " + timeStr + "\nForeman: " + foremanName + "\nCrew Member: " + crewMemberName + "\nCrew Setup: " + currentActiveCrew + " Crew\nShift Timeline: " + startTime + " to " + endTime + "\nLunch Break: " + lunchLogLine + "\n------------------------------------\n\nLOGGED QUANTITIES:\n";
