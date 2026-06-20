@@ -36,7 +36,6 @@
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 12px;
         }
-        /* Fixed touch-target button for mobile HTML runners */
         .admin-toggle-btn {
             display: inline-block;
             background-color: #e9f5fe;
@@ -272,7 +271,7 @@
             background-color: #545b62;
         }
 
-        /* Admin Console Box Design */
+        /* Admin Dashboard Box styling */
         .admin-dashboard-box {
             display: none;
             background: #fff4e5;
@@ -312,7 +311,7 @@
         }
         .draft-item:last-child { border-bottom: none; }
 
-        /* Lock Screen View Overlay */
+        /* Lock Screen wall */
         #lock-overlay {
             display: none;
             position: fixed;
@@ -342,14 +341,10 @@
             background-color: #0056b3;
         }
 
-        /* Web Application Custom Modal Overlay */
         .modal-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
             justify-content: center;
@@ -386,14 +381,8 @@
             border-radius: 8px;
             cursor: pointer;
         }
-        .modal-btn-yes {
-            background-color: #0076d6;
-            color: white;
-        }
-        .modal-btn-no {
-            background-color: #6c757d;
-            color: white;
-        }
+        .modal-btn-yes { background-color: #0076d6; color: white; }
+        .modal-btn-no { background-color: #6c757d; color: white; }
     </style>
 </head>
 <body>
@@ -413,11 +402,11 @@
     <div class="admin-dashboard-box" id="admin-panel">
         <span style="font-weight: bold; color: #d97706; font-size: 15px;">⚙️ Admin Controls Active</span>
         <div style="margin: 8px 0;">
-            <button class="admin-ctrl-btn lock-btn" onclick="adminLockPage()">🔒 Lock Page</button>
+            <button id="lock-toggle-btn" class="admin-ctrl-btn lock-btn" onclick="adminToggleLock()">🔒 Lock Page</button>
             <button class="admin-ctrl-btn" onclick="adminClearSavedDrafts()">🗑️ Terminate Crew Data</button>
             <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Logout</button>
         </div>
-        <div style="font-size: 12px; font-weight: bold; margin-top: 8px; color: #444;">Saved Final Draft Records:</div>
+        <div style="font-size: 12px; font-weight: bold; margin-top: 8px; color: #444;">Saved Final Draft Records (Global Sync):</div>
         <div class="drafts-view" id="admin-drafts-list"></div>
     </div>
     
@@ -498,6 +487,57 @@
 </div>
 
 <script>
+    // Public Global Sync Channel (No databases or setup needed!)
+    // Anyone using this specific URL ID shares data globally.
+    const SYNC_URL = "https://kvdb.io/MN87dfgjhKLDH92834/dom_sc_global_data";
+
+    let globalCloudData = { is_locked: false, drafts: [] };
+    let isAdminLoggedIn = false;
+
+    // Pull current sync state from internet
+    async function pullGlobalData() {
+        try {
+            const res = await fetch(SYNC_URL);
+            if (res.ok) {
+                globalCloudData = await res.json();
+                applyGlobalState();
+            }
+        } catch (e) {
+            console.log("Sync loop active. Reconnecting...");
+        }
+    }
+
+    // Push state changes up to internet
+    async function pushGlobalData() {
+        try {
+            await fetch(SYNC_URL, {
+                method: "POST",
+                body: JSON.stringify(globalCloudData)
+            });
+        } catch (e) {
+            console.error("Cloud upload error: ", e);
+        }
+    }
+
+    function applyGlobalState() {
+        // Enforce structural lockdown
+        if (globalCloudData.is_locked && !isAdminLoggedIn) {
+            document.getElementById('lock-overlay').style.display = 'flex';
+            document.getElementById('main-app-container').style.display = 'none';
+        } else {
+            if (!globalCloudData.is_locked) {
+                document.getElementById('lock-overlay').style.display = 'none';
+                document.getElementById('main-app-container').style.display = 'block';
+            }
+        }
+
+        const lockBtn = document.getElementById('lock-toggle-btn');
+        if (lockBtn) {
+            lockBtn.textContent = globalCloudData.is_locked ? "🔓 Unlock Page" : "🔒 Lock Page";
+        }
+        updateAdminDraftsUI();
+    }
+
     const items = [
         { name: "Visual", val: 0.30 },
         { name: "Fume per rod", val: 0.18 },
@@ -586,10 +626,7 @@
     }
 
     function loadSavedData() {
-        if (localStorage.getItem('dom_sc_locked_state') === 'true') {
-            document.getElementById('lock-overlay').style.display = 'flex';
-            document.getElementById('main-app-container').style.display = 'none';
-        }
+        pullGlobalData();
 
         const profile = localStorage.getItem('dom_sc_active_profile') || 'robert_s';
         document.getElementById('profile-select').value = profile;
@@ -621,7 +658,6 @@
         });
         
         saveFields();
-        updateAdminDraftsUI();
     }
 
     function calculateEverything() {
@@ -746,7 +782,7 @@
         generateFile(lunchLogLine, breakMinutes);
     }
 
-    function generateFile(lunchLogLine, breakMinutes) {
+    async function generateFile(lunchLogLine, breakMinutes) {
         const now = new Date();
         const dateStr = now.toLocaleDateString();
         const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -798,13 +834,15 @@
 
         logContent += "\n------------------------------------\nTOTAL PRODUCTION UNITS: " + currentGrandTotal.toFixed(2) + "\n------------------------------------\n8-Hr Goal (" + target8 + "): " + s8 + "\n10-Hr Goal (" + target10 + "): " + s10 + "\n====================================";
 
-        let submittedDraftsList = JSON.parse(localStorage.getItem('dom_sc_submitted_drafts')) || [];
-        submittedDraftsList.push({
+        // Add to cloud global drafts list array
+        if (!globalCloudData.drafts) globalCloudData.drafts = [];
+        globalCloudData.drafts.push({
             foreman: foremanName,
             totalUnits: currentGrandTotal.toFixed(2),
             timestamp: dateStr + " " + timeStr
         });
-        localStorage.setItem('dom_sc_submitted_drafts', JSON.stringify(submittedDraftsList));
+        
+        await pushGlobalData();
         updateAdminDraftsUI();
 
         const blob = new Blob([logContent], { type: "text/plain;charset=utf-8" });
@@ -816,10 +854,11 @@
         document.body.removeChild(link);
     }
 
-    /* Admin Authentication Scripts */
+    /* Admin Actions */
     function triggerAdminLogin() {
         const passPrompt = prompt("Enter Administrator Password:");
         if (passPrompt === "Energy2025") {
+            isAdminLoggedIn = true;
             document.getElementById('lock-overlay').style.display = 'none';
             document.getElementById('main-app-container').style.display = 'block';
             document.getElementById('admin-panel').style.display = 'block';
@@ -831,22 +870,23 @@
     }
 
     function adminLogout() {
+        isAdminLoggedIn = false;
         document.getElementById('admin-panel').style.display = 'none';
         document.getElementById('login-nav-link').style.display = 'inline-block';
-        if (localStorage.getItem('dom_sc_locked_state') === 'true') {
-            document.getElementById('lock-overlay').style.display = 'flex';
-            document.getElementById('main-app-container').style.display = 'none';
-        }
+        applyGlobalState();
     }
 
-    function adminLockPage() {
-        localStorage.setItem('dom_sc_locked_state', 'true');
-        alert("The platform has been locked. Regular field users cannot use features.");
+    async function adminToggleLock() {
+        globalCloudData.is_locked = !globalCloudData.is_locked;
+        await pushGlobalData();
+        alert(globalCloudData.is_locked ? "Page locked globally across ALL screens." : "Page unlocked globally.");
+        applyGlobalState();
     }
 
-    function adminClearSavedDrafts() {
-        if (confirm("Are you sure you want to permanently clear/terminate all final draft logs recorded on this page?")) {
-            localStorage.removeItem('dom_sc_submitted_drafts');
+    async function adminClearSavedDrafts() {
+        if (confirm("Are you sure you want to permanently terminate all sync records globally?")) {
+            globalCloudData.drafts = [];
+            await pushGlobalData();
             updateAdminDraftsUI();
         }
     }
@@ -854,8 +894,8 @@
     function updateAdminDraftsUI() {
         const listDiv = document.getElementById('admin-drafts-list');
         if (!listDiv) return;
-        const drafts = JSON.parse(localStorage.getItem('dom_sc_submitted_drafts')) || [];
         
+        const drafts = globalCloudData.drafts || [];
         if (drafts.length === 0) {
             listDiv.innerHTML = "<div style='color:#777; font-style:italic;'>No drafts submitted yet.</div>";
             return;
@@ -868,6 +908,9 @@
 
     loadSavedData();
     calculateEverything();
+    
+    // Auto sync background check loop interval: Check every 4 seconds
+    setInterval(pullGlobalData, 4000);
 </script>
 </body>
 </html>
