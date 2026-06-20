@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DOM/SC Norm 2026</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f1f3f6;
+            color: #222;
+            margin: 0;
+            padding: 12px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 oauto;
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h2 {
+            margin: 4px 0 12px 0;
+            font-size: 22px;
+            color: #111;
+            text-align: center;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+        .profile-section {
+            background: #f0f4f8;
+            border: 1px solid #d0e0f0;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .profile-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #456;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            display: block;
+        }
+        .profile-select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: 2px solid #0076d6;
+            border-radius: 8px;
+            background-color: #fff;
+            color: #0076d6;
+            cursor: pointer;
+        }
+        .crew-selection {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .crew-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-weight: bold;
+            background: #f8f9fa;
+            padding: 14px 4px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            cursor: pointer;
+            font-size: 15px;
+            text-align: center;
+        }
+        .crew-option input {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+        }
+        .crew-rate-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: normal;
+        }
+        .crew-option:has(input:checked) {
+            background: #e9f5fe;
+            border-color: #0076d6;
+            color: #0076d6;
+        }
+        .crew-option:has(input:checked) .crew-rate-label {
+            color: #0076d6;
+            font-weight: bold;
+        }
+        .crew-details {
+            background: #f8f9fa;
+            border: 1px solid #eaeaea;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .input-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            text-transform: uppercase;
+        }
+        .text-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #fff;
+        }
+        .text-input:focus {
+            border-color: #0076d6;
+            outline: none;
+        }
+        .item-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
