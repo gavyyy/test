@@ -18,7 +18,7 @@
         }
         .container {
             max-width: 500px;
-            margin: 0 oauto;
+            margin: 0 auto;
             background: #ffffff;
             padding: 16px;
             border-radius: 16px;
@@ -32,74 +32,35 @@
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 8px;
         }
-        .profile-section {
-            background: #f0f4f8;
-            border: 1px solid #d0e0f0;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .profile-label {
-            font-size: 11px;
-            font-weight: bold;
-            color: #456;
-            text-transform: uppercase;
-            margin-bottom: 2px;
-            display: block;
-        }
-        .profile-select {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            border: 2px solid #0076d6;
-            border-radius: 8px;
-            background-color: #fff;
-            color: #0076d6;
-            cursor: pointer;
-        }
         .crew-selection {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: flex;
             gap: 12px;
             margin-bottom: 12px;
         }
         .crew-option {
+            flex: 1;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 8px;
             font-weight: bold;
             background: #f8f9fa;
-            padding: 14px 4px;
+            padding: 14px;
             border-radius: 10px;
             border: 2px solid #e9ecef;
             cursor: pointer;
             font-size: 15px;
-            text-align: center;
+            transition: all 0.2s ease;
         }
         .crew-option input {
             width: 20px;
             height: 20px;
             margin: 0;
         }
-        .crew-rate-label {
-            font-size: 11px;
-            color: #666;
-            font-weight: normal;
-        }
         .crew-option:has(input:checked) {
             background: #e9f5fe;
             border-color: #0076d6;
             color: #0076d6;
-        }
-        .crew-option:has(input:checked) .crew-rate-label {
-            color: #0076d6;
-            font-weight: bold;
         }
         .crew-details {
             background: #f8f9fa;
@@ -117,20 +78,36 @@
             gap: 4px;
         }
         .input-group label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             color: #555;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .text-input {
+        .time-row {
+            display: flex;
+            gap: 10px;
+        }
+        .time-row .input-group {
+            flex: 1;
+        }
+        .time-note {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            margin-top: 2px;
+            padding-left: 2px;
+        }
+        .text-input, .select-input {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 16px;
             background: #fff;
+            transition: border-color 0.2s;
         }
-        .text-input:focus {
+        .text-input:focus, .select-input:focus {
             border-color: #0076d6;
             outline: none;
         }
@@ -142,3 +119,454 @@
             padding: 12px 14px;
             border-radius: 10px;
             margin-bottom: 8px;
+            border: 1px solid #eaeaea;
+        }
+        .item-info {
+            flex: 1;
+        }
+        .item-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1a1a1a;
+        }
+        .item-val {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .qty-input {
+            width: 65px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .qty-input:focus {
+            border-color: #0076d6;
+            outline: none;
+        }
+        .item-total {
+            width: 55px;
+            text-align: right;
+            font-weight: bold;
+            font-size: 14px;
+            color: #444;
+        }
+        .total-banner {
+            background: #222;
+            color: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 16px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .total-banner span:last-child {
+            font-size: 22px;
+            color: #4dadff;
+        }
+        .metrics-panel {
+            background: #f0f7ff;
+            border: 1px solid #cfe4ff;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .metric-item {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2eeff;
+            text-align: center;
+        }
+        .metric-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .metric-value {
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        .remaining-positive {
+            color: #dc3545;
+        }
+        .remaining-met {
+            color: #28a745;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .save-btn {
+            flex: 2;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(40,167,69,0.2);
+            transition: background 0.1s;
+        }
+        .save-btn:active {
+            background-color: #1e7e34;
+        }
+        .clear-btn {
+            flex: 1;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .clear-btn:active {
+            background-color: #545b62;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>DOM/SC Norm 2026</h2>
+    
+    <div class="crew-selection">
+        <label class="crew-option">
+            <input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything()"> 1 Man
+        </label>
+        <label class="crew-option">
+            <input type="radio" name="crew" value="2" id="crew-2" onchange="calculateEverything()"> 2 Man
+        </label>
+    </div>
+
+    <div class="crew-details">
+        <div class="input-group">
+            <label for="profile-select">Active Profile</label>
+            <select id="profile-select" class="select-input" onchange="switchProfile()">
+                <option value="robert_s">Robert S</option>
+                <option value="payton_n">Payton N</option>
+                <option value="default">Default / Custom</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label for="foreman-name">Foreman Name</label>
+            <input type="text" id="foreman-name" class="text-input" placeholder="Enter foreman name" oninput="saveFields()">
+        </div>
+        <div class="input-group" id="crew-member-container">
+            <label for="crew-member-name">Crew Member Name(s)</label>
+            <input type="text" id="crew-member-name" class="text-input" placeholder="Enter member name(s)" oninput="saveFields()">
+        </div>
+        <div class="time-row">
+            <div class="input-group">
+                <label for="start-time">Start Time</label>
+                <input type="time" id="start-time" class="text-input" onchange="saveFields()">
+            </div>
+            <div class="input-group">
+                <label for="end-time">End Time</label>
+                <input type="time" id="end-time" class="text-input" onchange="saveFields()">
+            </div>
+        </div>
+        <div class="time-note">💡 lunch will be recorded when you save your file</div>
+    </div>
+
+    <div id="item-cards-container"></div>
+
+    <div class="total-banner">
+        <span>Total Units:</span>
+        <span id="grand-total">0.00</span>
+    </div>
+
+    <div class="metrics-panel">
+        <span style="font-weight: bold; color: #0056b3;">Target Metrics Status</span>
+        <div class="metrics-grid">
+            <div class="metric-item">
+                <div class="metric-label">8-Hr Target (<span id="target-8-val">26</span>)</div>
+                <div class="metric-value" id="rem-8hr">26.00 left</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">10-Hr Target (<span id="target-10-val">32.5</span>)</div>
+                <div class="metric-value" id="rem-10hr">32.50 left</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="clear-btn" onclick="clearForm()">🧹 Clear</button>
+        <button class="save-btn" onclick="saveDailyLog()">💾 Save Daily Log File</button>
+    </div>
+</div>
+
+<script>
+    const items = [
+        { name: "Visual", val: 0.30 },
+        { name: "Fume per rod", val: 0.18 },
+        { name: "Ground wire", val: 0.55 },
+        { name: "Guy marker", val: 0.17 },
+        { name: "Pole number", val: 0.14 },
+        { name: "Riser ground", val: 0.44 },
+        { name: "U guard", val: 0.46 },
+        { name: "Pad mount", val: 0.27 },
+        { name: "Warning sticker", val: 0.02 },
+        { name: "Bonding", val: 0.44 },
+        { name: "Pad mount tag ID", val: 0.27 }
+    ];
+
+    const container = document.getElementById('item-cards-container');
+    
+    items.forEach(function(item, index) {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'item-info';
+
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'item-name';
+        nameDiv.textContent = item.name;
+
+        const valDiv = document.createElement('div');
+        valDiv.className = 'item-val';
+        valDiv.textContent = "Unit Value: " + item.val.toFixed(2);
+
+        infoDiv.appendChild(nameDiv);
+        infoDiv.appendChild(valDiv);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'item-actions';
+
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'qty-input';
+        input.id = 'qty-' + index;
+        input.min = '0';
+        input.setAttribute('pattern', '[0-9]*');
+        input.placeholder = '0';
+        input.oninput = calculateEverything;
+
+        const totalDiv = document.createElement('div');
+        totalDiv.className = 'item-total';
+        totalDiv.id = 'total-' + index;
+        totalDiv.textContent = '0.00';
+
+        actionsDiv.appendChild(input);
+        actionsDiv.appendChild(totalDiv);
+
+        card.appendChild(infoDiv);
+        card.appendChild(actionsDiv);
+        
+        container.appendChild(card);
+    });
+
+    let currentGrandTotal = 0;
+    let currentActiveCrew = "1 Man";
+
+    function getProfilePrefix() {
+        const profile = document.getElementById('profile-select').value;
+        return profile === 'default' ? 'dom_sc_' : 'dom_sc_' + profile + '_';
+    }
+
+    function saveFields() {
+        const prefix = getProfilePrefix();
+        localStorage.setItem(prefix + 'foreman', document.getElementById('foreman-name').value);
+        localStorage.setItem(prefix + 'member', document.getElementById('crew-member-name').value);
+        localStorage.setItem(prefix + 'start_time', document.getElementById('start-time').value);
+        localStorage.setItem(prefix + 'end_time', document.getElementById('end-time').value);
+    }
+
+    function switchProfile() {
+        const profile = document.getElementById('profile-select').value;
+        localStorage.setItem('dom_sc_active_profile', profile);
+        loadSavedData();
+        calculateEverything();
+    }
+
+    function loadSavedData() {
+        const profile = localStorage.getItem('dom_sc_active_profile') || 'robert_s';
+        document.getElementById('profile-select').value = profile;
+
+        const prefix = getProfilePrefix();
+
+        const savedCrew = localStorage.getItem(prefix + 'crew');
+        if (savedCrew === "2") {
+            document.getElementById('crew-2').checked = true;
+        } else {
+            document.getElementById('crew-1').checked = true;
+        }
+
+        if (profile === 'robert_s' && !localStorage.getItem(prefix + 'foreman')) {
+            document.getElementById('foreman-name').value = "Robert S";
+        } else if (profile === 'payton_n' && !localStorage.getItem(prefix + 'foreman')) {
+            document.getElementById('foreman-name').value = "Payton N";
+        } else {
+            document.getElementById('foreman-name').value = localStorage.getItem(prefix + 'foreman') || "";
+        }
+
+        document.getElementById('crew-member-name').value = localStorage.getItem(prefix + 'member') || "";
+        document.getElementById('start-time').value = localStorage.getItem(prefix + 'start_time') || "";
+        document.getElementById('end-time').value = localStorage.getItem(prefix + 'end_time') || "";
+
+        items.forEach(function(item, index) {
+            const savedQty = localStorage.getItem(prefix + 'qty_' + index);
+            document.getElementById('qty-' + index).value = savedQty !== null ? savedQty : "";
+        });
+        
+        saveFields();
+    }
+
+    function calculateEverything() {
+        currentGrandTotal = 0;
+        
+        const checkedCrewInput = document.querySelector('input[name="crew"]:checked');
+        const crewValue = checkedCrewInput ? checkedCrewInput.value : "1";
+        
+        const prefix = getProfilePrefix();
+        localStorage.setItem(prefix + 'crew', crewValue);
+
+        items.forEach(function(item, index) {
+            const qtyElement = document.getElementById('qty-' + index);
+            const qtyStr = qtyElement.value;
+            
+            localStorage.setItem(prefix + 'qty_' + index, qtyStr);
+
+            const qty = parseInt(qtyStr) || 0;
+            const lineTotal = qty * item.val;
+            currentGrandTotal += lineTotal;
+            document.getElementById('total-' + index).textContent = lineTotal.toFixed(2);
+        });
+
+        document.getElementById('grand-total').textContent = currentGrandTotal.toFixed(2);
+
+        const isOneMan = crewValue === "1";
+        currentActiveCrew = isOneMan ? "1 Man" : "2 Man";
+        
+        // Dynamic visibility treatment for Crew Member interface field
+        const crewMemberField = document.getElementById('crew-member-container');
+        if (isOneMan) {
+            crewMemberField.style.display = 'none';
+        } else {
+            crewMemberField.style.display = 'flex';
+        }
+        
+        let target8 = isOneMan ? 26 : 32.5;
+        let target10 = isOneMan ? 32.5 : 39;
+
+        document.getElementById('target-8-val').textContent = target8.toFixed(2);
+        document.getElementById('target-10-val').textContent = target10.toFixed(2);
+
+        updateRemainingDisplay('rem-8hr', target8 - currentGrandTotal);
+        updateRemainingDisplay('rem-10hr', target10 - currentGrandTotal);
+    }
+
+    function updateRemainingDisplay(elementId, value) {
+        const el = document.getElementById(elementId);
+        if (value <= 0) {
+            el.textContent = '✅ MET (+' + Math.abs(value).toFixed(2) + ')';
+            el.className = "metric-value remaining-met";
+        } else {
+            el.textContent = '⏳ ' + value.toFixed(2) + ' left';
+            el.className = "metric-value remaining-positive";
+        }
+    }
+
+    function clearForm() {
+        if (confirm("Are you sure you want to clear current quantities and names for this active profile?")) {
+            const prefix = getProfilePrefix();
+            localStorage.removeItem(prefix + 'foreman');
+            localStorage.removeItem(prefix + 'member');
+            localStorage.removeItem(prefix + 'start_time');
+            localStorage.removeItem(prefix + 'end_time');
+            
+            document.getElementById('foreman-name').value = "";
+            document.getElementById('crew-member-name').value = "";
+            document.getElementById('start-time').value = "";
+            document.getElementById('end-time').value = "";
+
+            items.forEach(function(_, index) {
+                localStorage.removeItem(prefix + 'qty_' + index);
+                document.getElementById('qty-' + index).value = "";
+            });
+            switchProfile();
+        }
+    }
+
+    function saveDailyLog() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const fileDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+        const foremanName = document.getElementById('foreman-name').value || "Not Entered";
+        let crewMemberName = document.getElementById('crew-member-name').value || "Not Entered";
+        const startTime = document.getElementById('start-time').value || "Not Entered";
+        const endTime = document.getElementById('end-time').value || "Not Entered";
+
+        let isOneMan = currentActiveCrew === "1 Man";
+        if (isOneMan) {
+            crewMemberName = "N/A (1 Man Crew)";
+        }
+
+        let lunchLogLine = "No break taken";
+        const tookBreak = confirm("Did you take a break/lunch today?");
+        
+        if (tookBreak) {
+            const lunchStart = prompt("Enter Lunch START Time (e.g., 12:00 PM or 12:00):", "12:00 PM");
+            const lunchEnd = prompt("Enter Lunch END Time (e.g., 12:30 PM or 12:30):", "12:30 PM");
+            if (lunchStart || lunchEnd) {
+                lunchLogLine = (lunchStart || "N/A") + " to " + (lunchEnd || "N/A");
+            }
+        }
+
+        let logContent = "====================================\n   DOM/SC NORM DAILY LOG REPORT\n====================================\nDate: " + dateStr + "\nTime: " + timeStr + "\nForeman: " + foremanName + "\nCrew Member: " + crewMemberName + "\nCrew Setup: " + currentActiveCrew + " Crew\nShift Timeline: " + startTime + " to " + endTime + "\nLunch Break: " + lunchLogLine + "\n------------------------------------\n\nLOGGED QUANTITIES:\n";
+
+        items.forEach(function(item, index) {
+            const qty = parseInt(document.getElementById('qty-' + index).value) || 0;
+            if (qty > 0) {
+                logContent += "• " + item.name.padEnd(20) + " : Qty " + qty.toString().padEnd(4) + " -> Value: " + (qty * item.val).toFixed(2) + " units\n";
+            }
+        });
+
+        let target8 = isOneMan ? 26 : 32.5;
+        let target10 = isOneMan ? 32.5 : 39;
+        let s8 = (target8 - currentGrandTotal) <= 0 ? "MET (+" + Math.abs(target8 - currentGrandTotal).toFixed(2) + " OVER)" : (target8 - currentGrandTotal).toFixed(2) + " remaining";
+        let s10 = (target10 - currentGrandTotal) <= 0 ? "MET (+" + Math.abs(target10 - currentGrandTotal).toFixed(2) + " OVER)" : (target10 - currentGrandTotal).toFixed(2) + " remaining";
+
+        logContent += "\n------------------------------------\nTOTAL PRODUCTION UNITS: " + currentGrandTotal.toFixed(2) + "\n------------------------------------\n8-Hr Goal (" + target8 + "): " + s8 + "\n10-Hr Goal (" + target10 + "): " + s10 + "\n====================================";
+
+        const blob = new Blob([logContent], { type: "text/plain;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "DOM_SC_Log_" + foremanName.replace(/\s+/g, '_') + "_" + fileDate + ".txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    loadSavedData();
+    calculateEverything();
+</script>
+</body>
+</html>
