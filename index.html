@@ -25,12 +25,36 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         h2 {
-            margin: 4px 0 12px 0;
+            margin: 4px 0 8px 0;
             font-size: 22px;
             color: #111;
             text-align: center;
+        }
+        .admin-nav-bar {
+            text-align: center;
+            margin-bottom: 16px;
             border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 8px;
+            padding-bottom: 12px;
+        }
+        /* Fixed touch-target button for mobile HTML runners */
+        .admin-toggle-btn {
+            display: inline-block;
+            background-color: #e9f5fe;
+            border: 1px solid #cfe4ff;
+            color: #0076d6;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 20px;
+            margin-top: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 10;
+            text-decoration: none;
+        }
+        .admin-toggle-btn:active {
+            background-color: #cfe4ff;
         }
         .crew-selection {
             display: flex;
@@ -248,6 +272,76 @@
             background-color: #545b62;
         }
 
+        /* Admin Console Box Design */
+        .admin-dashboard-box {
+            display: none;
+            background: #fff4e5;
+            border: 2px dashed #ff9800;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .admin-ctrl-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            margin: 4px 4px 4px 0;
+        }
+        .admin-ctrl-btn.lock-btn { background: #333; }
+        .admin-ctrl-btn.logout-btn { background: #6c757d; }
+        .drafts-view {
+            margin-top: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            text-align: left;
+            background: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+        .draft-item {
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+            padding: 6px 0;
+            color: #333;
+        }
+        .draft-item:last-child { border-bottom: none; }
+
+        /* Lock Screen View Overlay */
+        #lock-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #11141a;
+            color: #fff;
+            z-index: 5000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            text-align: center;
+        }
+        .bypass-btn {
+            background: #0076d6;
+            border: 1px solid #cfe4ff;
+            color: #fff;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 24px;
+            margin-top: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .bypass-btn:active {
+            background-color: #0056b3;
+        }
+
         /* Web Application Custom Modal Overlay */
         .modal-overlay {
             display: none;
@@ -304,8 +398,28 @@
 </head>
 <body>
 
-<div class="container">
+<div id="lock-overlay">
+    <h1 style="font-size: 28px; margin-bottom: 8px;">🔒 App Locked</h1>
+    <p style="color: #aaa; max-width: 300px; margin: 0 auto;">This application platform has been locked down by an administrator.</p>
+    <button class="bypass-btn" onclick="triggerAdminLogin()">Admin Override Login</button>
+</div>
+
+<div class="container" id="main-app-container">
     <h2>DOM/SC Norm 2026</h2>
+    <div class="admin-nav-bar">
+        <button class="admin-toggle-btn" id="login-nav-link" onclick="triggerAdminLogin()">🔑 Admin Console</button>
+    </div>
+
+    <div class="admin-dashboard-box" id="admin-panel">
+        <span style="font-weight: bold; color: #d97706; font-size: 15px;">⚙️ Admin Controls Active</span>
+        <div style="margin: 8px 0;">
+            <button class="admin-ctrl-btn lock-btn" onclick="adminLockPage()">🔒 Lock Page</button>
+            <button class="admin-ctrl-btn" onclick="adminClearSavedDrafts()">🗑️ Terminate Crew Data</button>
+            <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Logout</button>
+        </div>
+        <div style="font-size: 12px; font-weight: bold; margin-top: 8px; color: #444;">Saved Final Draft Records:</div>
+        <div class="drafts-view" id="admin-drafts-list"></div>
+    </div>
     
     <div class="crew-selection">
         <label class="crew-option">
@@ -472,6 +586,11 @@
     }
 
     function loadSavedData() {
+        if (localStorage.getItem('dom_sc_locked_state') === 'true') {
+            document.getElementById('lock-overlay').style.display = 'flex';
+            document.getElementById('main-app-container').style.display = 'none';
+        }
+
         const profile = localStorage.getItem('dom_sc_active_profile') || 'robert_s';
         document.getElementById('profile-select').value = profile;
 
@@ -502,6 +621,7 @@
         });
         
         saveFields();
+        updateAdminDraftsUI();
     }
 
     function calculateEverything() {
@@ -561,17 +681,14 @@
     function parseTimeToMinutes(timeStr) {
         if (!timeStr || timeStr.indexOf(':') === -1) return null;
         
-        // Clean text formatting if any
         let cleanStr = timeStr.replace(/[^0-9:apmapm ]/gi, '').trim().toLowerCase();
         let isPm = cleanStr.includes('pm');
         let isAm = cleanStr.includes('am');
         
-        // Split out the digits
         let timeParts = cleanStr.replace(/[ampm ]/g, '').split(':');
         let hours = parseInt(timeParts[0]) || 0;
         let minutes = parseInt(timeParts[1]) || 0;
         
-        // Handle standard 12-hour clock inputs
         if (isPm && hours < 12) hours += 12;
         if (isAm && hours === 12) hours = 0;
         
@@ -620,7 +737,7 @@
                 let endMin = parseTimeToMinutes(lunchEnd);
                 
                 if (startMin !== null && endMin !== null) {
-                    if (endMin < startMin) endMin += 1440; // Over midnight calculation protection
+                    if (endMin < startMin) endMin += 1440; 
                     breakMinutes = endMin - startMin;
                 }
             }
@@ -645,16 +762,14 @@
             crewMemberName = "N/A (1 Man Crew)";
         }
 
-        // Timeline Hours Calculation Logic
         let totalHoursText = "N/A (Times missing)";
         let startMin = parseTimeToMinutes(startTime);
         let endMin = parseTimeToMinutes(endTime);
 
         if (startMin !== null && endMin !== null) {
-            if (endMin < startMin) endMin += 1440; // Over midnight calculation protection
+            if (endMin < startMin) endMin += 1440; 
             let rawShiftMinutes = endMin - startMin;
             
-            // Apply the rule: 30 minutes are paid, everything over 30 mins is withdrawn
             let unpaidDeductionMinutes = 0;
             if (breakMinutes > 30) {
                 unpaidDeductionMinutes = breakMinutes - 30;
@@ -665,9 +780,6 @@
             let finalMinutes = finalPaidMinutes % 60;
             
             totalHoursText = finalHours + " hrs " + finalMinutes + " mins total (Decimal: " + (finalPaidMinutes / 60).toFixed(2) + " hrs)";
-            if (unpaidDeductionMinutes > 0) {
-                totalHoursText += "\n* Note: Withdrew " + unpaidDeductionMinutes + " minutes from total time due to an extended break over 30 mins.";
-            }
         }
 
         let logContent = "====================================\n   DOM/SC NORM DAILY LOG REPORT\n====================================\nDate: " + dateStr + "\nTime: " + timeStr + "\nForeman: " + foremanName + "\nCrew Member: " + crewMemberName + "\nCrew Setup: " + currentActiveCrew + " Crew\nShift Timeline: " + startTime + " to " + endTime + "\nLunch Break: " + lunchLogLine + " (" + breakMinutes + " mins total)\nHours Worked: " + totalHoursText + "\n------------------------------------\n\nLOGGED QUANTITIES:\n";
@@ -686,6 +798,15 @@
 
         logContent += "\n------------------------------------\nTOTAL PRODUCTION UNITS: " + currentGrandTotal.toFixed(2) + "\n------------------------------------\n8-Hr Goal (" + target8 + "): " + s8 + "\n10-Hr Goal (" + target10 + "): " + s10 + "\n====================================";
 
+        let submittedDraftsList = JSON.parse(localStorage.getItem('dom_sc_submitted_drafts')) || [];
+        submittedDraftsList.push({
+            foreman: foremanName,
+            totalUnits: currentGrandTotal.toFixed(2),
+            timestamp: dateStr + " " + timeStr
+        });
+        localStorage.setItem('dom_sc_submitted_drafts', JSON.stringify(submittedDraftsList));
+        updateAdminDraftsUI();
+
         const blob = new Blob([logContent], { type: "text/plain;charset=utf-8" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
@@ -693,6 +814,56 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    /* Admin Authentication Scripts */
+    function triggerAdminLogin() {
+        const passPrompt = prompt("Enter Administrator Password:");
+        if (passPrompt === "Energy2025") {
+            document.getElementById('lock-overlay').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('login-nav-link').style.display = 'none';
+            updateAdminDraftsUI();
+        } else if (passPrompt !== null) {
+            alert("Incorrect password access denied.");
+        }
+    }
+
+    function adminLogout() {
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('login-nav-link').style.display = 'inline-block';
+        if (localStorage.getItem('dom_sc_locked_state') === 'true') {
+            document.getElementById('lock-overlay').style.display = 'flex';
+            document.getElementById('main-app-container').style.display = 'none';
+        }
+    }
+
+    function adminLockPage() {
+        localStorage.setItem('dom_sc_locked_state', 'true');
+        alert("The platform has been locked. Regular field users cannot use features.");
+    }
+
+    function adminClearSavedDrafts() {
+        if (confirm("Are you sure you want to permanently clear/terminate all final draft logs recorded on this page?")) {
+            localStorage.removeItem('dom_sc_submitted_drafts');
+            updateAdminDraftsUI();
+        }
+    }
+
+    function updateAdminDraftsUI() {
+        const listDiv = document.getElementById('admin-drafts-list');
+        if (!listDiv) return;
+        const drafts = JSON.parse(localStorage.getItem('dom_sc_submitted_drafts')) || [];
+        
+        if (drafts.length === 0) {
+            listDiv.innerHTML = "<div style='color:#777; font-style:italic;'>No drafts submitted yet.</div>";
+            return;
+        }
+
+        listDiv.innerHTML = drafts.map(function(d) {
+            return "<div class='draft-item'>⏱️ <b>" + d.timestamp + "</b> - Foreman: " + d.foreman + " | <b>" + d.totalUnits + " Units</b></div>";
+        }).join('');
     }
 
     loadSavedData();
