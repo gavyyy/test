@@ -239,6 +239,21 @@
     <button class="bypass-btn" onclick="triggerAdminLogin(true, false)">Admin Override Login</button>
 </div>
 
+<!-- ── MAINTENANCE MODE OVERLAY ── -->
+<div id="maintenance-overlay">
+    <div class="maint-icon">&#x2699;&#xFE0F;</div>
+    <div class="maint-title">Down for Maintenance</div>
+    <div class="maint-subtitle">We're making updates to improve the platform. We'll be back shortly.</div>
+    <div class="maint-msg-box">
+        <strong>Message from Admin</strong>
+        <span id="maint-display-msg">No additional details provided.</span>
+    </div>
+    <div class="maint-eta-box" id="maint-eta-box" style="display:none;">
+        &#x23F0; Estimated Return: <span id="maint-display-eta"></span>
+    </div>
+    <button class="maint-admin-btn" onclick="triggerAdminLogin(true, false)">Admin Access</button>
+</div>
+
 <div class="container" id="login-gateway-portal">
     <div class="login-title">DOM/SC Platform Gateway</div>
     <div class="login-subtitle">Select your tracking node profile below to authenticate</div>
@@ -280,6 +295,24 @@
                 Awaiting client telemetry sync updates...
             </div>
         </div>
+
+        <!-- ── MAINTENANCE MODE CONTROL ── -->
+        <section class="maint-admin-section">
+            <div class="maint-admin-title">&#x1F6A7; Maintenance Mode</div>
+            <div id="maint-status-badge" class="maint-status-badge maint-status-off">&#x2705; SITE LIVE</div>
+            <div style="margin-bottom: 8px;">
+                <label style="font-size:11px; font-weight:600; color:#555; text-transform:uppercase; display:block; margin-bottom:3px;">Maintenance Message</label>
+                <textarea id="maint-msg-input" rows="2" placeholder="e.g. Updating unit values and fixing item totals..." style="width:100%; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:6px; resize:vertical;"></textarea>
+            </div>
+            <div style="margin-bottom: 10px;">
+                <label style="font-size:11px; font-weight:600; color:#555; text-transform:uppercase; display:block; margin-bottom:3px;">Estimated Return Time (optional)</label>
+                <input type="text" id="maint-eta-input" placeholder="e.g. 30 minutes, 2:00 PM, Tomorrow morning" style="width:100%; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:6px;">
+            </div>
+            <div style="display:flex; gap:6px;">
+                <button class="sm-btn btn-red" style="flex:1; padding:8px;" onclick="adminEnableMaintenance()">&#x1F6A7; Enable Maintenance</button>
+                <button class="sm-btn btn-green" style="flex:1; padding:8px;" onclick="adminDisableMaintenance()">&#x2705; Bring Site Back Up</button>
+            </div>
+        </section>
 
         <section class="admin-sub-section" style="border: 1px solid #17a2b8; background-color: #f4fbff;">
             <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #0c5460;">&#x1F4E2; Global Operations Broadcast</h4>
@@ -490,7 +523,8 @@
         failed_admin_logins: [],
         banned_ips: [],
         global_alert: "",
-        targets: { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 }
+        targets: { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
+        maintenance: { active: false, message: "", eta: "" }
     };
     
     let isAdminLoggedIn = false;
@@ -599,7 +633,8 @@
                     global_alert:         d.global_alert || "",
                     targets:              d.targets || { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
                     profiles:             d.profiles || profilesRegistry,
-                    deleted_vars:         d.deleted_vars || []
+                    deleted_vars:         d.deleted_vars || [],
+                    maintenance:          d.maintenance || { active: false, message: "", eta: "" }
                 };
                 
                 if (globalCloudData.banned_ips.includes(localClientIP)) {
@@ -664,6 +699,43 @@
     }
 
     function applyGlobalState() {
+        // ── Maintenance Mode (highest priority after banned screen) ──
+        const maint = globalCloudData.maintenance || {};
+        const maintOverlay = document.getElementById('maintenance-overlay');
+        if (maint.active && !isAdminLoggedIn) {
+            maintOverlay.style.display = 'flex';
+            document.getElementById('lock-overlay').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'none';
+            document.getElementById('login-gateway-portal').style.display = 'none';
+            document.getElementById('maint-display-msg').textContent = maint.message || "No additional details provided.";
+            const etaBox = document.getElementById('maint-eta-box');
+            if (maint.eta && maint.eta.trim() !== "") {
+                document.getElementById('maint-display-eta').textContent = maint.eta;
+                etaBox.style.display = 'block';
+            } else {
+                etaBox.style.display = 'none';
+            }
+            return; // stop processing — site is down
+        } else {
+            maintOverlay.style.display = 'none';
+        }
+
+        // Update admin maintenance panel UI
+        const badge = document.getElementById('maint-status-badge');
+        if (badge) {
+            if (maint.active) {
+                badge.textContent = '🚧 MAINTENANCE ACTIVE';
+                badge.className = 'maint-status-badge maint-status-on';
+            } else {
+                badge.textContent = '✅ SITE LIVE';
+                badge.className = 'maint-status-badge maint-status-off';
+            }
+        }
+        const msgInput = document.getElementById('maint-msg-input');
+        const etaInput = document.getElementById('maint-eta-input');
+        if (msgInput) msgInput.value = maint.message || "";
+        if (etaInput) etaInput.value = maint.eta || "";
+
         if (globalCloudData.is_locked && !isAdminLoggedIn) {
             document.getElementById('lock-overlay').style.display = 'flex';
             document.getElementById('main-app-container').style.display = 'none';
@@ -798,6 +870,21 @@
             document.getElementById('login-nav-link').style.display = 'inline-block';
             applyGlobalState();
         }
+    }
+
+    async function adminEnableMaintenance() {
+        const msg = document.getElementById('maint-msg-input').value.trim();
+        const eta = document.getElementById('maint-eta-input').value.trim();
+        if (!msg && !confirm("No message entered. Enable maintenance mode anyway?")) return;
+        globalCloudData.maintenance = { active: true, message: msg, eta: eta };
+        await pushGlobalData();
+        applyGlobalState();
+    }
+
+    async function adminDisableMaintenance() {
+        globalCloudData.maintenance = { active: false, message: "", eta: "" };
+        await pushGlobalData();
+        applyGlobalState();
     }
 
     async function adminToggleLock() {
