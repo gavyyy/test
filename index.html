@@ -316,17 +316,6 @@
             gap: 8px;
             margin-bottom: 10px;
         }
-        .advanced-textarea {
-            width: 100%;
-            height: 100px;
-            font-family: monospace;
-            font-size: 11px;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            background: #fff;
-            margin-bottom: 8px;
-        }
         .employee-list-table {
             width: 100%;
             border-collapse: collapse;
@@ -355,6 +344,13 @@
             max-height: 180px;
             overflow-y: auto;
             margin-bottom: 12px;
+        }
+        .matrix-table-input {
+            width: 100%;
+            padding: 4px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         .drafts-view {
@@ -505,16 +501,28 @@
             </div>
             <div class="monitor-pane" id="live-mirror-pane">Select an employee to inspect their active layout quantities live...</div>
 
+            <div class="section-subtitle">📋 Visual Unit Matrix setup (No Code)</div>
+            <table class="employee-list-table" style="margin-bottom: 6px;">
+                <thead>
+                    <tr>
+                        <th>Variable/Item Name</th>
+                        <th style="width: 90px;">Unit Value</th>
+                        <th style="width: 40px; text-align: center;">Rm</th>
+                    </tr>
+                </thead>
+                <tbody id="matrix-editor-table-body"></tbody>
+            </table>
+            <div style="margin-bottom: 14px;">
+                <button class="admin-ctrl-btn adv-btn" style="background: #6366f1; padding: 6px 12px;" onclick="addMatrixRowUI()">➕ Add New Row</button>
+                <button class="admin-ctrl-btn adv-btn" style="background: #10b981; padding: 6px 12px;" onclick="applyVisualMatrixChanges()">💾 Save Matrix Changes</button>
+            </div>
+
             <div class="section-subtitle">⚙️ System Options</div>
             <div style="margin-bottom: 12px;">
                 <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
                     <input type="checkbox" id="hide-metrics-checkbox" onchange="toggleMetricsVisibility()"> Hide Metric Targets Box for Crews
                 </label>
             </div>
-            
-            <label for="json-items-editor" style="font-size:11px; font-weight:bold;">Live Unit Matrix Setup JSON:</label>
-            <textarea id="json-items-editor" class="advanced-textarea" placeholder="Loading items template..."></textarea>
-            <button class="admin-ctrl-btn adv-btn" style="background: #10b981; margin-bottom: 14px;" onclick="applyLiveJsonMatrix()">Update Matrix Scheme</button>
         </div>
 
         <div style="font-size: 12px; font-weight: bold; margin-top: 8px; color: #444;">Saved Final Draft Records (JSONBin Sync):</div>
@@ -612,7 +620,8 @@
             { id: "payton_n", name: "Payton N", locked: false },
             { id: "default", name: "Default / Custom", locked: false }
         ],
-        live_screens: {}
+        live_screens: {},
+        items_matrix: [] // Fallback array checked dynamically on database pulls
     };
     
     let isAdminLoggedIn = false;
@@ -707,6 +716,11 @@
                 }
                 if (!globalCloudData.live_screens) globalCloudData.live_screens = {};
                 if (!globalCloudData.admin_password) globalCloudData.admin_password = "2026";
+                
+                // If items exist in cloud data matrix, populate calculator definitions from server array
+                if (globalCloudData.items_matrix && globalCloudData.items_matrix.length > 0) {
+                    items = globalCloudData.items_matrix;
+                }
 
                 applyGlobalState();
             }
@@ -770,14 +784,21 @@
             pwdInput.value = globalCloudData.admin_password;
         }
         
-        updateProfileDropdownOptions(currentProfile);
+        updateProfileDropdownOptions(previouslySelected => {});
         updateAdminRosterTableUI();
         updateAdminDraftsUI();
+        
+        // Re-render item fields layout structure if admin configuration panel is closed
+        if (document.getElementById('admin-panel').style.display !== 'block') {
+            buildItemCards();
+            calculateEverything();
+        }
     }
 
-    function updateProfileDropdownOptions(previouslySelected) {
+    function updateProfileDropdownOptions() {
         const selectEl = document.getElementById('profile-select');
         const monitorSelect = document.getElementById('monitor-select');
+        const previouslySelected = selectEl.value;
         const currentMonitorVal = monitorSelect.value;
         
         selectEl.innerHTML = '';
@@ -839,6 +860,83 @@
             tr.appendChild(tdActions);
             tbody.appendChild(tr);
         });
+    }
+
+    /* 🛠️ New Visual No-Code Variable Matrix Editor System Logic */
+    function renderVisualMatrixTableUI() {
+        const tbody = document.getElementById('matrix-editor-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+
+        items.forEach((item, index) => {
+            const tr = document.createElement('tr');
+
+            // Name Input box column
+            const tdName = document.createElement('td');
+            const nameInp = document.createElement('input');
+            nameInp.type = 'text';
+            nameInp.className = 'matrix-table-input';
+            nameInp.value = item.name;
+            nameInp.id = `matrix-name-${index}`;
+            tdName.appendChild(nameInp);
+
+            // Value box column
+            const tdVal = document.createElement('td');
+            const valInp = document.createElement('input');
+            valInp.type = 'number';
+            valInp.step = '0.01';
+            valInp.className = 'matrix-table-input';
+            valInp.value = item.val;
+            valInp.id = `matrix-val-${index}`;
+            tdVal.appendChild(valInp);
+
+            // Row remove column
+            const tdRm = document.createElement('td');
+            tdRm.style.textAlign = 'center';
+            const rmBtn = document.createElement('button');
+            rmBtn.style.cssText = "background:none; border:none; color:#ef4444; cursor:pointer; font-weight:bold; font-size:14px;";
+            rmBtn.textContent = '❌';
+            rmBtn.onclick = () => {
+                items.splice(index, 1);
+                renderVisualMatrixTableUI();
+            };
+            tdRm.appendChild(rmBtn);
+
+            tr.appendChild(tdName);
+            tr.appendChild(tdVal);
+            tr.appendChild(tdRm);
+            tbody.appendChild(tr);
+        });
+    }
+
+    function addMatrixRowUI() {
+        // Read current state configurations from fields to keep adjustments buffered
+        syncItemsArrayFromUI();
+        items.push({ name: "New Unit Item", val: 0.00 });
+        renderVisualMatrixTableUI();
+    }
+
+    function syncItemsArrayFromUI() {
+        items.forEach((item, index) => {
+            const nameEl = document.getElementById(`matrix-name-${index}`);
+            const valEl = document.getElementById(`matrix-val-${index}`);
+            if (nameEl && valEl) {
+                item.name = nameEl.value.trim() || `Item ${index + 1}`;
+                item.val = parseFloat(valEl.value) || 0.00;
+            }
+        });
+    }
+
+    async function applyVisualMatrixChanges() {
+        syncItemsArrayFromUI();
+        
+        // Push modifications into global dataset
+        globalCloudData.items_matrix = items;
+        
+        await pushGlobalData();
+        buildItemCards();
+        calculateEverything();
+        alert("Calculator workspace checklist updated and deployed across all crew panels successfully!");
     }
 
     let currentGrandTotal = 0;
@@ -1114,10 +1212,9 @@
             document.getElementById('main-app-container').style.display = 'block';
             document.getElementById('admin-panel').style.display = 'block';
             document.getElementById('login-nav-link').style.display = 'none';
-            document.getElementById('json-items-editor').value = JSON.stringify(items, null, 2);
             
-            // Core UI Force: Instantly populates the forms upon successful entry
             applyGlobalState();
+            renderVisualMatrixTableUI(); // Build user-friendly list UI automatically
         } else if (passPrompt !== null) {
             alert("Incorrect password access denied.");
         }
@@ -1241,22 +1338,6 @@
         globalCloudData.hide_metrics = document.getElementById('hide-metrics-checkbox').checked;
         await pushGlobalData();
         applyGlobalState();
-    }
-
-    function applyLiveJsonMatrix() {
-        try {
-            const parsed = JSON.parse(document.getElementById('json-items-editor').value);
-            if (Array.isArray(parsed)) {
-                items = parsed;
-                buildItemCards();
-                calculateEverything();
-                alert("Unit list matrix configuration updated successfully!");
-            } else {
-                alert("Error: Input data must be a JSON Array [ {...}, {...} ]");
-            }
-        } catch (e) {
-            alert("Invalid JSON Syntax. Please fix configuration formatting details.");
-        }
     }
 
     function updateAdminDraftsUI() {
