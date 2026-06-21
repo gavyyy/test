@@ -24,6 +24,51 @@
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
+        /* Tap-to-Login Portal Layout */
+        #login-gateway-portal {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 16px;
+            text-align: center;
+        }
+        .login-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #111;
+        }
+        .login-subtitle {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+        .profile-tap-btn {
+            width: 100%;
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 16px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.15s ease;
+        }
+        .profile-tap-btn:active {
+            background-color: #e9f5fe;
+            border-color: #0076d6;
+            color: #0076d6;
+        }
+        #main-app-container {
+            display: none;
+        }
         h2 {
             margin: 4px 0 8px 0;
             font-size: 22px;
@@ -271,7 +316,7 @@
             background-color: #545b62;
         }
 
-        /* Admin Dashboard UI Config Styles */
+        /* Admin Dashboard Layout Config Styles */
         .admin-dashboard-box {
             display: none;
             background: #fff4e5;
@@ -311,7 +356,7 @@
         }
         .draft-item:last-child { border-bottom: none; }
 
-        /* Lockscreen Cover Panel Overlay styles */
+        /* Lockscreen Panel Cover Overlay styles */
         #lock-overlay {
             display: none;
             position: fixed;
@@ -420,7 +465,6 @@
         .btn-yellow { background: #ffc107; color: black; }
         .btn-red { background: #dc3545; color: white; }
         
-        /* Fixed overlay layout style block configurations */
         .frozen-screen-msg {
             display: none;
             position: fixed;
@@ -447,11 +491,10 @@
 </head>
 <body>
 
-<!-- Local Screen Freeze Shield with dedicated Administrator unlock button to prevent lockouts -->
 <div id="local-freeze-screen" class="frozen-screen-msg">
     <span>❄️ This Screen Profile has been Frozen</span>
     <p style="font-size: 14px; color:#666; margin: 8px 0 24px 0; font-weight: normal; max-width: 300px;">
-        This interface tracking view has been suspended remotely by an admin.
+        This tracking interface has been suspended remotely by an administrator.
     </p>
     <button class="admin-toggle-btn" style="background-color: #222; color: #fff; border: none;" onclick="triggerAdminLogin(false)">
         🔑 Admin Emergency Login
@@ -464,13 +507,22 @@
     <button class="bypass-btn" onclick="triggerAdminLogin(true)">Admin Override Login</button>
 </div>
 
+<div class="container" id="login-gateway-portal">
+    <div class="login-title">DOM/SC Platform Gateway</div>
+    <div class="login-subtitle">Select your tracking node profile below to authenticate</div>
+    
+    <div id="login-profile-buttons-list" style="width: 100%; max-width: 400px;">
+        <p style="color:#777; font-style:italic;">Configuring network matrix routing streams...</p>
+    </div>
+    <div style="margin-top:20px; font-size:11px; color:#888;">Your current public IP connection state is resolved securely on button tap.</div>
+</div>
+
 <div class="container" id="main-app-container">
     <h2>DOM/SC Norm 2026</h2>
     <div class="admin-nav-bar">
         <button class="admin-toggle-btn" id="login-nav-link" onclick="triggerAdminLogin(false)">🔑 Admin Console</button>
     </div>
 
-    <!-- ADVANCED ADMIN CONTROLS HUB -->
     <div class="admin-dashboard-box" id="admin-panel">
         <span style="font-weight: bold; color: #d97706; font-size: 15px;">⚙️ Admin Controls Active</span>
         <div style="margin: 8px 0;">
@@ -479,7 +531,6 @@
             <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Logout</button>
         </div>
 
-        <!-- Real-time Monitor Sub-section -->
         <div class="admin-sub-section">
             <div class="admin-sub-title">📡 Live Real-Time Activity Monitor</div>
             <div id="live-activity-stream" style="font-family: monospace; font-size: 11px; background:#222; color:#0f0; padding: 6px; border-radius:4px; max-height:80px; overflow-y:auto;">
@@ -487,11 +538,9 @@
             </div>
         </div>
 
-        <!-- ADMIN CONTROLS SECTION (INTEGRATED) -->
         <section id="admin-controls-section" class="admin-sub-section" style="border: 1px solid #333; padding: 12px; border-radius: 8px; background-color: #fff;">
             <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #111;">System Admin Modules</h4>
             
-            <!-- Change Password Sub-section -->
             <div class="admin-action-box" style="margin-bottom: 12px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
                 <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">Change Admin Password</span>
                 <form id="change-password-form" onsubmit="event.preventDefault(); adminChangePassword();">
@@ -502,7 +551,6 @@
                 </form>
             </div>
 
-            <!-- Manage Individual Data Sub-section -->
             <div class="admin-action-box" style="padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
                 <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 4px;">Manage Individual Data</span>
                 <p style="font-size: 11px; color: #666; margin: 0 0 8px 0;">Edit details or delete specific data records below:</p>
@@ -516,8 +564,7 @@
                             </tr>
                         </thead>
                         <tbody id="admin-people-registry">
-                            <!-- Populated dynamically via JS -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
                 
@@ -532,7 +579,6 @@
             </div>
         </section>
 
-        <!-- Table Variables Configurations -->
         <div class="admin-sub-section">
             <div class="admin-sub-title">📈 Adjust Component Unit Variables</div>
             <div style="display:flex; gap:4px; margin-bottom:8px;">
@@ -559,10 +605,7 @@
         <div class="input-group">
             <label for="profile-select">Active Profile</label>
             <select id="profile-select" class="select-input" onchange="switchProfile()">
-                <option value="robert_s">Robert S</option>
-                <option value="payton_n">Payton N</option>
-                <option value="default">Default / Custom</option>
-            </select>
+                </select>
         </div>
         <div class="input-group">
             <label for="foreman-name">Foreman Name</label>
@@ -606,7 +649,6 @@
         </div>
     </div>
 
-    <!-- PROFILE INDIVIDUAL ARCHIVED ARCHIVE HOOK -->
     <div class="saved-files-section">
         <span style="font-weight:bold; font-size:13px; color:#1e7e34;">📁 My Saved Files Repository</span>
         <p style="font-size:11px; margin:3px 0 8px 0; color:#555;">Review your logged historical reports saved locally to this active profile.</p>
@@ -637,8 +679,9 @@
     const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
 
     const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-    let globalCloudData = { is_locked: false, drafts: [], admin_pass: "Energy2025", frozen_users: {}, variables: {} };
+    let globalCloudData = { is_locked: false, drafts: [], admin_pass: "2026", frozen_users: {}, variables: {}, active_login_ips: {} };
     let isAdminLoggedIn = false;
+    let localClientIP = "0.0.0.0";
 
     let items = [
         { name: "Visual", val: 0.30 },
@@ -660,6 +703,18 @@
         { name: "Default / Custom", val: "default" }
     ];
 
+    async function resolveClientPublicIP() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            if(response.ok) {
+                const data = await response.json();
+                localClientIP = data.ip || "0.0.0.0";
+            }
+        } catch(e) {
+            console.error("IP Resolution Node offline: ", e);
+        }
+    }
+
     async function pullGlobalData() {
         if (!BIN_ID || BIN_ID.includes("YOUR_")) return;
         try {
@@ -670,10 +725,11 @@
             if (res.ok) {
                 const responseData = await res.json();
                 
-                if(!responseData.record.admin_pass) responseData.record.admin_pass = "Energy2025";
+                if(!responseData.record.admin_pass) responseData.record.admin_pass = "2026";
                 if(!responseData.record.frozen_users) responseData.record.frozen_users = {};
                 if(!responseData.record.variables) responseData.record.variables = {};
                 if(!responseData.record.profiles) responseData.record.profiles = profilesRegistry;
+                if(!responseData.record.active_login_ips) responseData.record.active_login_ips = {};
 
                 globalCloudData = responseData.record;
                 applyGlobalState();
@@ -697,6 +753,28 @@
         } catch (e) {
             console.error("Upload error: ", e);
         }
+    }
+
+    // Fixed: One-tap profile selection seamlessly grabs IP and skips password check strings
+    async function processInstantProfileTap(profileVal) {
+        await resolveClientPublicIP();
+        await pullGlobalData();
+
+        if(!globalCloudData.active_login_ips) globalCloudData.active_login_ips = {};
+        globalCloudData.active_login_ips[profileVal] = {
+            ip: localClientIP,
+            timestamp: new Date().toLocaleString()
+        };
+
+        await pushGlobalData();
+
+        document.getElementById('profile-select').value = profileVal;
+        localStorage.setItem('dom_sc_active_profile', profileVal);
+
+        document.getElementById('login-gateway-portal').style.display = "none";
+        document.getElementById('main-app-container').style.display = "block";
+
+        switchProfile();
     }
 
     function applyGlobalState() {
@@ -728,10 +806,23 @@
 
         if (globalCloudData.profiles) {
             profilesRegistry = globalCloudData.profiles;
+            
+            // Sync dynamic calculator options selector
             const pSelect = document.getElementById('profile-select');
             const currentSel = pSelect.value;
             pSelect.innerHTML = profilesRegistry.map(p => `<option value="${p.val}">${p.name}</option>`).join('');
             pSelect.value = currentSel;
+
+            // Sync Gateway button interface matrix layout dynamically
+            const buttonListEl = document.getElementById('login-profile-buttons-list');
+            if(buttonListEl) {
+                buttonListEl.innerHTML = profilesRegistry.map(p => {
+                    return `<button class="profile-tap-btn" onclick="processInstantProfileTap('${p.val}')">
+                        <span>👤 ${p.name}</span>
+                        <span style="color:#0076d6; font-size:12px;">Tap to enter →</span>
+                    </button>`;
+                }).join('');
+            }
         }
 
         const lockBtn = document.getElementById('lock-toggle-btn');
@@ -910,7 +1001,7 @@
     function updateRemainingDisplay(elementId, value) {
         const el = document.getElementById(elementId);
         if (value <= 0) {
-            el.textContent = '✅ MET (+' + Math.abs(value).toFixed(2) + ')';f
+            el.textContent = '✅ MET (+' + Math.abs(value).toFixed(2) + ')';
             el.className = "metric-value remaining-met";
         } else {
             el.textContent = '⏳ ' + value.toFixed(2) + ' left';
@@ -1079,16 +1170,16 @@
 
     function triggerAdminLogin(isBypassOverride) {
         const passPrompt = prompt("Enter Administrator Password:");
-        const correctPass = globalCloudData.admin_pass || "Energy2025";
+        const correctPass = globalCloudData.admin_pass || "2026";
         
         if (passPrompt === correctPass) {
             isAdminLoggedIn = true;
             document.getElementById('lock-overlay').style.display = 'none';
+            document.getElementById('login-gateway-portal').style.display = "none";
             document.getElementById('main-app-container').style.display = 'block';
             document.getElementById('admin-panel').style.display = 'block';
             document.getElementById('login-nav-link').style.display = 'none';
             
-            // Instantly remove freeze layer upon layout level unlock code check matching
             document.getElementById('local-freeze-screen').style.display = "none";
             
             updateAdminDraftsUI();
@@ -1177,9 +1268,13 @@
         
         regDiv.innerHTML = profilesRegistry.map(function(p) {
             const isFrozen = globalCloudData.frozen_users && globalCloudData.frozen_users[p.val] === true;
+            const logInfo = globalCloudData.active_login_ips && globalCloudData.active_login_ips[p.val] ? globalCloudData.active_login_ips[p.val] : null;
+            const ipDisplay = logInfo ? `<span style="font-size:10px; color:#28a745; display:block;">📍 IP: ${logInfo.ip}</span>` : `<span style="font-size:10px; color:#aaa; display:block;">📍 IP: Offline</span>`;
+            
             return `<tr>
                 <td style="padding: 6px; border: 1px solid #ddd;">
                     <b>${p.name}</b><br><span style="font-size:10px; color:#666;">ID: ${p.val}</span>
+                    ${ipDisplay}
                 </td>
                 <td style="padding: 6px; border: 1px solid #ddd;">
                     <div style="display:flex; gap:2px; flex-wrap:wrap;">
@@ -1220,10 +1315,15 @@
         }).join('');
     }
 
-    renderInitialItemCards();
-    loadSavedData();
-    calculateEverything();
+    // Startup Initialization Sequence
+    (async function initSystemLayout() {
+        await resolveClientPublicIP();
+        renderInitialItemCards();
+        await pullGlobalData();
+        calculateEverything();
+    })();
     
+    // Remote cloud pool ping background interval loop (4 seconds)
     setInterval(function() {
         pullGlobalData();
         const streamMsg = localStorage.getItem("dom_sc_realtime_stream");
