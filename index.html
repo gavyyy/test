@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026</title>
+    <title>DOM/SC Norm 2026 Pro</title>
     <style>
         * {
             box-sizing: border-box;
@@ -17,12 +17,27 @@
             padding: 12px;
         }
         .container {
-            max-width: 500px;
+            max-width: 600px;
             margin: 0 auto;
             background: #ffffff;
             padding: 16px;
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: relative;
+        }
+        #freeze-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            z-index: 9999;
+            border-radius: 16px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
         }
         h2 {
             margin: 4px 0 8px 0;
@@ -48,8 +63,6 @@
             border-radius: 20px;
             margin-top: 2px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            position: relative;
-            z-index: 10;
             text-decoration: none;
         }
         .admin-toggle-btn:active {
@@ -114,13 +127,6 @@
         .time-row .input-group {
             flex: 1;
         }
-        .time-note {
-            font-size: 12px;
-            color: #666;
-            font-style: italic;
-            margin-top: 2px;
-            padding-left: 2px;
-        }
         .text-input, .select-input {
             width: 100%;
             padding: 10px;
@@ -128,11 +134,6 @@
             border-radius: 8px;
             font-size: 16px;
             background: #fff;
-            transition: border-color 0.2s;
-        }
-        .text-input:focus, .select-input:focus {
-            border-color: #0076d6;
-            outline: none;
         }
         .item-card {
             display: flex;
@@ -157,11 +158,6 @@
             color: #666;
             margin-top: 2px;
         }
-        .item-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
         .qty-input {
             width: 65px;
             padding: 8px;
@@ -170,10 +166,6 @@
             font-size: 16px;
             text-align: center;
             font-weight: bold;
-        }
-        .qty-input:focus {
-            border-color: #0076d6;
-            outline: none;
         }
         .item-total {
             width: 55px;
@@ -229,12 +221,9 @@
             font-weight: bold;
             margin-top: 4px;
         }
-        .remaining-positive {
-            color: #dc3545;
-        }
-        .remaining-met {
-            color: #28a745;
-        }
+        .remaining-positive { color: #dc3545; }
+        .remaining-met { color: #28a745; }
+        
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -249,11 +238,6 @@
             font-weight: bold;
             border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 3px 6px rgba(40,167,69,0.2);
-            transition: background 0.1s;
-        }
-        .save-btn:active {
-            background-color: #1e7e34;
         }
         .clear-btn {
             flex: 1;
@@ -265,13 +249,9 @@
             font-weight: bold;
             border-radius: 10px;
             cursor: pointer;
-            transition: background 0.1s;
         }
-        .clear-btn:active {
-            background-color: #545b62;
-        }
-
-        /* Admin Dashboard UI Config Styles */
+        
+        /* Advanced Admin Controls Styling */
         .admin-dashboard-box {
             display: none;
             background: #fff4e5;
@@ -280,67 +260,32 @@
             border-radius: 12px;
             margin-bottom: 16px;
         }
+        .admin-section {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+        }
+        .admin-section h4 {
+            margin: 0 0 8px 0;
+            color: #d97706;
+            font-size: 14px;
+        }
         .admin-ctrl-btn {
             background: #dc3545;
             color: white;
             border: none;
-            padding: 10px 14px;
+            padding: 8px 12px;
             font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            margin: 4px 4px 4px 0;
-        }
-        .admin-ctrl-btn.lock-btn { background: #333; }
-        .admin-ctrl-btn.logout-btn { background: #6c757d; }
-        .drafts-view {
-            margin-top: 10px;
-            max-height: 250px;
-            overflow-y: auto;
-            text-align: left;
-            background: #fff;
-            padding: 8px;
             border-radius: 6px;
-            border: 1px solid #ddd;
-        }
-        .draft-item {
-            font-size: 12px;
-            border-bottom: 1px solid #eee;
-            padding: 6px 0;
-            color: #333;
-        }
-        .draft-item:last-child { border-bottom: none; }
-
-        /* Lockscreen Cover Panel Overlay styles */
-        #lock-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #11141a;
-            color: #fff;
-            z-index: 5000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-            text-align: center;
-        }
-        .bypass-btn {
-            background: #0076d6;
-            border: 1px solid #cfe4ff;
-            color: #fff;
-            padding: 14px 28px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 24px;
-            margin-top: 24px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            font-size: 12px;
+            margin: 2px;
         }
-        .bypass-btn:active {
-            background-color: #0056b3;
-        }
-
+        .admin-ctrl-btn.accent { background: #0076d6; }
+        .admin-ctrl-btn.dark { background: #333; }
+        
         .modal-overlay {
             display: none;
             position: fixed;
@@ -357,14 +302,7 @@
             border-radius: 16px;
             max-width: 400px;
             width: 100%;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
             text-align: center;
-        }
-        .modal-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 16px;
-            color: #111;
         }
         .modal-buttons {
             display: flex;
@@ -383,31 +321,84 @@
         }
         .modal-btn-yes { background-color: #0076d6; color: white; }
         .modal-btn-no { background-color: #6c757d; color: white; }
+        
+        #lock-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #11141a;
+            color: #fff;
+            z-index: 5000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .bypass-btn {
+            background: #0076d6;
+            color: #fff;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 24px;
+            border: none;
+            margin-top: 24px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
 <div id="lock-overlay">
     <h1 style="font-size: 28px; margin-bottom: 8px;">🔒 App Locked</h1>
-    <p style="color: #aaa; max-width: 300px; margin: 0 auto;">This application platform has been locked down by an administrator.</p>
+    <p style="color: #aaa;">This platform has been securely locked by an administrator.</p>
     <button class="bypass-btn" onclick="triggerAdminLogin()">Admin Override Login</button>
 </div>
 
 <div class="container" id="main-app-container">
-    <h2>DOM/SC Norm 2026</h2>
+    <div id="freeze-overlay">❄️ SCREEN FROZEN BY ADMIN</div>
+
+    <h2>DOM/SC Norm 2026 Pro</h2>
     <div class="admin-nav-bar">
         <button class="admin-toggle-btn" id="login-nav-link" onclick="triggerAdminLogin()">🔑 Admin Console</button>
     </div>
 
     <div class="admin-dashboard-box" id="admin-panel">
-        <span style="font-weight: bold; color: #d97706; font-size: 15px;">⚙️ Admin Controls Active</span>
-        <div style="margin: 8px 0;">
-            <button id="lock-toggle-btn" class="admin-ctrl-btn lock-btn" onclick="adminToggleLock()">🔒 Lock Page</button>
-            <button class="admin-ctrl-btn" onclick="adminClearSavedDrafts()">🗑️ Terminate Crew Data</button>
-            <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Logout</button>
+        <span style="font-weight: bold; color: #d97706; font-size: 15px;">⚙️ Advanced Admin Controls Active</span>
+        
+        <div class="admin-section">
+            <h4>Security Config</h4>
+            <input type="password" id="new-admin-pass" class="text-input" placeholder="New Admin Password" style="font-size:12px; padding:6px; margin-bottom:6px;">
+            <button class="admin-ctrl-btn accent" onclick="changeAdminPassword()">Update Password</button>
+            <button id="lock-toggle-btn" class="admin-ctrl-btn dark" onclick="adminToggleLock()">🔒 Lock Page</button>
+            <button class="admin-ctrl-btn" onclick="adminLogout()">Logout</button>
         </div>
-        <div style="font-size: 12px; font-weight: bold; margin-top: 8px; color: #444;">Saved Final Draft Records (JSONBin Sync):</div>
-        <div class="drafts-view" id="admin-drafts-list"></div>
+
+        <div class="admin-section">
+            <h4>Live Feed & Screen Freeze Control</h4>
+            <select id="monitor-user-select" class="select-input" style="font-size:13px; padding:6px;" onchange="updateRealTimeMonitor()">
+            </select>
+            <div id="realtime-data-display" style="font-size:12px; margin:8px 0; background:#fff3cd; padding:6px; border-radius:4px;">
+                Selecting User...
+            </div>
+            <button id="freeze-btn" class="admin-ctrl-btn dark" onclick="toggleFreezeUser()">🥶 Freeze Selected Screen</button>
+        </div>
+
+        <div class="admin-section">
+            <h4>Manage Profiles</h4>
+            <input type="text" id="new-profile-name" class="text-input" placeholder="Name" style="font-size:12px; padding:6px; margin-bottom:4px;">
+            <input type="text" id="new-profile-id" class="text-input" placeholder="unique_id" style="font-size:12px; padding:6px; margin-bottom:6px;">
+            <button class="admin-ctrl-btn accent" onclick="addNewProfile()">➕ Add Profile</button>
+            <button class="admin-ctrl-btn" onclick="deleteCurrentProfile()">🗑️ Delete Selected Profile</button>
+        </div>
+
+        <div class="admin-section">
+            <h4>Manage Table Variables</h4>
+            <input type="text" id="new-var-name" class="text-input" placeholder="Item Name" style="font-size:12px; padding:6px; margin-bottom:4px;">
+            <input type="number" step="0.01" id="new-var-val" class="text-input" placeholder="Unit Value" style="font-size:12px; padding:6px; margin-bottom:6px;">
+            <button class="admin-ctrl-btn accent" onclick="addTableVariable()">➕ Add Variable</button>
+            <button class="admin-ctrl-btn" onclick="clearTableVariables()">Clear Variables</button>
+        </div>
     </div>
     
     <div class="crew-selection">
@@ -415,17 +406,14 @@
             <input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything()"> 1 Man
         </label>
         <label class="crew-option">
-            <input type="radio" name="crew" value="2" id="crew-2" onchange="changeCrewType()"> 2 Man
+            <input type="radio" name="crew" value="2" id="crew-2" onchange="calculateEverything()"> 2 Man
         </label>
     </div>
 
     <div class="crew-details">
         <div class="input-group">
-            <label for="profile-select">Active Profile</label>
+            <label for="profile-select">Active Profile Selection</label>
             <select id="profile-select" class="select-input" onchange="switchProfile()">
-                <option value="robert_s">Robert S</option>
-                <option value="payton_n">Payton N</option>
-                <option value="default">Default / Custom</option>
             </select>
         </div>
         <div class="input-group">
@@ -446,7 +434,6 @@
                 <input type="time" id="end-time" class="text-input" onchange="saveFields()">
             </div>
         </div>
-        <div class="time-note">💡 hours & lunch deductions are processed during final save</div>
     </div>
 
     <div id="item-cards-container"></div>
@@ -472,7 +459,7 @@
 
     <div class="action-buttons">
         <button class="clear-btn" onclick="clearForm()">🧹 Clear</button>
-        <button class="save-btn" onclick="showLunchModal()">💾 Save Daily Log File</button>
+        <button class="save-btn" onclick="showLunchModal()">💾 Save Profile Logs</button>
     </div>
 </div>
 
@@ -487,17 +474,39 @@
 </div>
 
 <script>
-    // ========================================================
-    // PASTE YOUR JSONBIN CREDENTIALS HERE TO RUN GLOBAL SYNC:
-    // ========================================================
+    // System Keys & Dynamic Memory Management Structures
     const BIN_ID = "6a372915f5f4af5e29165e77";
     const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
-
     const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-    let globalCloudData = { is_locked: false, drafts: [] };
-    let isAdminLoggedIn = false;
+    
+    let globalCloudData = { 
+        is_locked: false, 
+        admin_password: "Energy2025", 
+        frozen_users: {},
+        items: [
+            { name: "Visual", val: 0.30 },
+            { name: "Fume per rod", val: 0.18 },
+            { name: "Ground wire", val: 0.55 },
+            { name: "Guy marker", val: 0.17 },
+            { name: "Pole number", val: 0.14 },
+            { name: "Riser ground", val: 0.44 },
+            { name: "U guard", val: 0.46 },
+            { name: "Pad mount", val: 0.27 },
+            { name: "Warning sticker", val: 0.02 },
+            { name: "Bonding", val: 0.44 },
+            { name: "Pad mount tag ID", val: 0.27 }
+        ],
+        profiles: [
+            { name: "Robert S", id: "robert_s" },
+            { name: "Payton N", id: "payton_n" },
+            { name: "Default / Custom", id: "default" }
+        ],
+        live_telemetry: {}
+    };
 
-    // Fetch call configured for JSONbin data structures
+    let isAdminLoggedIn = false;
+    let currentGrandTotal = 0;
+
     async function pullGlobalData() {
         if (!BIN_ID || BIN_ID.includes("YOUR_")) return;
         try {
@@ -510,9 +519,7 @@
                 globalCloudData = responseData.record;
                 applyGlobalState();
             }
-        } catch (e) {
-            console.log("Sync loop reconnecting...");
-        }
+        } catch (e) { console.log("Reconnecting data loop..."); }
     }
 
     async function pushGlobalData() {
@@ -520,407 +527,107 @@
         try {
             await fetch(SYNC_URL, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Master-Key": MASTER_KEY
-                },
+                headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
                 body: JSON.stringify(globalCloudData)
             });
-        } catch (e) {
-            console.error("Upload error: ", e);
-        }
+        } catch (e) { console.error("Sync Error: ", e); }
     }
 
     function applyGlobalState() {
+        const activeProfile = document.getElementById('profile-select').value || 'default';
+        
+        // Handle Global Freeze Check
+        if (globalCloudData.frozen_users && globalCloudData.frozen_users[activeProfile]) {
+            document.getElementById('freeze-overlay').style.display = 'flex';
+        } else {
+            document.getElementById('freeze-overlay').style.display = 'none';
+        }
+
+        // Handle Master App Lock Status
         if (globalCloudData.is_locked && !isAdminLoggedIn) {
             document.getElementById('lock-overlay').style.display = 'flex';
             document.getElementById('main-app-container').style.display = 'none';
         } else {
-            if (!globalCloudData.is_locked) {
-                document.getElementById('lock-overlay').style.display = 'none';
-                document.getElementById('main-app-container').style.display = 'block';
-            }
+            document.getElementById('lock-overlay').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
         }
 
         const lockBtn = document.getElementById('lock-toggle-btn');
-        if (lockBtn) {
-            lockBtn.textContent = globalCloudData.is_locked ? "🔓 Unlock Page" : "🔒 Lock Page";
-        }
-        updateAdminDraftsUI();
+        if (lockBtn) lockBtn.textContent = globalCloudData.is_locked ? "🔓 Unlock Page" : "🔒 Lock Page";
+        
+        renderDropdowns();
+        renderItemTable();
+        updateRealTimeMonitor();
     }
 
-    const items = [
-        { name: "Visual", val: 0.30 },
-        { name: "Fume per rod", val: 0.18 },
-        { name: "Ground wire", val: 0.55 },
-        { name: "Guy marker", val: 0.17 },
-        { name: "Pole number", val: 0.14 },
-        { name: "Riser ground", val: 0.44 },
-        { name: "U guard", val: 0.46 },
-        { name: "Pad mount", val: 0.27 },
-        { name: "Warning sticker", val: 0.02 },
-        { name: "Bonding", val: 0.44 },
-        { name: "Pad mount tag ID", val: 0.27 }
-    ];
+    function renderDropdowns() {
+        const pSelect = document.getElementById('profile-select');
+        const mSelect = document.getElementById('monitor-user-select');
+        const currentPVal = pSelect.value;
+        const currentMVal = mSelect.value;
 
-    const container = document.getElementById('item-cards-container');
-    
-    items.forEach(function(item, index) {
-        const card = document.createElement('div');
-        card.className = 'item-card';
+        pSelect.innerHTML = '';
+        mSelect.innerHTML = '';
 
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'item-info';
+        globalCloudData.profiles.forEach(p => {
+            let opt1 = document.createElement('option');
+            opt1.value = p.id; opt1.textContent = p.name;
+            pSelect.appendChild(opt1);
 
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'item-name';
-        nameDiv.textContent = item.name;
+            let opt2 = document.createElement('option');
+            opt2.value = p.id; opt2.textContent = p.name;
+            mSelect.appendChild(opt2);
+        });
 
-        const valDiv = document.createElement('div');
-        valDiv.className = 'item-val';
-        valDiv.textContent = "Unit Value: " + item.val.toFixed(2);
+        if(currentPVal) pSelect.value = currentPVal;
+        if(currentMVal) mSelect.value = currentMVal;
+    }
 
-        infoDiv.appendChild(nameDiv);
-        infoDiv.appendChild(valDiv);
+    function renderItemTable() {
+        const container = document.getElementById('item-cards-container');
+        const prefix = getProfilePrefix();
+        container.innerHTML = '';
 
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'item-actions';
-
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.className = 'qty-input';
-        input.id = 'qty-' + index;
-        input.min = '0';
-        input.setAttribute('pattern', '[0-9]*');
-        input.placeholder = '0';
-        input.oninput = calculateEverything;
-
-        const totalDiv = document.createElement('div');
-        totalDiv.className = 'item-total';
-        totalDiv.id = 'total-' + index;
-        totalDiv.textContent = '0.00';
-
-        actionsDiv.appendChild(input);
-        actionsDiv.appendChild(totalDiv);
-
-        card.appendChild(infoDiv);
-        card.appendChild(actionsDiv);
-        
-        container.appendChild(card);
-    });
-
-    let currentGrandTotal = 0;
-    let currentActiveCrew = "1 Man";
+        globalCloudData.items.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-val">Unit Value: ${item.val.toFixed(2)}</div>
+                </div>
+                <div class="item-actions">
+                    <input type="number" class="qty-input" id="qty-${index}" min="0" placeholder="0" oninput="calculateEverything()">
+                    <div class="item-total" id="total-${index}">0.00</div>
+                </div>
+            `;
+            container.appendChild(card);
+            
+            const savedQty = localStorage.getItem(prefix + 'qty_' + index);
+            if(savedQty !== null) document.getElementById('qty-' + index).value = savedQty;
+        });
+    }
 
     function getProfilePrefix() {
-        const profile = document.getElementById('profile-select').value;
-        return profile === 'default' ? 'dom_sc_' : 'dom_sc_' + profile + '_';
+        const profile = document.getElementById('profile-select').value || 'default';
+        return 'dom_sc_' + profile + '_';
     }
 
     function saveFields() {
         const prefix = getProfilePrefix();
+        const activeProfile = document.getElementById('profile-select').value || 'default';
+        
         localStorage.setItem(prefix + 'foreman', document.getElementById('foreman-name').value);
         localStorage.setItem(prefix + 'member', document.getElementById('crew-member-name').value);
         localStorage.setItem(prefix + 'start_time', document.getElementById('start-time').value);
         localStorage.setItem(prefix + 'end_time', document.getElementById('end-time').value);
-    }
 
-    function switchProfile() {
-        const profile = document.getElementById('profile-select').value;
-        localStorage.setItem('dom_sc_active_profile', profile);
-        loadSavedData();
-        calculateEverything();
-    }
-
-    function changeCrewType() {
-        calculateEverything();
-    }
-
-    function loadSavedData() {
-        pullGlobalData();
-
-        const profile = localStorage.getItem('dom_sc_active_profile') || 'robert_s';
-        document.getElementById('profile-select').value = profile;
-
-        const prefix = getProfilePrefix();
-
-        const savedCrew = localStorage.getItem(prefix + 'crew');
-        if (savedCrew === "2") {
-            document.getElementById('crew-2').checked = true;
-        } else {
-            document.getElementById('crew-1').checked = true;
-        }
-
-        if (profile === 'robert_s' && !localStorage.getItem(prefix + 'foreman')) {
-            document.getElementById('foreman-name').value = "Robert S";
-        } else if (profile === 'payton_n' && !localStorage.getItem(prefix + 'foreman')) {
-            document.getElementById('foreman-name').value = "Payton N";
-        } else {
-            document.getElementById('foreman-name').value = localStorage.getItem(prefix + 'foreman') || "";
-        }
-
-        document.getElementById('crew-member-name').value = localStorage.getItem(prefix + 'member') || "";
-        document.getElementById('start-time').value = localStorage.getItem(prefix + 'start_time') || "";
-        document.getElementById('end-time').value = localStorage.getItem(prefix + 'end_time') || "";
-
-        items.forEach(function(item, index) {
-            const savedQty = localStorage.getItem(prefix + 'qty_' + index);
-            document.getElementById('qty-' + index).value = savedQty !== null ? savedQty : "";
-        });
-        
-        saveFields();
-    }
-
-    function calculateEverything() {
-        currentGrandTotal = 0;
-        
-        const checkedCrewInput = document.querySelector('input[name="crew"]:checked');
-        const crewValue = checkedCrewInput ? checkedCrewInput.value : "1";
-        
-        const prefix = getProfilePrefix();
-        localStorage.setItem(prefix + 'crew', crewValue);
-
-        items.forEach(function(item, index) {
-            const qtyElement = document.getElementById('qty-' + index);
-            const qtyStr = qtyElement.value;
-            
-            localStorage.setItem(prefix + 'qty_' + index, qtyStr);
-
-            const qty = parseInt(qtyStr) || 0;
-            const lineTotal = qty * item.val;
-            currentGrandTotal += lineTotal;
-            document.getElementById('total-' + index).textContent = lineTotal.toFixed(2);
-        });
-
-        document.getElementById('grand-total').textContent = currentGrandTotal.toFixed(2);
-
-        const isOneMan = crewValue === "1";
-        currentActiveCrew = isOneMan ? "1 Man" : "2 Man";
-        
-        const crewMemberField = document.getElementById('crew-member-container');
-        if (isOneMan) {
-            crewMemberField.style.display = 'none';
-        } else {
-            crewMemberField.style.display = 'flex';
-        }
-        
-        let target8 = isOneMan ? 26 : 32.5;
-        let target10 = isOneMan ? 32.5 : 39;
-
-        document.getElementById('target-8-val').textContent = target8.toFixed(2);
-        document.getElementById('target-10-val').textContent = target10.toFixed(2);
-
-        updateRemainingDisplay('rem-8hr', target8 - currentGrandTotal);
-        updateRemainingDisplay('rem-10hr', target10 - currentGrandTotal);
-    }
-
-    function updateRemainingDisplay(elementId, value) {
-        const el = document.getElementById(elementId);
-        if (value <= 0) {
-            el.textContent = '✅ MET (+' + Math.abs(value).toFixed(2) + ')';
-            el.className = "metric-value remaining-met";
-        } else {
-            el.textContent = '⏳ ' + value.toFixed(2) + ' left';
-            el.className = "metric-value remaining-positive";
-        }
-    }
-
-    function parseTimeToMinutes(timeStr) {
-        if (!timeStr || timeStr.indexOf(':') === -1) return null;
-        
-        let cleanStr = timeStr.replace(/[^0-9:apmapm ]/gi, '').trim().toLowerCase();
-        let isPm = cleanStr.includes('pm');
-        let isAm = cleanStr.includes('am');
-        
-        let timeParts = cleanStr.replace(/[ampm ]/g, '').split(':');
-        let hours = parseInt(timeParts[0]) || 0;
-        let minutes = parseInt(timeParts[1]) || 0;
-        
-        if (isPm && hours < 12) hours += 12;
-        if (isAm && hours === 12) hours = 0;
-        
-        return (hours * 60) + minutes;
-    }
-
-    function clearForm() {
-        if (confirm("Are you sure you want to clear current quantities and names for this active profile?")) {
-            const prefix = getProfilePrefix();
-            localStorage.removeItem(prefix + 'foreman');
-            localStorage.removeItem(prefix + 'member');
-            localStorage.removeItem(prefix + 'start_time');
-            localStorage.removeItem(prefix + 'end_time');
-            
-            document.getElementById('foreman-name').value = "";
-            document.getElementById('crew-member-name').value = "";
-            document.getElementById('start-time').value = "";
-            document.getElementById('end-time').value = "";
-
-            items.forEach(function(_, index) {
-                localStorage.removeItem(prefix + 'qty_' + index);
-                document.getElementById('qty-' + index).value = "";
-            });
-            switchProfile();
-        }
-    }
-
-    function showLunchModal() {
-        document.getElementById('lunch-modal').style.display = 'flex';
-    }
-
-    function handleLunchDecision(tookBreak) {
-        document.getElementById('lunch-modal').style.display = 'none';
-        
-        let lunchLogLine = "No break taken";
-        let breakMinutes = 0;
-        
-        if (tookBreak) {
-            const lunchStart = prompt("Enter Break START Time (e.g., 12:00 PM or 12:00):", "12:00 PM");
-            const lunchEnd = prompt("Enter Break END Time (e.g., 12:30 PM or 12:30):", "12:30 PM");
-            
-            if (lunchStart && lunchEnd) {
-                lunchLogLine = lunchStart + " to " + lunchEnd;
-                
-                let startMin = parseTimeToMinutes(lunchStart);
-                let endMin = parseTimeToMinutes(lunchEnd);
-                
-                if (startMin !== null && endMin !== null) {
-                    if (endMin < startMin) endMin += 1440; 
-                    breakMinutes = endMin - startMin;
-                }
-            }
-        }
-        
-        generateFile(lunchLogLine, breakMinutes);
-    }
-
-    async function generateFile(lunchLogLine, breakMinutes) {
-        const now = new Date();
-        const dateStr = now.toLocaleDateString();
-        const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        const fileDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-
-        const foremanName = document.getElementById('foreman-name').value || "Not Entered";
-        let crewMemberName = document.getElementById('crew-member-name').value || "Not Entered";
-        const startTime = document.getElementById('start-time').value || "Not Entered";
-        const endTime = document.getElementById('end-time').value || "Not Entered";
-
-        let isOneMan = currentActiveCrew === "1 Man";
-        if (isOneMan) {
-            crewMemberName = "N/A (1 Man Crew)";
-        }
-
-        let totalHoursText = "N/A (Times missing)";
-        let startMin = parseTimeToMinutes(startTime);
-        let endMin = parseTimeToMinutes(endTime);
-
-        if (startMin !== null && endMin !== null) {
-            if (endMin < startMin) endMin += 1440; 
-            let rawShiftMinutes = endMin - startMin;
-            
-            let unpaidDeductionMinutes = 0;
-            if (breakMinutes > 30) {
-                unpaidDeductionMinutes = breakMinutes - 30;
-            }
-            
-            let finalPaidMinutes = rawShiftMinutes - unpaidDeductionMinutes;
-            let finalHours = Math.floor(finalPaidMinutes / 60);
-            let finalMinutes = finalPaidMinutes % 60;
-            
-            totalHoursText = finalHours + " hrs " + finalMinutes + " mins total (Decimal: " + (finalPaidMinutes / 60).toFixed(2) + " hrs)";
-        }
-
-        let logContent = "====================================\n   DOM/SC NORM DAILY LOG REPORT\n====================================\nDate: " + dateStr + "\nTime: " + timeStr + "\nForeman: " + foremanName + "\nCrew Member: " + crewMemberName + "\nCrew Setup: " + currentActiveCrew + " Crew\nShift Timeline: " + startTime + " to " + endTime + "\nLunch Break: " + lunchLogLine + " (" + breakMinutes + " mins total)\nHours Worked: " + totalHoursText + "\n------------------------------------\n\nLOGGED QUANTITIES:\n";
-
-        items.forEach(function(item, index) {
-            const qty = parseInt(document.getElementById('qty-' + index).value) || 0;
-            if (qty > 0) {
-                logContent += "• " + item.name.padEnd(20) + " : Qty " + qty.toString().padEnd(4) + " -> Value: " + (qty * item.val).toFixed(2) + " units\n";
-            }
-        });
-
-        let target8 = isOneMan ? 26 : 32.5;
-        let target10 = isOneMan ? 32.5 : 39;
-        let s8 = (target8 - currentGrandTotal) <= 0 ? "MET (+" + Math.abs(target8 - currentGrandTotal).toFixed(2) + " OVER)" : (target8 - currentGrandTotal).toFixed(2) + " remaining";
-        let s10 = (target10 - currentGrandTotal) <= 0 ? "MET (+" + Math.abs(target10 - currentGrandTotal).toFixed(2) + " OVER)" : (target10 - currentGrandTotal).toFixed(2) + " remaining";
-
-        logContent += "\n------------------------------------\nTOTAL PRODUCTION UNITS: " + currentGrandTotal.toFixed(2) + "\n------------------------------------\n8-Hr Goal (" + target8 + "): " + s8 + "\n10-Hr Goal (" + target10 + "): " + s10 + "\n====================================";
-
-        if (!globalCloudData.drafts) globalCloudData.drafts = [];
-        globalCloudData.drafts.push({
-            foreman: foremanName,
+        // Upload to real-time sync table engine object
+        if(!globalCloudData.live_telemetry) globalCloudData.live_telemetry = {};
+        globalCloudData.live_telemetry[activeProfile] = {
+            foreman: document.getElementById('foreman-name').value,
             totalUnits: currentGrandTotal.toFixed(2),
-            timestamp: dateStr + " " + timeStr
-        });
-        
-        await pushGlobalData();
-        updateAdminDraftsUI();
-
-        const blob = new Blob([logContent], { type: "text/plain;charset=utf-8" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "DOM_SC_Log_" + foremanName.replace(/\s+/g, '_') + "_" + fileDate + ".txt";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            timestamp: new Date().toLocaleTimeString()
+        };
+        pushGlobalData();
     }
-
-    /* Admin Action Handling */
-    function triggerAdminLogin() {
-        const passPrompt = prompt("Enter Administrator Password:");
-        if (passPrompt === "Energy2025") {
-            isAdminLoggedIn = true;
-            document.getElementById('lock-overlay').style.display = 'none';
-            document.getElementById('main-app-container').style.display = 'block';
-            document.getElementById('admin-panel').style.display = 'block';
-            document.getElementById('login-nav-link').style.display = 'none';
-            updateAdminDraftsUI();
-        } else if (passPrompt !== null) {
-            alert("Incorrect password access denied.");
-        }
-    }
-
-    function adminLogout() {
-        isAdminLoggedIn = false;
-        document.getElementById('admin-panel').style.display = 'none';
-        document.getElementById('login-nav-link').style.display = 'inline-block';
-        applyGlobalState();
-    }
-
-    async function adminToggleLock() {
-        globalCloudData.is_locked = !globalCloudData.is_locked;
-        await pushGlobalData();
-        alert(globalCloudData.is_locked ? "Page locked globally across ALL screens." : "Page unlocked globally.");
-        applyGlobalState();
-    }
-
-    async function adminClearSavedDrafts() {
-        if (confirm("Are you sure you want to permanently terminate all sync records globally?")) {
-            globalCloudData.drafts = [];
-            await pushGlobalData();
-            updateAdminDraftsUI();
-        }
-    }
-
-    function updateAdminDraftsUI() {
-        const listDiv = document.getElementById('admin-drafts-list');
-        if (!listDiv) return;
-        
-        const drafts = globalCloudData.drafts || [];
-        if (drafts.length === 0) {
-            listDiv.innerHTML = "<div style='color:#777; font-style:italic;'>No drafts submitted yet.</div>";
-            return;
-        }
-
-        listDiv.innerHTML = drafts.map(function(d) {
-            return "<div class='draft-item'>⏱️ <b>" + d.timestamp + "</b> - Foreman: " + d.foreman + " | <b>" + d.totalUnits + " Units</b></div>";
-        }).join('');
-    }
-
-    loadSavedData();
-    calculateEverything();
-    
-    // Check loop ruleset: Check every 4 seconds
-    setInterval(pullGlobalData, 4000);
-</script>
-</body>
-</html>
