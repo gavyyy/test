@@ -232,7 +232,6 @@
             gap: 12px;
         }
         
-        /* New Quantity Control CSS */
         .qty-control {
             display: flex;
             align-items: center;
@@ -266,10 +265,6 @@
             font-size: 16px;
             text-align: center;
             font-weight: bold;
-        }
-        select.qty-input {
-            text-align: left;
-            padding-left: 4px;
         }
         .qty-input:focus {
             border-color: #0076d6;
@@ -789,7 +784,8 @@
 
     let items = [
         { name: "Visual", val: 0.30 },
-        { name: "Fume per rod", val: 0.18 },
+        { name: "3 Fume (Creosote Pole)", val: 0.54 },
+        { name: "4 Fume (Creosote Pole)", val: 0.72 },
         { name: "Ground wire", val: 0.55 },
         { name: "Guy marker", val: 0.17 },
         { name: "Pole number", val: 0.14 },
@@ -948,7 +944,7 @@
         updateAdminFailedLoginsUI();
     }
 
-    // NEW FUNCTION to handle Add/Minus buttons
+    // FUNCTION to handle Add/Minus buttons
     function adjustQty(index, change) {
         const input = document.getElementById('qty-' + index);
         let currentVal = parseInt(input.value) || 0;
@@ -985,49 +981,34 @@
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'item-actions';
 
-            // Special layout for Fume per rod
-            if (item.name === "Fume per rod") {
-                const select = document.createElement('select');
-                select.className = 'qty-input';
-                select.id = 'qty-' + index;
-                select.style.width = '85px'; 
-                select.innerHTML = `
-                    <option value="0">0</option>
-                    <option value="3">3 fume</option>
-                    <option value="4">4 fume</option>
-                `;
-                select.onchange = function() { calculateEverything(); triggerRealtimeTelemetry(); };
-                actionsDiv.appendChild(select);
-            } else {
-                // Layout for standard inputs with + and - buttons
-                const controlDiv = document.createElement('div');
-                controlDiv.className = 'qty-control';
+            // Universal layout for standard inputs with + and - buttons
+            const controlDiv = document.createElement('div');
+            controlDiv.className = 'qty-control';
 
-                const minusBtn = document.createElement('button');
-                minusBtn.className = 'qty-btn';
-                minusBtn.textContent = '-';
-                minusBtn.onclick = function() { adjustQty(index, -1); };
+            const minusBtn = document.createElement('button');
+            minusBtn.className = 'qty-btn';
+            minusBtn.textContent = '-';
+            minusBtn.onclick = function() { adjustQty(index, -1); };
 
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.className = 'qty-input';
-                input.id = 'qty-' + index;
-                input.min = '0';
-                input.setAttribute('pattern', '[0-9]*');
-                input.placeholder = '0';
-                input.oninput = function() { calculateEverything(); triggerRealtimeTelemetry(); };
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'qty-input';
+            input.id = 'qty-' + index;
+            input.min = '0';
+            input.setAttribute('pattern', '[0-9]*');
+            input.placeholder = '0';
+            input.oninput = function() { calculateEverything(); triggerRealtimeTelemetry(); };
 
-                const plusBtn = document.createElement('button');
-                plusBtn.className = 'qty-btn';
-                plusBtn.textContent = '+';
-                plusBtn.onclick = function() { adjustQty(index, 1); };
+            const plusBtn = document.createElement('button');
+            plusBtn.className = 'qty-btn';
+            plusBtn.textContent = '+';
+            plusBtn.onclick = function() { adjustQty(index, 1); };
 
-                controlDiv.appendChild(minusBtn);
-                controlDiv.appendChild(input);
-                controlDiv.appendChild(plusBtn);
-                
-                actionsDiv.appendChild(controlDiv);
-            }
+            controlDiv.appendChild(minusBtn);
+            controlDiv.appendChild(input);
+            controlDiv.appendChild(plusBtn);
+            
+            actionsDiv.appendChild(controlDiv);
 
             const totalDiv = document.createElement('div');
             totalDiv.className = 'item-total';
@@ -1112,13 +1093,7 @@
         items.forEach(function(item, index) {
             const savedQty = localStorage.getItem(prefix + 'qty_' + index);
             const el = document.getElementById('qty-' + index);
-            
-            // Differentiate between standard input and the new <select> for "Fume per rod"
-            if (el.tagName === 'SELECT') {
-                el.value = (savedQty !== null && savedQty !== "") ? savedQty : "0";
-            } else {
-                el.value = savedQty !== null ? savedQty : "";
-            }
+            el.value = savedQty !== null ? savedQty : "";
         });
         
         saveFields();
@@ -1205,13 +1180,7 @@
             items.forEach(function(_, index) {
                 localStorage.removeItem(prefix + 'qty_' + index);
                 const el = document.getElementById('qty-' + index);
-                
-                // Clear state appropriately for select vs inputs
-                if (el.tagName === 'SELECT') {
-                    el.value = "0";
-                } else {
-                    el.value = "";
-                }
+                el.value = "";
             });
             switchProfile();
         }
@@ -1274,7 +1243,7 @@
         items.forEach(function(item, index) {
             const qty = parseInt(document.getElementById('qty-' + index).value) || 0;
             if (qty > 0) {
-                logContent += "• " + item.name.padEnd(20) + " : Qty " + qty.toString().padEnd(4) + " -> Value: " + (qty * item.val).toFixed(2) + " units\n";
+                logContent += "• " + item.name.padEnd(25) + " : Qty " + qty.toString().padEnd(4) + " -> Value: " + (qty * item.val).toFixed(2) + " units\n";
             }
         });
 
