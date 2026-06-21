@@ -419,18 +419,22 @@
         .btn-blue { background: #0076d6; color: white; }
         .btn-yellow { background: #ffc107; color: black; }
         .btn-red { background: #dc3545; color: white; }
+        
+        /* Fixed overlay layout style block configurations */
         .frozen-screen-msg {
             display: none;
             position: fixed;
             top:0; left:0; width:100%; height:100%;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.98);
             color: #dc3545;
             z-index: 9999;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
+            text-align: center;
+            padding: 20px;
         }
         .saved-files-section {
             background: #f4fdf7;
@@ -443,9 +447,15 @@
 </head>
 <body>
 
+<!-- Local Screen Freeze Shield with dedicated Administrator unlock button to prevent lockouts -->
 <div id="local-freeze-screen" class="frozen-screen-msg">
-    <span>❄️ Your session has been frozen by Admin</span>
-    <p style="font-size: 14px; color:#666; margin-top:8px;">Please contact your supervisor immediately.</p>
+    <span>❄️ This Screen Profile has been Frozen</span>
+    <p style="font-size: 14px; color:#666; margin: 8px 0 24px 0; font-weight: normal; max-width: 300px;">
+        This interface tracking view has been suspended remotely by an admin.
+    </p>
+    <button class="admin-toggle-btn" style="background-color: #222; color: #fff; border: none;" onclick="triggerAdminLogin(false)">
+        🔑 Admin Emergency Login
+    </button>
 </div>
 
 <div id="lock-overlay">
@@ -460,6 +470,7 @@
         <button class="admin-toggle-btn" id="login-nav-link" onclick="triggerAdminLogin(false)">🔑 Admin Console</button>
     </div>
 
+    <!-- ADVANCED ADMIN CONTROLS HUB -->
     <div class="admin-dashboard-box" id="admin-panel">
         <span style="font-weight: bold; color: #d97706; font-size: 15px;">⚙️ Admin Controls Active</span>
         <div style="margin: 8px 0;">
@@ -468,6 +479,7 @@
             <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Logout</button>
         </div>
 
+        <!-- Real-time Monitor Sub-section -->
         <div class="admin-sub-section">
             <div class="admin-sub-title">📡 Live Real-Time Activity Monitor</div>
             <div id="live-activity-stream" style="font-family: monospace; font-size: 11px; background:#222; color:#0f0; padding: 6px; border-radius:4px; max-height:80px; overflow-y:auto;">
@@ -475,9 +487,11 @@
             </div>
         </div>
 
+        <!-- ADMIN CONTROLS SECTION (INTEGRATED) -->
         <section id="admin-controls-section" class="admin-sub-section" style="border: 1px solid #333; padding: 12px; border-radius: 8px; background-color: #fff;">
             <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #111;">System Admin Modules</h4>
             
+            <!-- Change Password Sub-section -->
             <div class="admin-action-box" style="margin-bottom: 12px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
                 <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">Change Admin Password</span>
                 <form id="change-password-form" onsubmit="event.preventDefault(); adminChangePassword();">
@@ -488,6 +502,7 @@
                 </form>
             </div>
 
+            <!-- Manage Individual Data Sub-section -->
             <div class="admin-action-box" style="padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
                 <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 4px;">Manage Individual Data</span>
                 <p style="font-size: 11px; color: #666; margin: 0 0 8px 0;">Edit details or delete specific data records below:</p>
@@ -501,7 +516,8 @@
                             </tr>
                         </thead>
                         <tbody id="admin-people-registry">
-                            </tbody>
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
                     </table>
                 </div>
                 
@@ -516,6 +532,7 @@
             </div>
         </section>
 
+        <!-- Table Variables Configurations -->
         <div class="admin-sub-section">
             <div class="admin-sub-title">📈 Adjust Component Unit Variables</div>
             <div style="display:flex; gap:4px; margin-bottom:8px;">
@@ -589,6 +606,7 @@
         </div>
     </div>
 
+    <!-- PROFILE INDIVIDUAL ARCHIVED ARCHIVE HOOK -->
     <div class="saved-files-section">
         <span style="font-weight:bold; font-size:13px; color:#1e7e34;">📁 My Saved Files Repository</span>
         <p style="font-size:11px; margin:3px 0 8px 0; color:#555;">Review your logged historical reports saved locally to this active profile.</p>
@@ -692,7 +710,6 @@
             }
         }
 
-        // Fixed: If you are logged in as admin, freeze state is bypassed and ignored
         const activeUserProf = document.getElementById('profile-select').value;
         if(globalCloudData.frozen_users && globalCloudData.frozen_users[activeUserProf] === true && !isAdminLoggedIn) {
             document.getElementById('local-freeze-screen').style.display = "flex";
@@ -893,7 +910,7 @@
     function updateRemainingDisplay(elementId, value) {
         const el = document.getElementById(elementId);
         if (value <= 0) {
-            el.textContent = '✅ MET (+' + Math.abs(value).toFixed(2) + ')';
+            el.textContent = '✅ MET (+' + Math.abs(value).toFixed(2) + ')';f
             el.className = "metric-value remaining-met";
         } else {
             el.textContent = '⏳ ' + value.toFixed(2) + ' left';
@@ -1071,7 +1088,7 @@
             document.getElementById('admin-panel').style.display = 'block';
             document.getElementById('login-nav-link').style.display = 'none';
             
-            // Lift freeze screen layer immediately upon successful auth
+            // Instantly remove freeze layer upon layout level unlock code check matching
             document.getElementById('local-freeze-screen').style.display = "none";
             
             updateAdminDraftsUI();
@@ -1203,12 +1220,10 @@
         }).join('');
     }
 
-    // Initialize layout elements
     renderInitialItemCards();
     loadSavedData();
     calculateEverything();
     
-    // Remote cloud pool ping routine loop (4 seconds intervals)
     setInterval(function() {
         pullGlobalData();
         const streamMsg = localStorage.getItem("dom_sc_realtime_stream");
