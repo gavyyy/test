@@ -358,7 +358,7 @@
 </div>
 
 <div class="container" id="main-app-container">
-    <h2>DOM/SC Norm 2026</h2>
+    <h2 id="app-title-heading">DOM/SC Norm 2026</h2>
     <div id="global-alert-banner"></div>
 
     <div class="admin-nav-bar" id="top-nav-bar">
@@ -571,8 +571,8 @@
     
     <div id="user-app-elements">
         <div class="crew-selection">
-            <label class="crew-option"><input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything()"> 1 Man</label>
-            <label class="crew-option"><input type="radio" name="crew" value="2" id="crew-2" onchange="changeCrewType()"> 2 Man</label>
+            <label class="crew-option"><input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything()"> <span id="crew-1-label">1 Man</span></label>
+            <label class="crew-option"><input type="radio" name="crew" value="2" id="crew-2" onchange="changeCrewType()"> <span id="crew-2-label">2 Man</span></label>
         </div>
 
         <div class="crew-details" style="display: none;">
@@ -673,7 +673,7 @@
 
         <div class="action-buttons">
             <button class="clear-btn" onclick="clearForm()">&#x1F9F9; Clear</button>
-            <button class="save-btn" onclick="showLunchModal()">&#x1F4BE; Save Daily Log</button>
+            <button class="save-btn" onclick="showLunchModal()">&#x1F4BE; <span id="save-btn-label">Save Daily Log</span></button>
         </div>
     </div>
 </div>
@@ -780,7 +780,8 @@
         passcode_reset_requests: [],
         passcodes: {},       // { profileVal: hash } and { "__admin__": hash } — synced across devices
         bio_flags: {},       // { profileVal: true } and { "__admin__": true } — who has biometrics ON
-        passcode_meta: {}    // { profileVal: { changedAt, changedBy } } — status only, never the code
+        passcode_meta: {},   // { profileVal: { changedAt, changedBy } } — status only, never the code
+        ui_text: {}          // { title, crew1, crew2, saveBtn } — editable labels, synced to all devices
     };
     
     let isAdminLoggedIn = false;
@@ -894,7 +895,8 @@
                     passcode_reset_requests: d.passcode_reset_requests || [],
                     passcodes:            d.passcodes || {},
                     bio_flags:            d.bio_flags || {},
-                    passcode_meta:        d.passcode_meta || {}
+                    passcode_meta:        d.passcode_meta || {},
+                    ui_text:              d.ui_text || {}
                 };
                 
                 if (globalCloudData.banned_ips.includes(localClientIP)) {
@@ -1038,8 +1040,25 @@
         updateBannedIPsUI();
         updateAdminResetRequestsUI();
         updateAdminBioStatusUI();
+        applyUIText();
         calculateEverything();
         updateSecurityPanelUI();
+    }
+
+    // Apply custom UI labels from the cloud (falls back to defaults if unset)
+    function applyUIText() {
+        var t = globalCloudData.ui_text || {};
+        function setText(id, val) {
+            var el = document.getElementById(id);
+            if (el && val) el.textContent = val;
+        }
+        if (t.title) {
+            setText('app-title-heading', t.title);
+            document.title = t.title;
+        }
+        setText('crew-1-label', t.crew1);
+        setText('crew-2-label', t.crew2);
+        setText('save-btn-label', t.saveBtn);
     }
 
     // ── BIOMETRIC + PASSCODE AUTH ENGINE ─────────────────────────────────────────
@@ -1863,18 +1882,26 @@
 
     function aiShowExamples() {
         aiResult(
-            '<b>Try things like:</b><br>' +
+            '<b>Items &amp; targets:</b><br>' +
             '&bull; add item Transformer worth 0.85<br>' +
             '&bull; change Visual to 0.35<br>' +
             '&bull; delete item Guy marker<br>' +
             '&bull; set 1 man 8 hour target to 28<br>' +
             '&bull; set 2 man 10 hour target to 41<br>' +
+            '<br><b>Messages &amp; mode:</b><br>' +
             '&bull; broadcast Safety meeting at 7am<br>' +
             '&bull; clear broadcast<br>' +
-            '&bull; add profile John Doe / john_doe / john@email.com<br>' +
             '&bull; enable maintenance Updating values<br>' +
             '&bull; disable maintenance<br>' +
-            '&bull; lock screens / unlock screens',
+            '&bull; lock screens / unlock screens<br>' +
+            '<br><b>Profiles:</b><br>' +
+            '&bull; add profile John Doe / john_doe / john@email.com<br>' +
+            '<br><b>Rename labels (no code change):</b><br>' +
+            '&bull; rename title to Field Tracking 2026<br>' +
+            '&bull; rename 1 man label to Solo<br>' +
+            '&bull; rename 2 man label to Team<br>' +
+            '&bull; rename save button to Submit Report<br>' +
+            '&bull; reset labels',
             "info"
         );
     }
@@ -2018,6 +2045,44 @@
                 document.getElementById('ai-cmd-input').value = ""; return;
             }
 
+            // ── RESET LABELS ──  "reset labels" / "reset titles"
+            if (/^reset\s+(labels|titles|names|ui)\s*$/i.test(raw)) {
+                globalCloudData.ui_text = {};
+                await pushGlobalData(); location.reload();
+                return;
+            }
+
+            // ── RENAME TITLE ──  "rename title to X" / "set title to X" / "change app name to X"
+            m = raw.match(/^(?:rename|set|change)\s+(?:the\s+)?(?:app\s+)?(?:title|name|heading)\s+to\s+(.+)$/i);
+            if (m) {
+                if (!globalCloudData.ui_text) globalCloudData.ui_text = {};
+                globalCloudData.ui_text.title = m[1].trim();
+                await pushGlobalData(); applyGlobalState();
+                aiResult('App title changed to <b>' + m[1].trim() + '</b> and saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── RENAME CREW LABELS ──  "rename 1 man label to Solo"
+            m = raw.match(/^(?:rename|set|change)\s+(?:the\s+)?([12])\s*[- ]?\s*man\s+(?:label|button|option|mode)?\s*to\s+(.+)$/i);
+            if (m) {
+                if (!globalCloudData.ui_text) globalCloudData.ui_text = {};
+                var crewKey = m[1] === "1" ? "crew1" : "crew2";
+                globalCloudData.ui_text[crewKey] = m[2].trim();
+                await pushGlobalData(); applyGlobalState();
+                aiResult('The ' + m[1] + '-man label is now <b>' + m[2].trim() + '</b> and saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── RENAME SAVE BUTTON ──  "rename save button to Submit Report"
+            m = raw.match(/^(?:rename|set|change)\s+(?:the\s+)?save\s+(?:button|btn)?\s*to\s+(.+)$/i);
+            if (m) {
+                if (!globalCloudData.ui_text) globalCloudData.ui_text = {};
+                globalCloudData.ui_text.saveBtn = m[1].trim();
+                await pushGlobalData(); applyGlobalState();
+                aiResult('Save button now reads <b>' + m[1].trim() + '</b> and saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
             // No match
             aiResult("I didn't recognize that command. Tap <b>Examples</b> to see what I understand, or use <b>Import Config</b> below for anything more complex.", "err");
 
@@ -2032,7 +2097,7 @@
     // ══════════════════════════════════════════════════════════════════════════════
 
     // Only these top-level keys may be changed via config import (safety allow-list)
-    const AI_CONFIG_ALLOWED = ["targets", "global_alert", "maintenance", "is_locked", "variables", "deleted_vars", "profiles", "admin_pass"];
+    const AI_CONFIG_ALLOWED = ["targets", "global_alert", "maintenance", "is_locked", "variables", "deleted_vars", "profiles", "admin_pass", "ui_text"];
 
     function aiConfigResult(html, kind) {
         const el = document.getElementById('ai-config-result');
@@ -2091,6 +2156,8 @@
                     globalCloudData.variables = Object.assign({}, globalCloudData.variables, parsed[k]);
                 } else if (k === "maintenance" && typeof parsed[k] === "object") {
                     globalCloudData.maintenance = Object.assign({ active:false, message:"", eta:"" }, parsed[k]);
+                } else if (k === "ui_text" && typeof parsed[k] === "object") {
+                    globalCloudData.ui_text = Object.assign({}, globalCloudData.ui_text, parsed[k]);
                 } else {
                     globalCloudData[k] = parsed[k];
                 }
@@ -2112,7 +2179,8 @@
             maintenance: globalCloudData.maintenance,
             is_locked: globalCloudData.is_locked,
             variables: globalCloudData.variables,
-            profiles: globalCloudData.profiles
+            profiles: globalCloudData.profiles,
+            ui_text: globalCloudData.ui_text
         };
         var json = JSON.stringify(snapshot, null, 2);
         document.getElementById('ai-config-input').value = json;
