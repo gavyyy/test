@@ -486,9 +486,12 @@
                         </table>
                     </div>
                     <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc;">
-                        <div style="display: flex; gap: 4px;">
+                        <div style="display: flex; gap: 4px; margin-bottom: 4px;">
                             <input type="text" id="new-person-name" placeholder="Name" style="flex:1; padding:4px; font-size:12px;">
                             <input type="text" id="new-person-value" placeholder="profile_id" style="flex:1; padding:4px; font-size:12px;">
+                        </div>
+                        <div style="display: flex; gap: 4px;">
+                            <input type="email" id="new-person-email" placeholder="Email (optional, for reset alerts)" style="flex:1; padding:4px; font-size:12px;">
                             <button class="sm-btn btn-green" onclick="adminAddPerson()">Add Profile</button>
                         </div>
                     </div>
@@ -741,7 +744,8 @@
         maintenance: { active: false, message: "", eta: "" },
         passcode_reset_requests: [],
         passcodes: {},       // { profileVal: hash } and { "__admin__": hash } — synced across devices
-        bio_flags: {}        // { profileVal: true } and { "__admin__": true } — who has biometrics ON
+        bio_flags: {},       // { profileVal: true } and { "__admin__": true } — who has biometrics ON
+        passcode_meta: {}    // { profileVal: { changedAt, changedBy } } — status only, never the code
     };
     
     let isAdminLoggedIn = false;
@@ -854,7 +858,8 @@
                     maintenance:          d.maintenance || { active: false, message: "", eta: "" },
                     passcode_reset_requests: d.passcode_reset_requests || [],
                     passcodes:            d.passcodes || {},
-                    bio_flags:            d.bio_flags || {}
+                    bio_flags:            d.bio_flags || {},
+                    passcode_meta:        d.passcode_meta || {}
                 };
                 
                 if (globalCloudData.banned_ips.includes(localClientIP)) {
@@ -1029,15 +1034,25 @@
     function getStoredPasscode(ctxVal) {
         return (globalCloudData.passcodes && globalCloudData.passcodes[ctxVal]) || null;
     }
-    async function setStoredPasscode(ctxVal, hash) {
+    async function setStoredPasscode(ctxVal, hash, changedBy) {
         if (!globalCloudData.passcodes) globalCloudData.passcodes = {};
         globalCloudData.passcodes[ctxVal] = hash;
+        // Track WHEN and BY WHOM it was changed (status only — never the code itself)
+        if (!globalCloudData.passcode_meta) globalCloudData.passcode_meta = {};
+        globalCloudData.passcode_meta[ctxVal] = {
+            changedAt: new Date().toLocaleString(),
+            changedBy: changedBy || "user"
+        };
         await pushGlobalData();
     }
     async function clearStoredPasscode(ctxVal) {
         if (globalCloudData.passcodes) delete globalCloudData.passcodes[ctxVal];
         if (globalCloudData.bio_flags) delete globalCloudData.bio_flags[ctxVal];
+        if (globalCloudData.passcode_meta) delete globalCloudData.passcode_meta[ctxVal];
         await pushGlobalData();
+    }
+    function getPasscodeMeta(ctxVal) {
+        return (globalCloudData.passcode_meta && globalCloudData.passcode_meta[ctxVal]) || null;
     }
 
     // Bio enabled flag (cloud) — is biometrics turned ON for this account
@@ -1505,7 +1520,7 @@
         const profileVal = localStorage.getItem('dom_sc_active_profile');
         passcodeSetStep  = 0; passcodeSetFirst = ""; passcodeBuffer = "";
         authContext = { mode: "set", onSuccess: async function(hash) {
-            await setStoredPasscode(profileVal, hash);
+            await setStoredPasscode(profileVal, hash, "user");
             alert("Passcode set successfully!");
             updateSecurityPanelUI();
         }};
@@ -1630,6 +1645,7 @@
         await pushGlobalData();
         var match = profilesRegistry.find(function(p) { return p.val === profileVal; });
         var nm = (match && match.name) ? match.name : profileVal;
+        notifyEmployeeOfReset(profileVal, nm, "cleared");
         alert("Passcode reset approved for " + nm + ". Their passcode and biometrics have been cleared. They can set a new one on next login.");
         applyGlobalState();
     }
@@ -1666,7 +1682,7 @@
         const doSet = function() {
             passcodeSetStep = 0; passcodeSetFirst = ""; passcodeBuffer = "";
             authContext = { mode: "set", onSuccess: async function(hash) {
-                await setStoredPasscode(ADMIN_KEY, hash);
+                await setStoredPasscode(ADMIN_KEY, hash, "admin");
                 alert("Admin passcode saved! You can now log in with it (and enable biometrics).");
                 updateAdminBioStatusUI();
             }};
@@ -1725,8 +1741,51 @@
         localStorage.removeItem(getBioCredKey("profile_" + profileVal));
         globalCloudData.passcode_reset_requests = (globalCloudData.passcode_reset_requests || []).filter(function(r) { return r.profile !== profileVal; });
         await pushGlobalData();
+        notifyEmployeeOfReset(profileVal, nm, "cleared");
         alert(nm + "'s passcode has been cleared.");
         applyGlobalState();
+    }
+
+    // Admin SETS a specific new 4-digit passcode FOR an employee
+    function adminSetEmployeePasscode(profileVal) {
+        var match = profilesRegistry.find(function(p) { return p.val === profileVal; });
+        var nm = (match && match.name) ? match.name : profileVal;
+        passcodeSetStep = 0; passcodeSetFirst = ""; passcodeBuffer = "";
+        authContext = { mode: "set", onSuccess: async function(hash) {
+            await setStoredPasscode(profileVal, hash, "admin");
+            // Setting a fresh passcode invalidates any old device biometric enrollment
+            await setBioFlag(profileVal, false);
+            globalCloudData.passcode_reset_requests = (globalCloudData.passcode_reset_requests || []).filter(function(r) { return r.profile !== profileVal; });
+            await pushGlobalData();
+            notifyEmployeeOfReset(profileVal, nm, "set");
+            alert("New passcode set for " + nm + ".\n\nThey can log in with it right away and change it themselves later.");
+            applyGlobalState();
+        }};
+        document.getElementById('auth-modal-title').textContent = "Set Passcode for " + nm;
+        document.getElementById('auth-modal-sub').textContent   = "Enter a new 4-digit passcode for this employee";
+        document.getElementById('auth-error-msg').textContent   = "";
+        document.getElementById('auth-forgot-btn').style.display = "none";
+        document.getElementById('auth-bio-btn').style.display    = "none";
+        document.getElementById('auth-modal-overlay').style.display = "flex";
+        updateDots();
+    }
+
+    // Sends the employee a notification email (if an email is on file for their profile).
+    // NOTE: a true "reset link" needs a backend server; this notifies them to set a new code.
+    function notifyEmployeeOfReset(profileVal, profileName, action) {
+        var prof = profilesRegistry.find(function(p) { return p.val === profileVal; });
+        var toEmail = prof && prof.email ? prof.email : null;
+        var verb = action === "set" ? "set a new passcode on your account" : "cleared your passcode";
+        try {
+            emailjs.send("service_h1nnfhv", "template_aienmjb", {
+                profile_name: profileName + " [ADMIN PASSCODE " + (action === "set" ? "SET" : "RESET") + "]",
+                to_email: toEmail || "(no email on file)",
+                ip_address: localClientIP,
+                location: "Admin " + verb + " for " + profileName +
+                          (toEmail ? ". Notify: " + toEmail : ". No email on file — tell them in person."),
+                time: new Date().toLocaleString()
+            });
+        } catch (e) { console.error("notify failed", e); }
     }
 
     function updateAdminResetRequestsUI() {
@@ -1896,9 +1955,15 @@
     async function adminAddPerson() {
         const name = document.getElementById('new-person-name').value;
         const val  = document.getElementById('new-person-value').value;
+        const email = document.getElementById('new-person-email').value.trim();
         if (!name || !val) return;
-        globalCloudData.profiles.push({ name: name, val: val });
+        var entry = { name: name, val: val };
+        if (email) entry.email = email;
+        globalCloudData.profiles.push(entry);
         await pushGlobalData();
+        document.getElementById('new-person-name').value = "";
+        document.getElementById('new-person-value').value = "";
+        document.getElementById('new-person-email').value = "";
         applyGlobalState();
     }
     async function adminDeletePerson(targetVal) {
@@ -1954,19 +2019,25 @@
             // Passcode / biometric status
             var hasPc = !!getStoredPasscode(p.val);
             var bioOn = isBioFlagOn(p.val);
+            var meta  = getPasscodeMeta(p.val);
             var secBadge = hasPc
                 ? '<span style="font-size:10px; color:#1e7e34;">&#x1F512; Passcode set' + (bioOn ? ' + bio' : '') + '</span>'
                 : '<span style="font-size:10px; color:#aaa;">&#x1F513; No passcode</span>';
+            // Last-changed line (status only — the actual code is never stored or shown)
+            var metaLine = (hasPc && meta && meta.changedAt)
+                ? '<span style="font-size:9px; color:#999; display:block; margin-top:1px;">Changed ' + meta.changedAt + ' by ' + (meta.changedBy === "admin" ? "admin" : "employee") + '</span>'
+                : '';
 
             return '<tr>' +
                    '<td style="padding: 6px; border-bottom: 1px solid #ddd;">' +
                    '<b>' + p.name + '</b> <span style="font-size:10px;color:#666;">(' + p.val + ')</span><br>' +
-                   ipDisplay + '<br>' + secBadge + (locHTML ? '<br>' + locHTML : '') +
+                   ipDisplay + '<br>' + secBadge + metaLine + (locHTML ? '<br>' + locHTML : '') +
                    '</td>' +
                    '<td style="padding: 6px; border-bottom: 1px solid #ddd; vertical-align: top; white-space:nowrap;">' +
                    '<button class="sm-btn ' + (isFrozen ? 'btn-red' : 'btn-yellow') + '" onclick="adminToggleFreezeUser(\'' + p.val + '\')">' + (isFrozen ? 'Thaw' : 'Freeze') + '</button> ' +
                    '<button class="sm-btn btn-red" onclick="adminDeletePerson(\'' + p.val + '\')">X</button>' +
-                   (hasPc ? '<br><button class="sm-btn btn-blue" style="margin-top:4px;" onclick="adminResetEmployeePasscode(\'' + p.val + '\')">Reset Passcode</button>' : '') +
+                   '<br><button class="sm-btn btn-blue" style="margin-top:4px;" onclick="adminSetEmployeePasscode(\'' + p.val + '\')">Set Passcode</button>' +
+                   (hasPc ? ' <button class="sm-btn" style="margin-top:4px; background:#fff4e5; color:#d97706;" onclick="adminResetEmployeePasscode(\'' + p.val + '\')">Reset</button>' : '') +
                    '</td></tr>';
         }).join('');
     }
