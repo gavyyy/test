@@ -84,7 +84,6 @@
         .input-group label { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; }
         .time-row { display: flex; gap: 10px; }
         .time-row .input-group { flex: 1; }
-        .time-note { font-size: 12px; color: #666; font-style: italic; margin-top: 2px; }
         .text-input, .select-input {
             width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; background: #fff;
         }
@@ -123,7 +122,6 @@
         .save-btn { flex: 2; background-color: #28a745; color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; }
         .clear-btn { flex: 1; background-color: #6c757d; color: white; border: none; padding: 15px; font-size: 15px; font-weight: bold; border-radius: 10px; cursor: pointer; }
 
-        /* Admin Dashboard Styles */
         .admin-dashboard-box {
             display: none; background: #fff4e5; border: 2px dashed #ff9800; padding: 14px; border-radius: 12px; margin-bottom: 16px;
         }
@@ -164,32 +162,42 @@
         }
         .saved-files-section { background: #f4fdf7; border: 1px solid #bce6c9; border-radius: 10px; padding: 12px; margin-top: 12px; }
 
-        /* Blocked IP Screen */
         #banned-screen {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #721c24; color: white;
             z-index: 10000; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
         }
+
+        /* ── Location badge styles ── */
+        .loc-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            font-size: 10px; color: #1e7e34; background: #d4edda;
+            border: 1px solid #bce6c9; border-radius: 4px; padding: 2px 6px; margin-top: 3px;
+        }
+        .loc-badge.loc-denied  { color: #721c24; background: #f8d7da; border-color: #f5c6cb; }
+        .loc-badge.loc-pending { color: #856404; background: #fff3cd; border-color: #ffe8a1; }
+        .map-link { color: #0056b3; text-decoration: none; font-weight: bold; font-size: 10px; }
+        .map-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div id="banned-screen">
-    <h1 style="font-size: 40px; margin-bottom: 10px;">⛔ ACCESS BLOCKED</h1>
+    <h1 style="font-size: 40px; margin-bottom: 10px;">&#x26D4; ACCESS BLOCKED</h1>
     <p>Your network IP has been permanently blacklisted by the Administrator.</p>
 </div>
 
 <div id="local-freeze-screen" class="frozen-screen-msg">
-    <span>❄️ Screen Lock</span>
+    <span>&#x2744;&#xFE0F; Screen Lock</span>
     <p style="font-size: 14px; color:#666; margin: 8px 0 24px 0; font-weight: normal; max-width: 300px;">
         Contact admin to unfreeze account, due to failed login
     </p>
     <button class="admin-toggle-btn" style="background-color: #222; color: #fff; border: none;" onclick="triggerAdminLogin(false, false)">
-        🔑 Admin Emergency Login
+        &#x1F511; Admin Emergency Login
     </button>
 </div>
 
 <div id="lock-overlay">
-    <h1 style="font-size: 28px; margin-bottom: 8px;">🔒 App Locked</h1>
+    <h1 style="font-size: 28px; margin-bottom: 8px;">&#x1F512; App Locked</h1>
     <p style="color: #aaa; max-width: 300px; margin: 0 auto;">This application platform has been locked down by an administrator.</p>
     <button class="bypass-btn" onclick="triggerAdminLogin(true, false)">Admin Override Login</button>
 </div>
@@ -204,8 +212,8 @@
 
     <div style="width: 100%; max-width: 400px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
         <button class="profile-tap-btn admin-gateway-btn" onclick="triggerAdminLogin(false, true)">
-            <span>⚙️ System Administrator</span>
-            <span style="font-size:12px;">Secure Login →</span>
+            <span>&#x2699;&#xFE0F; System Administrator</span>
+            <span style="font-size:12px;">Secure Login &#x2192;</span>
         </button>
     </div>
 
@@ -217,34 +225,34 @@
     <div id="global-alert-banner"></div>
 
     <div class="admin-nav-bar" id="top-nav-bar">
-        <button class="admin-toggle-btn" id="login-nav-link" onclick="triggerAdminLogin(false, false)">🔑 Admin Console</button>
-        <button class="admin-toggle-btn btn-logout-profile" onclick="logoutProfile()">🚪 Sign Out</button>
+        <button class="admin-toggle-btn" id="login-nav-link" onclick="triggerAdminLogin(false, false)">&#x1F511; Admin Console</button>
+        <button class="admin-toggle-btn btn-logout-profile" onclick="logoutProfile()">&#x1F6AA; Sign Out</button>
     </div>
 
     <div class="admin-dashboard-box" id="admin-panel">
-        <span style="font-weight: bold; color: #d97706; font-size: 15px;">⚙️ Master Control Center</span>
+        <span style="font-weight: bold; color: #d97706; font-size: 15px;">&#x2699;&#xFE0F; Master Control Center</span>
         <div style="margin: 8px 0; padding-bottom: 8px; border-bottom: 1px dashed #ccc;">
-            <button id="lock-toggle-btn" class="admin-ctrl-btn lock-btn" onclick="adminToggleLock()">🔒 Lock All Screens</button>
-            <button class="admin-ctrl-btn" onclick="adminFactoryResetData()" style="background:#850000;">⚠️ Factory Reset Database</button>
+            <button id="lock-toggle-btn" class="admin-ctrl-btn lock-btn" onclick="adminToggleLock()">&#x1F512; Lock All Screens</button>
+            <button class="admin-ctrl-btn" onclick="adminFactoryResetData()" style="background:#850000;">&#x26A0;&#xFE0F; Factory Reset Database</button>
             <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Exit Admin Panel</button>
         </div>
 
         <div class="admin-sub-section">
-            <div class="admin-sub-title">📡 Live Real-Time Activity Monitor</div>
+            <div class="admin-sub-title">&#x1F4E1; Live Real-Time Activity Monitor</div>
             <div id="live-activity-stream" style="font-family: monospace; font-size: 11px; background:#222; color:#0f0; padding: 6px; border-radius:4px; max-height:80px; overflow-y:auto;">
                 Awaiting client telemetry sync updates...
             </div>
         </div>
 
         <section class="admin-sub-section" style="border: 1px solid #17a2b8; background-color: #f4fbff;">
-            <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #0c5460;">📢 Global Operations Broadcast</h4>
+            <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #0c5460;">&#x1F4E2; Global Operations Broadcast</h4>
             <div style="display: flex; gap: 4px; margin-bottom: 10px;">
                 <input type="text" id="admin-broadcast-msg" placeholder="Type global alert message..." style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
                 <button class="sm-btn btn-blue" onclick="adminSetBroadcast()">Push Alert</button>
                 <button class="sm-btn btn-red" onclick="adminClearBroadcast()">Clear</button>
             </div>
 
-            <h4 style="margin: 10px 0 8px 0; font-size: 13px; color: #0c5460; border-top: 1px dashed #bee5eb; padding-top: 8px;">🎯 Dynamic Shift Targets</h4>
+            <h4 style="margin: 10px 0 8px 0; font-size: 13px; color: #0c5460; border-top: 1px dashed #bee5eb; padding-top: 8px;">&#x1F3AF; Dynamic Shift Targets</h4>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div>
                     <label style="font-size:10px; color:#555;">1-Man (8 Hr)</label>
@@ -267,7 +275,7 @@
         </section>
 
         <section id="admin-controls-section" class="admin-sub-section" style="border: 1px solid #333; padding: 12px; border-radius: 8px; background-color: #fff;">
-            <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #111;">Security & Profile Management</h4>
+            <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #111;">Security &amp; Profile Management</h4>
             
             <div style="margin-bottom: 12px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
                 <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">Change Admin Password</span>
@@ -278,7 +286,7 @@
             </div>
 
             <div style="margin-bottom: 12px; padding: 10px; background-color: #fff0f0; border-radius: 5px; border: 1px solid #f8d7da;">
-                <span style="font-size: 12px; font-weight: bold; color: #721c24; display: block; margin-bottom: 4px;">🛡️ IP Blacklist Controls</span>
+                <span style="font-size: 12px; font-weight: bold; color: #721c24; display: block; margin-bottom: 4px;">&#x1F6E1;&#xFE0F; IP Blacklist Controls</span>
                 <div style="display:flex; gap:4px; margin-bottom: 6px;">
                     <input type="text" id="ban-ip-input" placeholder="Enter IP Address to Block" style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc;">
                     <button class="sm-btn btn-dark" onclick="adminBanIP()">Ban IP</button>
@@ -288,7 +296,7 @@
 
             <div style="padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
                 <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 4px;">Crew Profiles</span>
-                <div style="overflow-x: auto; max-height: 150px; overflow-y:auto;">
+                <div style="overflow-x: auto; max-height: 200px; overflow-y:auto;">
                     <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
                         <tbody id="admin-people-registry"></tbody>
                     </table>
@@ -304,7 +312,7 @@
         </section>
 
         <div class="admin-sub-section">
-            <div class="admin-sub-title">📈 Component Unit Editor</div>
+            <div class="admin-sub-title">&#x1F4C8; Component Unit Editor</div>
             
             <div style="display:flex; gap:4px; margin-bottom:8px;">
                 <select id="var-item-select" style="flex:1; font-size:12px;"></select>
@@ -383,7 +391,7 @@
         </div>
 
         <div class="saved-files-section">
-            <span style="font-weight:bold; font-size:14px; color:#1e7e34;">📁 My Saved Files Repository</span>
+            <span style="font-weight:bold; font-size:14px; color:#1e7e34;">&#x1F4C1; My Saved Files Repository</span>
             <div id="profile-saved-files-list" style="margin-top:8px; font-size:12px; background:white; border:1px solid #d0e6d6; padding:8px; border-radius:6px; max-height:180px; overflow-y:auto;">
                 <div style="color:#888; font-style:italic; text-align:center;">No entries saved.</div>
             </div>
@@ -391,8 +399,8 @@
         <br>
 
         <div class="action-buttons">
-            <button class="clear-btn" onclick="clearForm()">🧹 Clear</button>
-            <button class="save-btn" onclick="showLunchModal()">💾 Save Daily Log</button>
+            <button class="clear-btn" onclick="clearForm()">&#x1F9F9; Clear</button>
+            <button class="save-btn" onclick="showLunchModal()">&#x1F4BE; Save Daily Log</button>
         </div>
     </div>
 </div>
@@ -409,7 +417,7 @@
 
 <div class="modal-overlay" id="post-save-logout-modal">
     <div class="modal-box">
-        <div class="modal-title">✅ File Saved Successfully!</div>
+        <div class="modal-title">&#x2705; File Saved Successfully!</div>
         <p style="font-size: 14px; color: #555; margin-bottom: 16px;">Log downloaded and saved locally.</p>
         <p style="font-size: 15px; font-weight: bold; margin-bottom: 16px;">Sign out now?</p>
         <div class="modal-buttons">
@@ -422,8 +430,8 @@
 <div class="modal-overlay" id="view-file-modal">
     <div class="modal-box" style="max-width: 90%; max-height: 90%; display: flex; flex-direction: column;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-            <div class="modal-title" style="margin: 0;">📄 Log Viewer</div>
-            <button class="sm-btn btn-blue" style="padding: 6px 12px;" onclick="printSavedLog()">🖨️ Print</button>
+            <div class="modal-title" style="margin: 0;">&#x1F4C4; Log Viewer</div>
+            <button class="sm-btn btn-blue" style="padding: 6px 12px;" onclick="printSavedLog()">&#x1F5A8;&#xFE0F; Print</button>
         </div>
         <textarea id="view-file-content" style="width: 100%; flex: 1; min-height: 350px; font-family: monospace; font-size: 11px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: none; background-color: #f8f9fa;" readonly></textarea>
         <button class="modal-btn modal-btn-no" style="margin-top: 16px;" onclick="closeViewFileModal()">Close Viewer</button>
@@ -435,7 +443,6 @@
     const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
     const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
     
-    // Core state
     let globalCloudData = { 
         is_locked: false, 
         drafts: [], 
@@ -475,24 +482,62 @@
         { name: "Default / Custom", val: "default" }
     ];
 
+    // ── IP Resolution ─────────────────────────────────────────────────────────────
     async function resolveClientPublicIP() {
         try {
             const response = await fetch('https://api.ipify.org?format=json');
-            if(response.ok) {
+            if (response.ok) {
                 const data = await response.json();
                 localClientIP = data.ip || "0.0.0.0";
             }
         } catch(e) { console.error("IP API failed"); }
     }
 
+    // ── LOCATION TRACKING ─────────────────────────────────────────────────────────
+    /**
+     * Wraps navigator.geolocation in a Promise.
+     * Resolves with { lat, lng, accuracy, timestamp } on success,
+     * or { error: "denied" | "unavailable" | "timeout" } on failure.
+     */
+    function requestGeolocation() {
+        return new Promise(function(resolve) {
+            if (!navigator.geolocation) {
+                resolve({ error: "unavailable" });
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    resolve({
+                        lat:       pos.coords.latitude.toFixed(6),
+                        lng:       pos.coords.longitude.toFixed(6),
+                        accuracy:  Math.round(pos.coords.accuracy),
+                        timestamp: new Date().toLocaleString()
+                    });
+                },
+                function(err) {
+                    var codes = { 1: "denied", 2: "unavailable", 3: "timeout" };
+                    resolve({ error: codes[err.code] || "unavailable" });
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        });
+    }
+
+    /** Returns a Google Maps URL string or null. */
+    function buildMapsLink(locObj) {
+        if (!locObj || locObj.error || !locObj.lat) return null;
+        return "https://www.google.com/maps?q=" + locObj.lat + "," + locObj.lng;
+    }
+    // ─────────────────────────────────────────────────────────────────────────────
+
     // Admin Session Security
     function resetAdminTimer() {
         if (!isAdminLoggedIn) return;
         clearTimeout(adminSessionTimer);
-        adminSessionTimer = setTimeout(() => {
+        adminSessionTimer = setTimeout(function() {
             alert("Admin session expired due to inactivity.");
             adminLogout();
-        }, 10 * 60 * 1000); // 10 minutes timeout
+        }, 10 * 60 * 1000);
     }
     document.addEventListener('mousemove', resetAdminTimer);
     document.addEventListener('keypress', resetAdminTimer);
@@ -506,28 +551,27 @@
                 const r = await res.json();
                 const d = r.record;
                 globalCloudData = {
-                    is_locked: d.is_locked || false,
-                    drafts: d.drafts || [],
-                    admin_pass: d.admin_pass || "2026",
-                    frozen_users: d.frozen_users || {},
-                    variables: d.variables || {},
-                    active_login_ips: d.active_login_ips || {},
-                    failed_admin_logins: d.failed_admin_logins || [],
-                    banned_ips: d.banned_ips || [],
-                    global_alert: d.global_alert || "",
-                    targets: d.targets || { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
-                    profiles: d.profiles || profilesRegistry
+                    is_locked:            d.is_locked || false,
+                    drafts:               d.drafts || [],
+                    admin_pass:           d.admin_pass || "2026",
+                    frozen_users:         d.frozen_users || {},
+                    variables:            d.variables || {},
+                    active_login_ips:     d.active_login_ips || {},
+                    failed_admin_logins:  d.failed_admin_logins || [],
+                    banned_ips:           d.banned_ips || [],
+                    global_alert:         d.global_alert || "",
+                    targets:              d.targets || { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
+                    profiles:             d.profiles || profilesRegistry,
+                    deleted_vars:         d.deleted_vars || []
                 };
                 
-                // IP Security Check immediately after data load
                 if (globalCloudData.banned_ips.includes(localClientIP)) {
                     document.getElementById('banned-screen').style.display = 'flex';
                     throw new Error("Banned IP");
                 }
-
                 applyGlobalState();
             }
-        } catch (e) { console.log(e); }
+        } catch(e) { console.log(e); }
     }
 
     async function pushGlobalData() {
@@ -538,17 +582,35 @@
                 headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
                 body: JSON.stringify(globalCloudData)
             });
-        } catch (e) { console.error(e); }
+        } catch(e) { console.error(e); }
     }
 
+    // ── Profile tap: captures IP + geolocation together ──────────────────────────
     async function processInstantProfileTap(profileVal) {
         await pullGlobalData();
-        if (globalCloudData.banned_ips.includes(localClientIP)) return; // blocked
+        if (globalCloudData.banned_ips.includes(localClientIP)) return;
 
-        globalCloudData.active_login_ips[profileVal] = { ip: localClientIP, timestamp: new Date().toLocaleString() };
+        // Request location before writing — gathers concurrently with any remaining UI work
+        const geoResult = await requestGeolocation();
+
+        globalCloudData.active_login_ips[profileVal] = {
+            ip:        localClientIP,
+            timestamp: new Date().toLocaleString(),
+            location:  geoResult   // { lat, lng, accuracy, timestamp } OR { error: "..." }
+        };
         await pushGlobalData();
         
-        emailjs.send("service_h1nnfhv", "template_aienmjb", { profile_name: profileVal, ip_address: localClientIP, time: new Date().toLocaleString() });
+        // Include location in email notification
+        var locStr = geoResult.error
+            ? ("Location " + geoResult.error)
+            : (geoResult.lat + ", " + geoResult.lng + " (±" + geoResult.accuracy + "m)");
+
+        emailjs.send("service_h1nnfhv", "template_aienmjb", {
+            profile_name: profileVal,
+            ip_address:   localClientIP,
+            location:     locStr,
+            time:         new Date().toLocaleString()
+        });
 
         document.getElementById('profile-select').value = profileVal;
         localStorage.setItem('dom_sc_active_profile', profileVal);
@@ -557,6 +619,7 @@
         document.getElementById('main-app-container').style.display = "block";
         switchProfile();
     }
+    // ─────────────────────────────────────────────────────────────────────────────
     
     function logoutProfile() {
         localStorage.removeItem('dom_sc_active_profile');
@@ -564,7 +627,6 @@
     }
 
     function applyGlobalState() {
-        // Handle Screen Locks
         if (globalCloudData.is_locked && !isAdminLoggedIn) {
             document.getElementById('lock-overlay').style.display = 'flex';
             document.getElementById('main-app-container').style.display = 'none';
@@ -573,24 +635,21 @@
         }
 
         const activeUserProf = document.getElementById('profile-select').value;
-        if(globalCloudData.frozen_users[activeUserProf] === true && !isAdminLoggedIn) {
+        if (globalCloudData.frozen_users[activeUserProf] === true && !isAdminLoggedIn) {
             document.getElementById('local-freeze-screen').style.display = "flex";
         } else {
             document.getElementById('local-freeze-screen').style.display = "none";
         }
 
-        // Apply Broadcast
         const alertBanner = document.getElementById('global-alert-banner');
         if (globalCloudData.global_alert && globalCloudData.global_alert.trim() !== "") {
             alertBanner.style.display = "block";
-            alertBanner.innerText = `📢 ALERT: ${globalCloudData.global_alert}`;
+            alertBanner.innerText = "ALERT: " + globalCloudData.global_alert;
         } else {
             alertBanner.style.display = "none";
         }
 
-        // Apply Variable Synchronization (Handles additions and deletions dynamically)
         if (globalCloudData.variables) {
-            // Rebuild items array based on default + cloud additions - cloud deletions
             let baseItems = [
                 { name: "Visual", val: 0.30 }, { name: "3 Fume (Creosote Pole)", val: 0.54 },
                 { name: "4 Fume (Creosote Pole)", val: 0.72 }, { name: "Ground wire", val: 0.55 },
@@ -599,71 +658,64 @@
                 { name: "Pad mount", val: 0.27 }, { name: "Warning sticker", val: 0.02 },
                 { name: "Bonding", val: 0.44 }, { name: "Pad mount tag ID", val: 0.27 }
             ];
-            
-            // Apply overrides/additions
-            Object.keys(globalCloudData.variables).forEach(k => {
-                let existing = baseItems.find(i => i.name === k);
-                if (existing) { existing.val = parseFloat(globalCloudData.variables[k]); } 
+            Object.keys(globalCloudData.variables).forEach(function(k) {
+                let existing = baseItems.find(function(i) { return i.name === k; });
+                if (existing) { existing.val = parseFloat(globalCloudData.variables[k]); }
                 else { baseItems.push({ name: k, val: parseFloat(globalCloudData.variables[k]) }); }
             });
-
-            // Handle deleted variables (if val is set to null or specific delete flag)
-            // Instead, we just trust globalCloudData.variables is master for custom, and filter base items if they were deleted.
-            // For true sync, we'll assign items. If a variable was deleted from cloud, we need a mechanism. 
-            // We use globalCloudData.deleted_vars = [] in future if needed, but for now we reconstruct.
-            if(globalCloudData.deleted_vars) {
-                baseItems = baseItems.filter(i => !globalCloudData.deleted_vars.includes(i.name));
+            if (globalCloudData.deleted_vars) {
+                baseItems = baseItems.filter(function(i) { return !globalCloudData.deleted_vars.includes(i.name); });
             }
-            
             items = baseItems;
-            renderInitialItemCards(); 
+            renderInitialItemCards();
             updateItemCardsDisplayValues();
         }
 
         profilesRegistry = globalCloudData.profiles;
         const pSelect = document.getElementById('profile-select');
         const currentSel = pSelect.value;
-        pSelect.innerHTML = profilesRegistry.map(p => `<option value="${p.val}">${p.name}</option>`).join('');
+        pSelect.innerHTML = profilesRegistry.map(function(p) {
+            return '<option value="' + p.val + '">' + p.name + '</option>';
+        }).join('');
         pSelect.value = currentSel;
 
         const buttonListEl = document.getElementById('login-profile-buttons-list');
-        if(buttonListEl) {
-            buttonListEl.innerHTML = profilesRegistry.map(p => {
-                return `<button class="profile-tap-btn" onclick="processInstantProfileTap('${p.val}')">
-                    <span>👤 ${p.name}</span> <span style="color:#0076d6; font-size:12px;">Tap to enter →</span>
-                </button>`;
+        if (buttonListEl) {
+            buttonListEl.innerHTML = profilesRegistry.map(function(p) {
+                return '<button class="profile-tap-btn" onclick="processInstantProfileTap(\'' + p.val + '\')">' +
+                       '<span>&#x1F464; ' + p.name + '</span> <span style="color:#0076d6; font-size:12px;">Tap to enter &#x2192;</span>' +
+                       '</button>';
             }).join('');
         }
 
         const lockBtn = document.getElementById('lock-toggle-btn');
-        if (lockBtn) lockBtn.textContent = globalCloudData.is_locked ? "🔓 Unlock All Screens" : "🔒 Lock All Screens";
+        if (lockBtn) lockBtn.textContent = globalCloudData.is_locked ? "Unlock All Screens" : "Lock All Screens";
         
-        // Admin UI updates
         document.getElementById('admin-broadcast-msg').value = globalCloudData.global_alert;
-        document.getElementById('t-1-8').value = globalCloudData.targets.man1_8;
+        document.getElementById('t-1-8').value  = globalCloudData.targets.man1_8;
         document.getElementById('t-1-10').value = globalCloudData.targets.man1_10;
-        document.getElementById('t-2-8').value = globalCloudData.targets.man2_8;
+        document.getElementById('t-2-8').value  = globalCloudData.targets.man2_8;
         document.getElementById('t-2-10').value = globalCloudData.targets.man2_10;
 
         updateAdminDraftsUI();
         updateAdminPeopleRegistryUI();
         updateAdminFailedLoginsUI();
         updateBannedIPsUI();
-        calculateEverything(); // Re-calc targets
+        calculateEverything();
     }
 
-    // -- ADMIN CONTROLS LOGIC -- 
+    // ── Admin Controls ────────────────────────────────────────────────────────────
 
     async function triggerAdminLogin(isBypassOverride, isDedicatedMode) {
         const passPrompt = prompt("Enter Administrator Password:");
-        if (passPrompt === null) return; 
+        if (passPrompt === null) return;
         
         const correctPass = globalCloudData.admin_pass || "2026";
         const currentProf = isDedicatedMode ? "System_Admin" : (localStorage.getItem('dom_sc_active_profile') || "unknown_profile");
         const failedAttemptsKey = 'failed_admin_attempts_' + currentProf;
         
         if (passPrompt === correctPass) {
-            localStorage.setItem(failedAttemptsKey, 0); 
+            localStorage.setItem(failedAttemptsKey, 0);
             isAdminLoggedIn = true;
             isDedicatedAdminMode = isDedicatedMode;
             resetAdminTimer();
@@ -680,7 +732,6 @@
             } else {
                 document.getElementById('login-nav-link').style.display = 'none';
             }
-            
             applyGlobalState();
         } else {
             globalCloudData.failed_admin_logins.push({ profileAttempted: currentProf, ip: localClientIP, timestamp: new Date().toLocaleString(), inputSecretAttempted: passPrompt });
@@ -695,7 +746,7 @@
                 alert("SECURITY BREACH: Profile locked.");
             } else {
                 await pushGlobalData();
-                alert(`Incorrect password. Attempt ${attempts} of 3.`);
+                alert("Incorrect password. Attempt " + attempts + " of 3.");
             }
         }
     }
@@ -704,7 +755,7 @@
         isAdminLoggedIn = false;
         clearTimeout(adminSessionTimer);
         if (isDedicatedAdminMode) {
-            location.reload(); // Hard reload back to login gate
+            location.reload();
         } else {
             document.getElementById('admin-panel').style.display = 'none';
             document.getElementById('login-nav-link').style.display = 'inline-block';
@@ -720,19 +771,18 @@
 
     async function adminChangePassword() {
         const newPass = document.getElementById('admin-new-password').value;
-        if(!newPass) return;
+        if (!newPass) return;
         globalCloudData.admin_pass = newPass;
         await pushGlobalData();
         alert("Admin password updated.");
         document.getElementById('admin-new-password').value = "";
     }
 
-    // Dynamic Targets
     async function adminSaveTargets() {
         globalCloudData.targets = {
-            man1_8: parseFloat(document.getElementById('t-1-8').value) || 26,
+            man1_8:  parseFloat(document.getElementById('t-1-8').value)  || 26,
             man1_10: parseFloat(document.getElementById('t-1-10').value) || 32.5,
-            man2_8: parseFloat(document.getElementById('t-2-8').value) || 32.5,
+            man2_8:  parseFloat(document.getElementById('t-2-8').value)  || 32.5,
             man2_10: parseFloat(document.getElementById('t-2-10').value) || 39
         };
         await pushGlobalData();
@@ -740,10 +790,8 @@
         applyGlobalState();
     }
 
-    // Global Alerts
     async function adminSetBroadcast() {
-        const msg = document.getElementById('admin-broadcast-msg').value;
-        globalCloudData.global_alert = msg;
+        globalCloudData.global_alert = document.getElementById('admin-broadcast-msg').value;
         await pushGlobalData();
         applyGlobalState();
     }
@@ -754,7 +802,6 @@
         applyGlobalState();
     }
 
-    // IP Blacklisting
     async function adminBanIP() {
         const ip = document.getElementById('ban-ip-input').value.trim();
         if (!ip) return;
@@ -767,20 +814,21 @@
         }
     }
     async function adminUnbanIP(ip) {
-        globalCloudData.banned_ips = globalCloudData.banned_ips.filter(i => i !== ip);
+        globalCloudData.banned_ips = globalCloudData.banned_ips.filter(function(i) { return i !== ip; });
         await pushGlobalData();
         applyGlobalState();
     }
     function updateBannedIPsUI() {
         const list = document.getElementById('banned-ips-list');
         const ips = globalCloudData.banned_ips || [];
-        if(ips.length === 0) { list.innerHTML = "No blocked IPs."; return; }
-        list.innerHTML = ips.map(ip => `<div style="display:flex;justify-content:space-between;padding:2px 0;"><span>${ip}</span> <button class="sm-btn" style="background:#eee;color:#000;" onclick="adminUnbanIP('${ip}')">Unban</button></div>`).join('');
+        if (ips.length === 0) { list.innerHTML = "No blocked IPs."; return; }
+        list.innerHTML = ips.map(function(ip) {
+            return '<div style="display:flex;justify-content:space-between;padding:2px 0;"><span>' + ip + '</span> <button class="sm-btn" style="background:#eee;color:#000;" onclick="adminUnbanIP(\'' + ip + '\')">Unban</button></div>';
+        }).join('');
     }
 
-    // Data Wipe
     async function adminFactoryResetData() {
-        if(confirm("CRITICAL WARNING: This will permanently delete ALL saved drafts, logs, and user activity records from the cloud. Proceed?")) {
+        if (confirm("CRITICAL WARNING: This will permanently delete ALL saved drafts, logs, and user activity records from the cloud. Proceed?")) {
             const doubleCheck = prompt("Type 'CONFIRM' to wipe database:");
             if (doubleCheck === "CONFIRM") {
                 globalCloudData.drafts = [];
@@ -793,96 +841,126 @@
         }
     }
 
-    // Variable Edits (Add, Update, Delete)
     async function adminAddVariable() {
         const name = document.getElementById('new-var-name').value.trim();
-        const val = parseFloat(document.getElementById('new-var-val').value);
+        const val  = parseFloat(document.getElementById('new-var-val').value);
         if (!name || isNaN(val)) return;
-        
         globalCloudData.variables[name] = val;
-        // remove from deleted vars if it was there
-        if(globalCloudData.deleted_vars) {
-            globalCloudData.deleted_vars = globalCloudData.deleted_vars.filter(v => v !== name);
+        if (globalCloudData.deleted_vars) {
+            globalCloudData.deleted_vars = globalCloudData.deleted_vars.filter(function(v) { return v !== name; });
         }
         await pushGlobalData();
-        document.getElementById('new-var-name').value = ""; document.getElementById('new-var-val').value = "";
+        document.getElementById('new-var-name').value = "";
+        document.getElementById('new-var-val').value  = "";
         applyGlobalState();
     }
     async function adminUpdateVariable() {
         const key = document.getElementById('var-item-select').value;
         const val = parseFloat(document.getElementById('var-item-val').value);
-        if(isNaN(val)) return;
+        if (isNaN(val)) return;
         globalCloudData.variables[key] = val;
         await pushGlobalData();
         applyGlobalState();
     }
     async function adminDeleteVariable() {
         const key = document.getElementById('var-item-select').value;
-        if(confirm(`Permanently remove the variable "${key}" from the system for all users?`)) {
+        if (confirm('Permanently remove the variable "' + key + '" from the system for all users?')) {
             delete globalCloudData.variables[key];
-            if(!globalCloudData.deleted_vars) globalCloudData.deleted_vars = [];
-            globalCloudData.deleted_vars.push(key); // Register deletion for sync
+            if (!globalCloudData.deleted_vars) globalCloudData.deleted_vars = [];
+            globalCloudData.deleted_vars.push(key);
             await pushGlobalData();
             applyGlobalState();
         }
     }
 
-    // People
     async function adminAddPerson() {
         const name = document.getElementById('new-person-name').value;
-        const val = document.getElementById('new-person-value').value;
-        if(!name || !val) return;
+        const val  = document.getElementById('new-person-value').value;
+        if (!name || !val) return;
         globalCloudData.profiles.push({ name: name, val: val });
         await pushGlobalData();
         applyGlobalState();
     }
     async function adminDeletePerson(targetVal) {
-        if(confirm("Delete this user profile?")) {
-            globalCloudData.profiles = globalCloudData.profiles.filter(p => p.val !== targetVal);
+        if (confirm("Delete this user profile?")) {
+            globalCloudData.profiles = globalCloudData.profiles.filter(function(p) { return p.val !== targetVal; });
             await pushGlobalData();
             applyGlobalState();
         }
     }
     async function adminToggleFreezeUser(targetVal) {
         globalCloudData.frozen_users[targetVal] = !globalCloudData.frozen_users[targetVal];
-        if(!globalCloudData.frozen_users[targetVal]) localStorage.setItem('failed_admin_attempts_' + targetVal, 0);
+        if (!globalCloudData.frozen_users[targetVal]) localStorage.setItem('failed_admin_attempts_' + targetVal, 0);
         await pushGlobalData();
         applyGlobalState();
     }
 
+    // ── MODIFIED: Admin registry now shows GPS location + Map link ───────────────
     function updateAdminPeopleRegistryUI() {
         const regDiv = document.getElementById('admin-people-registry');
         regDiv.innerHTML = profilesRegistry.map(function(p) {
             const isFrozen = globalCloudData.frozen_users[p.val] === true;
-            const logInfo = globalCloudData.active_login_ips[p.val];
-            const ipDisplay = logInfo ? `<span style="font-size:10px; color:#28a745;">IP: ${logInfo.ip}</span>` : `<span style="font-size:10px; color:#aaa;">IP: Offline</span>`;
-            return `<tr>
-                <td style="padding: 6px; border-bottom: 1px solid #ddd;">
-                    <b>${p.name}</b> <span style="font-size:10px;color:#666;">(${p.val})</span><br>${ipDisplay}
-                </td>
-                <td style="padding: 6px; border-bottom: 1px solid #ddd;">
-                    <button class="sm-btn ${isFrozen ? 'btn-red' : 'btn-yellow'}" onclick="adminToggleFreezeUser('${p.val}')">${isFrozen ? 'Thaw' : 'Freeze'}</button>
-                    <button class="sm-btn btn-red" onclick="adminDeletePerson('${p.val}')">X</button>
-                </td>
-            </tr>`;
+            const logInfo  = globalCloudData.active_login_ips[p.val];
+
+            // IP display
+            const ipDisplay = logInfo
+                ? '<span style="font-size:10px; color:#28a745;">IP: ' + logInfo.ip + '</span>'
+                : '<span style="font-size:10px; color:#aaa;">IP: Offline</span>';
+
+            // Location display
+            var locHTML = '';
+            if (logInfo) {
+                var loc = logInfo.location;
+                if (!loc) {
+                    // Legacy record before location tracking
+                    locHTML = '<span class="loc-badge loc-pending">&#x1F4CD; No location data</span>';
+                } else if (loc.error) {
+                    var errLabels = {
+                        denied:      '&#x1F6AB; Location denied',
+                        unavailable: '&#x274C; Location unavailable',
+                        timeout:     '&#x23F1;&#xFE0F; Location timed out'
+                    };
+                    locHTML = '<span class="loc-badge loc-denied">' + (errLabels[loc.error] || '&#x274C; Location error') + '</span>';
+                } else {
+                    var mapsUrl = buildMapsLink(loc);
+                    var accText = loc.accuracy ? ' &#xB1;' + loc.accuracy + 'm' : '';
+                    locHTML = '<span class="loc-badge">&#x1F4CD; ' + loc.lat + ', ' + loc.lng + accText +
+                              (mapsUrl ? ' &nbsp;<a href="' + mapsUrl + '" target="_blank" class="map-link">&#x1F5FA; Map</a>' : '') +
+                              '</span>' +
+                              '<span style="font-size:9px; color:#888; display:block; margin-top:2px;">' + (loc.timestamp || '') + '</span>';
+                }
+            }
+
+            return '<tr>' +
+                   '<td style="padding: 6px; border-bottom: 1px solid #ddd;">' +
+                   '<b>' + p.name + '</b> <span style="font-size:10px;color:#666;">(' + p.val + ')</span><br>' +
+                   ipDisplay + '<br>' + locHTML +
+                   '</td>' +
+                   '<td style="padding: 6px; border-bottom: 1px solid #ddd; vertical-align: top;">' +
+                   '<button class="sm-btn ' + (isFrozen ? 'btn-red' : 'btn-yellow') + '" onclick="adminToggleFreezeUser(\'' + p.val + '\')">' + (isFrozen ? 'Thaw' : 'Freeze') + '</button> ' +
+                   '<button class="sm-btn btn-red" onclick="adminDeletePerson(\'' + p.val + '\')">X</button>' +
+                   '</td></tr>';
         }).join('');
     }
+    // ─────────────────────────────────────────────────────────────────────────────
 
-    function updateAdminFailedLoginsUI() { /* omitted for brevity, uses identical previous logic */ }
+    function updateAdminFailedLoginsUI() { /* omitted — unchanged */ }
     function updateAdminDraftsUI() {
         const listDiv = document.getElementById('admin-drafts-list');
-        const drafts = globalCloudData.drafts || [];
+        const drafts  = globalCloudData.drafts || [];
         if (drafts.length === 0) { listDiv.innerHTML = "<div style='color:#777; font-style:italic;'>No drafts.</div>"; return; }
-        listDiv.innerHTML = drafts.map(d => `<div class='draft-item'>⏱️ <b>${d.timestamp}</b> - [${d.profile}] Foreman: ${d.foreman} | <b>${d.totalUnits} Units</b></div>`).reverse().join('');
+        listDiv.innerHTML = drafts.map(function(d) {
+            return "<div class='draft-item'>&#x23F1;&#xFE0F; <b>" + d.timestamp + "</b> - [" + d.profile + "] Foreman: " + d.foreman + " | <b>" + d.totalUnits + " Units</b></div>";
+        }).reverse().join('');
     }
 
-    // -- STANDARD APP LOGIC --
+    // ── Standard App Logic ────────────────────────────────────────────────────────
+
     function adjustQty(index, change) {
         const input = document.getElementById('qty-' + index);
-        if(!input) return;
-        let currentVal = parseInt(input.value) || 0;
-        let newVal = currentVal + change;
-        if (newVal < 0) newVal = 0; 
+        if (!input) return;
+        let newVal = (parseInt(input.value) || 0) + change;
+        if (newVal < 0) newVal = 0;
         input.value = newVal;
         calculateEverything(); triggerRealtimeTelemetry();
     }
@@ -891,49 +969,48 @@
         const container = document.getElementById('item-cards-container');
         container.innerHTML = "";
         items.forEach(function(item, index) {
-            container.innerHTML += `
-            <div class="item-card">
-                <div class="item-info">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-val" id="val-display-${index}">Unit Value: ${item.val.toFixed(2)}</div>
-                </div>
-                <div class="item-actions">
-                    <div class="qty-control">
-                        <button class="qty-btn" onclick="adjustQty(${index}, -1)">-</button>
-                        <input type="number" class="qty-input" id="qty-${index}" min="0" placeholder="0" oninput="calculateEverything(); triggerRealtimeTelemetry();">
-                        <button class="qty-btn" onclick="adjustQty(${index}, 1)">+</button>
-                    </div>
-                    <div class="item-total" id="total-${index}">0.00</div>
-                </div>
-            </div>`;
+            container.innerHTML +=
+                '<div class="item-card">' +
+                '  <div class="item-info">' +
+                '    <div class="item-name">' + item.name + '</div>' +
+                '    <div class="item-val" id="val-display-' + index + '">Unit Value: ' + item.val.toFixed(2) + '</div>' +
+                '  </div>' +
+                '  <div class="item-actions">' +
+                '    <div class="qty-control">' +
+                '      <button class="qty-btn" onclick="adjustQty(' + index + ', -1)">-</button>' +
+                '      <input type="number" class="qty-input" id="qty-' + index + '" min="0" placeholder="0" oninput="calculateEverything(); triggerRealtimeTelemetry();">' +
+                '      <button class="qty-btn" onclick="adjustQty(' + index + ', 1)">+</button>' +
+                '    </div>' +
+                '    <div class="item-total" id="total-' + index + '">0.00</div>' +
+                '  </div>' +
+                '</div>';
         });
-
         const varSelect = document.getElementById('var-item-select');
-        if(varSelect) varSelect.innerHTML = items.map(item => `<option value="${item.name}">${item.name}</option>`).join('');
+        if (varSelect) varSelect.innerHTML = items.map(function(item) { return '<option value="' + item.name + '">' + item.name + '</option>'; }).join('');
     }
 
     function updateItemCardsDisplayValues() {
         items.forEach(function(item, index) {
             const valDiv = document.getElementById('val-display-' + index);
-            if(valDiv) valDiv.textContent = "Unit Value: " + item.val.toFixed(2);
+            if (valDiv) valDiv.textContent = "Unit Value: " + item.val.toFixed(2);
         });
     }
 
-    let currentGrandTotal = 0; let currentActiveCrew = "1 Man";
+    let currentGrandTotal = 0;
+    let currentActiveCrew = "1 Man";
 
     function getProfilePrefix() { return 'dom_sc_' + document.getElementById('profile-select').value + '_'; }
 
     function saveFields() {
         const prefix = getProfilePrefix();
-        localStorage.setItem(prefix + 'foreman', document.getElementById('foreman-name').value);
-        localStorage.setItem(prefix + 'member', document.getElementById('crew-member-name').value);
-        localStorage.setItem(prefix + 'start_time', document.getElementById('start-time').value);
-        localStorage.setItem(prefix + 'end_time', document.getElementById('end-time').value);
+        localStorage.setItem(prefix + 'foreman',     document.getElementById('foreman-name').value);
+        localStorage.setItem(prefix + 'member',      document.getElementById('crew-member-name').value);
+        localStorage.setItem(prefix + 'start_time',  document.getElementById('start-time').value);
+        localStorage.setItem(prefix + 'end_time',    document.getElementById('end-time').value);
     }
 
     function switchProfile() {
-        const profile = document.getElementById('profile-select').value;
-        localStorage.setItem('dom_sc_active_profile', profile);
+        localStorage.setItem('dom_sc_active_profile', document.getElementById('profile-select').value);
         loadSavedData(); calculateEverything(); renderProfileSavedFilesUI();
     }
     function changeCrewType() { calculateEverything(); }
@@ -942,14 +1019,14 @@
         pullGlobalData();
         const profile = localStorage.getItem('dom_sc_active_profile') || 'robert_s';
         document.getElementById('profile-select').value = profile;
-        const prefix = getProfilePrefix();
+        const prefix    = getProfilePrefix();
         const savedCrew = localStorage.getItem(prefix + 'crew');
         document.getElementById(savedCrew === "2" ? 'crew-2' : 'crew-1').checked = true;
 
-        document.getElementById('foreman-name').value = localStorage.getItem(prefix + 'foreman') || (profile === 'robert_s' ? "Robert S" : profile === 'payton_n' ? "Payton N" : "");
-        document.getElementById('crew-member-name').value = localStorage.getItem(prefix + 'member') || "";
-        document.getElementById('start-time').value = localStorage.getItem(prefix + 'start_time') || "";
-        document.getElementById('end-time').value = localStorage.getItem(prefix + 'end_time') || "";
+        document.getElementById('foreman-name').value    = localStorage.getItem(prefix + 'foreman')     || (profile === 'robert_s' ? "Robert S" : profile === 'payton_n' ? "Payton N" : "");
+        document.getElementById('crew-member-name').value = localStorage.getItem(prefix + 'member')    || "";
+        document.getElementById('start-time').value      = localStorage.getItem(prefix + 'start_time') || "";
+        document.getElementById('end-time').value        = localStorage.getItem(prefix + 'end_time')   || "";
 
         items.forEach(function(item, index) {
             const el = document.getElementById('qty-' + index);
@@ -968,7 +1045,7 @@
             const el = document.getElementById('qty-' + index);
             if (!el) return;
             localStorage.setItem(prefix + 'qty_' + index, el.value);
-            let qty = parseInt(el.value) || 0;
+            const qty = parseInt(el.value) || 0;
             currentGrandTotal += qty * item.val;
             document.getElementById('total-' + index).textContent = (qty * item.val).toFixed(2);
         });
@@ -978,45 +1055,49 @@
         currentActiveCrew = isOneMan ? "1 Man" : "2 Man";
         document.getElementById('crew-member-container').style.display = isOneMan ? 'none' : 'flex';
         
-        // Use Dynamic Targets from Cloud
-        const t = globalCloudData.targets;
-        let target8 = isOneMan ? t.man1_8 : t.man2_8;
-        let target10 = isOneMan ? t.man1_10 : t.man2_10;
+        const t       = globalCloudData.targets;
+        const target8  = isOneMan ? t.man1_8  : t.man2_8;
+        const target10 = isOneMan ? t.man1_10 : t.man2_10;
 
-        document.getElementById('target-8-val').textContent = target8.toFixed(2);
+        document.getElementById('target-8-val').textContent  = target8.toFixed(2);
         document.getElementById('target-10-val').textContent = target10.toFixed(2);
 
-        updateRemainingDisplay('rem-8hr', target8 - currentGrandTotal);
+        updateRemainingDisplay('rem-8hr',  target8  - currentGrandTotal);
         updateRemainingDisplay('rem-10hr', target10 - currentGrandTotal);
     }
 
     function updateRemainingDisplay(elementId, value) {
         const el = document.getElementById(elementId);
-        if (value <= 0) { el.textContent = '✅ MET (+' + Math.abs(value).toFixed(2) + ')'; el.className = "metric-value remaining-met"; } 
-        else { el.textContent = '⏳ ' + value.toFixed(2) + ' left'; el.className = "metric-value remaining-positive"; }
+        if (value <= 0) { el.textContent = 'MET (+' + Math.abs(value).toFixed(2) + ')'; el.className = "metric-value remaining-met"; }
+        else            { el.textContent = value.toFixed(2) + ' left';                  el.className = "metric-value remaining-positive"; }
     }
 
     function clearForm() {
         if (confirm("Clear current quantities for this profile?")) {
             const prefix = getProfilePrefix();
-            ['foreman', 'member', 'start_time', 'end_time'].forEach(k => localStorage.removeItem(prefix + k));
-            ['foreman-name', 'crew-member-name', 'start-time', 'end-time'].forEach(id => document.getElementById(id).value = "");
-            items.forEach((_, index) => { localStorage.removeItem(prefix + 'qty_' + index); const el = document.getElementById('qty-' + index); if(el) el.value = ""; });
+            ['foreman', 'member', 'start_time', 'end_time'].forEach(function(k) { localStorage.removeItem(prefix + k); });
+            ['foreman-name', 'crew-member-name', 'start-time', 'end-time'].forEach(function(id) { document.getElementById(id).value = ""; });
+            items.forEach(function(_, index) {
+                localStorage.removeItem(prefix + 'qty_' + index);
+                const el = document.getElementById('qty-' + index);
+                if (el) el.value = "";
+            });
             switchProfile();
         }
     }
 
-    function showLunchModal() { document.getElementById('lunch-modal').style.display = 'flex'; }
-    function handleLunchDecision(tookBreak) { /* (Logic remains same) */ document.getElementById('lunch-modal').style.display = 'none'; }
-    function renderProfileSavedFilesUI() { /* (Logic remains same) */ }
-    function viewSavedLog(index) { /* (Logic remains same) */ }
-    function closeViewFileModal() { document.getElementById('view-file-modal').style.display = 'none'; }
-    function printSavedLog() { /* (Logic remains same) */ }
-    function closePostSaveLogoutModal() { document.getElementById('post-save-logout-modal').style.display = 'none'; }
+    function showLunchModal()   { document.getElementById('lunch-modal').style.display = 'flex'; }
+    function handleLunchDecision(tookBreak) { document.getElementById('lunch-modal').style.display = 'none'; }
+    function renderProfileSavedFilesUI() { /* unchanged */ }
+    function viewSavedLog(index) { /* unchanged */ }
+    function closeViewFileModal()        { document.getElementById('view-file-modal').style.display = 'none'; }
+    function printSavedLog()             { /* unchanged */ }
+    function closePostSaveLogoutModal()  { document.getElementById('post-save-logout-modal').style.display = 'none'; }
     function triggerRealtimeTelemetry() {
-        localStorage.setItem("dom_sc_realtime_stream", `[TELEMETRY] ${document.getElementById('profile-select').value}: ${currentGrandTotal.toFixed(2)} units.`);
+        localStorage.setItem("dom_sc_realtime_stream", "[TELEMETRY] " + document.getElementById('profile-select').value + ": " + currentGrandTotal.toFixed(2) + " units.");
     }
 
+    // ── Init ──────────────────────────────────────────────────────────────────────
     (async function initSystemLayout() {
         await resolveClientPublicIP();
         renderInitialItemCards();
@@ -1025,23 +1106,25 @@
         const savedProfile = localStorage.getItem('dom_sc_active_profile');
         if (savedProfile && !isDedicatedAdminMode) {
             document.getElementById('login-gateway-portal').style.display = "none";
-            document.getElementById('main-app-container').style.display = "block";
+            document.getElementById('main-app-container').style.display   = "block";
             document.getElementById('profile-select').value = savedProfile;
             switchProfile();
         } else {
             document.getElementById('login-gateway-portal').style.display = "flex";
-            document.getElementById('main-app-container').style.display = "none";
+            document.getElementById('main-app-container').style.display   = "none";
         }
     })();
     
     setInterval(function() {
         pullGlobalData();
-        if(isAdminLoggedIn) {
+        if (isAdminLoggedIn) {
             const streamMsg = localStorage.getItem("dom_sc_realtime_stream");
             const streamDiv = document.getElementById('live-activity-stream');
-            if(streamMsg && streamDiv && !streamDiv.innerText.includes(streamMsg)) streamDiv.innerHTML = `[LIVE STREAM] ${streamMsg}`;
+            if (streamMsg && streamDiv && !streamDiv.innerText.includes(streamMsg)) {
+                streamDiv.innerHTML = "[LIVE STREAM] " + streamMsg;
+            }
         }
     }, 4000);
 </script>
 </body>
-</html>
+</html
