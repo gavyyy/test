@@ -1181,10 +1181,10 @@
     }
 
     // Open the auth modal
-    async function openAuthModal(title, sub, storedHash, showForgot, onSuccess, onFail, bioContextKey) {
+    async function openAuthModal(title, sub, storedHash, showForgot, onSuccess, onFail, bioContextKey, pendingProfileVal) {
         passcodeBuffer = "";
         passcodeTarget = storedHash || "";
-        authContext = { onSuccess: onSuccess, onFail: onFail, bioContextKey: bioContextKey || null };
+        authContext = { onSuccess: onSuccess, onFail: onFail, bioContextKey: bioContextKey || null, pendingProfileVal: pendingProfileVal || null };
 
         document.getElementById('auth-modal-title').textContent  = title;
         document.getElementById('auth-modal-sub').textContent    = sub;
@@ -1302,9 +1302,12 @@
     }
 
     function authForgotPasscode() {
-        if (confirm("Request a passcode reset from the admin?\n\nThis will notify the administrator and they can send you a temporary reset.")) {
-            requestPasscodeReset();
+        // The modal may be open for a profile that isn't "active" yet (mid-login),
+        // so grab the profile we're authenticating against from the auth context.
+        var targetProfile = (authContext && authContext.pendingProfileVal) || null;
+        if (confirm("Request a passcode reset from the admin?\n\nThis will notify the administrator and they can clear your passcode so you can set a new one.")) {
             closeAuthModal();
+            requestPasscodeReset(targetProfile);
         }
     }
 
@@ -1420,11 +1423,14 @@
                     true,
                     function() { _completeProfileLogin(profileVal); },
                     null,
-                    bioContextKey
+                    bioContextKey,
+                    profileVal   // pendingProfileVal — so "Forgot passcode?" knows who
                 );
             } else {
                 // Bio-only profile, but credential not on this device
-                alert("This profile uses biometrics, but they're not set up on this device. Use 'Forgot passcode?' to request an admin reset.");
+                if (confirm("This profile uses biometrics, which aren't set up on this device.\n\nRequest a passcode reset from the admin instead?")) {
+                    requestPasscodeReset(profileVal);
+                }
             }
         } else {
             // No security — log in directly
@@ -1586,10 +1592,12 @@
         updateSecurityPanelUI();
     }
 
-    async function requestPasscodeReset() {
-        const profileVal = localStorage.getItem('dom_sc_active_profile');
+    async function requestPasscodeReset(explicitProfileVal) {
+        // Use the explicitly-passed profile (from a mid-login modal) when available,
+        // otherwise fall back to the currently active profile (Security panel button).
+        const profileVal = explicitProfileVal || localStorage.getItem('dom_sc_active_profile');
         if (!profileVal || profileVal === "null") {
-            alert("No active profile detected. Please select your profile first.");
+            alert("Couldn't tell which profile to reset. Please tap your profile name first, then try again.");
             return;
         }
         // Resolve a friendly name; fall back to the foreman field, then the profile id
@@ -1597,6 +1605,7 @@
         var profileName = (match && match.name) ? match.name
                         : (document.getElementById('foreman-name').value || profileVal);
 
+        await pullGlobalData();  // sync first so we don't overwrite other pending requests
         const req = { profile: profileVal, profileName: profileName, ip: localClientIP, timestamp: new Date().toLocaleString(), status: "pending" };
         if (!globalCloudData.passcode_reset_requests) globalCloudData.passcode_reset_requests = [];
         // Replace any existing request from the same profile
@@ -1609,7 +1618,7 @@
             location: "Reset request from profile " + profileName,
             time: new Date().toLocaleString()
         });
-        alert("Reset request sent to admin. Once approved, your passcode will be cleared and you can set a new one.");
+        alert("Reset request sent to admin for " + profileName + ".\n\nOnce approved, your passcode will be cleared and you can set a new one.");
     }
 
     // Admin approves reset — clears the CLOUD passcode so the user can set a new one
