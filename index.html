@@ -167,6 +167,43 @@
             z-index: 10000; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
         }
 
+        /* ── Maintenance Mode Screen ── */
+        #maintenance-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(160deg, #1a1f2e 0%, #0d1117 100%);
+            color: #fff; z-index: 6000; flex-direction: column; justify-content: center;
+            align-items: center; padding: 28px; text-align: center;
+        }
+        .maint-icon { font-size: 64px; margin-bottom: 12px; animation: spin-slow 6s linear infinite; display: inline-block; }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .maint-title { font-size: 26px; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px; }
+        .maint-subtitle { font-size: 14px; color: #8b9ab5; margin: 0 0 20px 0; max-width: 300px; line-height: 1.5; }
+        .maint-msg-box {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px; padding: 14px 18px; max-width: 340px; width: 100%;
+            font-size: 14px; color: #d0d8e8; line-height: 1.6; margin-bottom: 16px; text-align: left;
+        }
+        .maint-msg-box strong { color: #fff; display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.6; }
+        .maint-eta-box {
+            background: rgba(255, 165, 0, 0.12); border: 1px solid rgba(255, 165, 0, 0.3);
+            border-radius: 10px; padding: 10px 16px; font-size: 13px; color: #ffc107;
+            font-weight: bold; margin-bottom: 20px; max-width: 340px; width: 100%;
+        }
+        .maint-admin-btn {
+            background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5);
+            padding: 10px 20px; border-radius: 20px; font-size: 12px; cursor: pointer; margin-top: 8px;
+        }
+        .maint-admin-btn:active { background: rgba(255,255,255,0.08); }
+
+        /* ── Maintenance admin panel section ── */
+        .maint-admin-section { background: #fff8f0; border: 1px solid #ffd0a0; border-radius: 8px; padding: 12px; margin-top: 10px; }
+        .maint-admin-title { font-size: 13px; font-weight: bold; color: #c27d0e; margin-bottom: 8px; }
+        .maint-status-badge {
+            display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-bottom: 8px;
+        }
+        .maint-status-on  { background: #fde8e8; color: #c0392b; border: 1px solid #f5c6cb; }
+        .maint-status-off { background: #e8f5e9; color: #1e7e34; border: 1px solid #bce6c9; }
+
         /* ── Location badge styles ── */
         .loc-badge {
             display: inline-flex; align-items: center; gap: 3px;
@@ -1127,4 +1164,4 @@
     }, 4000);
 </script>
 </body>
-</html
+</html>
