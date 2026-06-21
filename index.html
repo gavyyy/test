@@ -24,9 +24,10 @@
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
+        
         /* Tap-to-Login Portal Layout */
         #login-gateway-portal {
-            display: flex;
+            display: none; /* Controlled by JS Init */
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -66,9 +67,11 @@
             border-color: #0076d6;
             color: #0076d6;
         }
+        
         #main-app-container {
-            display: none;
+            display: none; /* Controlled by JS Init */
         }
+        
         h2 {
             margin: 4px 0 8px 0;
             font-size: 22px;
@@ -80,18 +83,21 @@
             margin-bottom: 16px;
             border-bottom: 2px solid #f0f0f0;
             padding-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         .admin-toggle-btn {
             display: inline-block;
             background-color: #e9f5fe;
             border: 1px solid #cfe4ff;
             color: #0076d6;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 20px;
-            margin-top: 2px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             position: relative;
             z-index: 10;
@@ -100,6 +106,15 @@
         .admin-toggle-btn:active {
             background-color: #cfe4ff;
         }
+        .btn-logout-profile {
+            background-color: #fce8e6;
+            border-color: #f5c6cb;
+            color: #c5221f;
+        }
+        .btn-logout-profile:active {
+            background-color: #f5c6cb;
+        }
+
         .crew-selection {
             display: flex;
             gap: 12px;
@@ -514,13 +529,14 @@
     <div id="login-profile-buttons-list" style="width: 100%; max-width: 400px;">
         <p style="color:#777; font-style:italic;">Configuring network matrix routing streams...</p>
     </div>
-    <div style="margin-top:20px; font-size:11px; color:#888;">Your current public IP connection state is resolved securely on button tap.</div>
+    <div style="margin-top:20px; font-size:11px; color:#888;">Your connection payload signature and temporary IP node are logged for security operations.</div>
 </div>
 
 <div class="container" id="main-app-container">
     <h2>DOM/SC Norm 2026</h2>
     <div class="admin-nav-bar">
         <button class="admin-toggle-btn" id="login-nav-link" onclick="triggerAdminLogin(false)">🔑 Admin Console</button>
+        <button class="admin-toggle-btn btn-logout-profile" onclick="logoutProfile()">🚪 Sign Out</button>
     </div>
 
     <div class="admin-dashboard-box" id="admin-panel">
@@ -528,7 +544,7 @@
         <div style="margin: 8px 0;">
             <button id="lock-toggle-btn" class="admin-ctrl-btn lock-btn" onclick="adminToggleLock()">🔒 Lock Page</button>
             <button class="admin-ctrl-btn" onclick="adminClearSavedDrafts()">🗑️ Terminate Crew Data</button>
-            <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Logout</button>
+            <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Logout Admin</button>
         </div>
 
         <div class="admin-sub-section">
@@ -549,6 +565,13 @@
                     </div>
                     <button type="submit" class="sm-btn btn-blue">Update Password</button>
                 </form>
+            </div>
+
+            <div class="admin-action-box" style="margin-bottom: 12px; padding: 10px; background-color: #fff0f0; border-radius: 5px; border: 1px solid #f8d7da;">
+                <span style="font-size: 12px; font-weight: bold; color: #721c24; display: block; margin-bottom: 4px;">🛑 Failed Admin Login Attempts</span>
+                <div id="admin-failed-logins-view" style="font-family: monospace; font-size: 11px; max-height: 100px; overflow-y: auto; background: #fff; border: 1px solid #f5c6cb; padding: 6px; border-radius: 4px; color: #721c24;">
+                    <i>No recorded access breaches. System clear.</i>
+                </div>
             </div>
 
             <div class="admin-action-box" style="padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
@@ -601,12 +624,15 @@
         </label>
     </div>
 
-    <div class="crew-details">
+    <div class="crew-details" style="display: none;">
         <div class="input-group">
             <label for="profile-select">Active Profile</label>
             <select id="profile-select" class="select-input" onchange="switchProfile()">
                 </select>
         </div>
+    </div>
+    
+    <div class="crew-details">
         <div class="input-group">
             <label for="foreman-name">Foreman Name</label>
             <input type="text" id="foreman-name" class="text-input" placeholder="Enter foreman name" oninput="saveFields(); triggerRealtimeTelemetry();">
@@ -679,7 +705,18 @@
     const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
 
     const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-    let globalCloudData = { is_locked: false, drafts: [], admin_pass: "2026", frozen_users: {}, variables: {}, active_login_ips: {} };
+    
+    // Cloud storage baseline model parameters
+    let globalCloudData = { 
+        is_locked: false, 
+        drafts: [], 
+        admin_pass: "2026", 
+        frozen_users: {}, 
+        variables: {}, 
+        active_login_ips: {},
+        failed_admin_logins: []
+    };
+    
     let isAdminLoggedIn = false;
     let localClientIP = "0.0.0.0";
 
@@ -730,6 +767,7 @@
                 if(!responseData.record.variables) responseData.record.variables = {};
                 if(!responseData.record.profiles) responseData.record.profiles = profilesRegistry;
                 if(!responseData.record.active_login_ips) responseData.record.active_login_ips = {};
+                if(!responseData.record.failed_admin_logins) responseData.record.failed_admin_logins = [];
 
                 globalCloudData = responseData.record;
                 applyGlobalState();
@@ -755,7 +793,7 @@
         }
     }
 
-    // Fixed: One-tap profile selection seamlessly grabs IP and skips password check strings
+    // Gate Flow logic handlers
     async function processInstantProfileTap(profileVal) {
         await resolveClientPublicIP();
         await pullGlobalData();
@@ -776,6 +814,11 @@
 
         switchProfile();
     }
+    
+    function logoutProfile() {
+        localStorage.removeItem('dom_sc_active_profile');
+        location.reload();
+    }
 
     function applyGlobalState() {
         if (globalCloudData.is_locked && !isAdminLoggedIn) {
@@ -784,7 +827,6 @@
         } else {
             if (!globalCloudData.is_locked) {
                 document.getElementById('lock-overlay').style.display = 'none';
-                document.getElementById('main-app-container').style.display = 'block';
             }
         }
 
@@ -807,13 +849,11 @@
         if (globalCloudData.profiles) {
             profilesRegistry = globalCloudData.profiles;
             
-            // Sync dynamic calculator options selector
             const pSelect = document.getElementById('profile-select');
             const currentSel = pSelect.value;
             pSelect.innerHTML = profilesRegistry.map(p => `<option value="${p.val}">${p.name}</option>`).join('');
             pSelect.value = currentSel;
 
-            // Sync Gateway button interface matrix layout dynamically
             const buttonListEl = document.getElementById('login-profile-buttons-list');
             if(buttonListEl) {
                 buttonListEl.innerHTML = profilesRegistry.map(p => {
@@ -831,6 +871,7 @@
         }
         updateAdminDraftsUI();
         updateAdminPeopleRegistryUI();
+        updateAdminFailedLoginsUI();
     }
 
     function renderInitialItemCards() {
@@ -1168,7 +1209,8 @@
         localStorage.setItem("dom_sc_realtime_stream", `[TELEMETRY] Profile: ${activeProfile} (${foreman}) modified variables. Total calculated: ${units} units.`);
     }
 
-    function triggerAdminLogin(isBypassOverride) {
+    // Trigger Admin Auth Logic
+    async function triggerAdminLogin(isBypassOverride) {
         const passPrompt = prompt("Enter Administrator Password:");
         const correctPass = globalCloudData.admin_pass || "2026";
         
@@ -1184,8 +1226,21 @@
             
             updateAdminDraftsUI();
             updateAdminPeopleRegistryUI();
+            updateAdminFailedLoginsUI();
         } else if (passPrompt !== null) {
-            alert("Incorrect password access denied.");
+            // Log security breach locally and sync to cloud
+            const currentProf = localStorage.getItem('dom_sc_active_profile') || "unknown_profile";
+            if (!globalCloudData.failed_admin_logins) globalCloudData.failed_admin_logins = [];
+            
+            globalCloudData.failed_admin_logins.push({
+                profileAttempted: currentProf,
+                ip: localClientIP,
+                timestamp: new Date().toLocaleString(),
+                inputSecretAttempted: passPrompt
+            });
+            
+            await pushGlobalData();
+            alert("Incorrect password. Access denied and attempt has been logged.");
         }
     }
 
@@ -1287,6 +1342,26 @@
         }).join('');
     }
 
+    function updateAdminFailedLoginsUI() {
+        const viewEl = document.getElementById('admin-failed-logins-view');
+        if(!viewEl) return;
+        
+        const logs = globalCloudData.failed_admin_logins || [];
+        if(logs.length === 0) {
+            viewEl.innerHTML = "<i>No recorded admin access breaches. System clear.</i>";
+            return;
+        }
+        
+        viewEl.innerHTML = logs.map(l => {
+            return `<div style="border-bottom:1px solid #fbc2c4; padding:3px 0; margin-bottom: 3px;">
+                ⚠️ <b>${l.timestamp}</b><br>
+                Target Profile ID: "${l.profileAttempted}"<br>
+                Source IP Node: <span style="text-decoration:underline; font-weight:bold;">${l.ip}</span><br>
+                Password Attempted: "${l.inputSecretAttempted}"
+            </div>`;
+        }).reverse().join('');
+    }
+
     function adminViewUserRealtime(profileVal) {
         const drafts = globalCloudData.drafts || [];
         const targetedLogs = drafts.filter(d => d.profile === profileVal);
@@ -1315,15 +1390,30 @@
         }).join('');
     }
 
-    // Startup Initialization Sequence
+    // Initialize System & Handle Persistent Login Check
     (async function initSystemLayout() {
         await resolveClientPublicIP();
         renderInitialItemCards();
         await pullGlobalData();
-        calculateEverything();
+        
+        // Persistent State Routing Rules
+        const savedProfile = localStorage.getItem('dom_sc_active_profile');
+        if (savedProfile) {
+            // Already logged in - bypass gateway and setup main UI
+            document.getElementById('login-gateway-portal').style.display = "none";
+            document.getElementById('main-app-container').style.display = "block";
+            
+            const pSelect = document.getElementById('profile-select');
+            if (pSelect) pSelect.value = savedProfile;
+            switchProfile();
+        } else {
+            // Render Gateway
+            document.getElementById('login-gateway-portal').style.display = "flex";
+            document.getElementById('main-app-container').style.display = "none";
+        }
     })();
     
-    // Remote cloud pool ping background interval loop (4 seconds)
+    // Background Pulse Check Interval (4 Seconds)
     setInterval(function() {
         pullGlobalData();
         const streamMsg = localStorage.getItem("dom_sc_realtime_stream");
