@@ -214,6 +214,67 @@
         .loc-badge.loc-pending { color: #856404; background: #fff3cd; border-color: #ffe8a1; }
         .map-link { color: #0056b3; text-decoration: none; font-weight: bold; font-size: 10px; }
         .map-link:hover { text-decoration: underline; }
+
+        /* ── Auth Modal ── */
+        #auth-modal-overlay {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.65); z-index: 8000; justify-content: center; align-items: flex-end;
+            padding: 0;
+        }
+        .auth-sheet {
+            background: #fff; border-radius: 20px 20px 0 0; padding: 28px 24px 36px;
+            width: 100%; max-width: 500px; margin: 0 auto;
+            box-shadow: 0 -8px 32px rgba(0,0,0,0.18); text-align: center;
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .auth-sheet-title { font-size: 17px; font-weight: 700; color: #111; margin-bottom: 4px; }
+        .auth-sheet-sub   { font-size: 13px; color: #666; margin-bottom: 20px; }
+        .auth-bio-btn {
+            width: 100%; background: #111; color: #fff; border: none; border-radius: 12px;
+            padding: 15px; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .auth-bio-btn:active { background: #333; }
+        .auth-bio-btn.unavailable { background: #ccc; color: #888; cursor: not-allowed; }
+        .auth-divider { display: flex; align-items: center; gap: 10px; margin: 8px 0 14px; }
+        .auth-divider span { font-size: 11px; color: #aaa; white-space: nowrap; }
+        .auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background:#e0e0e0; }
+        .passcode-dots { display: flex; justify-content: center; gap: 14px; margin-bottom: 20px; }
+        .passcode-dot {
+            width: 16px; height: 16px; border-radius: 50%; background: #e0e0e0;
+            transition: background 0.15s;
+        }
+        .passcode-dot.filled { background: #111; }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 260px; margin: 0 auto; }
+        .numpad-key {
+            background: #f4f4f4; border: none; border-radius: 50%; width: 72px; height: 72px;
+            font-size: 22px; font-weight: 600; cursor: pointer; margin: 0 auto; display: flex;
+            align-items: center; justify-content: center; transition: background 0.1s;
+        }
+        .numpad-key:active { background: #d0d0d0; }
+        .numpad-key.del { font-size: 17px; background: transparent; }
+        .numpad-key.empty { background: transparent; cursor: default; }
+        .auth-error { color: #dc3545; font-size: 13px; min-height: 18px; margin-bottom: 8px; }
+        .auth-link-btn { background: none; border: none; color: #0076d6; font-size: 13px; cursor: pointer; padding: 4px; text-decoration: underline; }
+        .auth-cancel-btn { background: none; border: none; color: #888; font-size: 14px; cursor: pointer; padding: 8px 16px; margin-top: 10px; }
+
+        /* ── User Security Settings Panel ── */
+        .security-panel {
+            background: #f0f4ff; border: 1px solid #cfe4ff; border-radius: 12px; padding: 14px; margin-top: 14px;
+        }
+        .security-panel-title { font-size: 14px; font-weight: 700; color: #0056b3; margin-bottom: 12px; }
+        .sec-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #dde8ff; }
+        .sec-row:last-child { border-bottom: none; }
+        .sec-row-label { font-size: 13px; font-weight: 600; color: #222; }
+        .sec-row-sub   { font-size: 11px; color: #666; margin-top: 2px; }
+        .sec-toggle-btn { font-size: 12px; font-weight: 700; padding: 7px 14px; border: none; border-radius: 8px; cursor: pointer; }
+        .sec-btn-set    { background: #0076d6; color: #fff; }
+        .sec-btn-change { background: #e9f5fe; color: #0076d6; border: 1px solid #cfe4ff; }
+        .sec-btn-remove { background: #fce8e6; color: #c5221f; border: 1px solid #f5c6cb; }
+        .sec-btn-request { background: #fff4e5; color: #d97706; border: 1px solid #ffd0a0; }
+        .sec-status-on  { font-size: 10px; color: #1e7e34; font-weight: 700; }
+        .sec-status-off { font-size: 10px; color: #aaa; }
     </style>
 </head>
 <body>
@@ -353,6 +414,11 @@
                     <input type="password" id="admin-new-password" class="text-input" style="padding: 6px; font-size: 13px;" placeholder="New Secret String">
                     <button class="sm-btn btn-blue" onclick="adminChangePassword()">Update</button>
                 </div>
+                <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #ddd;">
+                    <span style="font-size:11px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">Admin Biometrics</span>
+                    <button class="sm-btn btn-dark" onclick="adminSetupBiometric()">&#x1F44D; Enable Face ID / Fingerprint for Admin</button>
+                    <button class="sm-btn" style="background:#fce8e6; color:#c5221f; margin-left:4px;" onclick="localStorage.removeItem(getAdminBioKey()); alert('Admin biometrics disabled.');">Disable</button>
+                </div>
             </div>
 
             <div style="margin-bottom: 12px; padding: 10px; background-color: #fff0f0; border-radius: 5px; border: 1px solid #f8d7da;">
@@ -403,6 +469,14 @@
 
         <div style="font-size: 12px; font-weight: bold; margin-top: 12px; color: #444;">Cloud Synchronized Final Drafts:</div>
         <div class="drafts-view" id="admin-drafts-list"></div>
+
+        <!-- ── PASSCODE RESET REQUESTS ── -->
+        <div class="admin-sub-section" style="border-color: #bee5eb; background: #f4fbff;">
+            <div class="admin-sub-title" style="color:#0c5460;">&#x1F4E7; Passcode Reset Requests</div>
+            <div id="admin-reset-requests-list" style="font-size:12px; max-height:120px; overflow-y:auto;">
+                <div style="color:#aaa; font-style:italic;">No pending requests.</div>
+            </div>
+        </div>
     </div>
     
     <div id="user-app-elements">
@@ -466,12 +540,94 @@
                 <div style="color:#888; font-style:italic; text-align:center;">No entries saved.</div>
             </div>
         </div>
+
+        <!-- ── USER SECURITY SETTINGS ── -->
+        <div class="security-panel">
+            <div class="security-panel-title">&#x1F510; Account Security</div>
+
+            <!-- Passcode row -->
+            <div class="sec-row">
+                <div>
+                    <div class="sec-row-label">&#x1F522; Profile Passcode</div>
+                    <div class="sec-row-sub" id="passcode-status-text">No passcode set</div>
+                </div>
+                <div style="display:flex; gap:6px; flex-shrink:0;">
+                    <button class="sec-toggle-btn sec-btn-set" id="passcode-set-btn" onclick="openSetPasscode()">Set</button>
+                    <button class="sec-toggle-btn sec-btn-change" id="passcode-change-btn" style="display:none;" onclick="openChangePasscode()">Change</button>
+                    <button class="sec-toggle-btn sec-btn-remove" id="passcode-remove-btn" style="display:none;" onclick="removePasscode()">Remove</button>
+                </div>
+            </div>
+
+            <!-- Biometric row -->
+            <div class="sec-row">
+                <div>
+                    <div class="sec-row-label">&#x1F44D; Face ID / Fingerprint</div>
+                    <div class="sec-row-sub" id="bio-status-text">Not enabled</div>
+                </div>
+                <div>
+                    <button class="sec-toggle-btn sec-btn-set" id="bio-enable-btn" onclick="enableBiometricForProfile()">Enable</button>
+                    <button class="sec-toggle-btn sec-btn-remove" id="bio-disable-btn" style="display:none;" onclick="disableBiometricForProfile()">Disable</button>
+                </div>
+            </div>
+
+            <!-- Reset request row -->
+            <div class="sec-row">
+                <div>
+                    <div class="sec-row-label">&#x1F4E7; Forgot Passcode?</div>
+                    <div class="sec-row-sub">Request admin to send a reset</div>
+                </div>
+                <button class="sec-toggle-btn sec-btn-request" onclick="requestPasscodeReset()">Request Reset</button>
+            </div>
+        </div>
         <br>
 
         <div class="action-buttons">
             <button class="clear-btn" onclick="clearForm()">&#x1F9F9; Clear</button>
             <button class="save-btn" onclick="showLunchModal()">&#x1F4BE; Save Daily Log</button>
         </div>
+    </div>
+</div>
+
+<!-- ── AUTH MODAL (biometric + passcode numpad) ── -->
+<div id="auth-modal-overlay">
+    <div class="auth-sheet">
+        <div class="auth-sheet-title" id="auth-modal-title">Verify Identity</div>
+        <div class="auth-sheet-sub" id="auth-modal-sub">Authenticate to continue</div>
+
+        <button class="auth-bio-btn" id="auth-bio-btn" onclick="attemptBiometric()">
+            &#x1F44D; Use Face ID / Fingerprint
+        </button>
+
+        <div class="auth-divider"><span>or enter passcode</span></div>
+
+        <div class="passcode-dots" id="passcode-dots">
+            <div class="passcode-dot" id="dot-0"></div>
+            <div class="passcode-dot" id="dot-1"></div>
+            <div class="passcode-dot" id="dot-2"></div>
+            <div class="passcode-dot" id="dot-3"></div>
+        </div>
+
+        <div class="auth-error" id="auth-error-msg"></div>
+
+        <div class="numpad">
+            <button class="numpad-key" onclick="numpadPress('1')">1</button>
+            <button class="numpad-key" onclick="numpadPress('2')">2</button>
+            <button class="numpad-key" onclick="numpadPress('3')">3</button>
+            <button class="numpad-key" onclick="numpadPress('4')">4</button>
+            <button class="numpad-key" onclick="numpadPress('5')">5</button>
+            <button class="numpad-key" onclick="numpadPress('6')">6</button>
+            <button class="numpad-key" onclick="numpadPress('7')">7</button>
+            <button class="numpad-key" onclick="numpadPress('8')">8</button>
+            <button class="numpad-key" onclick="numpadPress('9')">9</button>
+            <button class="numpad-key empty"></button>
+            <button class="numpad-key" onclick="numpadPress('0')">0</button>
+            <button class="numpad-key del" onclick="numpadDelete()">&#x232B;</button>
+        </div>
+
+        <div style="margin-top:16px;">
+            <button class="auth-link-btn" id="auth-forgot-btn" onclick="authForgotPasscode()" style="display:none;">Forgot passcode?</button>
+        </div>
+        <button class="auth-cancel-btn" onclick="closeAuthModal()">Cancel</button>
     </div>
 </div>
 
@@ -524,7 +680,8 @@
         banned_ips: [],
         global_alert: "",
         targets: { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
-        maintenance: { active: false, message: "", eta: "" }
+        maintenance: { active: false, message: "", eta: "" },
+        passcode_reset_requests: []
     };
     
     let isAdminLoggedIn = false;
@@ -634,7 +791,8 @@
                     targets:              d.targets || { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
                     profiles:             d.profiles || profilesRegistry,
                     deleted_vars:         d.deleted_vars || [],
-                    maintenance:          d.maintenance || { active: false, message: "", eta: "" }
+                    maintenance:          d.maintenance || { active: false, message: "", eta: "" },
+                    passcode_reset_requests: d.passcode_reset_requests || []
                 };
                 
                 if (globalCloudData.banned_ips.includes(localClientIP)) {
@@ -657,41 +815,7 @@
         } catch(e) { console.error(e); }
     }
 
-    // ── Profile tap: captures IP + geolocation together ──────────────────────────
-    async function processInstantProfileTap(profileVal) {
-        await pullGlobalData();
-        if (globalCloudData.banned_ips.includes(localClientIP)) return;
-
-        // Request location before writing — gathers concurrently with any remaining UI work
-        const geoResult = await requestGeolocation();
-
-        globalCloudData.active_login_ips[profileVal] = {
-            ip:        localClientIP,
-            timestamp: new Date().toLocaleString(),
-            location:  geoResult   // { lat, lng, accuracy, timestamp } OR { error: "..." }
-        };
-        await pushGlobalData();
-        
-        // Include location in email notification
-        var locStr = geoResult.error
-            ? ("Location " + geoResult.error)
-            : (geoResult.lat + ", " + geoResult.lng + " (±" + geoResult.accuracy + "m)");
-
-        emailjs.send("service_h1nnfhv", "template_aienmjb", {
-            profile_name: profileVal,
-            ip_address:   localClientIP,
-            location:     locStr,
-            time:         new Date().toLocaleString()
-        });
-
-        document.getElementById('profile-select').value = profileVal;
-        localStorage.setItem('dom_sc_active_profile', profileVal);
-
-        document.getElementById('login-gateway-portal').style.display = "none";
-        document.getElementById('main-app-container').style.display = "block";
-        switchProfile();
-    }
-    // ─────────────────────────────────────────────────────────────────────────────
+    // ── Profile tap: now handled by new auth engine above ────────────────────────
     
     function logoutProfile() {
         localStorage.removeItem('dom_sc_active_profile');
@@ -810,44 +934,209 @@
         updateAdminPeopleRegistryUI();
         updateAdminFailedLoginsUI();
         updateBannedIPsUI();
+        updateAdminResetRequestsUI();
         calculateEverything();
+        updateSecurityPanelUI();
     }
 
-    // ── Admin Controls ────────────────────────────────────────────────────────────
+    // ── BIOMETRIC + PASSCODE AUTH ENGINE ─────────────────────────────────────────
+
+    // State for the auth modal
+    var authContext = null; // { mode, resolve, reject, profileVal, isAdmin, isBypass, isDedicatedMode }
+    var passcodeBuffer = "";
+    var passcodeTarget = ""; // hash being matched against
+    var passcodeSetStep = 0; // 0=enter new, 1=confirm
+    var passcodeSetFirst = "";
+
+    // Simple hash (not crypto-secure, but fine for this use case)
+    async function hashPin(pin) {
+        const enc = new TextEncoder().encode(pin + "_dom_sc_salt_2026");
+        const buf = await crypto.subtle.digest("SHA-256", enc);
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+    }
+
+    function getProfilePasscodeKey(profileVal) { return "dom_sc_passcode_" + profileVal; }
+    function getProfileBioKey(profileVal) { return "dom_sc_bio_" + profileVal; }
+    function getAdminPasscodeKey() { return "dom_sc_admin_passcode"; }
+    function getAdminBioKey() { return "dom_sc_admin_bio"; }
+
+    function isBiometricAvailable() {
+        return !!(window.PublicKeyCredential);
+    }
+
+    async function attemptWebAuthn(displayName) {
+        try {
+            const challenge = new Uint8Array(32);
+            crypto.getRandomValues(challenge);
+            const cred = await navigator.credentials.get({
+                publicKey: {
+                    challenge: challenge,
+                    timeout: 30000,
+                    userVerification: "required",
+                    rpId: window.location.hostname || "localhost"
+                }
+            });
+            return !!cred;
+        } catch(e) {
+            return false;
+        }
+    }
+
+    // Open the auth modal
+    function openAuthModal(title, sub, storedHash, showForgot, onSuccess, onFail) {
+        passcodeBuffer = "";
+        passcodeTarget = storedHash || "";
+        authContext = { onSuccess, onFail };
+
+        document.getElementById('auth-modal-title').textContent = title;
+        document.getElementById('auth-modal-sub').textContent   = sub;
+        document.getElementById('auth-error-msg').textContent   = "";
+        document.getElementById('auth-forgot-btn').style.display = showForgot ? "inline-block" : "none";
+        document.getElementById('auth-modal-overlay').style.display = "flex";
+
+        const bioBtn = document.getElementById('auth-bio-btn');
+        if (isBiometricAvailable()) {
+            bioBtn.classList.remove('unavailable');
+            bioBtn.onclick = attemptBiometric;
+        } else {
+            bioBtn.classList.add('unavailable');
+            bioBtn.textContent = "Biometrics not available on this device";
+            bioBtn.onclick = null;
+        }
+        updateDots();
+    }
+
+    function closeAuthModal() {
+        document.getElementById('auth-modal-overlay').style.display = "none";
+        passcodeBuffer = "";
+        passcodeSetStep = 0;
+        passcodeSetFirst = "";
+        authContext = null;
+    }
+
+    function updateDots() {
+        for (var i = 0; i < 4; i++) {
+            var dot = document.getElementById('dot-' + i);
+            if (dot) dot.className = "passcode-dot" + (i < passcodeBuffer.length ? " filled" : "");
+        }
+    }
+
+    function numpadPress(digit) {
+        if (passcodeBuffer.length >= 4) return;
+        passcodeBuffer += digit;
+        updateDots();
+        document.getElementById('auth-error-msg').textContent = "";
+        if (passcodeBuffer.length === 4) {
+            setTimeout(handlePasscodeComplete, 120);
+        }
+    }
+
+    function numpadDelete() {
+        if (passcodeBuffer.length > 0) {
+            passcodeBuffer = passcodeBuffer.slice(0, -1);
+            updateDots();
+        }
+    }
+
+    async function handlePasscodeComplete() {
+        if (authContext && authContext.mode === "set") {
+            if (passcodeSetStep === 0) {
+                passcodeSetFirst = passcodeBuffer;
+                passcodeBuffer = "";
+                updateDots();
+                document.getElementById('auth-modal-sub').textContent = "Confirm your new passcode";
+                passcodeSetStep = 1;
+                return;
+            } else {
+                if (passcodeBuffer === passcodeSetFirst) {
+                    const hash = await hashPin(passcodeBuffer);
+                    authContext.onSuccess(hash);
+                    closeAuthModal();
+                } else {
+                    document.getElementById('auth-error-msg').textContent = "Passcodes don't match. Try again.";
+                    passcodeBuffer = ""; passcodeSetFirst = ""; passcodeSetStep = 0;
+                    document.getElementById('auth-modal-sub').textContent = "Enter a new 4-digit passcode";
+                    updateDots();
+                }
+                return;
+            }
+        }
+        // Verification mode
+        const hash = await hashPin(passcodeBuffer);
+        if (hash === passcodeTarget) {
+            if (authContext && authContext.onSuccess) authContext.onSuccess();
+            closeAuthModal();
+        } else {
+            document.getElementById('auth-error-msg').textContent = "Incorrect passcode. Try again.";
+            passcodeBuffer = "";
+            updateDots();
+        }
+    }
+
+    async function attemptBiometric() {
+        const success = await attemptWebAuthn("DOM/SC Auth");
+        if (success) {
+            if (authContext && authContext.onSuccess) authContext.onSuccess();
+            closeAuthModal();
+        } else {
+            document.getElementById('auth-error-msg').textContent = "Biometric failed. Use your passcode.";
+        }
+    }
+
+    function authForgotPasscode() {
+        if (confirm("Request a passcode reset from the admin?\n\nThis will notify the administrator and they can send you a temporary reset.")) {
+            requestPasscodeReset();
+            closeAuthModal();
+        }
+    }
+
+    // ── ADMIN LOGIN (biometric-first) ─────────────────────────────────────────────
 
     async function triggerAdminLogin(isBypassOverride, isDedicatedMode) {
+        const adminBioKey = getAdminBioKey();
+        const adminPcKey  = getAdminPasscodeKey();
+        const storedAdminHash = localStorage.getItem(adminPcKey);
+        const biometricsEnabled = localStorage.getItem(adminBioKey) === "true";
+
+        // If biometrics enabled for admin, try it first
+        if (biometricsEnabled && isBiometricAvailable()) {
+            const bioOk = await attemptWebAuthn("Admin Login");
+            if (bioOk) {
+                _grantAdminAccess(isBypassOverride, isDedicatedMode);
+                return;
+            }
+            // Fall through to passcode/password
+        }
+
+        // If admin has set a custom 4-digit passcode, use the numpad modal
+        if (storedAdminHash) {
+            openAuthModal(
+                "Admin Login",
+                "Enter admin passcode",
+                storedAdminHash,
+                false,
+                function() { _grantAdminAccess(isBypassOverride, isDedicatedMode); },
+                null
+            );
+            return;
+        }
+
+        // Fallback: legacy text password prompt
         const passPrompt = prompt("Enter Administrator Password:");
         if (passPrompt === null) return;
-        
+
         const correctPass = globalCloudData.admin_pass || "2026";
         const currentProf = isDedicatedMode ? "System_Admin" : (localStorage.getItem('dom_sc_active_profile') || "unknown_profile");
         const failedAttemptsKey = 'failed_admin_attempts_' + currentProf;
-        
+
         if (passPrompt === correctPass) {
             localStorage.setItem(failedAttemptsKey, 0);
-            isAdminLoggedIn = true;
-            isDedicatedAdminMode = isDedicatedMode;
-            resetAdminTimer();
-
-            document.getElementById('lock-overlay').style.display = 'none';
-            document.getElementById('login-gateway-portal').style.display = "none";
-            document.getElementById('main-app-container').style.display = 'block';
-            document.getElementById('admin-panel').style.display = 'block';
-            document.getElementById('local-freeze-screen').style.display = "none";
-            
-            if (isDedicatedAdminMode) {
-                document.getElementById('user-app-elements').style.display = 'none';
-                document.getElementById('login-nav-link').style.display = 'none';
-            } else {
-                document.getElementById('login-nav-link').style.display = 'none';
-            }
-            applyGlobalState();
+            _grantAdminAccess(isBypassOverride, isDedicatedMode);
         } else {
             globalCloudData.failed_admin_logins.push({ profileAttempted: currentProf, ip: localClientIP, timestamp: new Date().toLocaleString(), inputSecretAttempted: passPrompt });
             let attempts = parseInt(localStorage.getItem(failedAttemptsKey)) || 0;
             attempts++;
             localStorage.setItem(failedAttemptsKey, attempts);
-
             if (!isDedicatedMode && attempts >= 3) {
                 globalCloudData.frozen_users[currentProf] = true;
                 await pushGlobalData();
@@ -858,6 +1147,257 @@
                 alert("Incorrect password. Attempt " + attempts + " of 3.");
             }
         }
+    }
+
+    function _grantAdminAccess(isBypassOverride, isDedicatedMode) {
+        isAdminLoggedIn = true;
+        isDedicatedAdminMode = isDedicatedMode;
+        resetAdminTimer();
+        document.getElementById('lock-overlay').style.display = 'none';
+        document.getElementById('maintenance-overlay').style.display = 'none';
+        document.getElementById('login-gateway-portal').style.display = "none";
+        document.getElementById('main-app-container').style.display = 'block';
+        document.getElementById('admin-panel').style.display = 'block';
+        document.getElementById('local-freeze-screen').style.display = "none";
+        if (isDedicatedAdminMode) {
+            document.getElementById('user-app-elements').style.display = 'none';
+            document.getElementById('login-nav-link').style.display = 'none';
+        } else {
+            document.getElementById('login-nav-link').style.display = 'none';
+        }
+        applyGlobalState();
+    }
+
+    // ── PROFILE LOGIN WITH PASSCODE / BIOMETRIC ───────────────────────────────────
+
+    async function processInstantProfileTap(profileVal) {
+        await pullGlobalData();
+        if (globalCloudData.banned_ips.includes(localClientIP)) return;
+
+        const storedHash = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const bioEnabled = localStorage.getItem(getProfileBioKey(profileVal)) === "true";
+
+        if (storedHash || bioEnabled) {
+            // Profile is secured — authenticate first
+            if (bioEnabled && isBiometricAvailable()) {
+                const bioOk = await attemptWebAuthn(profileVal);
+                if (bioOk) {
+                    _completeProfileLogin(profileVal);
+                    return;
+                }
+                // Fall through to numpad
+            }
+            openAuthModal(
+                "Profile Login",
+                "Enter your passcode to continue",
+                storedHash,
+                true,
+                function() { _completeProfileLogin(profileVal); },
+                null
+            );
+        } else {
+            // No security set — log in directly
+            _completeProfileLogin(profileVal);
+        }
+    }
+
+    async function _completeProfileLogin(profileVal) {
+        const geoResult = await requestGeolocation();
+        globalCloudData.active_login_ips[profileVal] = {
+            ip:        localClientIP,
+            timestamp: new Date().toLocaleString(),
+            location:  geoResult
+        };
+        await pushGlobalData();
+
+        var locStr = geoResult.error
+            ? ("Location " + geoResult.error)
+            : (geoResult.lat + ", " + geoResult.lng + " (±" + geoResult.accuracy + "m)");
+        emailjs.send("service_h1nnfhv", "template_aienmjb", {
+            profile_name: profileVal, ip_address: localClientIP, location: locStr, time: new Date().toLocaleString()
+        });
+
+        document.getElementById('profile-select').value = profileVal;
+        localStorage.setItem('dom_sc_active_profile', profileVal);
+        document.getElementById('login-gateway-portal').style.display = "none";
+        document.getElementById('main-app-container').style.display = "block";
+        switchProfile();
+    }
+
+    // ── USER SECURITY SETTINGS ────────────────────────────────────────────────────
+
+    function updateSecurityPanelUI() {
+        const profileVal = localStorage.getItem('dom_sc_active_profile');
+        if (!profileVal) return;
+        const hasPasscode  = !!localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const bioEnabled   = localStorage.getItem(getProfileBioKey(profileVal)) === "true";
+
+        const statusText   = document.getElementById('passcode-status-text');
+        const setBtn       = document.getElementById('passcode-set-btn');
+        const changeBtn    = document.getElementById('passcode-change-btn');
+        const removeBtn    = document.getElementById('passcode-remove-btn');
+        const bioStatusTxt = document.getElementById('bio-status-text');
+        const bioEnableBtn = document.getElementById('bio-enable-btn');
+        const bioDisableBtn= document.getElementById('bio-disable-btn');
+
+        if (statusText) statusText.textContent = hasPasscode ? "✅ Passcode enabled" : "No passcode set";
+        if (setBtn)    setBtn.style.display    = hasPasscode ? "none"         : "inline-block";
+        if (changeBtn) changeBtn.style.display = hasPasscode ? "inline-block" : "none";
+        if (removeBtn) removeBtn.style.display = hasPasscode ? "inline-block" : "none";
+
+        if (bioStatusTxt) bioStatusTxt.textContent = bioEnabled ? "✅ Biometrics enabled" : (isBiometricAvailable() ? "Available — not enabled" : "Not supported on this device");
+        if (bioEnableBtn) {
+            bioEnableBtn.style.display  = bioEnabled ? "none" : "inline-block";
+            bioEnableBtn.disabled = !isBiometricAvailable();
+        }
+        if (bioDisableBtn) bioDisableBtn.style.display = bioEnabled ? "inline-block" : "none";
+    }
+
+    function openSetPasscode() {
+        const profileVal = localStorage.getItem('dom_sc_active_profile');
+        passcodeSetStep  = 0; passcodeSetFirst = ""; passcodeBuffer = "";
+        authContext = { mode: "set", onSuccess: function(hash) {
+            localStorage.setItem(getProfilePasscodeKey(profileVal), hash);
+            alert("Passcode set successfully!");
+            updateSecurityPanelUI();
+        }};
+        document.getElementById('auth-modal-title').textContent = "Set Passcode";
+        document.getElementById('auth-modal-sub').textContent   = "Enter a new 4-digit passcode";
+        document.getElementById('auth-error-msg').textContent   = "";
+        document.getElementById('auth-forgot-btn').style.display = "none";
+        document.getElementById('auth-bio-btn').style.display   = "none";
+        document.getElementById('auth-modal-overlay').style.display = "flex";
+        updateDots();
+    }
+
+    function openChangePasscode() {
+        const profileVal = localStorage.getItem('dom_sc_active_profile');
+        const storedHash = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        // Verify current first
+        openAuthModal(
+            "Verify Current Passcode",
+            "Enter your existing passcode",
+            storedHash,
+            false,
+            function() {
+                // Now set new
+                setTimeout(function() { openSetPasscode(); }, 200);
+            },
+            null
+        );
+    }
+
+    function removePasscode() {
+        const profileVal = localStorage.getItem('dom_sc_active_profile');
+        const storedHash = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        openAuthModal(
+            "Remove Passcode",
+            "Verify your current passcode to remove it",
+            storedHash,
+            false,
+            function() {
+                localStorage.removeItem(getProfilePasscodeKey(profileVal));
+                localStorage.removeItem(getProfileBioKey(profileVal));
+                alert("Passcode and biometrics removed.");
+                updateSecurityPanelUI();
+            },
+            null
+        );
+    }
+
+    async function enableBiometricForProfile() {
+        if (!isBiometricAvailable()) { alert("Biometrics are not supported on this device or browser."); return; }
+        const profileVal = localStorage.getItem('dom_sc_active_profile');
+        const storedHash = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        if (!storedHash) {
+            alert("Please set a passcode first before enabling biometrics.");
+            return;
+        }
+        // Verify passcode before enabling biometrics
+        openAuthModal(
+            "Enable Biometrics",
+            "Confirm your passcode to enable Face ID / Fingerprint",
+            storedHash,
+            false,
+            async function() {
+                const bioOk = await attemptWebAuthn("Enable biometrics for " + profileVal);
+                if (bioOk) {
+                    localStorage.setItem(getProfileBioKey(profileVal), "true");
+                    alert("Biometrics enabled for this profile!");
+                    updateSecurityPanelUI();
+                } else {
+                    alert("Biometric enrollment failed. Please try again.");
+                }
+            },
+            null
+        );
+    }
+
+    function disableBiometricForProfile() {
+        const profileVal = localStorage.getItem('dom_sc_active_profile');
+        localStorage.setItem(getProfileBioKey(profileVal), "false");
+        alert("Biometrics disabled.");
+        updateSecurityPanelUI();
+    }
+
+    async function requestPasscodeReset() {
+        const profileVal = localStorage.getItem('dom_sc_active_profile');
+        const profileName = (profilesRegistry.find(function(p) { return p.val === profileVal; }) || {}).name || profileVal;
+        const req = { profile: profileVal, profileName: profileName, ip: localClientIP, timestamp: new Date().toLocaleString(), status: "pending" };
+        if (!globalCloudData.passcode_reset_requests) globalCloudData.passcode_reset_requests = [];
+        // Remove any existing request from same profile
+        globalCloudData.passcode_reset_requests = globalCloudData.passcode_reset_requests.filter(function(r) { return r.profile !== profileVal; });
+        globalCloudData.passcode_reset_requests.push(req);
+        await pushGlobalData();
+        emailjs.send("service_h1nnfhv", "template_aienmjb", {
+            profile_name: profileName + " [PASSCODE RESET REQUEST]",
+            ip_address: localClientIP,
+            location: "Reset request from profile " + profileVal,
+            time: new Date().toLocaleString()
+        });
+        alert("Reset request sent to admin. You'll receive a temporary passcode shortly.");
+    }
+
+    // Admin approves reset — clears stored passcode so user can set a new one
+    async function adminApproveReset(profileVal) {
+        localStorage.removeItem(getProfilePasscodeKey(profileVal));
+        localStorage.removeItem(getProfileBioKey(profileVal));
+        globalCloudData.passcode_reset_requests = (globalCloudData.passcode_reset_requests || []).filter(function(r) { return r.profile !== profileVal; });
+        await pushGlobalData();
+        alert("Passcode reset approved for " + profileVal + ". Their passcode and biometrics have been cleared. They can set a new one on next login.");
+        applyGlobalState();
+    }
+
+    // Admin sets biometrics for their own account
+    async function adminSetupBiometric() {
+        if (!isBiometricAvailable()) { alert("Biometrics not supported on this device."); return; }
+        const adminPcKey = getAdminPasscodeKey();
+        const storedHash = localStorage.getItem(adminPcKey);
+        if (!storedHash) {
+            alert("Set an admin passcode first (in Security & Profile Management) before enabling biometrics.");
+            return;
+        }
+        const bioOk = await attemptWebAuthn("Admin Biometric Setup");
+        if (bioOk) {
+            localStorage.setItem(getAdminBioKey(), "true");
+            alert("Admin biometrics enabled! You can now use Face ID / Fingerprint to log in.");
+        } else {
+            alert("Biometric setup failed. Please try again.");
+        }
+    }
+
+    function updateAdminResetRequestsUI() {
+        const listDiv = document.getElementById('admin-reset-requests-list');
+        if (!listDiv) return;
+        const reqs = globalCloudData.passcode_reset_requests || [];
+        if (reqs.length === 0) { listDiv.innerHTML = "<div style='color:#aaa; font-style:italic;'>No pending requests.</div>"; return; }
+        listDiv.innerHTML = reqs.map(function(r) {
+            return '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #e0f0ff;">' +
+                   '<div><b style="font-size:12px;">' + r.profileName + '</b><br>' +
+                   '<span style="font-size:10px;color:#555;">' + r.timestamp + ' &bull; IP: ' + r.ip + '</span></div>' +
+                   '<button class="sm-btn btn-green" onclick="adminApproveReset(\'' + r.profile + '\')">Approve Reset</button>' +
+                   '</div>';
+        }).join('');
     }
 
     function adminLogout() {
@@ -1135,7 +1675,7 @@
 
     function switchProfile() {
         localStorage.setItem('dom_sc_active_profile', document.getElementById('profile-select').value);
-        loadSavedData(); calculateEverything(); renderProfileSavedFilesUI();
+        loadSavedData(); calculateEverything(); renderProfileSavedFilesUI(); updateSecurityPanelUI();
     }
     function changeCrewType() { calculateEverything(); }
 
