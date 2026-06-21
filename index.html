@@ -298,6 +298,7 @@
     <h1 style="font-size: 28px; margin-bottom: 8px;">&#x1F512; App Locked</h1>
     <p style="color: #aaa; max-width: 300px; margin: 0 auto;">This application platform has been locked down by an administrator.</p>
     <button class="bypass-btn" onclick="triggerAdminLogin(true, false)">Admin Override Login</button>
+    <button onclick="triggerAdminRecovery()" style="background:none; border:none; color:#555; font-size:11px; cursor:pointer; text-decoration:underline; margin-top:16px; display:block;">Forgot admin password?</button>
 </div>
 
 <!-- ── MAINTENANCE MODE OVERLAY ── -->
@@ -313,6 +314,7 @@
         &#x23F0; Estimated Return: <span id="maint-display-eta"></span>
     </div>
     <button class="maint-admin-btn" onclick="triggerAdminLogin(true, false)">Admin Access</button>
+    <button onclick="triggerAdminRecovery()" style="background:none; border:none; color:#444; font-size:11px; cursor:pointer; text-decoration:underline; margin-top:8px; display:block;">Forgot admin password?</button>
 </div>
 
 <div class="container" id="login-gateway-portal">
@@ -331,6 +333,12 @@
     </div>
 
     <div style="margin-top:20px; font-size:11px; color:#888;">Your current public IP connection state is resolved securely on button tap.</div>
+
+    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed #ddd; width: 100%; max-width: 400px; text-align: center;">
+        <button onclick="triggerAdminRecovery()" style="background:none; border:none; color:#bbb; font-size:11px; cursor:pointer; text-decoration:underline;">
+            Forgot admin password?
+        </button>
+    </div>
 </div>
 
 <div class="container" id="main-app-container">
@@ -668,6 +676,12 @@
     const BIN_ID = "6a372915f5f4af5e29165e77";
     const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
     const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
+
+    // ── MASTER RECOVERY KEY ───────────────────────────────────────────────────────
+    // This key ALWAYS works regardless of what the cloud password is set to.
+    // Change this string to something only you know. Keep it secret.
+    const MASTER_RECOVERY_KEY = "DOMSC-RECOVERY-2026";
+    // ─────────────────────────────────────────────────────────────────────────────
     
     let globalCloudData = { 
         is_locked: false, 
@@ -960,48 +974,157 @@
     function getAdminPasscodeKey() { return "dom_sc_admin_passcode"; }
     function getAdminBioKey() { return "dom_sc_admin_bio"; }
 
-    function isBiometricAvailable() {
-        return !!(window.PublicKeyCredential);
+    // ── ADMIN RECOVERY ────────────────────────────────────────────────────────────
+    async function triggerAdminRecovery() {
+        const input = prompt(
+            "Enter the Master Recovery Key to reset admin access:\n\n" +
+            "This will:\n" +
+            "  • Clear any local admin passcode\n" +
+            "  • Clear admin biometrics on this device\n" +
+            "  • Reset the cloud password back to: 2026\n\n" +
+            "Recovery Key:"
+        );
+        if (input === null) return;
+
+        if (input.trim() === MASTER_RECOVERY_KEY) {
+            // Clear local admin credentials
+            localStorage.removeItem(getAdminPasscodeKey());
+            localStorage.removeItem(getAdminBioKey());
+            localStorage.removeItem(getBioCredKey("admin"));
+
+            // Reset cloud password to default
+            globalCloudData.admin_pass = "2026";
+            await pushGlobalData();
+
+            alert(
+                "Admin access restored!\n\n" +
+                "Your password has been reset to: 2026\n\n" +
+                "Log in now and immediately set a new password in the Admin Console."
+            );
+
+            // Go straight to admin login with the reset password
+            _grantAdminAccess(false, true);
+        } else if (input.trim() !== "") {
+            alert("Incorrect recovery key. Access denied.");
+        }
+    }
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    // ── PLATFORM BIOMETRICS (Face ID / Touch ID / Windows Hello) ─────────────────
+    // Uses authenticatorAttachment: "platform" so the browser uses the device's
+    // built-in sensor — NOT a QR code or external security key.
+
+    async function isBiometricAvailable() {
+        if (!window.PublicKeyCredential) return false;
+        try {
+            return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        } catch(e) { return false; }
     }
 
-    async function attemptWebAuthn(displayName) {
+    function getBioCredKey(contextKey) { return "dom_sc_bio_cred_" + contextKey; }
+
+    // REGISTER — creates a new platform credential tied to this device biometric.
+    // Call once when user enables biometrics. Stores credentialId in localStorage.
+    async function registerPlatformBiometric(contextKey, displayName) {
         try {
             const challenge = new Uint8Array(32);
             crypto.getRandomValues(challenge);
-            const cred = await navigator.credentials.get({
+            const userId = new Uint8Array(16);
+            crypto.getRandomValues(userId);
+
+            const cred = await navigator.credentials.create({
                 publicKey: {
                     challenge: challenge,
-                    timeout: 30000,
-                    userVerification: "required",
-                    rpId: window.location.hostname || "localhost"
+                    rp: { name: "DOM/SC Platform", id: window.location.hostname || "localhost" },
+                    user: { id: userId, name: contextKey, displayName: displayName },
+                    pubKeyCredParams: [
+                        { type: "public-key", alg: -7  },  // ES256
+                        { type: "public-key", alg: -257 }  // RS256
+                    ],
+                    authenticatorSelection: {
+                        authenticatorAttachment: "platform",   // ← device sensor only, no QR/key
+                        userVerification: "required",
+                        residentKey: "preferred"
+                    },
+                    timeout: 60000,
+                    attestation: "none"
                 }
             });
-            return !!cred;
+
+            if (!cred) return false;
+            // Store the base64 credential ID so we can request it on verify
+            const credIdB64 = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+            localStorage.setItem(getBioCredKey(contextKey), credIdB64);
+            return true;
         } catch(e) {
+            console.error("Biometric register error:", e);
             return false;
         }
     }
 
+    // VERIFY — asserts the stored platform credential using the device biometric.
+    async function verifyPlatformBiometric(contextKey) {
+        try {
+            const credIdB64 = localStorage.getItem(getBioCredKey(contextKey));
+            if (!credIdB64) return false;
+
+            // Decode stored credential ID back to ArrayBuffer
+            const credIdBytes = Uint8Array.from(atob(credIdB64), function(c) { return c.charCodeAt(0); });
+
+            const challenge = new Uint8Array(32);
+            crypto.getRandomValues(challenge);
+
+            const assertion = await navigator.credentials.get({
+                publicKey: {
+                    challenge: challenge,
+                    timeout: 60000,
+                    userVerification: "required",
+                    rpId: window.location.hostname || "localhost",
+                    allowCredentials: [{
+                        type: "public-key",
+                        id: credIdBytes.buffer,
+                        transports: ["internal"]   // ← internal = platform/device biometric only
+                    }]
+                }
+            });
+            return !!assertion;
+        } catch(e) {
+            console.error("Biometric verify error:", e);
+            return false;
+        }
+    }
+
+    // Convenience: check if a credential is already registered for this context
+    function hasBioCredential(contextKey) {
+        return !!localStorage.getItem(getBioCredKey(contextKey));
+    }
+
     // Open the auth modal
-    function openAuthModal(title, sub, storedHash, showForgot, onSuccess, onFail) {
+    async function openAuthModal(title, sub, storedHash, showForgot, onSuccess, onFail, bioContextKey) {
         passcodeBuffer = "";
         passcodeTarget = storedHash || "";
-        authContext = { onSuccess, onFail };
+        authContext = { onSuccess: onSuccess, onFail: onFail, bioContextKey: bioContextKey || null };
 
-        document.getElementById('auth-modal-title').textContent = title;
-        document.getElementById('auth-modal-sub').textContent   = sub;
-        document.getElementById('auth-error-msg').textContent   = "";
+        document.getElementById('auth-modal-title').textContent  = title;
+        document.getElementById('auth-modal-sub').textContent    = sub;
+        document.getElementById('auth-error-msg').textContent    = "";
         document.getElementById('auth-forgot-btn').style.display = showForgot ? "inline-block" : "none";
         document.getElementById('auth-modal-overlay').style.display = "flex";
 
-        const bioBtn = document.getElementById('auth-bio-btn');
-        if (isBiometricAvailable()) {
+        const bioBtn    = document.getElementById('auth-bio-btn');
+        const bioAvail  = await isBiometricAvailable();
+        const hasCredential = bioContextKey && hasBioCredential(bioContextKey);
+
+        if (bioAvail && hasCredential) {
+            bioBtn.style.display = "flex";
             bioBtn.classList.remove('unavailable');
+            bioBtn.innerHTML = "&#x1F44D; Use Face ID / Fingerprint";
             bioBtn.onclick = attemptBiometric;
+        } else if (bioAvail && !hasCredential) {
+            // Available but not enrolled for this context — hide button
+            bioBtn.style.display = "none";
         } else {
-            bioBtn.classList.add('unavailable');
-            bioBtn.textContent = "Biometrics not available on this device";
-            bioBtn.onclick = null;
+            bioBtn.style.display = "none";
         }
         updateDots();
     }
@@ -1074,12 +1197,26 @@
     }
 
     async function attemptBiometric() {
-        const success = await attemptWebAuthn("DOM/SC Auth");
+        const contextKey = authContext && authContext.bioContextKey;
+        if (!contextKey) {
+            document.getElementById('auth-error-msg').textContent = "Biometric context missing.";
+            return;
+        }
+        document.getElementById('auth-error-msg').textContent = "";
+        const bioBtn = document.getElementById('auth-bio-btn');
+        bioBtn.innerHTML = "&#x23F3; Verifying...";
+        bioBtn.disabled  = true;
+
+        const success = await verifyPlatformBiometric(contextKey);
+
+        bioBtn.innerHTML = "&#x1F44D; Use Face ID / Fingerprint";
+        bioBtn.disabled  = false;
+
         if (success) {
             if (authContext && authContext.onSuccess) authContext.onSuccess();
             closeAuthModal();
         } else {
-            document.getElementById('auth-error-msg').textContent = "Biometric failed. Use your passcode.";
+            document.getElementById('auth-error-msg').textContent = "Biometric failed — use your passcode.";
         }
     }
 
@@ -1093,30 +1230,32 @@
     // ── ADMIN LOGIN (biometric-first) ─────────────────────────────────────────────
 
     async function triggerAdminLogin(isBypassOverride, isDedicatedMode) {
-        const adminBioKey = getAdminBioKey();
-        const adminPcKey  = getAdminPasscodeKey();
+        const adminBioKey  = getAdminBioKey();
+        const adminPcKey   = getAdminPasscodeKey();
         const storedAdminHash = localStorage.getItem(adminPcKey);
         const biometricsEnabled = localStorage.getItem(adminBioKey) === "true";
+        const bioAvail = await isBiometricAvailable();
 
-        // If biometrics enabled for admin, try it first
-        if (biometricsEnabled && isBiometricAvailable()) {
-            const bioOk = await attemptWebAuthn("Admin Login");
+        // Try platform biometrics first if enrolled
+        if (biometricsEnabled && bioAvail && hasBioCredential("admin")) {
+            const bioOk = await verifyPlatformBiometric("admin");
             if (bioOk) {
                 _grantAdminAccess(isBypassOverride, isDedicatedMode);
                 return;
             }
-            // Fall through to passcode/password
+            // Fall through to passcode/password on failure
         }
 
-        // If admin has set a custom 4-digit passcode, use the numpad modal
+        // If admin has set a 4-digit passcode, use the numpad modal
         if (storedAdminHash) {
             openAuthModal(
                 "Admin Login",
-                "Enter admin passcode",
+                "Enter your admin passcode",
                 storedAdminHash,
                 false,
                 function() { _grantAdminAccess(isBypassOverride, isDedicatedMode); },
-                null
+                null,
+                "admin"   // bioContextKey — enables bio button if credential exists
             );
             return;
         }
@@ -1174,29 +1313,38 @@
         await pullGlobalData();
         if (globalCloudData.banned_ips.includes(localClientIP)) return;
 
-        const storedHash = localStorage.getItem(getProfilePasscodeKey(profileVal));
-        const bioEnabled = localStorage.getItem(getProfileBioKey(profileVal)) === "true";
+        const storedHash   = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const bioEnabled   = localStorage.getItem(getProfileBioKey(profileVal)) === "true";
+        const bioAvail     = await isBiometricAvailable();
+        const bioContextKey = "profile_" + profileVal;
 
         if (storedHash || bioEnabled) {
-            // Profile is secured — authenticate first
-            if (bioEnabled && isBiometricAvailable()) {
-                const bioOk = await attemptWebAuthn(profileVal);
+            // Try biometrics first if enabled and credential enrolled on this device
+            if (bioEnabled && bioAvail && hasBioCredential(bioContextKey)) {
+                const bioOk = await verifyPlatformBiometric(bioContextKey);
                 if (bioOk) {
                     _completeProfileLogin(profileVal);
                     return;
                 }
-                // Fall through to numpad
+                // Bio failed — fall through to numpad
             }
-            openAuthModal(
-                "Profile Login",
-                "Enter your passcode to continue",
-                storedHash,
-                true,
-                function() { _completeProfileLogin(profileVal); },
-                null
-            );
+            // Numpad fallback (only if passcode exists)
+            if (storedHash) {
+                openAuthModal(
+                    "Profile Login",
+                    "Enter your passcode to continue",
+                    storedHash,
+                    true,
+                    function() { _completeProfileLogin(profileVal); },
+                    null,
+                    bioContextKey
+                );
+            } else {
+                // Bio-only profile, credential not on this device
+                alert("Biometrics not available on this device and no passcode is set. Contact admin.");
+            }
         } else {
-            // No security set — log in directly
+            // No security — log in directly
             _completeProfileLogin(profileVal);
         }
     }
@@ -1226,31 +1374,40 @@
 
     // ── USER SECURITY SETTINGS ────────────────────────────────────────────────────
 
-    function updateSecurityPanelUI() {
+    async function updateSecurityPanelUI() {
         const profileVal = localStorage.getItem('dom_sc_active_profile');
         if (!profileVal) return;
-        const hasPasscode  = !!localStorage.getItem(getProfilePasscodeKey(profileVal));
-        const bioEnabled   = localStorage.getItem(getProfileBioKey(profileVal)) === "true";
+        const hasPasscode   = !!localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const bioEnabled    = localStorage.getItem(getProfileBioKey(profileVal)) === "true";
+        const bioAvail      = await isBiometricAvailable();
+        const bioEnrolled   = hasBioCredential("profile_" + profileVal);
 
-        const statusText   = document.getElementById('passcode-status-text');
-        const setBtn       = document.getElementById('passcode-set-btn');
-        const changeBtn    = document.getElementById('passcode-change-btn');
-        const removeBtn    = document.getElementById('passcode-remove-btn');
-        const bioStatusTxt = document.getElementById('bio-status-text');
-        const bioEnableBtn = document.getElementById('bio-enable-btn');
-        const bioDisableBtn= document.getElementById('bio-disable-btn');
+        const statusText    = document.getElementById('passcode-status-text');
+        const setBtn        = document.getElementById('passcode-set-btn');
+        const changeBtn     = document.getElementById('passcode-change-btn');
+        const removeBtn     = document.getElementById('passcode-remove-btn');
+        const bioStatusTxt  = document.getElementById('bio-status-text');
+        const bioEnableBtn  = document.getElementById('bio-enable-btn');
+        const bioDisableBtn = document.getElementById('bio-disable-btn');
 
-        if (statusText) statusText.textContent = hasPasscode ? "✅ Passcode enabled" : "No passcode set";
-        if (setBtn)    setBtn.style.display    = hasPasscode ? "none"         : "inline-block";
-        if (changeBtn) changeBtn.style.display = hasPasscode ? "inline-block" : "none";
-        if (removeBtn) removeBtn.style.display = hasPasscode ? "inline-block" : "none";
+        if (statusText) statusText.textContent = hasPasscode ? "Passcode enabled" : "No passcode set";
+        if (setBtn)     setBtn.style.display    = hasPasscode ? "none"         : "inline-block";
+        if (changeBtn)  changeBtn.style.display  = hasPasscode ? "inline-block" : "none";
+        if (removeBtn)  removeBtn.style.display  = hasPasscode ? "inline-block" : "none";
 
-        if (bioStatusTxt) bioStatusTxt.textContent = bioEnabled ? "✅ Biometrics enabled" : (isBiometricAvailable() ? "Available — not enabled" : "Not supported on this device");
-        if (bioEnableBtn) {
-            bioEnableBtn.style.display  = bioEnabled ? "none" : "inline-block";
-            bioEnableBtn.disabled = !isBiometricAvailable();
+        var bioSubText = "";
+        if (!bioAvail)                         bioSubText = "Not supported on this device";
+        else if (bioEnabled && bioEnrolled)    bioSubText = "Enabled on this device";
+        else if (bioEnabled && !bioEnrolled)   bioSubText = "Enabled — not enrolled on this device";
+        else if (!hasPasscode)                 bioSubText = "Set a passcode first";
+        else                                   bioSubText = "Available — tap Enable to enroll";
+
+        if (bioStatusTxt)  bioStatusTxt.textContent = bioSubText;
+        if (bioEnableBtn)  {
+            bioEnableBtn.style.display = (bioEnabled && bioEnrolled) ? "none" : "inline-block";
+            bioEnableBtn.disabled = !bioAvail || !hasPasscode;
         }
-        if (bioDisableBtn) bioDisableBtn.style.display = bioEnabled ? "inline-block" : "none";
+        if (bioDisableBtn) bioDisableBtn.style.display = (bioEnabled && bioEnrolled) ? "inline-block" : "none";
     }
 
     function openSetPasscode() {
@@ -1271,25 +1428,24 @@
     }
 
     function openChangePasscode() {
-        const profileVal = localStorage.getItem('dom_sc_active_profile');
-        const storedHash = localStorage.getItem(getProfilePasscodeKey(profileVal));
-        // Verify current first
+        const profileVal    = localStorage.getItem('dom_sc_active_profile');
+        const storedHash    = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const bioContextKey = "profile_" + profileVal;
         openAuthModal(
             "Verify Current Passcode",
             "Enter your existing passcode",
             storedHash,
             false,
-            function() {
-                // Now set new
-                setTimeout(function() { openSetPasscode(); }, 200);
-            },
-            null
+            function() { setTimeout(function() { openSetPasscode(); }, 200); },
+            null,
+            bioContextKey
         );
     }
 
     function removePasscode() {
-        const profileVal = localStorage.getItem('dom_sc_active_profile');
-        const storedHash = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const profileVal    = localStorage.getItem('dom_sc_active_profile');
+        const storedHash    = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const bioContextKey = "profile_" + profileVal;
         openAuthModal(
             "Remove Passcode",
             "Verify your current passcode to remove it",
@@ -1298,38 +1454,43 @@
             function() {
                 localStorage.removeItem(getProfilePasscodeKey(profileVal));
                 localStorage.removeItem(getProfileBioKey(profileVal));
+                localStorage.removeItem(getBioCredKey(bioContextKey));
                 alert("Passcode and biometrics removed.");
                 updateSecurityPanelUI();
             },
-            null
+            null,
+            bioContextKey
         );
     }
 
     async function enableBiometricForProfile() {
-        if (!isBiometricAvailable()) { alert("Biometrics are not supported on this device or browser."); return; }
+        const bioAvail = await isBiometricAvailable();
+        if (!bioAvail) { alert("Platform biometrics (Face ID / Fingerprint) are not supported on this device or browser."); return; }
         const profileVal = localStorage.getItem('dom_sc_active_profile');
         const storedHash = localStorage.getItem(getProfilePasscodeKey(profileVal));
         if (!storedHash) {
             alert("Please set a passcode first before enabling biometrics.");
             return;
         }
-        // Verify passcode before enabling biometrics
+        const bioContextKey = "profile_" + profileVal;
+        // Verify passcode before enrolling biometric
         openAuthModal(
             "Enable Biometrics",
             "Confirm your passcode to enable Face ID / Fingerprint",
             storedHash,
             false,
             async function() {
-                const bioOk = await attemptWebAuthn("Enable biometrics for " + profileVal);
-                if (bioOk) {
+                const registered = await registerPlatformBiometric(bioContextKey, profileVal);
+                if (registered) {
                     localStorage.setItem(getProfileBioKey(profileVal), "true");
-                    alert("Biometrics enabled for this profile!");
+                    alert("Biometrics enrolled! Face ID / Fingerprint will now unlock your profile.");
                     updateSecurityPanelUI();
                 } else {
-                    alert("Biometric enrollment failed. Please try again.");
+                    alert("Biometric enrollment failed. Make sure your device has biometrics configured in system settings.");
                 }
             },
-            null
+            null,
+            null   // no bio button during passcode verify step
         );
     }
 
@@ -1362,27 +1523,28 @@
     async function adminApproveReset(profileVal) {
         localStorage.removeItem(getProfilePasscodeKey(profileVal));
         localStorage.removeItem(getProfileBioKey(profileVal));
+        localStorage.removeItem(getBioCredKey("profile_" + profileVal));
         globalCloudData.passcode_reset_requests = (globalCloudData.passcode_reset_requests || []).filter(function(r) { return r.profile !== profileVal; });
         await pushGlobalData();
         alert("Passcode reset approved for " + profileVal + ". Their passcode and biometrics have been cleared. They can set a new one on next login.");
         applyGlobalState();
     }
 
-    // Admin sets biometrics for their own account
+    // Admin sets up biometrics for their own account
     async function adminSetupBiometric() {
-        if (!isBiometricAvailable()) { alert("Biometrics not supported on this device."); return; }
-        const adminPcKey = getAdminPasscodeKey();
-        const storedHash = localStorage.getItem(adminPcKey);
+        const bioAvail = await isBiometricAvailable();
+        if (!bioAvail) { alert("Platform biometrics not supported on this device."); return; }
+        const storedHash = localStorage.getItem(getAdminPasscodeKey());
         if (!storedHash) {
-            alert("Set an admin passcode first (in Security & Profile Management) before enabling biometrics.");
+            alert("Set an admin passcode first before enabling biometrics.\n\nUse the numpad in Security & Profile Management to set one.");
             return;
         }
-        const bioOk = await attemptWebAuthn("Admin Biometric Setup");
-        if (bioOk) {
+        const registered = await registerPlatformBiometric("admin", "Administrator");
+        if (registered) {
             localStorage.setItem(getAdminBioKey(), "true");
-            alert("Admin biometrics enabled! You can now use Face ID / Fingerprint to log in.");
+            alert("Admin biometrics enrolled! Face ID / Fingerprint will now be tried first on admin login.");
         } else {
-            alert("Biometric setup failed. Please try again.");
+            alert("Biometric enrollment failed. Make sure your device has Face ID or fingerprint configured in system settings.");
         }
     }
 
