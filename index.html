@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DOM/SC Norm 2026</title>
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function(){
+            // Your EmailJS Public Key
+            emailjs.init("trknhfMBFg_ZjHKyH");
+        })();
+    </script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -371,7 +380,7 @@
         }
         .draft-item:last-child { border-bottom: none; }
 
-        /* Modals & Overlays */
+        /* Lockscreen Panel Cover Overlay styles */
         #lock-overlay {
             display: none;
             position: fixed;
@@ -506,7 +515,6 @@
 </head>
 <body>
 
-<!-- Local Screen Freeze Shield with Admin emergency exit link -->
 <div id="local-freeze-screen" class="frozen-screen-msg">
     <span>❄️ Screen Lock</span>
     <p style="font-size: 14px; color:#666; margin: 8px 0 24px 0; font-weight: normal; max-width: 300px;">
@@ -523,7 +531,6 @@
     <button class="bypass-btn" onclick="triggerAdminLogin(true)">Admin Override Login</button>
 </div>
 
-<!-- STAGE 1: ONE-TAP LOGIN PORTAL GATEWAY -->
 <div class="container" id="login-gateway-portal">
     <div class="login-title">DOM/SC Platform Gateway</div>
     <div class="login-subtitle">Select your tracking node profile below to authenticate</div>
@@ -534,7 +541,6 @@
     <div style="margin-top:20px; font-size:11px; color:#888;">Your current public IP connection state is resolved securely on button tap.</div>
 </div>
 
-<!-- STAGE 2: CALCULATOR MODULE CONSOLE WRAPPER -->
 <div class="container" id="main-app-container">
     <h2>DOM/SC Norm 2026</h2>
     <div class="admin-nav-bar">
@@ -542,7 +548,6 @@
         <button class="admin-toggle-btn btn-logout-profile" onclick="logoutProfile()">🚪 Sign Out</button>
     </div>
 
-    <!-- ADVANCED ADMIN CONTROLS HUB -->
     <div class="admin-dashboard-box" id="admin-panel">
         <span style="font-weight: bold; color: #d97706; font-size: 15px;">⚙️ Admin Controls Active</span>
         <div style="margin: 8px 0;">
@@ -591,8 +596,7 @@
                             </tr>
                         </thead>
                         <tbody id="admin-people-registry">
-                            <!-- Populated dynamically via JS -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
                 
@@ -632,7 +636,8 @@
     <div class="crew-details" style="display: none;">
         <div class="input-group">
             <label for="profile-select">Active Profile</label>
-            <select id="profile-select" class="select-input" onchange="switchProfile()"></select>
+            <select id="profile-select" class="select-input" onchange="switchProfile()">
+                </select>
         </div>
     </div>
     
@@ -673,13 +678,12 @@
                 <div class="metric-value" id="rem-8hr">26.00 left</div>
             </div>
             <div class="metric-item">
-                <div class="metric-label">10-Hr Target (<span id="target-10-val">32.5</span>)</div>
-                <div class="metric-value" id="rem-10hr">32.50 left</div>
+                <div class="metric-label">10-Hr Target (<span id="target-10-val">39</span>)</div>
+                <div class="metric-value" id="rem-10hr">39.00 left</div>
             </div>
         </div>
     </div>
 
-    <!-- PROFILE INDIVIDUAL ARCHIVED ARCHIVE HOOK -->
     <div class="saved-files-section">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
             <span style="font-weight:bold; font-size:14px; color:#1e7e34;">📁 My Saved Files Repository</span>
@@ -698,7 +702,6 @@
     </div>
 </div>
 
-<!-- MODALS -->
 <div class="modal-overlay" id="lunch-modal">
     <div class="modal-box">
         <div class="modal-title">Did you take a break/lunch today?</div>
@@ -732,12 +735,14 @@
     </div>
 </div>
 
+
 <script>
     const BIN_ID = "6a372915f5f4af5e29165e77";
     const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
 
     const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
     
+    // Cloud storage baseline model parameters
     let globalCloudData = { 
         is_locked: false, 
         drafts: [], 
@@ -824,6 +829,7 @@
         }
     }
 
+    // Gate Flow logic handlers
     async function processInstantProfileTap(profileVal) {
         await resolveClientPublicIP();
         await pullGlobalData();
@@ -835,6 +841,13 @@
         };
 
         await pushGlobalData();
+        
+        // EmailJS Trigger for successful sign-in
+        emailjs.send("service_h1nnfhv", "template_aienmjb", {
+            profile_name: profileVal,
+            ip_address: localClientIP,
+            time: new Date().toLocaleString()
+        });
 
         document.getElementById('profile-select').value = profileVal;
         localStorage.setItem('dom_sc_active_profile', profileVal);
@@ -1041,7 +1054,7 @@
             const qtyStr = qtyElement.value;
             localStorage.setItem(prefix + 'qty_' + index, qtyStr);
 
-            const qty = parseInt(qtyStr) || 0;
+            let qty = parseInt(qtyStr) || 0;
             const lineTotal = qty * item.val;
             currentGrandTotal += lineTotal;
             const totEl = document.getElementById('total-' + index);
@@ -1308,6 +1321,13 @@
                 ip: localClientIP,
                 timestamp: new Date().toLocaleString(),
                 inputSecretAttempted: passPrompt
+            });
+
+            // EmailJS Trigger for failed login breach
+            emailjs.send("service_h1nnfhv", "template_vja8sje", {
+                profile_attempted: currentProf,
+                ip_address: localClientIP,
+                password_guessed: passPrompt
             });
 
             // Increment failed attempts counter
