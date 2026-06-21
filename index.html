@@ -506,7 +506,7 @@
 </head>
 <body>
 
-<!-- Local Screen Freeze Shield -->
+<!-- Local Screen Freeze Shield with Admin emergency exit link -->
 <div id="local-freeze-screen" class="frozen-screen-msg">
     <span>❄️ Screen Lock</span>
     <p style="font-size: 14px; color:#666; margin: 8px 0 24px 0; font-weight: normal; max-width: 300px;">
@@ -699,7 +699,6 @@
 </div>
 
 <!-- MODALS -->
-<!-- 1. Lunch Check Modal -->
 <div class="modal-overlay" id="lunch-modal">
     <div class="modal-box">
         <div class="modal-title">Did you take a break/lunch today?</div>
@@ -710,7 +709,6 @@
     </div>
 </div>
 
-<!-- 2. Post-Save Logout Prompt Modal -->
 <div class="modal-overlay" id="post-save-logout-modal">
     <div class="modal-box">
         <div class="modal-title">✅ File Saved Successfully!</div>
@@ -723,7 +721,6 @@
     </div>
 </div>
 
-<!-- 3. View Saved Log PDF/Text Viewer Modal -->
 <div class="modal-overlay" id="view-file-modal">
     <div class="modal-box" style="max-width: 90%; max-height: 90%; display: flex; flex-direction: column;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
@@ -734,7 +731,6 @@
         <button class="modal-btn modal-btn-no" style="margin-top: 16px;" onclick="closeViewFileModal()">Close Viewer</button>
     </div>
 </div>
-
 
 <script>
     const BIN_ID = "6a372915f5f4af5e29165e77";
@@ -828,7 +824,6 @@
         }
     }
 
-    // Gate Flow logic handlers
     async function processInstantProfileTap(profileVal) {
         await resolveClientPublicIP();
         await pullGlobalData();
@@ -1199,7 +1194,6 @@
         const specificProfileKey = "dom_sc_saved_files_" + activeProfile;
         let localProfileFiles = JSON.parse(localStorage.getItem(specificProfileKey)) || [];
         
-        // Pushing full content text so they can view/print natively from app
         localProfileFiles.push({
             filename: "DOM_SC_Log_" + foremanName.replace(/\s+/g, '_') + "_" + fileDate + ".txt",
             timestamp: dateStr + " " + timeStr,
@@ -1221,7 +1215,6 @@
         link.click();
         document.body.removeChild(link);
 
-        // Instantly trigger logout prompt cleanly using an HTML modal to bypass block behaviors
         document.getElementById('post-save-logout-modal').style.display = 'flex';
     }
 
@@ -1282,12 +1275,18 @@
         localStorage.setItem("dom_sc_realtime_stream", `[TELEMETRY] Profile: ${activeProfile} (${foreman}) modified variables. Total calculated: ${units} units.`);
     }
 
-    // Trigger Admin Auth Logic w/ Auto-Freeze on Failure
+    // Trigger Admin Auth Logic w/ Attempt Counter & Auto-Freeze
     async function triggerAdminLogin(isBypassOverride) {
         const passPrompt = prompt("Enter Administrator Password:");
+        if (passPrompt === null) return; // Exit if user clicks Cancel
+        
         const correctPass = globalCloudData.admin_pass || "2026";
+        const currentProf = localStorage.getItem('dom_sc_active_profile') || "unknown_profile";
+        const failedAttemptsKey = 'failed_admin_attempts_' + currentProf;
         
         if (passPrompt === correctPass) {
+            localStorage.setItem(failedAttemptsKey, 0); // Reset counter on success
+            
             isAdminLoggedIn = true;
             document.getElementById('lock-overlay').style.display = 'none';
             document.getElementById('login-gateway-portal').style.display = "none";
@@ -1300,8 +1299,8 @@
             updateAdminDraftsUI();
             updateAdminPeopleRegistryUI();
             updateAdminFailedLoginsUI();
-        } else if (passPrompt !== null) {
-            const currentProf = localStorage.getItem('dom_sc_active_profile') || "unknown_profile";
+        } else {
+            // Log security breach locally and sync to cloud
             if (!globalCloudData.failed_admin_logins) globalCloudData.failed_admin_logins = [];
             
             globalCloudData.failed_admin_logins.push({
@@ -1311,15 +1310,23 @@
                 inputSecretAttempted: passPrompt
             });
 
-            // Auto-freeze logic
-            if (currentProf !== "unknown_profile") {
+            // Increment failed attempts counter
+            let attempts = parseInt(localStorage.getItem(failedAttemptsKey)) || 0;
+            attempts++;
+            localStorage.setItem(failedAttemptsKey, attempts);
+
+            if (currentProf !== "unknown_profile" && attempts >= 3) {
+                // Auto-freeze logic after 3 failed attempts
                 if (!globalCloudData.frozen_users) globalCloudData.frozen_users = {};
                 globalCloudData.frozen_users[currentProf] = true;
+                await pushGlobalData();
+                applyGlobalState(); // Immediately applies the freeze lock shield
+                alert("SECURITY BREACH: 3 failed attempts reached. Your profile has been automatically locked and reported.");
+            } else {
+                // Send warning
+                await pushGlobalData();
+                alert(`Incorrect password. Attempt ${attempts} of 3 logged.\n\nWARNING: After 3 failed attempts, your account will be locked and will have to be unlocked by an admin.`);
             }
-            
-            await pushGlobalData();
-            applyGlobalState(); 
-            alert("SECURITY BREACH: Incorrect password. Your profile has been automatically frozen and reported.");
         }
     }
 
@@ -1392,6 +1399,12 @@
     async function adminToggleFreezeUser(targetVal) {
         if(!globalCloudData.frozen_users) globalCloudData.frozen_users = {};
         globalCloudData.frozen_users[targetVal] = !globalCloudData.frozen_users[targetVal];
+        
+        // Also reset their failed attempts counter when an admin thaws them
+        if(!globalCloudData.frozen_users[targetVal]) {
+            localStorage.setItem('failed_admin_attempts_' + targetVal, 0);
+        }
+        
         await pushGlobalData();
         applyGlobalState();
     }
