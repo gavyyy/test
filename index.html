@@ -645,6 +645,15 @@
                 <input type="number" id="var-item-val" step="0.01" style="width:70px; padding:4px; font-size:12px;" placeholder="0.00">
                 <button class="sm-btn btn-blue" onclick="adminUpdateVariable()">Update</button>
             </div>
+            
+            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc;">
+                <span style="font-size: 11px; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">Add New Variable</span>
+                <div style="display: flex; gap: 4px;">
+                    <input type="text" id="new-var-name" placeholder="Variable Name" style="flex:1; padding:4px; font-size:12px;">
+                    <input type="number" id="new-var-val" step="0.01" placeholder="Value (e.g. 0.50)" style="width:100px; padding:4px; font-size:12px;">
+                    <button class="sm-btn btn-green" onclick="adminAddVariable()">Add</button>
+                </div>
+            </div>
         </div>
 
         <div style="font-size: 12px; font-weight: bold; margin-top: 12px; color: #444;">Saved Final Draft Records (JSONBin Sync):</div>
@@ -907,13 +916,27 @@
             document.getElementById('local-freeze-screen').style.display = "none";
         }
 
+        // UPDATED DYNAMIC VARIABLE SYNC LOGIC
         if (globalCloudData.variables) {
-            items.forEach(function(item) {
-                if (globalCloudData.variables[item.name] !== undefined) {
-                    item.val = parseFloat(globalCloudData.variables[item.name]);
+            let itemsLengthChanged = false;
+            Object.keys(globalCloudData.variables).forEach(function(key) {
+                let existingItem = items.find(i => i.name === key);
+                if (existingItem) {
+                    existingItem.val = parseFloat(globalCloudData.variables[key]);
+                } else {
+                    // Inject newly added custom variables dynamically
+                    items.push({ name: key, val: parseFloat(globalCloudData.variables[key]) });
+                    itemsLengthChanged = true;
                 }
             });
-            updateItemCardsDisplayValues();
+            
+            // Re-render only if a new item is added to avoid wiping active text inputs
+            if (itemsLengthChanged) {
+                renderInitialItemCards();
+                loadSavedData(); // restore quantities since DOM rebuilt
+            } else {
+                updateItemCardsDisplayValues();
+            }
         }
 
         if (globalCloudData.profiles) {
@@ -1093,7 +1116,7 @@
         items.forEach(function(item, index) {
             const savedQty = localStorage.getItem(prefix + 'qty_' + index);
             const el = document.getElementById('qty-' + index);
-            el.value = savedQty !== null ? savedQty : "";
+            if (el) el.value = savedQty !== null ? savedQty : "";
         });
         
         saveFields();
@@ -1109,6 +1132,7 @@
 
         items.forEach(function(item, index) {
             const qtyElement = document.getElementById('qty-' + index);
+            if (!qtyElement) return; // safety check
             const qtyStr = qtyElement.value;
             localStorage.setItem(prefix + 'qty_' + index, qtyStr);
 
@@ -1180,7 +1204,7 @@
             items.forEach(function(_, index) {
                 localStorage.removeItem(prefix + 'qty_' + index);
                 const el = document.getElementById('qty-' + index);
-                el.value = "";
+                if (el) el.value = "";
             });
             switchProfile();
         }
@@ -1241,7 +1265,9 @@
         let logContent = "====================================\n   DOM/SC NORM DAILY LOG REPORT\n====================================\nDate: " + dateStr + "\nTime: " + timeStr + "\nForeman: " + foremanName + "\nCrew Member: " + crewMemberName + "\nCrew Setup: " + currentActiveCrew + " Crew\nShift Timeline: " + startTime + " to " + endTime + "\nLunch Break: " + lunchLogLine + " (" + breakMinutes + " mins total)\nHours Worked: " + totalHoursText + "\n------------------------------------\n\nLOGGED QUANTITIES:\n";
 
         items.forEach(function(item, index) {
-            const qty = parseInt(document.getElementById('qty-' + index).value) || 0;
+            const qtyElement = document.getElementById('qty-' + index);
+            if (!qtyElement) return;
+            const qty = parseInt(qtyElement.value) || 0;
             if (qty > 0) {
                 logContent += "• " + item.name.padEnd(25) + " : Qty " + qty.toString().padEnd(4) + " -> Value: " + (qty * item.val).toFixed(2) + " units\n";
             }
@@ -1449,6 +1475,33 @@
         globalCloudData.variables[key] = val;
         await pushGlobalData();
         alert(`Variable values updated successfully: ${key} = ${val}`);
+        applyGlobalState();
+        calculateEverything();
+    }
+
+    // NEW ADD VARIABLE FUNCTION
+    async function adminAddVariable() {
+        const name = document.getElementById('new-var-name').value.trim();
+        const val = parseFloat(document.getElementById('new-var-val').value);
+        
+        if (!name) { alert("Please enter a variable name."); return; }
+        if (isNaN(val)) { alert("Please enter a valid numeric unit value."); return; }
+        
+        // Prevent duplicate creation
+        if (items.some(i => i.name.toLowerCase() === name.toLowerCase())) {
+            alert("A variable with this name already exists. Use the Update tool above instead.");
+            return;
+        }
+
+        if (!globalCloudData.variables) globalCloudData.variables = {};
+        globalCloudData.variables[name] = val;
+        
+        await pushGlobalData();
+        alert(`New variable added successfully: ${name} = ${val}`);
+        
+        document.getElementById('new-var-name').value = "";
+        document.getElementById('new-var-val').value = "";
+        
         applyGlobalState();
         calculateEverything();
     }
