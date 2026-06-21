@@ -231,8 +231,35 @@
             align-items: center;
             gap: 12px;
         }
+        
+        /* New Quantity Control CSS */
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            background: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s;
+        }
+        .qty-btn:active {
+            background: #e9ecef;
+            border-color: #0076d6;
+            color: #0076d6;
+        }
         .qty-input {
-            width: 65px;
+            width: 55px;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 8px;
@@ -240,10 +267,15 @@
             text-align: center;
             font-weight: bold;
         }
+        select.qty-input {
+            text-align: left;
+            padding-left: 4px;
+        }
         .qty-input:focus {
             border-color: #0076d6;
             outline: none;
         }
+        
         .item-total {
             width: 55px;
             text-align: right;
@@ -735,7 +767,6 @@
     </div>
 </div>
 
-
 <script>
     const BIN_ID = "6a372915f5f4af5e29165e77";
     const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
@@ -917,6 +948,17 @@
         updateAdminFailedLoginsUI();
     }
 
+    // NEW FUNCTION to handle Add/Minus buttons
+    function adjustQty(index, change) {
+        const input = document.getElementById('qty-' + index);
+        let currentVal = parseInt(input.value) || 0;
+        let newVal = currentVal + change;
+        if (newVal < 0) newVal = 0; // Prevent negative numbers
+        input.value = newVal;
+        calculateEverything();
+        triggerRealtimeTelemetry();
+    }
+
     function renderInitialItemCards() {
         const container = document.getElementById('item-cards-container');
         container.innerHTML = "";
@@ -943,21 +985,55 @@
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'item-actions';
 
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.className = 'qty-input';
-            input.id = 'qty-' + index;
-            input.min = '0';
-            input.setAttribute('pattern', '[0-9]*');
-            input.placeholder = '0';
-            input.oninput = function() { calculateEverything(); triggerRealtimeTelemetry(); };
+            // Special layout for Fume per rod
+            if (item.name === "Fume per rod") {
+                const select = document.createElement('select');
+                select.className = 'qty-input';
+                select.id = 'qty-' + index;
+                select.style.width = '85px'; 
+                select.innerHTML = `
+                    <option value="0">0</option>
+                    <option value="3">3 fume</option>
+                    <option value="4">4 fume</option>
+                `;
+                select.onchange = function() { calculateEverything(); triggerRealtimeTelemetry(); };
+                actionsDiv.appendChild(select);
+            } else {
+                // Layout for standard inputs with + and - buttons
+                const controlDiv = document.createElement('div');
+                controlDiv.className = 'qty-control';
+
+                const minusBtn = document.createElement('button');
+                minusBtn.className = 'qty-btn';
+                minusBtn.textContent = '-';
+                minusBtn.onclick = function() { adjustQty(index, -1); };
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'qty-input';
+                input.id = 'qty-' + index;
+                input.min = '0';
+                input.setAttribute('pattern', '[0-9]*');
+                input.placeholder = '0';
+                input.oninput = function() { calculateEverything(); triggerRealtimeTelemetry(); };
+
+                const plusBtn = document.createElement('button');
+                plusBtn.className = 'qty-btn';
+                plusBtn.textContent = '+';
+                plusBtn.onclick = function() { adjustQty(index, 1); };
+
+                controlDiv.appendChild(minusBtn);
+                controlDiv.appendChild(input);
+                controlDiv.appendChild(plusBtn);
+                
+                actionsDiv.appendChild(controlDiv);
+            }
 
             const totalDiv = document.createElement('div');
             totalDiv.className = 'item-total';
             totalDiv.id = 'total-' + index;
             totalDiv.textContent = '0.00';
 
-            actionsDiv.appendChild(input);
             actionsDiv.appendChild(totalDiv);
 
             card.appendChild(infoDiv);
@@ -1035,7 +1111,14 @@
 
         items.forEach(function(item, index) {
             const savedQty = localStorage.getItem(prefix + 'qty_' + index);
-            document.getElementById('qty-' + index).value = savedQty !== null ? savedQty : "";
+            const el = document.getElementById('qty-' + index);
+            
+            // Differentiate between standard input and the new <select> for "Fume per rod"
+            if (el.tagName === 'SELECT') {
+                el.value = (savedQty !== null && savedQty !== "") ? savedQty : "0";
+            } else {
+                el.value = savedQty !== null ? savedQty : "";
+            }
         });
         
         saveFields();
@@ -1121,7 +1204,14 @@
 
             items.forEach(function(_, index) {
                 localStorage.removeItem(prefix + 'qty_' + index);
-                document.getElementById('qty-' + index).value = "";
+                const el = document.getElementById('qty-' + index);
+                
+                // Clear state appropriately for select vs inputs
+                if (el.tagName === 'SELECT') {
+                    el.value = "0";
+                } else {
+                    el.value = "";
+                }
             });
             switchProfile();
         }
