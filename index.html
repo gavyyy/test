@@ -52,6 +52,9 @@
             z-index: 10;
             text-decoration: none;
         }
+        .admin-toggle-btn:active {
+            background-color: #cfe4ff;
+        }
         .crew-selection {
             display: flex;
             gap: 12px;
@@ -226,124 +229,228 @@
             font-weight: bold;
             margin-top: 4px;
         }
-        .remaining-positive { color: #dc3545; }
-        .remaining-met { color: #28a745; }
-        .action-buttons { display: flex; gap: 10px; }
+        .remaining-positive {
+            color: #dc3545;
+        }
+        .remaining-met {
+            color: #28a745;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
         .save-btn {
-            flex: 2; background-color: #28a745; color: white; border: none;
-            padding: 15px; font-size: 16px; font-weight: bold; border-radius: 10px;
-            cursor: pointer; box-shadow: 0 3px 6px rgba(40,167,69,0.2);
+            flex: 2;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(40,167,69,0.2);
+            transition: background 0.1s;
+        }
+        .save-btn:active {
+            background-color: #1e7e34;
         }
         .clear-btn {
-            flex: 1; background-color: #6c757d; color: white; border: none;
-            padding: 15px; font-size: 15px; font-weight: bold; border-radius: 10px;
+            flex: 1;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 15px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 10px;
             cursor: pointer;
+            transition: background 0.1s;
+        }
+        .clear-btn:active {
+            background-color: #545b62;
         }
 
-        /* NEW LOGIN SCREEN OVERLAY LAYOUT */
-        #user-login-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #f1f3f6; z-index: 6000;
-            display: flex; justify-content: center; align-items: center; padding: 16px;
-        }
-        .login-box {
-            background: white; width: 100%; max-width: 400px;
-            padding: 24px; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-        }
-
+        /* Admin Dashboard UI Config Styles */
         .admin-dashboard-box {
-            display: none; background: #fff4e5; border: 2px dashed #ff9800;
-            padding: 14px; border-radius: 12px; margin-bottom: 16px;
+            display: none;
+            background: #fff4e5;
+            border: 2px dashed #ff9800;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 16px;
         }
         .admin-ctrl-btn {
-            background: #dc3545; color: white; border: none; padding: 10px 14px;
-            font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 13px; margin: 4px 4px 4px 0;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 14px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            margin: 4px 4px 4px 0;
         }
         .admin-ctrl-btn.lock-btn { background: #333; }
         .admin-ctrl-btn.logout-btn { background: #6c757d; }
         .drafts-view {
-            margin-top: 10px; max-height: 150px; overflow-y: auto;
-            text-align: left; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #ddd;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            background: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
         }
-        .draft-item { font-size: 11px; border-bottom: 1px solid #eee; padding: 5px 0; color: #333; font-family: monospace; }
+        .draft-item {
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+            padding: 6px 0;
+            color: #333;
+        }
+        .draft-item:last-child { border-bottom: none; }
 
+        /* Lockscreen Cover Panel Overlay styles */
         #lock-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #11141a; color: #fff; z-index: 5000; flex-direction: column;
-            justify-content: center; align-items: center; padding: 24px; text-align: center;
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #11141a;
+            color: #fff;
+            z-index: 5000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            text-align: center;
         }
         .bypass-btn {
-            background: #0076d6; color: #fff; padding: 14px 28px; font-size: 16px;
-            font-weight: bold; border-radius: 24px; margin-top: 24px; cursor: pointer; border: none;
+            background: #0076d6;
+            border: 1px solid #cfe4ff;
+            color: #fff;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 24px;
+            margin-top: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
+        .bypass-btn:active {
+            background-color: #0056b3;
+        }
+
         .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px;
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
-        .modal-box { background: #ffffff; padding: 24px; border-radius: 16px; max-width: 400px; width: 100%; text-align: center; }
-        .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #111; }
-        .modal-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
-        .modal-btn { flex: 1; padding: 12px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; }
+        .modal-box {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #111;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
         .modal-btn-yes { background-color: #0076d6; color: white; }
         .modal-btn-no { background-color: #6c757d; color: white; }
-        .admin-sub-section { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #e0d5c1; }
-        .admin-sub-title { font-size: 13px; font-weight: bold; color: #c27d0e; margin-bottom: 6px; }
-        .management-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 13px; }
-        .sm-btn { padding: 4px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
+
+        /* ADVANCED CONTROLS CSS */
+        .admin-sub-section {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px solid #e0d5c1;
+        }
+        .admin-sub-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #c27d0e;
+            margin-bottom: 6px;
+        }
+        .management-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        .management-row:last-child { border-bottom: none; }
+        .sm-btn {
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
         .btn-green { background: #28a745; color: white; }
         .btn-blue { background: #0076d6; color: white; }
         .btn-yellow { background: #ffc107; color: black; }
         .btn-red { background: #dc3545; color: white; }
         .frozen-screen-msg {
-            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(255,255,255,0.95); color: #dc3545; z-index: 9999;
-            flex-direction: column; justify-content: center; align-items: center; font-size: 24px; font-weight: bold;
+            display: none;
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.95);
+            color: #dc3545;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
         }
-        .saved-files-section { background: #f4fdf7; border: 1px solid #bce6c9; border-radius: 10px; padding: 10px; margin-top: 12px; }
+        .saved-files-section {
+            background: #f4fdf7;
+            border: 1px solid #bce6c9;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
 
-<div id="user-login-screen">
-    <div class="login-box">
-        <h3 style="margin-top:0; text-align:center; font-size:20px;">📋 Crew Entry Portal</h3>
-        <form id="portal-login-form" onsubmit="handlePortalLogin(event)">
-            <div class="input-group" style="margin-bottom:12px;">
-                <label for="login-profile-select">Select Active Profile</label>
-                <select id="login-profile-select" class="select-input" onchange="handleLoginProfileSwitch()" required>
-                    <option value="" disabled selected>-- Choose Profile --</option>
-                    <option value="robert_s">Robert S</option>
-                    <option value="payton_n">Payton N</option>
-                    <option value="default">Default / Custom</option>
-                </select>
-            </div>
-            <div class="input-group" style="margin-bottom:12px;">
-                <label>Select Crew Size</label>
-                <div style="display:flex; gap:10px;">
-                    <label style="flex:1; background:#f8f9fa; padding:10px; border-radius:8px; text-align:center; border:1px solid #ccc; font-weight:bold;">
-                        <input type="radio" name="login-crew-size" value="1" checked onclick="document.getElementById('login-member-group').style.display='none'"> 1 Man
-                    </label>
-                    <label style="flex:1; background:#f8f9fa; padding:10px; border-radius:8px; text-align:center; border:1px solid #ccc; font-weight:bold;">
-                        <input type="radio" name="login-crew-size" value="2" onclick="document.getElementById('login-member-group').style.display='block'"> 2 Man
-                    </label>
-                </div>
-            </div>
-            <div class="input-group" id="login-member-group" style="margin-bottom:16px; display:none;">
-                <label for="login-crew-member-name">Crew Member Name(s)</label>
-                <input type="text" id="login-crew-member-name" class="text-input" placeholder="Enter crew member name(s)">
-            </div>
-            <button type="submit" class="save-btn" style="width:100%; border-radius:8px; padding:12px;">Initialize Dashboard</button>
-        </form>
-    </div>
-</div>
-
 <div id="local-freeze-screen" class="frozen-screen-msg">
     <span>❄️ Your session has been frozen by Admin</span>
+    <p style="font-size: 14px; color:#666; margin-top:8px;">Please contact your supervisor immediately.</p>
 </div>
 
 <div id="lock-overlay">
     <h1 style="font-size: 28px; margin-bottom: 8px;">🔒 App Locked</h1>
+    <p style="color: #aaa; max-width: 300px; margin: 0 auto;">This application platform has been locked down by an administrator.</p>
     <button class="bypass-btn" onclick="triggerAdminLogin(true)">Admin Override Login</button>
 </div>
 
@@ -362,32 +469,44 @@
         </div>
 
         <div class="admin-sub-section">
-            <div class="admin-sub-title">📡 Live Security & Activity Logs (IP Capture)</div>
-            <div id="live-activity-stream" class="drafts-view" style="max-height:120px; background:#222; color:#0f0;"></div>
+            <div class="admin-sub-title">📡 Live Real-Time Activity Monitor</div>
+            <div id="live-activity-stream" style="font-family: monospace; font-size: 11px; background:#222; color:#0f0; padding: 6px; border-radius:4px; max-height:80px; overflow-y:auto;">
+                Awaiting client telemetry sync updates...
+            </div>
         </div>
 
         <section id="admin-controls-section" class="admin-sub-section" style="border: 1px solid #333; padding: 12px; border-radius: 8px; background-color: #fff;">
             <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #111;">System Admin Modules</h4>
+            
             <div class="admin-action-box" style="margin-bottom: 12px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
                 <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">Change Admin Password</span>
                 <form id="change-password-form" onsubmit="event.preventDefault(); adminChangePassword();">
-                    <input type="password" id="admin-new-password" class="text-input" style="padding: 6px; font-size: 13px;" placeholder="New Secret String" required>
-                    <button type="submit" class="sm-btn btn-blue" style="margin-top:6px;">Update Password</button>
+                    <div style="margin-bottom: 6px;">
+                        <input type="password" id="admin-new-password" class="text-input" style="padding: 6px; font-size: 13px;" placeholder="New Secret String" required>
+                    </div>
+                    <button type="submit" class="sm-btn btn-blue">Update Password</button>
                 </form>
             </div>
 
             <div class="admin-action-box" style="padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
                 <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 4px;">Manage Individual Data</span>
-                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                    <thead>
-                        <tr style="background-color: #eaeaea; text-align: left;">
-                            <th style="padding: 6px; border: 1px solid #ddd;">Name</th>
-                            <th style="padding: 6px; border: 1px solid #ddd;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-people-registry"></tbody>
-                </table>
+                <p style="font-size: 11px; color: #666; margin: 0 0 8px 0;">Edit details or delete specific data records below:</p>
+                
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                        <thead>
+                            <tr style="background-color: #eaeaea; text-align: left;">
+                                <th style="padding: 6px; border: 1px solid #ddd;">Name</th>
+                                <th style="padding: 6px; border: 1px solid #ddd;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-people-registry">
+                            </tbody>
+                    </table>
+                </div>
+                
                 <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc;">
+                    <span style="font-size: 11px; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">Add New Profile Node</span>
                     <div style="display: flex; gap: 4px;">
                         <input type="text" id="new-person-name" placeholder="Name" style="flex:1; padding:4px; font-size:12px;">
                         <input type="text" id="new-person-value" placeholder="profile_id" style="flex:1; padding:4px; font-size:12px;">
@@ -401,18 +520,22 @@
             <div class="admin-sub-title">📈 Adjust Component Unit Variables</div>
             <div style="display:flex; gap:4px; margin-bottom:8px;">
                 <select id="var-item-select" style="flex:1; font-size:12px;"></select>
-                <input type="number" id="var-item-val" step="0.01" style="width:70px; padding:4px; font-size:12px;">
+                <input type="number" id="var-item-val" step="0.01" style="width:70px; padding:4px; font-size:12px;" placeholder="0.00">
                 <button class="sm-btn btn-blue" onclick="adminUpdateVariable()">Update</button>
             </div>
         </div>
 
-        <div style="font-size: 12px; font-weight: bold; margin-top: 12px; color: #444;">Saved Final Draft Records:</div>
+        <div style="font-size: 12px; font-weight: bold; margin-top: 12px; color: #444;">Saved Final Draft Records (JSONBin Sync):</div>
         <div class="drafts-view" id="admin-drafts-list"></div>
     </div>
     
     <div class="crew-selection">
-        <label class="crew-option"><input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything()"> 1 Man</label>
-        <label class="crew-option"><input type="radio" name="crew" value="2" id="crew-2" onchange="changeCrewType()"> 2 Man</label>
+        <label class="crew-option">
+            <input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything()"> 1 Man
+        </label>
+        <label class="crew-option">
+            <input type="radio" name="crew" value="2" id="crew-2" onchange="changeCrewType()"> 2 Man
+        </label>
     </div>
 
     <div class="crew-details">
@@ -424,28 +547,54 @@
                 <option value="default">Default / Custom</option>
             </select>
         </div>
-        <div class="input-group"><label for="foreman-name">Foreman Name</label><input type="text" id="foreman-name" class="text-input" oninput="saveFields();"></div>
-        <div class="input-group" id="crew-member-container"><label for="crew-member-name">Crew Member Name(s)</label><input type="text" id="crew-member-name" class="text-input" oninput="saveFields();"></div>
-        <div class="time-row">
-            <div class="input-group"><label for="start-time">Start Time</label><input type="time" id="start-time" class="text-input" onchange="saveFields();"></div>
-            <div class="input-group"><label for="end-time">End Time</label><input type="time" id="end-time" class="text-input" onchange="saveFields();"></div>
+        <div class="input-group">
+            <label for="foreman-name">Foreman Name</label>
+            <input type="text" id="foreman-name" class="text-input" placeholder="Enter foreman name" oninput="saveFields(); triggerRealtimeTelemetry();">
         </div>
+        <div class="input-group" id="crew-member-container">
+            <label for="crew-member-name">Crew Member Name(s)</label>
+            <input type="text" id="crew-member-name" class="text-input" placeholder="Enter member name(s)" oninput="saveFields(); triggerRealtimeTelemetry();">
+        </div>
+        <div class="time-row">
+            <div class="input-group">
+                <label for="start-time">Start Time</label>
+                <input type="time" id="start-time" class="text-input" onchange="saveFields(); triggerRealtimeTelemetry();">
+            </div>
+            <div class="input-group">
+                <label for="end-time">End Time</label>
+                <input type="time" id="end-time" class="text-input" onchange="saveFields(); triggerRealtimeTelemetry();">
+            </div>
+        </div>
+        <div class="time-note">💡 hours & lunch deductions are processed during final save</div>
     </div>
 
     <div id="item-cards-container"></div>
-    <div class="total-banner"><span>Total Units:</span><span id="grand-total">0.00</span></div>
+
+    <div class="total-banner">
+        <span>Total Units:</span>
+        <span id="grand-total">0.00</span>
+    </div>
 
     <div class="metrics-panel">
         <span style="font-weight: bold; color: #0056b3;">Target Metrics Status</span>
         <div class="metrics-grid">
-            <div class="metric-item"><div class="metric-label">8-Hr Target (<span id="target-8-val">26</span>)</div><div class="metric-value" id="rem-8hr">26.00 left</div></div>
-            <div class="metric-item"><div class="metric-label">10-Hr Target (<span id="target-10-val">32.5</span>)</div><div class="metric-value" id="rem-10hr">32.50 left</div></div>
+            <div class="metric-item">
+                <div class="metric-label">8-Hr Target (<span id="target-8-val">26</span>)</div>
+                <div class="metric-value" id="rem-8hr">26.00 left</div>
+            </div>
+            <div class="metric-item">
+                <div class="metric-label">10-Hr Target (<span id="target-10-val">32.5</span>)</div>
+                <div class="metric-value" id="rem-10hr">32.50 left</div>
+            </div>
         </div>
     </div>
 
     <div class="saved-files-section">
         <span style="font-weight:bold; font-size:13px; color:#1e7e34;">📁 My Saved Files Repository</span>
-        <div id="profile-saved-files-list" style="font-size:12px; background:white; border:1px solid #d0e6d6; padding:6px; border-radius:6px; max-height:120px; overflow-y:auto;"></div>
+        <p style="font-size:11px; margin:3px 0 8px 0; color:#555;">Review your logged historical reports saved locally to this active profile.</p>
+        <div id="profile-saved-files-list" style="font-size:12px; background:white; border:1px solid #d0e6d6; padding:6px; border-radius:6px; max-height:120px; overflow-y:auto;">
+            <div style="color:#888; font-style:italic; text-align:center;">No entries saved to this profile timeline.</div>
+        </div>
     </div>
     <br>
 
@@ -468,94 +617,52 @@
 <script>
     const BIN_ID = "6a372915f5f4af5e29165e77";
     const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
+
     const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-    
-    let globalCloudData = { is_locked: false, drafts: [], admin_pass: "Energy2025", frozen_users: {}, variables: {}, logs: [] };
+    let globalCloudData = { is_locked: false, drafts: [], admin_pass: "Energy2025", frozen_users: {}, variables: {} };
     let isAdminLoggedIn = false;
-    let userIP = "0.0.0.0";
 
     let items = [
-        { name: "Visual", val: 0.30 }, { name: "Fume per rod", val: 0.18 }, { name: "Ground wire", val: 0.55 },
-        { name: "Guy marker", val: 0.17 }, { name: "Pole number", val: 0.14 }, { name: "Riser ground", val: 0.44 },
-        { name: "U guard", val: 0.46 }, { name: "Pad mount", val: 0.27 }, { name: "Warning sticker", val: 0.02 },
-        { name: "Bonding", val: 0.44 }, { name: "Pad mount tag ID", val: 0.27 }
+        { name: "Visual", val: 0.30 },
+        { name: "Fume per rod", val: 0.18 },
+        { name: "Ground wire", val: 0.55 },
+        { name: "Guy marker", val: 0.17 },
+        { name: "Pole number", val: 0.14 },
+        { name: "Riser ground", val: 0.44 },
+        { name: "U guard", val: 0.46 },
+        { name: "Pad mount", val: 0.27 },
+        { name: "Warning sticker", val: 0.02 },
+        { name: "Bonding", val: 0.44 },
+        { name: "Pad mount tag ID", val: 0.27 }
     ];
 
     let profilesRegistry = [
-        { name: "Robert S", val: "robert_s" }, { name: "Payton N", val: "payton_n" }, { name: "Default / Custom", val: "default" }
+        { name: "Robert S", val: "robert_s" },
+        { name: "Payton N", val: "payton_n" },
+        { name: "Default / Custom", val: "default" }
     ];
-
-    // Core execution hooks
-    window.addEventListener('DOMContentLoaded', async () => {
-        await getUserIP();
-        await pullGlobalData();
-        renderInitialItemCards();
-    });
-
-    async function getUserIP() {
-        try {
-            const response = await fetch('https://api.ipify.org?format=json');
-            const data = await response.json();
-            userIP = data.ip;
-        } catch (e) { console.log("IP lookup timed out."); }
-    }
-
-    async function handlePortalLogin(e) {
-        e.preventDefault();
-        const selectedProf = document.getElementById('login-profile-select').value;
-        const sizeChecked = document.querySelector('input[name="login-crew-size"]:checked').value;
-        const memberName = document.getElementById('login-crew-member-name').value.trim();
-
-        if (sizeChecked === "2" && !memberName) {
-            alert("Crew size is set to #2. Please enter a crew member's name.");
-            return;
-        }
-
-        // Apply visual states directly across elements
-        document.getElementById('profile-select').value = selectedProf;
-        document.getElementById('crew-' + sizeChecked).checked = true;
-        
-        let formattedForemanName = selectedProf === 'robert_s' ? "Robert S" : (selectedProf === 'payton_n' ? "Payton N" : "");
-        document.getElementById('foreman-name').value = formattedForemanName;
-        document.getElementById('crew-member-name').value = sizeChecked === "1" ? "" : memberName;
-
-        // Commit authentication event block to the global admin cloud log array
-        const logMsg = `[LOGIN] Profile: ${selectedProf.toUpperCase()} | Crew Size: ${sizeChecked} | Member: ${memberName || 'None'} | IP: ${userIP}`;
-        if (!globalCloudData.logs) globalCloudData.logs = [];
-        globalCloudData.logs.unshift({ timestamp: new Date().toLocaleString(), detail: logMsg });
-
-        document.getElementById('user-login-screen').style.display = 'none';
-        
-        saveFields();
-        calculateEverything();
-        renderProfileSavedFilesUI();
-        await pushGlobalData();
-    }
-
-    function handleLoginProfileSwitch() {
-        const val = document.getElementById('login-profile-select').value;
-        if(val === 'default') {
-            document.getElementById('login-crew-member-name').placeholder = "Enter custom assignment profile specs...";
-        }
-    }
 
     async function pullGlobalData() {
         if (!BIN_ID || BIN_ID.includes("YOUR_")) return;
         try {
-            const res = await fetch(SYNC_URL, { method: "GET", headers: { "X-Master-Key": MASTER_KEY } });
+            const res = await fetch(SYNC_URL, {
+                method: "GET",
+                headers: { "X-Master-Key": MASTER_KEY }
+            });
             if (res.ok) {
                 const responseData = await res.json();
-                const record = responseData.record;
-                if(!record.admin_pass) record.admin_pass = "Energy2025";
-                if(!record.frozen_users) record.frozen_users = {};
-                if(!record.variables) record.variables = {};
-                if(!record.logs) record.logs = [];
-                if(!record.profiles) record.profiles = profilesRegistry;
+                
+                if(!responseData.record.admin_pass) responseData.record.admin_pass = "Energy2025";
+                if(!responseData.record.frozen_users) responseData.record.frozen_users = {};
+                if(!responseData.record.variables) responseData.record.variables = {};
+                if(!responseData.record.profiles) responseData.record.profiles = profilesRegistry;
 
-                globalCloudData = record;
+                globalCloudData = responseData.record;
                 applyGlobalState();
             }
-        } catch (e) { console.log("Sync loop reconnecting..."); }
+        } catch (e) {
+            console.log("Sync loop reconnecting...");
+        }
     }
 
     async function pushGlobalData() {
@@ -563,10 +670,15 @@
         try {
             await fetch(SYNC_URL, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": MASTER_KEY
+                },
                 body: JSON.stringify(globalCloudData)
             });
-        } catch (e) { console.error("Upload error: ", e); }
+        } catch (e) {
+            console.error("Upload error: ", e);
+        }
     }
 
     function applyGlobalState() {
@@ -580,4 +692,526 @@
             }
         }
 
-        const activeUserProf
+        const activeUserProf = document.getElementById('profile-select').value;
+        if(globalCloudData.frozen_users && globalCloudData.frozen_users[activeUserProf] === true) {
+            document.getElementById('local-freeze-screen').style.display = "flex";
+        } else {
+            document.getElementById('local-freeze-screen').style.display = "none";
+        }
+
+        if (globalCloudData.variables) {
+            items.forEach(function(item) {
+                if (globalCloudData.variables[item.name] !== undefined) {
+                    item.val = parseFloat(globalCloudData.variables[item.name]);
+                }
+            });
+            updateItemCardsDisplayValues();
+        }
+
+        if (globalCloudData.profiles) {
+            profilesRegistry = globalCloudData.profiles;
+            const pSelect = document.getElementById('profile-select');
+            const currentSel = pSelect.value;
+            pSelect.innerHTML = profilesRegistry.map(p => `<option value="${p.val}">${p.name}</option>`).join('');
+            pSelect.value = currentSel;
+        }
+
+        const lockBtn = document.getElementById('lock-toggle-btn');
+        if (lockBtn) {
+            lockBtn.textContent = globalCloudData.is_locked ? "🔓 Unlock Page" : "🔒 Lock Page";
+        }
+        updateAdminDraftsUI();
+        updateAdminPeopleRegistryUI();
+    }
+
+    function renderInitialItemCards() {
+        const container = document.getElementById('item-cards-container');
+        container.innerHTML = "";
+        
+        items.forEach(function(item, index) {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'item-info';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'item-name';
+            nameDiv.textContent = item.name;
+
+            const valDiv = document.createElement('div');
+            valDiv.className = 'item-val';
+            valDiv.id = 'val-display-' + index;
+            valDiv.textContent = "Unit Value: " + item.val.toFixed(2);
+
+            infoDiv.appendChild(nameDiv);
+            infoDiv.appendChild(valDiv);
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'item-actions';
+
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'qty-input';
+            input.id = 'qty-' + index;
+            input.min = '0';
+            input.setAttribute('pattern', '[0-9]*');
+            input.placeholder = '0';
+            input.oninput = function() { calculateEverything(); triggerRealtimeTelemetry(); };
+
+            const totalDiv = document.createElement('div');
+            totalDiv.className = 'item-total';
+            totalDiv.id = 'total-' + index;
+            totalDiv.textContent = '0.00';
+
+            actionsDiv.appendChild(input);
+            actionsDiv.appendChild(totalDiv);
+
+            card.appendChild(infoDiv);
+            card.appendChild(actionsDiv);
+            container.appendChild(card);
+        });
+
+        const varSelect = document.getElementById('var-item-select');
+        if(varSelect) {
+            varSelect.innerHTML = items.map(item => `<option value="${item.name}">${item.name}</option>`).join('');
+        }
+    }
+
+    function updateItemCardsDisplayValues() {
+        items.forEach(function(item, index) {
+            const valDiv = document.getElementById('val-display-' + index);
+            if(valDiv) valDiv.textContent = "Unit Value: " + item.val.toFixed(2);
+        });
+    }
+
+    let currentGrandTotal = 0;
+    let currentActiveCrew = "1 Man";
+
+    function getProfilePrefix() {
+        const profile = document.getElementById('profile-select').value;
+        return profile === 'default' ? 'dom_sc_' : 'dom_sc_' + profile + '_';
+    }
+
+    function saveFields() {
+        const prefix = getProfilePrefix();
+        localStorage.setItem(prefix + 'foreman', document.getElementById('foreman-name').value);
+        localStorage.setItem(prefix + 'member', document.getElementById('crew-member-name').value);
+        localStorage.setItem(prefix + 'start_time', document.getElementById('start-time').value);
+        localStorage.setItem(prefix + 'end_time', document.getElementById('end-time').value);
+    }
+
+    function switchProfile() {
+        const profile = document.getElementById('profile-select').value;
+        localStorage.setItem('dom_sc_active_profile', profile);
+        loadSavedData();
+        calculateEverything();
+        renderProfileSavedFilesUI();
+    }
+
+    function changeCrewType() {
+        calculateEverything();
+    }
+
+    function loadSavedData() {
+        pullGlobalData();
+
+        const profile = localStorage.getItem('dom_sc_active_profile') || 'robert_s';
+        document.getElementById('profile-select').value = profile;
+
+        const prefix = getProfilePrefix();
+
+        const savedCrew = localStorage.getItem(prefix + 'crew');
+        if (savedCrew === "2") {
+            document.getElementById('crew-2').checked = true;
+        } else {
+            document.getElementById('crew-1').checked = true;
+        }
+
+        if (profile === 'robert_s' && !localStorage.getItem(prefix + 'foreman')) {
+            document.getElementById('foreman-name').value = "Robert S";
+        } else if (profile === 'payton_n' && !localStorage.getItem(prefix + 'foreman')) {
+            document.getElementById('foreman-name').value = "Payton N";
+        } else {
+            document.getElementById('foreman-name').value = localStorage.getItem(prefix + 'foreman') || "";
+        }
+
+        document.getElementById('crew-member-name').value = localStorage.getItem(prefix + 'member') || "";
+        document.getElementById('start-time').value = localStorage.getItem(prefix + 'start_time') || "";
+        document.getElementById('end-time').value = localStorage.getItem(prefix + 'end_time') || "";
+
+        items.forEach(function(item, index) {
+            const savedQty = localStorage.getItem(prefix + 'qty_' + index);
+            document.getElementById('qty-' + index).value = savedQty !== null ? savedQty : "";
+        });
+        
+        saveFields();
+        renderProfileSavedFilesUI();
+    }
+
+    function calculateEverything() {
+        currentGrandTotal = 0;
+        const checkedCrewInput = document.querySelector('input[name="crew"]:checked');
+        const crewValue = checkedCrewInput ? checkedCrewInput.value : "1";
+        const prefix = getProfilePrefix();
+        localStorage.setItem(prefix + 'crew', crewValue);
+
+        items.forEach(function(item, index) {
+            const qtyElement = document.getElementById('qty-' + index);
+            const qtyStr = qtyElement.value;
+            localStorage.setItem(prefix + 'qty_' + index, qtyStr);
+
+            const qty = parseInt(qtyStr) || 0;
+            const lineTotal = qty * item.val;
+            currentGrandTotal += lineTotal;
+            const totEl = document.getElementById('total-' + index);
+            if(totEl) totEl.textContent = lineTotal.toFixed(2);
+        });
+
+        document.getElementById('grand-total').textContent = currentGrandTotal.toFixed(2);
+        const isOneMan = crewValue === "1";
+        currentActiveCrew = isOneMan ? "1 Man" : "2 Man";
+        
+        const crewMemberField = document.getElementById('crew-member-container');
+        if (isOneMan) {
+            crewMemberField.style.display = 'none';
+        } else {
+            crewMemberField.style.display = 'flex';
+        }
+        
+        let target8 = isOneMan ? 26 : 32.5;
+        let target10 = isOneMan ? 32.5 : 39;
+
+        document.getElementById('target-8-val').textContent = target8.toFixed(2);
+        document.getElementById('target-10-val').textContent = target10.toFixed(2);
+
+        updateRemainingDisplay('rem-8hr', target8 - currentGrandTotal);
+        updateRemainingDisplay('rem-10hr', target10 - currentGrandTotal);
+    }
+
+    function updateRemainingDisplay(elementId, value) {
+        const el = document.getElementById(elementId);
+        if (value <= 0) {
+            el.textContent = '✅ MET (+' + Math.abs(value).toFixed(2) + ')';
+            el.className = "metric-value remaining-met";
+        } else {
+            el.textContent = '⏳ ' + value.toFixed(2) + ' left';
+            el.className = "metric-value remaining-positive";
+        }
+    }
+
+    function parseTimeToMinutes(timeStr) {
+        if (!timeStr || timeStr.indexOf(':') === -1) return null;
+        let cleanStr = timeStr.replace(/[^0-9:apmapm ]/gi, '').trim().toLowerCase();
+        let isPm = cleanStr.includes('pm');
+        let isAm = cleanStr.includes('am');
+        let timeParts = cleanStr.replace(/[ampm ]/g, '').split(':');
+        let hours = parseInt(timeParts[0]) || 0;
+        let minutes = parseInt(timeParts[1]) || 0;
+        if (isPm && hours < 12) hours += 12;
+        if (isAm && hours === 12) hours = 0;
+        return (hours * 60) + minutes;
+    }
+
+    function clearForm() {
+        if (confirm("Are you sure you want to clear current quantities and names for this active profile?")) {
+            const prefix = getProfilePrefix();
+            localStorage.removeItem(prefix + 'foreman');
+            localStorage.removeItem(prefix + 'member');
+            localStorage.removeItem(prefix + 'start_time');
+            localStorage.removeItem(prefix + 'end_time');
+            
+            document.getElementById('foreman-name').value = "";
+            document.getElementById('crew-member-name').value = "";
+            document.getElementById('start-time').value = "";
+            document.getElementById('end-time').value = "";
+
+            items.forEach(function(_, index) {
+                localStorage.removeItem(prefix + 'qty_' + index);
+                document.getElementById('qty-' + index).value = "";
+            });
+            switchProfile();
+        }
+    }
+
+    function showLunchModal() {
+        document.getElementById('lunch-modal').style.display = 'flex';
+    }
+
+    function handleLunchDecision(tookBreak) {
+        document.getElementById('lunch-modal').style.display = 'none';
+        let lunchLogLine = "No break taken";
+        let breakMinutes = 0;
+        if (tookBreak) {
+            const lunchStart = prompt("Enter Break START Time (e.g., 12:00 PM or 12:00):", "12:00 PM");
+            const lunchEnd = prompt("Enter Break END Time (e.g., 12:30 PM or 12:30):", "12:30 PM");
+            if (lunchStart && lunchEnd) {
+                lunchLogLine = lunchStart + " to " + lunchEnd;
+                let startMin = parseTimeToMinutes(lunchStart);
+                let endMin = parseTimeToMinutes(lunchEnd);
+                if (startMin !== null && endMin !== null) {
+                    if (endMin < startMin) endMin += 1440; 
+                    breakMinutes = endMin - startMin;
+                }
+            }
+        }
+        generateFile(lunchLogLine, breakMinutes);
+    }
+
+    async function generateFile(lunchLogLine, breakMinutes) {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const fileDate = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+
+        const foremanName = document.getElementById('foreman-name').value || "Not Entered";
+        let crewMemberName = document.getElementById('crew-member-name').value || "Not Entered";
+        const startTime = document.getElementById('start-time').value || "Not Entered";
+        const endTime = document.getElementById('end-time').value || "Not Entered";
+
+        let isOneMan = currentActiveCrew === "1 Man";
+        if (isOneMan) crewMemberName = "N/A (1 Man Crew)";
+
+        let totalHoursText = "N/A (Times missing)";
+        let startMin = parseTimeToMinutes(startTime);
+        let endMin = parseTimeToMinutes(endTime);
+
+        if (startMin !== null && endMin !== null) {
+            if (endMin < startMin) endMin += 1440; 
+            let rawShiftMinutes = endMin - startMin;
+            let unpaidDeductionMinutes = breakMinutes > 30 ? (breakMinutes - 30) : 0;
+            let finalPaidMinutes = rawShiftMinutes - unpaidDeductionMinutes;
+            let finalHours = Math.floor(finalPaidMinutes / 60);
+            let finalMinutes = finalPaidMinutes % 60;
+            totalHoursText = finalHours + " hrs " + finalMinutes + " mins total (Decimal: " + (finalPaidMinutes / 60).toFixed(2) + " hrs)";
+        }
+
+        let logContent = "====================================\n   DOM/SC NORM DAILY LOG REPORT\n====================================\nDate: " + dateStr + "\nTime: " + timeStr + "\nForeman: " + foremanName + "\nCrew Member: " + crewMemberName + "\nCrew Setup: " + currentActiveCrew + " Crew\nShift Timeline: " + startTime + " to " + endTime + "\nLunch Break: " + lunchLogLine + " (" + breakMinutes + " mins total)\nHours Worked: " + totalHoursText + "\n------------------------------------\n\nLOGGED QUANTITIES:\n";
+
+        items.forEach(function(item, index) {
+            const qty = parseInt(document.getElementById('qty-' + index).value) || 0;
+            if (qty > 0) {
+                logContent += "• " + item.name.padEnd(20) + " : Qty " + qty.toString().padEnd(4) + " -> Value: " + (qty * item.val).toFixed(2) + " units\n";
+            }
+        });
+
+        let target8 = isOneMan ? 26 : 32.5;
+        let target10 = isOneMan ? 32.5 : 39;
+        let s8 = (target8 - currentGrandTotal) <= 0 ? "MET (+" + Math.abs(target8 - currentGrandTotal).toFixed(2) + " OVER)" : (target8 - currentGrandTotal).toFixed(2) + " remaining";
+        let s10 = (target10 - currentGrandTotal) <= 0 ? "MET (+" + Math.abs(target10 - currentGrandTotal).toFixed(2) + " OVER)" : (target10 - currentGrandTotal).toFixed(2) + " remaining";
+
+        logContent += "\n------------------------------------\nTOTAL PRODUCTION UNITS: " + currentGrandTotal.toFixed(2) + "\n------------------------------------\n8-Hr Goal (" + target8 + "): " + s8 + "\n10-Hr Goal (" + target10 + "): " + s10 + "\n====================================";
+
+        const activeProfile = document.getElementById('profile-select').value;
+        if (!globalCloudData.drafts) globalCloudData.drafts = [];
+        globalCloudData.drafts.push({
+            profile: activeProfile,
+            foreman: foremanName,
+            totalUnits: currentGrandTotal.toFixed(2),
+            timestamp: dateStr + " " + timeStr
+        });
+        
+        const specificProfileKey = "dom_sc_saved_files_" + activeProfile;
+        let localProfileFiles = JSON.parse(localStorage.getItem(specificProfileKey)) || [];
+        localProfileFiles.push({
+            filename: "DOM_SC_Log_" + foremanName.replace(/\s+/g, '_') + "_" + fileDate + ".txt",
+            timestamp: dateStr + " " + timeStr,
+            units: currentGrandTotal.toFixed(2)
+        });
+        localStorage.setItem(specificProfileKey, JSON.stringify(localProfileFiles));
+        renderProfileSavedFilesUI();
+
+        await pushGlobalData();
+        updateAdminDraftsUI();
+
+        const blob = new Blob([logContent], { type: "text/plain;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "DOM_SC_Log_" + foremanName.replace(/\s+/g, '_') + "_" + fileDate + ".txt";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function renderProfileSavedFilesUI() {
+        const activeProfile = document.getElementById('profile-select').value;
+        const listDiv = document.getElementById('profile-saved-files-list');
+        if(!listDiv) return;
+        
+        const localProfileFiles = JSON.parse(localStorage.getItem("dom_sc_saved_files_" + activeProfile)) || [];
+        if(localProfileFiles.length === 0) {
+            listDiv.innerHTML = `<div style="color:#888; font-style:italic; text-align:center;">No entries saved to this profile timeline.</div>`;
+            return;
+        }
+
+        listDiv.innerHTML = localProfileFiles.map(function(f) {
+            return `<div style="padding:4px 0; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                <span>📄 <b>${f.timestamp}</b> - ${f.units} Units</span>
+                <span style="font-size:11px; color:#0076d6; cursor:pointer;" onclick="alert('File: ${f.filename}\\nCached metadata record storage verified.')">Details</span>
+            </div>`;
+        }).join('');
+    }
+
+    function triggerRealtimeTelemetry() {
+        const activeProfile = document.getElementById('profile-select').value;
+        const foreman = document.getElementById('foreman-name').value || "Unnamed";
+        const units = currentGrandTotal.toFixed(2);
+        localStorage.setItem("dom_sc_realtime_stream", `[TELEMETRY] Profile: ${activeProfile} (${foreman}) modified variables. Total calculated: ${units} units.`);
+    }
+
+    function triggerAdminLogin(isBypassOverride) {
+        const passPrompt = prompt("Enter Administrator Password:");
+        const correctPass = globalCloudData.admin_pass || "Energy2025";
+        
+        if (passPrompt === correctPass) {
+            isAdminLoggedIn = true;
+            document.getElementById('lock-overlay').style.display = 'none';
+            document.getElementById('main-app-container').style.display = 'block';
+            document.getElementById('admin-panel').style.display = 'block';
+            document.getElementById('login-nav-link').style.display = 'none';
+            updateAdminDraftsUI();
+            updateAdminPeopleRegistryUI();
+        } else if (passPrompt !== null) {
+            alert("Incorrect password access denied.");
+        }
+    }
+
+    function adminLogout() {
+        isAdminLoggedIn = false;
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('login-nav-link').style.display = 'inline-block';
+        applyGlobalState();
+    }
+
+    async function adminToggleLock() {
+        globalCloudData.is_locked = !globalCloudData.is_locked;
+        await pushGlobalData();
+        alert(globalCloudData.is_locked ? "Page locked globally across ALL screens." : "Page unlocked globally.");
+        applyGlobalState();
+    }
+
+    async function adminClearSavedDrafts() {
+        if (confirm("Are you sure you want to permanently terminate all sync records globally?")) {
+            globalCloudData.drafts = [];
+            await pushGlobalData();
+            updateAdminDraftsUI();
+        }
+    }
+
+    async function adminChangePassword() {
+        const newPass = document.getElementById('admin-new-password').value;
+        if(!newPass) { alert("Please input a valid credential string."); return; }
+        globalCloudData.admin_pass = newPass;
+        await pushGlobalData();
+        alert("Master Administrative passkey string altered successfully.");
+        document.getElementById('admin-new-password').value = "";
+    }
+
+    async function adminUpdateVariable() {
+        const key = document.getElementById('var-item-select').value;
+        const val = parseFloat(document.getElementById('var-item-val').value);
+        if(isNaN(val)) { alert("Please enter a clean float variable configuration."); return; }
+        
+        if(!globalCloudData.variables) globalCloudData.variables = {};
+        globalCloudData.variables[key] = val;
+        await pushGlobalData();
+        alert(`Variable values updated successfully: ${key} = ${val}`);
+        applyGlobalState();
+        calculateEverything();
+    }
+
+    async function adminAddPerson() {
+        const name = document.getElementById('new-person-name').value;
+        const val = document.getElementById('new-person-value').value;
+        if(!name || !val) { alert("Fill name & valid target ID profile key string."); return; }
+        
+        if(!globalCloudData.profiles) globalCloudData.profiles = profilesRegistry;
+        globalCloudData.profiles.push({ name: name, val: val });
+        await pushGlobalData();
+        alert("New individual structure added successfully to registry.");
+        document.getElementById('new-person-name').value = "";
+        document.getElementById('new-person-value').value = "";
+        applyGlobalState();
+    }
+
+    async function adminDeletePerson(targetVal) {
+        if(confirm("Permanently delete this individual profile structure from cloud selection rules?")) {
+            globalCloudData.profiles = globalCloudData.profiles.filter(p => p.val !== targetVal);
+            await pushGlobalData();
+            applyGlobalState();
+        }
+    }
+
+    async function adminToggleFreezeUser(targetVal) {
+        if(!globalCloudData.frozen_users) globalCloudData.frozen_users = {};
+        globalCloudData.frozen_users[targetVal] = !globalCloudData.frozen_users[targetVal];
+        await pushGlobalData();
+        applyGlobalState();
+    }
+
+    function updateAdminPeopleRegistryUI() {
+        const regDiv = document.getElementById('admin-people-registry');
+        if(!regDiv) return;
+        
+        regDiv.innerHTML = profilesRegistry.map(function(p) {
+            const isFrozen = globalCloudData.frozen_users && globalCloudData.frozen_users[p.val] === true;
+            return `<tr>
+                <td style="padding: 6px; border: 1px solid #ddd;">
+                    <b>${p.name}</b><br><span style="font-size:10px; color:#666;">ID: ${p.val}</span>
+                </td>
+                <td style="padding: 6px; border: 1px solid #ddd;">
+                    <div style="display:flex; gap:2px; flex-wrap:wrap;">
+                        <button class="sm-btn btn-blue" onclick="adminViewUserRealtime('${p.val}')">Monitor</button>
+                        <button class="sm-btn ${isFrozen ? 'btn-red' : 'btn-yellow'}" onclick="adminToggleFreezeUser('${p.val}')">${isFrozen ? '❄️ Thaw' : 'Freeze'}</button>
+                        <button class="sm-btn btn-red" onclick="adminDeletePerson('${p.val}')">X</button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function adminViewUserRealtime(profileVal) {
+        const drafts = globalCloudData.drafts || [];
+        const targetedLogs = drafts.filter(d => d.profile === profileVal);
+        const logDisplay = document.getElementById('live-activity-stream');
+        
+        if(targetedLogs.length === 0) {
+            logDisplay.innerHTML = `[MONITOR] No submitted metrics history logged for profile ID: "${profileVal}"`;
+        } else {
+            const lastLog = targetedLogs[targetedLogs.length - 1];
+            logDisplay.innerHTML = `[LIVE SYNC FEED - ${profileVal.toUpperCase()}]\nLast Submission: ${lastLog.timestamp}\nForeman Input: ${lastLog.foreman}\nCalculated Production Output: ${lastLog.totalUnits} Units`;
+        }
+    }
+
+    function updateAdminDraftsUI() {
+        const listDiv = document.getElementById('admin-drafts-list');
+        if (!listDiv) return;
+        
+        const drafts = globalCloudData.drafts || [];
+        if (drafts.length === 0) {
+            listDiv.innerHTML = "<div style='color:#777; font-style:italic;'>No drafts submitted yet.</div>";
+            return;
+        }
+
+        listDiv.innerHTML = drafts.map(function(d) {
+            return "<div class='draft-item'>⏱️ <b>" + d.timestamp + "</b> - [Prof: " + (d.profile || 'default') + "] Foreman: " + d.foreman + " | <b>" + d.totalUnits + " Units</b></div>";
+        }).join('');
+    }
+
+    renderInitialItemCards();
+    loadSavedData();
+    calculateEverything();
+    
+    setInterval(function() {
+        pullGlobalData();
+        const streamMsg = localStorage.getItem("dom_sc_realtime_stream");
+        if(streamMsg && isAdminLoggedIn) {
+            const streamDiv = document.getElementById('live-activity-stream');
+            if(streamDiv && !streamDiv.innerText.includes(streamMsg)) {
+                streamDiv.innerHTML = `[LIVE STREAM] ${streamMsg}`;
+            }
+        }
+    }, 4000);
+</script>
+</body>
+</html>
