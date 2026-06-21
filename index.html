@@ -149,6 +149,22 @@
 
         .admin-sub-section { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #e0d5c1; }
         .admin-sub-title { font-size: 13px; font-weight: bold; color: #c27d0e; margin-bottom: 6px; }
+
+        /* ── Admin Tabs ── */
+        .admin-tab-bar {
+            display: flex; gap: 4px; margin: 10px 0 6px; flex-wrap: wrap;
+            background: #fbe9cf; padding: 5px; border-radius: 10px;
+        }
+        .admin-tab-btn {
+            flex: 1 1 auto; min-width: 70px; text-align: center;
+            background: transparent; border: none; color: #9a6a14;
+            font-size: 12px; font-weight: 700; padding: 9px 6px; border-radius: 7px;
+            cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+        }
+        .admin-tab-btn:active { background: rgba(255,255,255,0.5); }
+        .admin-tab-btn.active { background: #fff; color: #d97706; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+        .admin-tab-panel { display: none; }
+        .admin-tab-panel.active { display: block; }
         .sm-btn { padding: 6px 10px; font-size: 11px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; }
         .btn-green { background: #28a745; color: white; }
         .btn-blue { background: #0076d6; color: white; }
@@ -358,140 +374,160 @@
             <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Exit Admin Panel</button>
         </div>
 
-        <div class="admin-sub-section">
-            <div class="admin-sub-title">&#x1F4E1; Live Real-Time Activity Monitor</div>
-            <div id="live-activity-stream" style="font-family: monospace; font-size: 11px; background:#222; color:#0f0; padding: 6px; border-radius:4px; max-height:80px; overflow-y:auto;">
-                Awaiting client telemetry sync updates...
+        <!-- ── TAB BAR ── -->
+        <div class="admin-tab-bar">
+            <button class="admin-tab-btn active" data-tab="overview"  onclick="switchAdminTab('overview')">&#x1F4CA; Overview</button>
+            <button class="admin-tab-btn"        data-tab="broadcast" onclick="switchAdminTab('broadcast')">&#x1F4E2; Broadcast</button>
+            <button class="admin-tab-btn"        data-tab="security"  onclick="switchAdminTab('security')">&#x1F510; Security</button>
+            <button class="admin-tab-btn"        data-tab="data"      onclick="switchAdminTab('data')">&#x1F4C8; Data</button>
+        </div>
+
+        <!-- ════════ TAB: OVERVIEW ════════ -->
+        <div class="admin-tab-panel active" id="admin-tab-overview">
+            <div class="admin-sub-section">
+                <div class="admin-sub-title">&#x1F4E1; Live Real-Time Activity Monitor</div>
+                <div id="live-activity-stream" style="font-family: monospace; font-size: 11px; background:#222; color:#0f0; padding: 6px; border-radius:4px; max-height:80px; overflow-y:auto;">
+                    Awaiting client telemetry sync updates...
+                </div>
+            </div>
+
+            <!-- ── MAINTENANCE MODE CONTROL ── -->
+            <section class="maint-admin-section">
+                <div class="maint-admin-title">&#x1F6A7; Maintenance Mode</div>
+                <div id="maint-status-badge" class="maint-status-badge maint-status-off">&#x2705; SITE LIVE</div>
+                <div style="margin-bottom: 8px;">
+                    <label style="font-size:11px; font-weight:600; color:#555; text-transform:uppercase; display:block; margin-bottom:3px;">Maintenance Message</label>
+                    <textarea id="maint-msg-input" rows="2" placeholder="e.g. Updating unit values and fixing item totals..." style="width:100%; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:6px; resize:vertical;"></textarea>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size:11px; font-weight:600; color:#555; text-transform:uppercase; display:block; margin-bottom:3px;">Estimated Return Time (optional)</label>
+                    <input type="text" id="maint-eta-input" placeholder="e.g. 30 minutes, 2:00 PM, Tomorrow morning" style="width:100%; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:6px;">
+                </div>
+                <div style="display:flex; gap:6px;">
+                    <button class="sm-btn btn-red" style="flex:1; padding:8px;" onclick="adminEnableMaintenance()">&#x1F6A7; Enable Maintenance</button>
+                    <button class="sm-btn btn-green" style="flex:1; padding:8px;" onclick="adminDisableMaintenance()">&#x2705; Bring Site Back Up</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- ════════ TAB: BROADCAST & TARGETS ════════ -->
+        <div class="admin-tab-panel" id="admin-tab-broadcast">
+            <section class="admin-sub-section" style="border: 1px solid #17a2b8; background-color: #f4fbff;">
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #0c5460;">&#x1F4E2; Global Operations Broadcast</h4>
+                <div style="display: flex; gap: 4px; margin-bottom: 10px;">
+                    <input type="text" id="admin-broadcast-msg" placeholder="Type global alert message..." style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
+                    <button class="sm-btn btn-blue" onclick="adminSetBroadcast()">Push Alert</button>
+                    <button class="sm-btn btn-red" onclick="adminClearBroadcast()">Clear</button>
+                </div>
+
+                <h4 style="margin: 10px 0 8px 0; font-size: 13px; color: #0c5460; border-top: 1px dashed #bee5eb; padding-top: 8px;">&#x1F3AF; Dynamic Shift Targets</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div>
+                        <label style="font-size:10px; color:#555;">1-Man (8 Hr)</label>
+                        <input type="number" id="t-1-8" step="0.1" style="width:100%; padding:4px; font-size:12px;">
+                    </div>
+                    <div>
+                        <label style="font-size:10px; color:#555;">1-Man (10 Hr)</label>
+                        <input type="number" id="t-1-10" step="0.1" style="width:100%; padding:4px; font-size:12px;">
+                    </div>
+                    <div>
+                        <label style="font-size:10px; color:#555;">2-Man (8 Hr)</label>
+                        <input type="number" id="t-2-8" step="0.1" style="width:100%; padding:4px; font-size:12px;">
+                    </div>
+                    <div>
+                        <label style="font-size:10px; color:#555;">2-Man (10 Hr)</label>
+                        <input type="number" id="t-2-10" step="0.1" style="width:100%; padding:4px; font-size:12px;">
+                    </div>
+                </div>
+                <button class="sm-btn btn-green" style="margin-top:8px; width: 100%;" onclick="adminSaveTargets()">Save New Target Metrics</button>
+            </section>
+        </div>
+
+        <!-- ════════ TAB: SECURITY & PROFILES ════════ -->
+        <div class="admin-tab-panel" id="admin-tab-security">
+            <section id="admin-controls-section" class="admin-sub-section" style="border: 1px solid #333; padding: 12px; border-radius: 8px; background-color: #fff;">
+                <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #111;">Security &amp; Profile Management</h4>
+                
+                <div style="margin-bottom: 12px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
+                    <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">Change Admin Text Password</span>
+                    <div style="display:flex; gap:4px;">
+                        <input type="password" id="admin-new-password" class="text-input" style="padding: 6px; font-size: 13px;" placeholder="New Secret String">
+                        <button class="sm-btn btn-blue" onclick="adminChangePassword()">Update</button>
+                    </div>
+                    <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ddd;">
+                        <span style="font-size:11px; font-weight:bold; color:#555; display:block; margin-bottom:6px;">Admin Login Security</span>
+                        <div id="admin-sec-status" style="font-size:10px; color:#0056b3; background:#eef4ff; padding:5px 8px; border-radius:5px; margin-bottom:8px;">Passcode: not set  •  Biometrics: off</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                            <button class="sm-btn btn-blue" onclick="adminSetOwnPasscode()">&#x1F522; Set / Change Admin Passcode</button>
+                            <button class="sm-btn" style="background:#fce8e6; color:#c5221f;" onclick="adminRemoveOwnPasscode()">Remove Passcode</button>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">
+                            <button class="sm-btn btn-dark" onclick="adminSetupBiometric()">&#x1F44D; Enable Biometrics</button>
+                            <button class="sm-btn" style="background:#fce8e6; color:#c5221f;" onclick="adminDisableBiometric()">Disable Biometrics</button>
+                        </div>
+                        <div style="font-size:9px; color:#999; margin-top:6px;">Biometrics require an admin passcode as backup. Enroll separately on each device.</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 12px; padding: 10px; background-color: #fff0f0; border-radius: 5px; border: 1px solid #f8d7da;">
+                    <span style="font-size: 12px; font-weight: bold; color: #721c24; display: block; margin-bottom: 4px;">&#x1F6E1;&#xFE0F; IP Blacklist Controls</span>
+                    <div style="display:flex; gap:4px; margin-bottom: 6px;">
+                        <input type="text" id="ban-ip-input" placeholder="Enter IP Address to Block" style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc;">
+                        <button class="sm-btn btn-dark" onclick="adminBanIP()">Ban IP</button>
+                    </div>
+                    <div id="banned-ips-list" style="font-size:11px; color:#dc3545; max-height:60px; overflow-y:auto;"></div>
+                </div>
+
+                <div style="padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
+                    <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 4px;">Crew Profiles</span>
+                    <div style="overflow-x: auto; max-height: 200px; overflow-y:auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                            <tbody id="admin-people-registry"></tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc;">
+                        <div style="display: flex; gap: 4px;">
+                            <input type="text" id="new-person-name" placeholder="Name" style="flex:1; padding:4px; font-size:12px;">
+                            <input type="text" id="new-person-value" placeholder="profile_id" style="flex:1; padding:4px; font-size:12px;">
+                            <button class="sm-btn btn-green" onclick="adminAddPerson()">Add Profile</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── PASSCODE RESET REQUESTS ── -->
+            <div class="admin-sub-section" style="border-color: #bee5eb; background: #f4fbff;">
+                <div class="admin-sub-title" style="color:#0c5460;">&#x1F4E7; Passcode Reset Requests</div>
+                <div id="admin-reset-requests-list" style="font-size:12px; max-height:120px; overflow-y:auto;">
+                    <div style="color:#aaa; font-style:italic;">No pending requests.</div>
+                </div>
             </div>
         </div>
 
-        <!-- ── MAINTENANCE MODE CONTROL ── -->
-        <section class="maint-admin-section">
-            <div class="maint-admin-title">&#x1F6A7; Maintenance Mode</div>
-            <div id="maint-status-badge" class="maint-status-badge maint-status-off">&#x2705; SITE LIVE</div>
-            <div style="margin-bottom: 8px;">
-                <label style="font-size:11px; font-weight:600; color:#555; text-transform:uppercase; display:block; margin-bottom:3px;">Maintenance Message</label>
-                <textarea id="maint-msg-input" rows="2" placeholder="e.g. Updating unit values and fixing item totals..." style="width:100%; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:6px; resize:vertical;"></textarea>
-            </div>
-            <div style="margin-bottom: 10px;">
-                <label style="font-size:11px; font-weight:600; color:#555; text-transform:uppercase; display:block; margin-bottom:3px;">Estimated Return Time (optional)</label>
-                <input type="text" id="maint-eta-input" placeholder="e.g. 30 minutes, 2:00 PM, Tomorrow morning" style="width:100%; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:6px;">
-            </div>
-            <div style="display:flex; gap:6px;">
-                <button class="sm-btn btn-red" style="flex:1; padding:8px;" onclick="adminEnableMaintenance()">&#x1F6A7; Enable Maintenance</button>
-                <button class="sm-btn btn-green" style="flex:1; padding:8px;" onclick="adminDisableMaintenance()">&#x2705; Bring Site Back Up</button>
-            </div>
-        </section>
-
-        <section class="admin-sub-section" style="border: 1px solid #17a2b8; background-color: #f4fbff;">
-            <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #0c5460;">&#x1F4E2; Global Operations Broadcast</h4>
-            <div style="display: flex; gap: 4px; margin-bottom: 10px;">
-                <input type="text" id="admin-broadcast-msg" placeholder="Type global alert message..." style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
-                <button class="sm-btn btn-blue" onclick="adminSetBroadcast()">Push Alert</button>
-                <button class="sm-btn btn-red" onclick="adminClearBroadcast()">Clear</button>
-            </div>
-
-            <h4 style="margin: 10px 0 8px 0; font-size: 13px; color: #0c5460; border-top: 1px dashed #bee5eb; padding-top: 8px;">&#x1F3AF; Dynamic Shift Targets</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <div>
-                    <label style="font-size:10px; color:#555;">1-Man (8 Hr)</label>
-                    <input type="number" id="t-1-8" step="0.1" style="width:100%; padding:4px; font-size:12px;">
+        <!-- ════════ TAB: DATA ════════ -->
+        <div class="admin-tab-panel" id="admin-tab-data">
+            <div class="admin-sub-section">
+                <div class="admin-sub-title">&#x1F4C8; Component Unit Editor</div>
+                
+                <div style="display:flex; gap:4px; margin-bottom:8px;">
+                    <select id="var-item-select" style="flex:1; font-size:12px;"></select>
+                    <input type="number" id="var-item-val" step="0.01" style="width:60px; padding:4px; font-size:12px;" placeholder="0.00">
+                    <button class="sm-btn btn-blue" onclick="adminUpdateVariable()">Save</button>
+                    <button class="sm-btn btn-red" onclick="adminDeleteVariable()">Delete</button>
                 </div>
-                <div>
-                    <label style="font-size:10px; color:#555;">1-Man (10 Hr)</label>
-                    <input type="number" id="t-1-10" step="0.1" style="width:100%; padding:4px; font-size:12px;">
-                </div>
-                <div>
-                    <label style="font-size:10px; color:#555;">2-Man (8 Hr)</label>
-                    <input type="number" id="t-2-8" step="0.1" style="width:100%; padding:4px; font-size:12px;">
-                </div>
-                <div>
-                    <label style="font-size:10px; color:#555;">2-Man (10 Hr)</label>
-                    <input type="number" id="t-2-10" step="0.1" style="width:100%; padding:4px; font-size:12px;">
-                </div>
-            </div>
-            <button class="sm-btn btn-green" style="margin-top:8px; width: 100%;" onclick="adminSaveTargets()">Save New Target Metrics</button>
-        </section>
-
-        <section id="admin-controls-section" class="admin-sub-section" style="border: 1px solid #333; padding: 12px; border-radius: 8px; background-color: #fff;">
-            <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #111;">Security &amp; Profile Management</h4>
-            
-            <div style="margin-bottom: 12px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
-                <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">Change Admin Text Password</span>
-                <div style="display:flex; gap:4px;">
-                    <input type="password" id="admin-new-password" class="text-input" style="padding: 6px; font-size: 13px;" placeholder="New Secret String">
-                    <button class="sm-btn btn-blue" onclick="adminChangePassword()">Update</button>
-                </div>
-                <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ddd;">
-                    <span style="font-size:11px; font-weight:bold; color:#555; display:block; margin-bottom:6px;">Admin Login Security</span>
-                    <div id="admin-sec-status" style="font-size:10px; color:#0056b3; background:#eef4ff; padding:5px 8px; border-radius:5px; margin-bottom:8px;">Passcode: not set  •  Biometrics: off</div>
-                    <div style="display:flex; flex-wrap:wrap; gap:4px;">
-                        <button class="sm-btn btn-blue" onclick="adminSetOwnPasscode()">&#x1F522; Set / Change Admin Passcode</button>
-                        <button class="sm-btn" style="background:#fce8e6; color:#c5221f;" onclick="adminRemoveOwnPasscode()">Remove Passcode</button>
-                    </div>
-                    <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">
-                        <button class="sm-btn btn-dark" onclick="adminSetupBiometric()">&#x1F44D; Enable Biometrics</button>
-                        <button class="sm-btn" style="background:#fce8e6; color:#c5221f;" onclick="adminDisableBiometric()">Disable Biometrics</button>
-                    </div>
-                    <div style="font-size:9px; color:#999; margin-top:6px;">Biometrics require an admin passcode as backup. Enroll separately on each device.</div>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 12px; padding: 10px; background-color: #fff0f0; border-radius: 5px; border: 1px solid #f8d7da;">
-                <span style="font-size: 12px; font-weight: bold; color: #721c24; display: block; margin-bottom: 4px;">&#x1F6E1;&#xFE0F; IP Blacklist Controls</span>
-                <div style="display:flex; gap:4px; margin-bottom: 6px;">
-                    <input type="text" id="ban-ip-input" placeholder="Enter IP Address to Block" style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc;">
-                    <button class="sm-btn btn-dark" onclick="adminBanIP()">Ban IP</button>
-                </div>
-                <div id="banned-ips-list" style="font-size:11px; color:#dc3545; max-height:60px; overflow-y:auto;"></div>
-            </div>
-
-            <div style="padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
-                <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 4px;">Crew Profiles</span>
-                <div style="overflow-x: auto; max-height: 200px; overflow-y:auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                        <tbody id="admin-people-registry"></tbody>
-                    </table>
-                </div>
+                
                 <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc;">
+                    <span style="font-size: 11px; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">Create New Item Unit</span>
                     <div style="display: flex; gap: 4px;">
-                        <input type="text" id="new-person-name" placeholder="Name" style="flex:1; padding:4px; font-size:12px;">
-                        <input type="text" id="new-person-value" placeholder="profile_id" style="flex:1; padding:4px; font-size:12px;">
-                        <button class="sm-btn btn-green" onclick="adminAddPerson()">Add Profile</button>
+                        <input type="text" id="new-var-name" placeholder="Variable Name" style="flex:1; padding:4px; font-size:12px;">
+                        <input type="number" id="new-var-val" step="0.01" placeholder="Val (e.g. 0.5)" style="width:80px; padding:4px; font-size:12px;">
+                        <button class="sm-btn btn-green" onclick="adminAddVariable()">Create</button>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <div class="admin-sub-section">
-            <div class="admin-sub-title">&#x1F4C8; Component Unit Editor</div>
-            
-            <div style="display:flex; gap:4px; margin-bottom:8px;">
-                <select id="var-item-select" style="flex:1; font-size:12px;"></select>
-                <input type="number" id="var-item-val" step="0.01" style="width:60px; padding:4px; font-size:12px;" placeholder="0.00">
-                <button class="sm-btn btn-blue" onclick="adminUpdateVariable()">Save</button>
-                <button class="sm-btn btn-red" onclick="adminDeleteVariable()">Delete</button>
-            </div>
-            
-            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc;">
-                <span style="font-size: 11px; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">Create New Item Unit</span>
-                <div style="display: flex; gap: 4px;">
-                    <input type="text" id="new-var-name" placeholder="Variable Name" style="flex:1; padding:4px; font-size:12px;">
-                    <input type="number" id="new-var-val" step="0.01" placeholder="Val (e.g. 0.5)" style="width:80px; padding:4px; font-size:12px;">
-                    <button class="sm-btn btn-green" onclick="adminAddVariable()">Create</button>
-                </div>
-            </div>
-        </div>
-
-        <div style="font-size: 12px; font-weight: bold; margin-top: 12px; color: #444;">Cloud Synchronized Final Drafts:</div>
-        <div class="drafts-view" id="admin-drafts-list"></div>
-
-        <!-- ── PASSCODE RESET REQUESTS ── -->
-        <div class="admin-sub-section" style="border-color: #bee5eb; background: #f4fbff;">
-            <div class="admin-sub-title" style="color:#0c5460;">&#x1F4E7; Passcode Reset Requests</div>
-            <div id="admin-reset-requests-list" style="font-size:12px; max-height:120px; overflow-y:auto;">
-                <div style="color:#aaa; font-style:italic;">No pending requests.</div>
-            </div>
+            <div style="font-size: 12px; font-weight: bold; margin-top: 12px; color: #444;">Cloud Synchronized Final Drafts:</div>
+            <div class="drafts-view" id="admin-drafts-list"></div>
         </div>
     </div>
     
@@ -1344,6 +1380,7 @@
         document.getElementById('main-app-container').style.display = 'block';
         document.getElementById('admin-panel').style.display = 'block';
         document.getElementById('local-freeze-screen').style.display = "none";
+        switchAdminTab('overview');  // always open on the first tab
         if (isDedicatedAdminMode) {
             document.getElementById('user-app-elements').style.display = 'none';
             document.getElementById('login-nav-link').style.display = 'none';
@@ -1696,6 +1733,18 @@
                    '<button class="sm-btn btn-green" onclick="adminApproveReset(\'' + r.profile + '\')">Approve Reset</button>' +
                    '</div>';
         }).join('');
+    }
+
+    // ── ADMIN TAB NAVIGATION ──────────────────────────────────────────────────────
+    function switchAdminTab(tabName) {
+        // Toggle buttons
+        document.querySelectorAll('.admin-tab-btn').forEach(function(btn) {
+            btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+        });
+        // Toggle panels
+        document.querySelectorAll('.admin-tab-panel').forEach(function(panel) {
+            panel.classList.toggle('active', panel.id === 'admin-tab-' + tabName);
+        });
     }
 
     function adminLogout() {
