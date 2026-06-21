@@ -27,7 +27,7 @@
         
         /* Tap-to-Login Portal Layout */
         #login-gateway-portal {
-            display: none; /* Controlled by JS Init */
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -69,7 +69,7 @@
         }
         
         #main-app-container {
-            display: none; /* Controlled by JS Init */
+            display: none;
         }
         
         h2 {
@@ -1196,6 +1196,12 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+
+        setTimeout(() => {
+            if (confirm("File saved successfully! Would you like to sign out of this profile?")) {
+                logoutProfile();
+            }
+        }, 500);
     }
 
     function renderProfileSavedFilesUI() {
