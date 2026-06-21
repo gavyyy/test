@@ -380,6 +380,7 @@
             <button class="admin-tab-btn"        data-tab="broadcast" onclick="switchAdminTab('broadcast')">&#x1F4E2; Broadcast</button>
             <button class="admin-tab-btn"        data-tab="security"  onclick="switchAdminTab('security')">&#x1F510; Security</button>
             <button class="admin-tab-btn"        data-tab="data"      onclick="switchAdminTab('data')">&#x1F4C8; Data</button>
+            <button class="admin-tab-btn"        data-tab="assistant" onclick="switchAdminTab('assistant')">&#x1F916; Assistant</button>
         </div>
 
         <!-- ════════ TAB: OVERVIEW ════════ -->
@@ -531,6 +532,40 @@
 
             <div style="font-size: 12px; font-weight: bold; margin-top: 12px; color: #444;">Cloud Synchronized Final Drafts:</div>
             <div class="drafts-view" id="admin-drafts-list"></div>
+        </div>
+
+        <!-- ════════ TAB: ASSISTANT ════════ -->
+        <div class="admin-tab-panel" id="admin-tab-assistant">
+            <section class="admin-sub-section" style="border:1px solid #6f42c1; background:#f6f2fd;">
+                <div class="admin-sub-title" style="color:#6f42c1;">&#x1F916; Command Assistant</div>
+                <div style="font-size:11px; color:#555; margin-bottom:8px;">
+                    Type a change in plain English. The assistant applies it and saves to the cloud.
+                </div>
+                <textarea id="ai-cmd-input" rows="2" placeholder="e.g. add an item called Transformer worth 0.85" style="width:100%; padding:8px; font-size:13px; border:1px solid #c9b6e8; border-radius:8px; resize:vertical; margin-bottom:6px;"></textarea>
+                <div style="display:flex; gap:6px;">
+                    <button class="sm-btn" style="flex:1; background:#6f42c1; color:#fff; padding:9px;" onclick="aiRunCommand()">&#x2728; Apply Change</button>
+                    <button class="sm-btn" style="background:#e9ecef; color:#333;" onclick="aiShowExamples()">Examples</button>
+                </div>
+                <div id="ai-cmd-result" style="margin-top:10px; font-size:12px;"></div>
+            </section>
+
+            <section class="admin-sub-section" style="border:1px solid #17a2b8; background:#f4fbff;">
+                <div class="admin-sub-title" style="color:#0c5460;">&#x1F4E5; Import Config (Advanced)</div>
+                <div style="font-size:11px; color:#555; margin-bottom:8px;">
+                    Paste a JSON config (e.g. one an AI generated for you) to apply many changes at once.
+                    Only the keys you include are changed &mdash; everything else stays the same.
+                </div>
+                <textarea id="ai-config-input" rows="5" placeholder='{ "targets": { "man1_8": 28 }, "global_alert": "Safety meeting at 7am" }' style="width:100%; padding:8px; font-size:12px; font-family:monospace; border:1px solid #b8dde6; border-radius:8px; resize:vertical; margin-bottom:6px;"></textarea>
+                <div style="display:flex; gap:6px;">
+                    <button class="sm-btn btn-blue" style="flex:1; padding:9px;" onclick="aiPreviewConfig()">Preview</button>
+                    <button class="sm-btn btn-green" style="flex:1; padding:9px;" onclick="aiApplyConfig()">Apply Config</button>
+                </div>
+                <div style="margin-top:8px;">
+                    <button class="sm-btn" style="background:#e9ecef; color:#333; font-size:10px;" onclick="aiExportConfig()">&#x1F4CB; Copy Current Config</button>
+                    <span style="font-size:10px; color:#888;">(useful to hand to an AI as a starting point)</span>
+                </div>
+                <div id="ai-config-result" style="margin-top:10px; font-size:12px;"></div>
+            </section>
         </div>
     </div>
     
@@ -1813,6 +1848,283 @@
         document.querySelectorAll('.admin-tab-panel').forEach(function(panel) {
             panel.classList.toggle('active', panel.id === 'admin-tab-' + tabName);
         });
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════
+    //  COMMAND ASSISTANT (local natural-language parser — no API key, works offline)
+    // ══════════════════════════════════════════════════════════════════════════════
+
+    function aiResult(html, kind) {
+        const el = document.getElementById('ai-cmd-result');
+        var color = kind === "ok" ? "#1e7e34" : kind === "err" ? "#c5221f" : "#555";
+        var bg    = kind === "ok" ? "#e8f5e9" : kind === "err" ? "#fde8e8" : "#f1f3f6";
+        el.innerHTML = '<div style="padding:8px 10px; border-radius:6px; background:' + bg + '; color:' + color + ';">' + html + '</div>';
+    }
+
+    function aiShowExamples() {
+        aiResult(
+            '<b>Try things like:</b><br>' +
+            '&bull; add item Transformer worth 0.85<br>' +
+            '&bull; change Visual to 0.35<br>' +
+            '&bull; delete item Guy marker<br>' +
+            '&bull; set 1 man 8 hour target to 28<br>' +
+            '&bull; set 2 man 10 hour target to 41<br>' +
+            '&bull; broadcast Safety meeting at 7am<br>' +
+            '&bull; clear broadcast<br>' +
+            '&bull; add profile John Doe / john_doe / john@email.com<br>' +
+            '&bull; enable maintenance Updating values<br>' +
+            '&bull; disable maintenance<br>' +
+            '&bull; lock screens / unlock screens',
+            "info"
+        );
+    }
+
+    // Find an existing item by fuzzy (case-insensitive) name match
+    function aiFindItemName(query) {
+        var q = query.trim().toLowerCase();
+        var names = items.map(function(i) { return i.name; });
+        // exact (case-insensitive)
+        var exact = names.find(function(n) { return n.toLowerCase() === q; });
+        if (exact) return exact;
+        // startsWith / includes
+        var partial = names.find(function(n) { return n.toLowerCase().indexOf(q) !== -1; });
+        return partial || null;
+    }
+
+    async function aiRunCommand() {
+        const raw = document.getElementById('ai-cmd-input').value.trim();
+        if (!raw) { aiResult("Type a command first.", "err"); return; }
+        const cmd = raw.toLowerCase();
+        var m;
+
+        try {
+            // ── ADD ITEM ──  "add item NAME worth 0.85"  /  "add item NAME 0.85"
+            m = raw.match(/^add\s+(?:item|component)\s+(.+?)\s+(?:worth|=|at|for|:)?\s*\$?([0-9]*\.?[0-9]+)\s*$/i);
+            if (m) {
+                var iName = m[1].trim();
+                var iVal  = parseFloat(m[2]);
+                if (isNaN(iVal)) { aiResult("Couldn't read the value.", "err"); return; }
+                globalCloudData.variables[iName] = iVal;
+                if (globalCloudData.deleted_vars) globalCloudData.deleted_vars = globalCloudData.deleted_vars.filter(function(v){ return v !== iName; });
+                await pushGlobalData(); applyGlobalState();
+                aiResult('Added item <b>' + iName + '</b> worth <b>' + iVal.toFixed(2) + '</b> and saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── CHANGE ITEM VALUE ──  "change NAME to 0.35" / "set NAME to 0.35" / "update NAME = 0.35"
+            m = raw.match(/^(?:change|set|update|edit)\s+(.+?)\s+(?:to|=|worth|at)\s+\$?([0-9]*\.?[0-9]+)\s*$/i);
+            if (m && !/\b(man|hour|hr|target)\b/i.test(m[1])) {
+                var cName = aiFindItemName(m[1]);
+                var cVal  = parseFloat(m[2]);
+                if (!cName) { aiResult('No item matches "' + m[1].trim() + '". Use the exact item name or add it first.', "err"); return; }
+                if (isNaN(cVal)) { aiResult("Couldn't read the value.", "err"); return; }
+                globalCloudData.variables[cName] = cVal;
+                await pushGlobalData(); applyGlobalState();
+                aiResult('Changed <b>' + cName + '</b> to <b>' + cVal.toFixed(2) + '</b> and saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── DELETE ITEM ──  "delete item NAME" / "remove NAME"
+            m = raw.match(/^(?:delete|remove)\s+(?:item|component\s+)?(.+?)\s*$/i);
+            if (m && !/\bprofile|broadcast|alert\b/i.test(m[1])) {
+                var dName = aiFindItemName(m[1]);
+                if (!dName) { aiResult('No item matches "' + m[1].trim() + '".', "err"); return; }
+                delete globalCloudData.variables[dName];
+                if (!globalCloudData.deleted_vars) globalCloudData.deleted_vars = [];
+                if (globalCloudData.deleted_vars.indexOf(dName) === -1) globalCloudData.deleted_vars.push(dName);
+                await pushGlobalData(); applyGlobalState();
+                aiResult('Deleted item <b>' + dName + '</b> and saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── SET TARGET ──  "set 1 man 8 hour target to 28"
+            m = cmd.match(/([12])\s*[- ]?\s*man.*?([0-9]+)\s*(?:hour|hr).*?(?:to|=|:)?\s*([0-9]*\.?[0-9]+)\s*$/);
+            if (m && /target|man/.test(cmd)) {
+                var men = m[1];                    // "1" or "2"
+                var hrs = m[2] === "8" ? "8" : "10"; // normalize to 8 or 10
+                var tVal = parseFloat(m[3]);
+                var key = "man" + men + "_" + hrs;
+                if (isNaN(tVal)) { aiResult("Couldn't read the target value.", "err"); return; }
+                if (!globalCloudData.targets) globalCloudData.targets = {};
+                globalCloudData.targets[key] = tVal;
+                await pushGlobalData(); applyGlobalState();
+                aiResult('Set <b>' + men + '-Man ' + hrs + '-Hour</b> target to <b>' + tVal + '</b> and saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── CLEAR BROADCAST ──
+            if (/^(clear|remove|delete)\s+(broadcast|alert|message)/i.test(raw)) {
+                globalCloudData.global_alert = "";
+                await pushGlobalData(); applyGlobalState();
+                aiResult("Broadcast alert cleared.", "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── SET BROADCAST ──  "broadcast MESSAGE" / "alert MESSAGE" / "announce MESSAGE"
+            m = raw.match(/^(?:broadcast|alert|announce|message)\s*:?\s*(.+)$/i);
+            if (m) {
+                globalCloudData.global_alert = m[1].trim();
+                await pushGlobalData(); applyGlobalState();
+                aiResult('Broadcast set to: <b>' + m[1].trim() + '</b> and saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── ADD PROFILE ──  "add profile NAME / id / email"  (email optional)
+            m = raw.match(/^add\s+profile\s+(.+)$/i);
+            if (m) {
+                var parts = m[1].split(/\s*[\/,]\s*/);
+                var pName = parts[0] ? parts[0].trim() : "";
+                var pVal  = parts[1] ? parts[1].trim().toLowerCase().replace(/\s+/g, "_") : (pName.toLowerCase().replace(/\s+/g, "_"));
+                var pEmail = parts[2] ? parts[2].trim() : "";
+                if (!pName) { aiResult("Need at least a name. Format: add profile John Doe / john_doe / john@email.com", "err"); return; }
+                if (!globalCloudData.profiles) globalCloudData.profiles = [];
+                if (globalCloudData.profiles.some(function(p){ return p.val === pVal; })) {
+                    aiResult('A profile with id "' + pVal + '" already exists.', "err"); return;
+                }
+                var entry = { name: pName, val: pVal };
+                if (pEmail) entry.email = pEmail;
+                globalCloudData.profiles.push(entry);
+                await pushGlobalData(); applyGlobalState();
+                aiResult('Added profile <b>' + pName + '</b> (' + pVal + ')' + (pEmail ? ', email ' + pEmail : '') + ' and saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── ENABLE MAINTENANCE ──  "enable maintenance MESSAGE"
+            m = raw.match(/^(?:enable|turn on|start)\s+maintenance\s*:?\s*(.*)$/i);
+            if (m) {
+                globalCloudData.maintenance = { active: true, message: m[1].trim(), eta: "" };
+                await pushGlobalData(); applyGlobalState();
+                aiResult('Maintenance mode <b>ON</b>' + (m[1].trim() ? ' &mdash; "' + m[1].trim() + '"' : '') + '. Saved.', "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── DISABLE MAINTENANCE ──
+            if (/^(disable|turn off|stop|end)\s+maintenance/i.test(raw)) {
+                globalCloudData.maintenance = { active: false, message: "", eta: "" };
+                await pushGlobalData(); applyGlobalState();
+                aiResult("Maintenance mode <b>OFF</b>. Site is live. Saved.", "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // ── LOCK / UNLOCK ──
+            if (/^lock(\s+screens?|\s+all)?$/i.test(raw)) {
+                globalCloudData.is_locked = true; await pushGlobalData(); applyGlobalState();
+                aiResult("All screens <b>LOCKED</b>. Saved.", "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+            if (/^unlock(\s+screens?|\s+all)?$/i.test(raw)) {
+                globalCloudData.is_locked = false; await pushGlobalData(); applyGlobalState();
+                aiResult("All screens <b>UNLOCKED</b>. Saved.", "ok");
+                document.getElementById('ai-cmd-input').value = ""; return;
+            }
+
+            // No match
+            aiResult("I didn't recognize that command. Tap <b>Examples</b> to see what I understand, or use <b>Import Config</b> below for anything more complex.", "err");
+
+        } catch (e) {
+            console.error(e);
+            aiResult("Something went wrong applying that change: " + e.message, "err");
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════════
+    //  IMPORT / EXPORT CONFIG  (apply a JSON blob — full flexibility, keyless & safe)
+    // ══════════════════════════════════════════════════════════════════════════════
+
+    // Only these top-level keys may be changed via config import (safety allow-list)
+    const AI_CONFIG_ALLOWED = ["targets", "global_alert", "maintenance", "is_locked", "variables", "deleted_vars", "profiles", "admin_pass"];
+
+    function aiConfigResult(html, kind) {
+        const el = document.getElementById('ai-config-result');
+        var color = kind === "ok" ? "#1e7e34" : kind === "err" ? "#c5221f" : "#555";
+        var bg    = kind === "ok" ? "#e8f5e9" : kind === "err" ? "#fde8e8" : "#f1f3f6";
+        el.innerHTML = '<div style="padding:8px 10px; border-radius:6px; background:' + bg + '; color:' + color + ';">' + html + '</div>';
+    }
+
+    function aiParseConfig() {
+        var txt = document.getElementById('ai-config-input').value.trim();
+        if (!txt) { aiConfigResult("Paste a JSON config first.", "err"); return null; }
+        var parsed;
+        try { parsed = JSON.parse(txt); }
+        catch (e) { aiConfigResult("That isn't valid JSON: " + e.message, "err"); return null; }
+        if (typeof parsed !== "object" || Array.isArray(parsed) || parsed === null) {
+            aiConfigResult("Config must be a JSON object like { \"global_alert\": \"...\" }.", "err"); return null;
+        }
+        return parsed;
+    }
+
+    function aiPreviewConfig() {
+        var parsed = aiParseConfig();
+        if (!parsed) return;
+        var keys = Object.keys(parsed);
+        var allowed = keys.filter(function(k){ return AI_CONFIG_ALLOWED.indexOf(k) !== -1; });
+        var blocked = keys.filter(function(k){ return AI_CONFIG_ALLOWED.indexOf(k) === -1; });
+        var html = "<b>This config will change:</b><br>";
+        if (allowed.length === 0) { html += "&bull; <i>nothing recognized</i><br>"; }
+        allowed.forEach(function(k){
+            html += '&bull; <b>' + k + '</b> &rarr; ' + aiSummarizeValue(parsed[k]) + '<br>';
+        });
+        if (blocked.length) {
+            html += '<br><span style="color:#c5221f;">Ignored (not allowed): ' + blocked.join(", ") + '</span>';
+        }
+        aiConfigResult(html, "info");
+    }
+
+    function aiSummarizeValue(v) {
+        if (typeof v === "string") return '"' + (v.length > 40 ? v.slice(0,40) + "…" : v) + '"';
+        if (typeof v === "object") return '<code style="font-size:11px;">' + JSON.stringify(v).slice(0,80) + '</code>';
+        return String(v);
+    }
+
+    async function aiApplyConfig() {
+        var parsed = aiParseConfig();
+        if (!parsed) return;
+        var keys = Object.keys(parsed).filter(function(k){ return AI_CONFIG_ALLOWED.indexOf(k) !== -1; });
+        if (keys.length === 0) { aiConfigResult("No recognized keys to apply.", "err"); return; }
+        if (!confirm("Apply " + keys.length + " change(s) to the live cloud config?\n\nKeys: " + keys.join(", "))) return;
+
+        try {
+            keys.forEach(function(k){
+                if (k === "targets" && typeof parsed[k] === "object") {
+                    globalCloudData.targets = Object.assign({}, globalCloudData.targets, parsed[k]);
+                } else if (k === "variables" && typeof parsed[k] === "object") {
+                    globalCloudData.variables = Object.assign({}, globalCloudData.variables, parsed[k]);
+                } else if (k === "maintenance" && typeof parsed[k] === "object") {
+                    globalCloudData.maintenance = Object.assign({ active:false, message:"", eta:"" }, parsed[k]);
+                } else {
+                    globalCloudData[k] = parsed[k];
+                }
+            });
+            await pushGlobalData();
+            applyGlobalState();
+            aiConfigResult("Applied " + keys.length + " change(s) and saved to the cloud: <b>" + keys.join(", ") + "</b>", "ok");
+            document.getElementById('ai-config-input').value = "";
+        } catch (e) {
+            console.error(e);
+            aiConfigResult("Failed to apply config: " + e.message, "err");
+        }
+    }
+
+    function aiExportConfig() {
+        var snapshot = {
+            targets: globalCloudData.targets,
+            global_alert: globalCloudData.global_alert,
+            maintenance: globalCloudData.maintenance,
+            is_locked: globalCloudData.is_locked,
+            variables: globalCloudData.variables,
+            profiles: globalCloudData.profiles
+        };
+        var json = JSON.stringify(snapshot, null, 2);
+        document.getElementById('ai-config-input').value = json;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(json).then(function(){
+                aiConfigResult("Current config copied to clipboard and dropped into the box above.", "ok");
+            }, function(){
+                aiConfigResult("Current config placed in the box above (copy it manually).", "info");
+            });
+        } else {
+            aiConfigResult("Current config placed in the box above (copy it manually).", "info");
+        }
     }
 
     function adminLogout() {
