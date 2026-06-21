@@ -271,7 +271,7 @@
             background-color: #545b62;
         }
 
-        /* Admin Dashboard Box styling */
+        /* Admin Dashboard UI Config Styles */
         .admin-dashboard-box {
             display: none;
             background: #fff4e5;
@@ -311,7 +311,7 @@
         }
         .draft-item:last-child { border-bottom: none; }
 
-        /* Lock Screen wall */
+        /* Lockscreen Cover Panel Overlay styles */
         #lock-overlay {
             display: none;
             position: fixed;
@@ -406,7 +406,7 @@
             <button class="admin-ctrl-btn" onclick="adminClearSavedDrafts()">🗑️ Terminate Crew Data</button>
             <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Logout</button>
         </div>
-        <div style="font-size: 12px; font-weight: bold; margin-top: 8px; color: #444;">Saved Final Draft Records (Global Sync):</div>
+        <div style="font-size: 12px; font-weight: bold; margin-top: 8px; color: #444;">Saved Final Draft Records (JSONBin Sync):</div>
         <div class="drafts-view" id="admin-drafts-list"></div>
     </div>
     
@@ -487,40 +487,51 @@
 </div>
 
 <script>
-    // Public Global Sync Channel (No databases or setup needed!)
-    // Anyone using this specific URL ID shares data globally.
-    const SYNC_URL = "https://kvdb.io/MN87dfgjhKLDH92834/dom_sc_global_data";
+    // ========================================================
+    // PASTE YOUR JSONBIN CREDENTIALS HERE TO RUN GLOBAL SYNC:
+    // ========================================================
+    const BIN_ID = "6a372915f5f4af5e29165e77";
+    const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
 
+    const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
     let globalCloudData = { is_locked: false, drafts: [] };
     let isAdminLoggedIn = false;
 
-    // Pull current sync state from internet
+    // Fetch call configured for JSONbin data structures
     async function pullGlobalData() {
+        if (!BIN_ID || BIN_ID.includes("YOUR_")) return;
         try {
-            const res = await fetch(SYNC_URL);
+            const res = await fetch(SYNC_URL, {
+                method: "GET",
+                headers: { "X-Master-Key": MASTER_KEY }
+            });
             if (res.ok) {
-                globalCloudData = await res.json();
+                const responseData = await res.json();
+                globalCloudData = responseData.record;
                 applyGlobalState();
             }
         } catch (e) {
-            console.log("Sync loop active. Reconnecting...");
+            console.log("Sync loop reconnecting...");
         }
     }
 
-    // Push state changes up to internet
     async function pushGlobalData() {
+        if (!BIN_ID || BIN_ID.includes("YOUR_")) return;
         try {
             await fetch(SYNC_URL, {
-                method: "POST",
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": MASTER_KEY
+                },
                 body: JSON.stringify(globalCloudData)
             });
         } catch (e) {
-            console.error("Cloud upload error: ", e);
+            console.error("Upload error: ", e);
         }
     }
 
     function applyGlobalState() {
-        // Enforce structural lockdown
         if (globalCloudData.is_locked && !isAdminLoggedIn) {
             document.getElementById('lock-overlay').style.display = 'flex';
             document.getElementById('main-app-container').style.display = 'none';
@@ -834,7 +845,6 @@
 
         logContent += "\n------------------------------------\nTOTAL PRODUCTION UNITS: " + currentGrandTotal.toFixed(2) + "\n------------------------------------\n8-Hr Goal (" + target8 + "): " + s8 + "\n10-Hr Goal (" + target10 + "): " + s10 + "\n====================================";
 
-        // Add to cloud global drafts list array
         if (!globalCloudData.drafts) globalCloudData.drafts = [];
         globalCloudData.drafts.push({
             foreman: foremanName,
@@ -854,7 +864,7 @@
         document.body.removeChild(link);
     }
 
-    /* Admin Actions */
+    /* Admin Action Handling */
     function triggerAdminLogin() {
         const passPrompt = prompt("Enter Administrator Password:");
         if (passPrompt === "Energy2025") {
@@ -909,7 +919,7 @@
     loadSavedData();
     calculateEverything();
     
-    // Auto sync background check loop interval: Check every 4 seconds
+    // Check loop ruleset: Check every 4 seconds
     setInterval(pullGlobalData, 4000);
 </script>
 </body>
