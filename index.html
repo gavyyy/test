@@ -417,15 +417,23 @@
             <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #111;">Security &amp; Profile Management</h4>
             
             <div style="margin-bottom: 12px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
-                <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">Change Admin Password</span>
+                <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">Change Admin Text Password</span>
                 <div style="display:flex; gap:4px;">
                     <input type="password" id="admin-new-password" class="text-input" style="padding: 6px; font-size: 13px;" placeholder="New Secret String">
                     <button class="sm-btn btn-blue" onclick="adminChangePassword()">Update</button>
                 </div>
-                <div style="margin-top:8px; padding-top:8px; border-top:1px dashed #ddd;">
-                    <span style="font-size:11px; font-weight:bold; color:#555; display:block; margin-bottom:4px;">Admin Biometrics</span>
-                    <button class="sm-btn btn-dark" onclick="adminSetupBiometric()">&#x1F44D; Enable Face ID / Fingerprint for Admin</button>
-                    <button class="sm-btn" style="background:#fce8e6; color:#c5221f; margin-left:4px;" onclick="localStorage.removeItem(getAdminBioKey()); alert('Admin biometrics disabled.');">Disable</button>
+                <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ddd;">
+                    <span style="font-size:11px; font-weight:bold; color:#555; display:block; margin-bottom:6px;">Admin Login Security</span>
+                    <div id="admin-sec-status" style="font-size:10px; color:#0056b3; background:#eef4ff; padding:5px 8px; border-radius:5px; margin-bottom:8px;">Passcode: not set  •  Biometrics: off</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                        <button class="sm-btn btn-blue" onclick="adminSetOwnPasscode()">&#x1F522; Set / Change Admin Passcode</button>
+                        <button class="sm-btn" style="background:#fce8e6; color:#c5221f;" onclick="adminRemoveOwnPasscode()">Remove Passcode</button>
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">
+                        <button class="sm-btn btn-dark" onclick="adminSetupBiometric()">&#x1F44D; Enable Biometrics</button>
+                        <button class="sm-btn" style="background:#fce8e6; color:#c5221f;" onclick="adminDisableBiometric()">Disable Biometrics</button>
+                    </div>
+                    <div style="font-size:9px; color:#999; margin-top:6px;">Biometrics require an admin passcode as backup. Enroll separately on each device.</div>
                 </div>
             </div>
 
@@ -695,7 +703,9 @@
         global_alert: "",
         targets: { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
         maintenance: { active: false, message: "", eta: "" },
-        passcode_reset_requests: []
+        passcode_reset_requests: [],
+        passcodes: {},       // { profileVal: hash } and { "__admin__": hash } — synced across devices
+        bio_flags: {}        // { profileVal: true } and { "__admin__": true } — who has biometrics ON
     };
     
     let isAdminLoggedIn = false;
@@ -806,7 +816,9 @@
                     profiles:             d.profiles || profilesRegistry,
                     deleted_vars:         d.deleted_vars || [],
                     maintenance:          d.maintenance || { active: false, message: "", eta: "" },
-                    passcode_reset_requests: d.passcode_reset_requests || []
+                    passcode_reset_requests: d.passcode_reset_requests || [],
+                    passcodes:            d.passcodes || {},
+                    bio_flags:            d.bio_flags || {}
                 };
                 
                 if (globalCloudData.banned_ips.includes(localClientIP)) {
@@ -949,6 +961,7 @@
         updateAdminFailedLoginsUI();
         updateBannedIPsUI();
         updateAdminResetRequestsUI();
+        updateAdminBioStatusUI();
         calculateEverything();
         updateSecurityPanelUI();
     }
@@ -969,17 +982,50 @@
         return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
     }
 
-    function getProfilePasscodeKey(profileVal) { return "dom_sc_passcode_" + profileVal; }
-    function getProfileBioKey(profileVal) { return "dom_sc_bio_" + profileVal; }
-    function getAdminPasscodeKey() { return "dom_sc_admin_passcode"; }
-    function getAdminBioKey() { return "dom_sc_admin_bio"; }
+    // ── CLOUD-SYNCED PASSCODES & BIO FLAGS ────────────────────────────────────────
+    // Passcodes and "biometrics enabled" flags live in the cloud so they sync across
+    // all devices and the admin can manage them. The actual biometric CREDENTIAL
+    // (the WebAuthn key) must stay on the local device — that's how Face ID works.
+
+    const ADMIN_KEY = "__admin__";
+
+    // Passcode hash getters/setters (cloud)
+    function getStoredPasscode(ctxVal) {
+        return (globalCloudData.passcodes && globalCloudData.passcodes[ctxVal]) || null;
+    }
+    async function setStoredPasscode(ctxVal, hash) {
+        if (!globalCloudData.passcodes) globalCloudData.passcodes = {};
+        globalCloudData.passcodes[ctxVal] = hash;
+        await pushGlobalData();
+    }
+    async function clearStoredPasscode(ctxVal) {
+        if (globalCloudData.passcodes) delete globalCloudData.passcodes[ctxVal];
+        if (globalCloudData.bio_flags) delete globalCloudData.bio_flags[ctxVal];
+        await pushGlobalData();
+    }
+
+    // Bio enabled flag (cloud) — is biometrics turned ON for this account
+    function isBioFlagOn(ctxVal) {
+        return !!(globalCloudData.bio_flags && globalCloudData.bio_flags[ctxVal]);
+    }
+    async function setBioFlag(ctxVal, on) {
+        if (!globalCloudData.bio_flags) globalCloudData.bio_flags = {};
+        if (on) globalCloudData.bio_flags[ctxVal] = true;
+        else delete globalCloudData.bio_flags[ctxVal];
+        await pushGlobalData();
+    }
+
+    // Biometric credential ID (LOCAL ONLY — device-specific WebAuthn key)
+    function getBioCredKey(contextKey) { return "dom_sc_bio_cred_" + contextKey; }
+    function hasBioCredential(contextKey) { return !!localStorage.getItem(getBioCredKey(contextKey)); }
+    // ─────────────────────────────────────────────────────────────────────────────
 
     // ── ADMIN RECOVERY ────────────────────────────────────────────────────────────
     async function triggerAdminRecovery() {
         const input = prompt(
             "Enter the Master Recovery Key to reset admin access:\n\n" +
             "This will:\n" +
-            "  • Clear any local admin passcode\n" +
+            "  • Clear the admin passcode (all devices)\n" +
             "  • Clear admin biometrics on this device\n" +
             "  • Reset the cloud password back to: 2026\n\n" +
             "Recovery Key:"
@@ -987,22 +1033,28 @@
         if (input === null) return;
 
         if (input.trim() === MASTER_RECOVERY_KEY) {
-            // Clear local admin credentials
-            localStorage.removeItem(getAdminPasscodeKey());
-            localStorage.removeItem(getAdminBioKey());
-            localStorage.removeItem(getBioCredKey("admin"));
+            // Make sure we have the latest cloud data before modifying it
+            await pullGlobalData();
 
-            // Reset cloud password to default
+            // Clear cloud admin passcode + bio flag
+            if (globalCloudData.passcodes) delete globalCloudData.passcodes[ADMIN_KEY];
+            if (globalCloudData.bio_flags) delete globalCloudData.bio_flags[ADMIN_KEY];
+
+            // Reset cloud text password to default
             globalCloudData.admin_pass = "2026";
             await pushGlobalData();
 
+            // Clear local admin biometric credential on THIS device
+            localStorage.removeItem(getBioCredKey("admin"));
+
             alert(
                 "Admin access restored!\n\n" +
-                "Your password has been reset to: 2026\n\n" +
-                "Log in now and immediately set a new password in the Admin Console."
+                "Password reset to: 2026\n\n" +
+                "You're being logged into the Admin Console now. " +
+                "Set a new passcode right away under Security & Profile Management."
             );
 
-            // Go straight to admin login with the reset password
+            // Go straight into admin
             _grantAdminAccess(false, true);
         } else if (input.trim() !== "") {
             alert("Incorrect recovery key. Access denied.");
@@ -1020,8 +1072,6 @@
             return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
         } catch(e) { return false; }
     }
-
-    function getBioCredKey(contextKey) { return "dom_sc_bio_cred_" + contextKey; }
 
     // REGISTER — creates a new platform credential tied to this device biometric.
     // Call once when user enables biometrics. Stores credentialId in localStorage.
@@ -1092,11 +1142,6 @@
             console.error("Biometric verify error:", e);
             return false;
         }
-    }
-
-    // Convenience: check if a credential is already registered for this context
-    function hasBioCredential(contextKey) {
-        return !!localStorage.getItem(getBioCredKey(contextKey));
     }
 
     // Open the auth modal
@@ -1230,23 +1275,24 @@
     // ── ADMIN LOGIN (biometric-first) ─────────────────────────────────────────────
 
     async function triggerAdminLogin(isBypassOverride, isDedicatedMode) {
-        const adminBioKey  = getAdminBioKey();
-        const adminPcKey   = getAdminPasscodeKey();
-        const storedAdminHash = localStorage.getItem(adminPcKey);
-        const biometricsEnabled = localStorage.getItem(adminBioKey) === "true";
-        const bioAvail = await isBiometricAvailable();
+        // Make sure we have the latest cloud data (passcode may have been set on another device)
+        await pullGlobalData();
 
-        // Try platform biometrics first if enrolled
+        const storedAdminHash   = getStoredPasscode(ADMIN_KEY);
+        const biometricsEnabled = isBioFlagOn(ADMIN_KEY);
+        const bioAvail          = await isBiometricAvailable();
+
+        // Try platform biometrics first if turned on AND this device has the credential
         if (biometricsEnabled && bioAvail && hasBioCredential("admin")) {
             const bioOk = await verifyPlatformBiometric("admin");
             if (bioOk) {
                 _grantAdminAccess(isBypassOverride, isDedicatedMode);
                 return;
             }
-            // Fall through to passcode/password on failure
+            // Bio failed — fall through to passcode
         }
 
-        // If admin has set a 4-digit passcode, use the numpad modal
+        // If admin has a 4-digit passcode set, use the numpad modal
         if (storedAdminHash) {
             openAuthModal(
                 "Admin Login",
@@ -1255,7 +1301,7 @@
                 false,
                 function() { _grantAdminAccess(isBypassOverride, isDedicatedMode); },
                 null,
-                "admin"   // bioContextKey — enables bio button if credential exists
+                "admin"   // bioContextKey — shows bio button only if this device is enrolled
             );
             return;
         }
@@ -1313,13 +1359,13 @@
         await pullGlobalData();
         if (globalCloudData.banned_ips.includes(localClientIP)) return;
 
-        const storedHash   = localStorage.getItem(getProfilePasscodeKey(profileVal));
-        const bioEnabled   = localStorage.getItem(getProfileBioKey(profileVal)) === "true";
-        const bioAvail     = await isBiometricAvailable();
+        const storedHash    = getStoredPasscode(profileVal);
+        const bioEnabled    = isBioFlagOn(profileVal);
+        const bioAvail      = await isBiometricAvailable();
         const bioContextKey = "profile_" + profileVal;
 
         if (storedHash || bioEnabled) {
-            // Try biometrics first if enabled and credential enrolled on this device
+            // Try biometrics first if enabled and this device is enrolled
             if (bioEnabled && bioAvail && hasBioCredential(bioContextKey)) {
                 const bioOk = await verifyPlatformBiometric(bioContextKey);
                 if (bioOk) {
@@ -1340,8 +1386,8 @@
                     bioContextKey
                 );
             } else {
-                // Bio-only profile, credential not on this device
-                alert("Biometrics not available on this device and no passcode is set. Contact admin.");
+                // Bio-only profile, but credential not on this device
+                alert("This profile uses biometrics, but they're not set up on this device. Use 'Forgot passcode?' to request an admin reset.");
             }
         } else {
             // No security — log in directly
@@ -1358,11 +1404,13 @@
         };
         await pushGlobalData();
 
+        var match = profilesRegistry.find(function(p) { return p.val === profileVal; });
+        var profileName = (match && match.name) ? match.name : profileVal;
         var locStr = geoResult.error
             ? ("Location " + geoResult.error)
             : (geoResult.lat + ", " + geoResult.lng + " (±" + geoResult.accuracy + "m)");
         emailjs.send("service_h1nnfhv", "template_aienmjb", {
-            profile_name: profileVal, ip_address: localClientIP, location: locStr, time: new Date().toLocaleString()
+            profile_name: profileName, ip_address: localClientIP, location: locStr, time: new Date().toLocaleString()
         });
 
         document.getElementById('profile-select').value = profileVal;
@@ -1377,8 +1425,8 @@
     async function updateSecurityPanelUI() {
         const profileVal = localStorage.getItem('dom_sc_active_profile');
         if (!profileVal) return;
-        const hasPasscode   = !!localStorage.getItem(getProfilePasscodeKey(profileVal));
-        const bioEnabled    = localStorage.getItem(getProfileBioKey(profileVal)) === "true";
+        const hasPasscode   = !!getStoredPasscode(profileVal);
+        const bioEnabled    = isBioFlagOn(profileVal);
         const bioAvail      = await isBiometricAvailable();
         const bioEnrolled   = hasBioCredential("profile_" + profileVal);
 
@@ -1398,7 +1446,7 @@
         var bioSubText = "";
         if (!bioAvail)                         bioSubText = "Not supported on this device";
         else if (bioEnabled && bioEnrolled)    bioSubText = "Enabled on this device";
-        else if (bioEnabled && !bioEnrolled)   bioSubText = "Enabled — not enrolled on this device";
+        else if (bioEnabled && !bioEnrolled)   bioSubText = "On — re-enroll on this device";
         else if (!hasPasscode)                 bioSubText = "Set a passcode first";
         else                                   bioSubText = "Available — tap Enable to enroll";
 
@@ -1407,14 +1455,14 @@
             bioEnableBtn.style.display = (bioEnabled && bioEnrolled) ? "none" : "inline-block";
             bioEnableBtn.disabled = !bioAvail || !hasPasscode;
         }
-        if (bioDisableBtn) bioDisableBtn.style.display = (bioEnabled && bioEnrolled) ? "inline-block" : "none";
+        if (bioDisableBtn) bioDisableBtn.style.display = bioEnabled ? "inline-block" : "none";
     }
 
     function openSetPasscode() {
         const profileVal = localStorage.getItem('dom_sc_active_profile');
         passcodeSetStep  = 0; passcodeSetFirst = ""; passcodeBuffer = "";
-        authContext = { mode: "set", onSuccess: function(hash) {
-            localStorage.setItem(getProfilePasscodeKey(profileVal), hash);
+        authContext = { mode: "set", onSuccess: async function(hash) {
+            await setStoredPasscode(profileVal, hash);
             alert("Passcode set successfully!");
             updateSecurityPanelUI();
         }};
@@ -1429,7 +1477,7 @@
 
     function openChangePasscode() {
         const profileVal    = localStorage.getItem('dom_sc_active_profile');
-        const storedHash    = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const storedHash    = getStoredPasscode(profileVal);
         const bioContextKey = "profile_" + profileVal;
         openAuthModal(
             "Verify Current Passcode",
@@ -1444,16 +1492,15 @@
 
     function removePasscode() {
         const profileVal    = localStorage.getItem('dom_sc_active_profile');
-        const storedHash    = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const storedHash    = getStoredPasscode(profileVal);
         const bioContextKey = "profile_" + profileVal;
         openAuthModal(
             "Remove Passcode",
             "Verify your current passcode to remove it",
             storedHash,
             false,
-            function() {
-                localStorage.removeItem(getProfilePasscodeKey(profileVal));
-                localStorage.removeItem(getProfileBioKey(profileVal));
+            async function() {
+                await clearStoredPasscode(profileVal);
                 localStorage.removeItem(getBioCredKey(bioContextKey));
                 alert("Passcode and biometrics removed.");
                 updateSecurityPanelUI();
@@ -1467,7 +1514,7 @@
         const bioAvail = await isBiometricAvailable();
         if (!bioAvail) { alert("Platform biometrics (Face ID / Fingerprint) are not supported on this device or browser."); return; }
         const profileVal = localStorage.getItem('dom_sc_active_profile');
-        const storedHash = localStorage.getItem(getProfilePasscodeKey(profileVal));
+        const storedHash = getStoredPasscode(profileVal);
         if (!storedHash) {
             alert("Please set a passcode first before enabling biometrics.");
             return;
@@ -1482,7 +1529,7 @@
             async function() {
                 const registered = await registerPlatformBiometric(bioContextKey, profileVal);
                 if (registered) {
-                    localStorage.setItem(getProfileBioKey(profileVal), "true");
+                    await setBioFlag(profileVal, true);
                     alert("Biometrics enrolled! Face ID / Fingerprint will now unlock your profile.");
                     updateSecurityPanelUI();
                 } else {
@@ -1494,39 +1541,50 @@
         );
     }
 
-    function disableBiometricForProfile() {
+    async function disableBiometricForProfile() {
         const profileVal = localStorage.getItem('dom_sc_active_profile');
-        localStorage.setItem(getProfileBioKey(profileVal), "false");
+        await setBioFlag(profileVal, false);
+        localStorage.removeItem(getBioCredKey("profile_" + profileVal));
         alert("Biometrics disabled.");
         updateSecurityPanelUI();
     }
 
     async function requestPasscodeReset() {
         const profileVal = localStorage.getItem('dom_sc_active_profile');
-        const profileName = (profilesRegistry.find(function(p) { return p.val === profileVal; }) || {}).name || profileVal;
+        if (!profileVal || profileVal === "null") {
+            alert("No active profile detected. Please select your profile first.");
+            return;
+        }
+        // Resolve a friendly name; fall back to the foreman field, then the profile id
+        var match = profilesRegistry.find(function(p) { return p.val === profileVal; });
+        var profileName = (match && match.name) ? match.name
+                        : (document.getElementById('foreman-name').value || profileVal);
+
         const req = { profile: profileVal, profileName: profileName, ip: localClientIP, timestamp: new Date().toLocaleString(), status: "pending" };
         if (!globalCloudData.passcode_reset_requests) globalCloudData.passcode_reset_requests = [];
-        // Remove any existing request from same profile
+        // Replace any existing request from the same profile
         globalCloudData.passcode_reset_requests = globalCloudData.passcode_reset_requests.filter(function(r) { return r.profile !== profileVal; });
         globalCloudData.passcode_reset_requests.push(req);
         await pushGlobalData();
         emailjs.send("service_h1nnfhv", "template_aienmjb", {
             profile_name: profileName + " [PASSCODE RESET REQUEST]",
             ip_address: localClientIP,
-            location: "Reset request from profile " + profileVal,
+            location: "Reset request from profile " + profileName,
             time: new Date().toLocaleString()
         });
-        alert("Reset request sent to admin. You'll receive a temporary passcode shortly.");
+        alert("Reset request sent to admin. Once approved, your passcode will be cleared and you can set a new one.");
     }
 
-    // Admin approves reset — clears stored passcode so user can set a new one
+    // Admin approves reset — clears the CLOUD passcode so the user can set a new one
+    // on any device. Also clears this device's local biometric credential if present.
     async function adminApproveReset(profileVal) {
-        localStorage.removeItem(getProfilePasscodeKey(profileVal));
-        localStorage.removeItem(getProfileBioKey(profileVal));
+        await clearStoredPasscode(profileVal);
         localStorage.removeItem(getBioCredKey("profile_" + profileVal));
         globalCloudData.passcode_reset_requests = (globalCloudData.passcode_reset_requests || []).filter(function(r) { return r.profile !== profileVal; });
         await pushGlobalData();
-        alert("Passcode reset approved for " + profileVal + ". Their passcode and biometrics have been cleared. They can set a new one on next login.");
+        var match = profilesRegistry.find(function(p) { return p.val === profileVal; });
+        var nm = (match && match.name) ? match.name : profileVal;
+        alert("Passcode reset approved for " + nm + ". Their passcode and biometrics have been cleared. They can set a new one on next login.");
         applyGlobalState();
     }
 
@@ -1534,18 +1592,95 @@
     async function adminSetupBiometric() {
         const bioAvail = await isBiometricAvailable();
         if (!bioAvail) { alert("Platform biometrics not supported on this device."); return; }
-        const storedHash = localStorage.getItem(getAdminPasscodeKey());
+        const storedHash = getStoredPasscode(ADMIN_KEY);
         if (!storedHash) {
-            alert("Set an admin passcode first before enabling biometrics.\n\nUse the numpad in Security & Profile Management to set one.");
+            alert("Set an admin passcode first (tap \"Set / Change Admin Passcode\" above), then enable biometrics.");
             return;
         }
         const registered = await registerPlatformBiometric("admin", "Administrator");
         if (registered) {
-            localStorage.setItem(getAdminBioKey(), "true");
+            await setBioFlag(ADMIN_KEY, true);
             alert("Admin biometrics enrolled! Face ID / Fingerprint will now be tried first on admin login.");
+            updateAdminBioStatusUI();
         } else {
             alert("Biometric enrollment failed. Make sure your device has Face ID or fingerprint configured in system settings.");
         }
+    }
+
+    async function adminDisableBiometric() {
+        await setBioFlag(ADMIN_KEY, false);
+        localStorage.removeItem(getBioCredKey("admin"));
+        alert("Admin biometrics disabled.");
+        updateAdminBioStatusUI();
+    }
+
+    // Admin sets or changes their OWN 4-digit passcode (cloud-synced)
+    function adminSetOwnPasscode() {
+        const existing = getStoredPasscode(ADMIN_KEY);
+        const doSet = function() {
+            passcodeSetStep = 0; passcodeSetFirst = ""; passcodeBuffer = "";
+            authContext = { mode: "set", onSuccess: async function(hash) {
+                await setStoredPasscode(ADMIN_KEY, hash);
+                alert("Admin passcode saved! You can now log in with it (and enable biometrics).");
+                updateAdminBioStatusUI();
+            }};
+            document.getElementById('auth-modal-title').textContent = "Set Admin Passcode";
+            document.getElementById('auth-modal-sub').textContent   = "Enter a new 4-digit admin passcode";
+            document.getElementById('auth-error-msg').textContent   = "";
+            document.getElementById('auth-forgot-btn').style.display = "none";
+            document.getElementById('auth-bio-btn').style.display    = "none";
+            document.getElementById('auth-modal-overlay').style.display = "flex";
+            updateDots();
+        };
+        if (existing) {
+            // Verify current admin passcode first
+            openAuthModal("Verify Admin Passcode", "Enter your current admin passcode", existing, false,
+                function() { setTimeout(doSet, 200); }, null, "admin");
+        } else {
+            doSet();
+        }
+    }
+
+    async function adminRemoveOwnPasscode() {
+        if (!getStoredPasscode(ADMIN_KEY)) { alert("No admin passcode is set."); return; }
+        if (!confirm("Remove the admin passcode? Admin login will fall back to the text password.")) return;
+        const existing = getStoredPasscode(ADMIN_KEY);
+        openAuthModal("Verify Admin Passcode", "Enter your current admin passcode to remove it", existing, false,
+            async function() {
+                if (globalCloudData.passcodes) delete globalCloudData.passcodes[ADMIN_KEY];
+                if (globalCloudData.bio_flags) delete globalCloudData.bio_flags[ADMIN_KEY];
+                await pushGlobalData();
+                localStorage.removeItem(getBioCredKey("admin"));
+                alert("Admin passcode and biometrics removed.");
+                updateAdminBioStatusUI();
+            }, null, "admin");
+    }
+
+    function updateAdminBioStatusUI() {
+        const txt = document.getElementById('admin-sec-status');
+        if (!txt) return;
+        const hasPc  = !!getStoredPasscode(ADMIN_KEY);
+        const bioOn  = isBioFlagOn(ADMIN_KEY);
+        const enrolled = hasBioCredential("admin");
+        var parts = [];
+        parts.push(hasPc ? "Passcode: ON" : "Passcode: not set");
+        if (bioOn && enrolled) parts.push("Biometrics: ON (this device)");
+        else if (bioOn && !enrolled) parts.push("Biometrics: ON (enroll on this device)");
+        else parts.push("Biometrics: off");
+        txt.textContent = parts.join("  •  ");
+    }
+
+    // Admin directly resets ANY employee's passcode (no request needed)
+    async function adminResetEmployeePasscode(profileVal) {
+        var match = profilesRegistry.find(function(p) { return p.val === profileVal; });
+        var nm = (match && match.name) ? match.name : profileVal;
+        if (!confirm("Clear the passcode and biometrics for " + nm + "?\n\nThey'll be able to log in without a passcode and set a new one.")) return;
+        await clearStoredPasscode(profileVal);
+        localStorage.removeItem(getBioCredKey("profile_" + profileVal));
+        globalCloudData.passcode_reset_requests = (globalCloudData.passcode_reset_requests || []).filter(function(r) { return r.profile !== profileVal; });
+        await pushGlobalData();
+        alert(nm + "'s passcode has been cleared.");
+        applyGlobalState();
     }
 
     function updateAdminResetRequestsUI() {
@@ -1554,8 +1689,9 @@
         const reqs = globalCloudData.passcode_reset_requests || [];
         if (reqs.length === 0) { listDiv.innerHTML = "<div style='color:#aaa; font-style:italic;'>No pending requests.</div>"; return; }
         listDiv.innerHTML = reqs.map(function(r) {
+            var nm = r.profileName && r.profileName !== "null" ? r.profileName : r.profile;
             return '<div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #e0f0ff;">' +
-                   '<div><b style="font-size:12px;">' + r.profileName + '</b><br>' +
+                   '<div><b style="font-size:12px;">' + nm + '</b><br>' +
                    '<span style="font-size:10px;color:#555;">' + r.timestamp + ' &bull; IP: ' + r.ip + '</span></div>' +
                    '<button class="sm-btn btn-green" onclick="adminApproveReset(\'' + r.profile + '\')">Approve Reset</button>' +
                    '</div>';
@@ -1757,14 +1893,22 @@
                 }
             }
 
+            // Passcode / biometric status
+            var hasPc = !!getStoredPasscode(p.val);
+            var bioOn = isBioFlagOn(p.val);
+            var secBadge = hasPc
+                ? '<span style="font-size:10px; color:#1e7e34;">&#x1F512; Passcode set' + (bioOn ? ' + bio' : '') + '</span>'
+                : '<span style="font-size:10px; color:#aaa;">&#x1F513; No passcode</span>';
+
             return '<tr>' +
                    '<td style="padding: 6px; border-bottom: 1px solid #ddd;">' +
                    '<b>' + p.name + '</b> <span style="font-size:10px;color:#666;">(' + p.val + ')</span><br>' +
-                   ipDisplay + '<br>' + locHTML +
+                   ipDisplay + '<br>' + secBadge + (locHTML ? '<br>' + locHTML : '') +
                    '</td>' +
-                   '<td style="padding: 6px; border-bottom: 1px solid #ddd; vertical-align: top;">' +
+                   '<td style="padding: 6px; border-bottom: 1px solid #ddd; vertical-align: top; white-space:nowrap;">' +
                    '<button class="sm-btn ' + (isFrozen ? 'btn-red' : 'btn-yellow') + '" onclick="adminToggleFreezeUser(\'' + p.val + '\')">' + (isFrozen ? 'Thaw' : 'Freeze') + '</button> ' +
                    '<button class="sm-btn btn-red" onclick="adminDeletePerson(\'' + p.val + '\')">X</button>' +
+                   (hasPc ? '<br><button class="sm-btn btn-blue" style="margin-top:4px;" onclick="adminResetEmployeePasscode(\'' + p.val + '\')">Reset Passcode</button>' : '') +
                    '</td></tr>';
         }).join('');
     }
