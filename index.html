@@ -592,15 +592,13 @@ let authCtx = null, pcBuffer = "", pcTarget = "", pcSetStep = 0, pcSetFirst = ""
 async function pullCloud() {
   renderLoginButtons();
   try {
-    dbg('Connecting to JSONBin...','#ffc107');
+  
     // Use Promise.race instead of AbortController — works on all Safari versions
     const fetchPromise = fetch(SYNC_URL,{headers:HEADERS});
     const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
     const r = await Promise.race([fetchPromise, timeoutPromise]);
-    dbg('JSONBin responded: HTTP '+r.status,'#ffc107');
-    if (!r.ok) {dbg('Bad response: '+r.status,'#ff4444');return true;}
+    if (!r.ok) return true;
     const d = (await r.json()).record;
-    dbg('Loaded — '+((d.profiles||[]).length)+' profiles, pass:'+d.admin_pass,'#44ff88');
     cloud = {
       is_locked:              d.is_locked||false,
       drafts:                 d.drafts||[],
@@ -628,7 +626,6 @@ async function pullCloud() {
     }
     return true;
   } catch(e) {
-    dbg('Fetch ERROR: '+e.message,'#ff4444');
     console.warn('Cloud sync unavailable:', e.message);
     return true;
   }
@@ -1374,49 +1371,24 @@ function hide(id){const e=$(id);if(e)e.style.display='none';}
 // ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
-//  DEBUG STATUS (shows on screen so you can see what's happening)
-// ══════════════════════════════════════════════════════════════
-function dbg(msg,color){
-  const el=$('debug-bar');
-  if(!el)return;
-  const line=document.createElement('div');
-  line.style.cssText='padding:2px 4px;border-bottom:1px solid rgba(255,255,255,.2);font-size:11px';
-  line.style.color=color||'#fff';
-  line.textContent=new Date().toLocaleTimeString()+' — '+msg;
-  el.appendChild(line);
-  el.scrollTop=el.scrollHeight;
-  console.log(msg);
-}
-
 (async function init(){
-  dbg('App starting...','#4dadff');
-  // Show login screen immediately with default profiles — never stuck loading
   const saved=localStorage.getItem('dom_sc_active_profile');
   if(saved&&!isDedicatedAdmin){
-    dbg('Saved session: '+saved,'#4dadff');
     hide('login-gateway-portal'); show('main-app-container','block');
   } else {
-    renderLoginButtons(); // show default profiles right away
+    renderLoginButtons();
     show('login-gateway-portal','flex'); hide('main-app-container');
-    dbg('Showing login gateway','#4dadff');
   }
-
   resolveIP();
   renderCards();
-
-  dbg('Fetching cloud data from JSONBin...','#ffc107');
   const ok=await pullCloud();
-  if(ok===false){dbg('BANNED — access blocked','#ff4444');return;}
-
+  if(ok===false)return;
   rebuildItems();
-  dbg('Cloud loaded OK — '+cloud.profiles.length+' profiles, pass='+cloud.admin_pass,'#44ff88');
-
   if(saved&&!isDedicatedAdmin){
     $('profile-select').value=saved;
     loadSavedData();
   }
   applyUI();
-  dbg('Ready','#44ff88');
 })();
 
 // Background sync — only runs when page is visible, every 30s to avoid CORS issues
@@ -1460,9 +1432,5 @@ setInterval(async function(){
   } catch(e){ /* silent fail on background sync — app still works */ }
 },30000); // 30 seconds instead of 5 — reduces CORS pressure
 </script>
-<!-- Debug bar — shows live status so we can see what's failing -->
-<div id="debug-bar" style="position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,.85);color:#fff;max-height:120px;overflow-y:auto;z-index:99999;font-family:monospace;padding:4px 8px">
-  <div style="font-size:10px;color:#ffc107;font-weight:bold;border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:2px;margin-bottom:2px">&#x1F50D; Debug — Loading...</div>
-</div>
 </body>
 </html>
