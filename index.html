@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026 Enterprise V8 Admin Employee Fixed</title>
+    <title>DOM/SC Norm 2026 Enterprise V9 Admin Unlock View As</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -443,6 +443,68 @@ body.v8-dark .v8-list{background:#0f172a;border-color:#334155}
 @media(max-width:560px){.v8-grid{grid-template-columns:1fr}.v8-row{flex-direction:column;align-items:stretch}}
 </style>
 
+
+<style id="v9-admin-unlock-viewas-css">
+#v9-viewas-panel{
+  background:#f8fafc;
+  border:1px solid #c7d2fe;
+  border-radius:12px;
+  padding:10px;
+  margin:10px 0;
+}
+#v9-viewas-panel h4{
+  margin:0 0 8px;
+  color:#1e3a8a;
+  font-size:14px;
+}
+.v9-viewas-banner{
+  display:none;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  color:#9a3412;
+  border-radius:10px;
+  padding:9px;
+  margin:10px 0;
+  font-size:12px;
+  font-weight:800;
+}
+body.v9-viewas-active .v9-viewas-banner{display:block}
+body.v9-viewas-active #admin-panel{display:none!important}
+body.v9-viewas-active #login-nav-link{display:inline-block!important}
+.v9-btn{
+  border:0;
+  border-radius:8px;
+  padding:9px 10px;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+  color:#fff;
+  background:#2563eb;
+}
+.v9-btn.green{background:#16a34a}
+.v9-btn.red{background:#dc2626}
+.v9-btn.orange{background:#f59e0b}
+.v9-input{
+  width:100%;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  padding:8px;
+  font-size:13px;
+}
+.v9-row{display:flex;gap:6px;margin:6px 0}
+.v9-row>*{flex:1}
+body.v8-dark #v9-viewas-panel{
+  background:#0f172a;
+  border-color:#334155;
+}
+body.v8-dark #v9-viewas-panel h4{color:#bfdbfe}
+body.v8-dark .v9-input{
+  background:#0f172a;
+  color:#f8fafc;
+  border-color:#334155;
+}
+</style>
+
 </head>
 <body>
 <!-- Enterprise V4 Full: original DOM/SC code preserved; new tools injected below. -->
@@ -540,7 +602,26 @@ body.v8-dark .v8-list{background:#0f172a;border-color:#334155}
     <div class="v8-stat"><b id="v8-admin-clocked">0</b><span>Clocked In</span></div>
   </div>
 
-  <div class="v8-tabs">
+  
+<!-- V9_VIEW_AS_PANEL_START -->
+<div id="v9-viewas-panel">
+  <h4>👁️ Admin View-As / Unlock Tools</h4>
+  <div class="v9-row">
+    <select id="v9-viewas-select" class="v9-input">
+      <option value="robert">Robert</option>
+      <option value="payton_n">Payton N</option>
+    </select>
+    <button class="v9-btn" type="button" onclick="v9ViewAsEmployee()">View Employee Page</button>
+  </div>
+  <div class="v9-row">
+    <button class="v9-btn green" type="button" onclick="v9ReturnAdmin()">Return Admin View</button>
+    <button class="v9-btn orange" type="button" onclick="v9ThawAllAndUnlockAdmin()">Thaw All / Unlock Admin</button>
+  </div>
+  <button class="v9-btn red" type="button" onclick="v9EmergencyAdminRecovery()">Emergency Admin Recovery</button>
+</div>
+<!-- V9_VIEW_AS_PANEL_END -->
+
+<div class="v8-tabs">
     <button class="v8-tab active" type="button" onclick="v8Show('admin','system',this)">System</button>
     <button class="v8-tab" type="button" onclick="v8Show('admin','website',this)">Website</button>
     <button class="v8-tab" type="button" onclick="v8Show('admin','security',this)">Security</button>
@@ -3711,6 +3792,183 @@ body.v8-dark .v8-list{background:#0f172a;border-color:#334155}
   document.addEventListener('click',function(){setTimeout(updateAdminVisibility,30)},true);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
   setInterval(function(){wrapOriginals();render()},1500);
+})();
+</script>
+
+
+<script id="v9-admin-unlock-viewas-js">
+(function(){
+  /*
+    V9 fixes:
+    - Admin can never be locked out by employee freeze/thaw states.
+    - Adds Admin View-As mode to view Robert/Payton's employee page as it appears.
+    - Adds emergency recovery buttons to clear frozen users + unlock site + remove overlays.
+  */
+
+  var ADMIN_VIEW_KEY = "domsc_v9_admin_return_profile";
+  var VIEW_AS_KEY = "domsc_v9_view_as_active";
+
+  function adminIsLoggedIn(){
+    return !!window.isAdminLoggedIn || (document.getElementById("admin-panel") && getComputedStyle(document.getElementById("admin-panel")).display !== "none");
+  }
+
+  function removeLockOverlaysForAdmin(){
+    if(!adminIsLoggedIn()) return;
+    ["local-freeze-screen","lock-overlay","maintenance-overlay"].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.style.display="none";
+    });
+    if(document.body) document.body.classList.add("v8-admin-active");
+  }
+
+  function clearFrozenState(){
+    try{
+      if(window.globalCloudData){
+        globalCloudData.frozen_users = {};
+        globalCloudData.is_locked = false;
+        if(globalCloudData.maintenance) globalCloudData.maintenance.active = false;
+        if(typeof window.pushGlobalData === "function") window.pushGlobalData();
+      }
+    }catch(e){}
+    try{
+      Object.keys(localStorage).forEach(function(k){
+        if(k.indexOf("failed_admin_attempts_")===0) localStorage.setItem(k,"0");
+      });
+    }catch(e){}
+  }
+
+  // Wrap applyGlobalState so frozen users cannot cover admin console.
+  function patchApplyGlobalState(){
+    if(typeof window.applyGlobalState !== "function" || window.applyGlobalState._v9AdminSafe) return;
+    var original = window.applyGlobalState;
+    window.applyGlobalState = function(){
+      var result = original.apply(this, arguments);
+      removeLockOverlaysForAdmin();
+      return result;
+    };
+    window.applyGlobalState._v9AdminSafe = true;
+  }
+
+  // Patch admin grant to immediately clear overlays and admin lock conditions.
+  function patchGrantAdmin(){
+    if(typeof window._grantAdminAccess !== "function" || window._grantAdminAccess._v9AdminSafe) return;
+    var original = window._grantAdminAccess;
+    window._grantAdminAccess = function(){
+      var result = original.apply(this, arguments);
+      removeLockOverlaysForAdmin();
+      return result;
+    };
+    window._grantAdminAccess._v9AdminSafe = true;
+  }
+
+  // Patch admin freeze/thaw action so it never freezes an admin/session by accident.
+  function patchFreezeUser(){
+    if(typeof window.adminToggleFreezeUser !== "function" || window.adminToggleFreezeUser._v9AdminSafe) return;
+    var original = window.adminToggleFreezeUser;
+    window.adminToggleFreezeUser = async function(targetVal){
+      if(targetVal === "gavin" || targetVal === "__admin__" || targetVal === "System_Admin"){
+        alert("Gavin/Admin cannot be frozen.");
+        return;
+      }
+      var result = await original.apply(this, arguments);
+      removeLockOverlaysForAdmin();
+      return result;
+    };
+    window.adminToggleFreezeUser._v9AdminSafe = true;
+  }
+
+  window.v9ThawAllAndUnlockAdmin = async function(){
+    clearFrozenState();
+    removeLockOverlaysForAdmin();
+    alert("All profiles thawed and admin unlock state restored.");
+    try{ if(typeof window.applyGlobalState==="function") window.applyGlobalState(); }catch(e){}
+  };
+
+  window.v9EmergencyAdminRecovery = async function(){
+    if(!confirm("Emergency recovery will unlock the site, clear frozen users, turn off maintenance overlay, and reset failed local admin attempts. Continue?")) return;
+    clearFrozenState();
+    removeLockOverlaysForAdmin();
+    alert("Emergency admin recovery completed.");
+    try{ if(typeof window.applyGlobalState==="function") window.applyGlobalState(); }catch(e){}
+  };
+
+  window.v9ViewAsEmployee = function(){
+    var sel=document.getElementById("v9-viewas-select");
+    var target=(sel && sel.value) || "robert";
+    try{
+      localStorage.setItem(ADMIN_VIEW_KEY, localStorage.getItem("dom_sc_active_profile") || "gavin");
+      localStorage.setItem(VIEW_AS_KEY, target);
+      localStorage.setItem("dom_sc_active_profile", target);
+      var ps=document.getElementById("profile-select");
+      if(ps) ps.value=target;
+      document.body.classList.add("v9-viewas-active");
+      if(typeof window.switchProfile==="function") window.switchProfile();
+      if(typeof window.loadSavedData==="function") window.loadSavedData();
+      if(typeof window.calculateEverything==="function") window.calculateEverything();
+    }catch(e){}
+    var banner=document.getElementById("v9-viewas-banner");
+    if(banner) banner.textContent="Viewing employee page as: " + (target==="payton_n" ? "Payton N" : "Robert") + ". Use Return Admin View to go back.";
+    alert("Now viewing employee page as " + (target==="payton_n" ? "Payton N" : "Robert") + ".");
+  };
+
+  window.v9ReturnAdmin = function(){
+    try{
+      var returnProfile=localStorage.getItem(ADMIN_VIEW_KEY) || "gavin";
+      localStorage.removeItem(VIEW_AS_KEY);
+      localStorage.setItem("dom_sc_active_profile", returnProfile);
+      document.body.classList.remove("v9-viewas-active");
+      var ps=document.getElementById("profile-select");
+      if(ps) ps.value=returnProfile;
+      if(typeof window._grantAdminAccess==="function"){
+        window._grantAdminAccess(false,true);
+      }else{
+        var ap=document.getElementById("admin-panel");
+        if(ap) ap.style.display="block";
+      }
+      removeLockOverlaysForAdmin();
+    }catch(e){}
+  };
+
+  function injectBanner(){
+    if(document.getElementById("v9-viewas-banner")) return;
+    var main=document.getElementById("main-app-container");
+    if(!main) return;
+    var b=document.createElement("div");
+    b.id="v9-viewas-banner";
+    b.className="v9-viewas-banner";
+    b.innerHTML='Viewing employee page. <button class="v9-btn green" type="button" onclick="v9ReturnAdmin()" style="padding:6px 8px;margin-left:6px;">Return Admin View</button>';
+    main.insertBefore(b, main.firstChild);
+  }
+
+  function restoreViewAsIfNeeded(){
+    var target=localStorage.getItem(VIEW_AS_KEY);
+    if(!target) return;
+    document.body.classList.add("v9-viewas-active");
+    var ps=document.getElementById("profile-select");
+    if(ps) ps.value=target;
+    var banner=document.getElementById("v9-viewas-banner");
+    if(banner) banner.textContent="Viewing employee page as: " + (target==="payton_n" ? "Payton N" : "Robert") + ".";
+  }
+
+  function boot(){
+    patchApplyGlobalState();
+    patchGrantAdmin();
+    patchFreezeUser();
+    injectBanner();
+    restoreViewAsIfNeeded();
+    removeLockOverlaysForAdmin();
+    setInterval(function(){
+      patchApplyGlobalState();
+      patchGrantAdmin();
+      patchFreezeUser();
+      injectBanner();
+      restoreViewAsIfNeeded();
+      removeLockOverlaysForAdmin();
+    }, 800);
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
 })();
 </script>
 
