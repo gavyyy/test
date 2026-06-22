@@ -2185,6 +2185,33 @@ async function fetchCloudRecordSafe(){
     return j.record||null;
   }catch(e){return null;}
 }
+
+// Security saves need exact cloud writes so removed passcodes/biometrics do not come back during merge.
+async function saveSecurityChange(applyChange, verifyChange){
+  try{
+    const remote=await fetchCloudRecordSafe();
+    const base=mergeCloudRecords(remote,cloud);
+    if(!base.passcodes)base.passcodes={};
+    if(!base.bio_flags)base.bio_flags={};
+    if(!base.passcode_meta)base.passcode_meta={};
+    if(!Array.isArray(base.passcode_reset_requests))base.passcode_reset_requests=[];
+    applyChange(base);
+    const r=await fetch(SYNC_URL,{method:"PUT",headers:HEADERS,body:JSON.stringify(base)});
+    if(!r.ok)throw new Error("Security cloud save failed: "+r.status);
+    const saved=await fetchCloudRecordSafe();
+    if(verifyChange && !verifyChange(saved||{}))throw new Error("JSONBin did not confirm the security save");
+    cloud=base;
+    const badge=(typeof $==='function')?$('sync-status-badge'):null;
+    if(badge){badge.textContent='Synced';badge.style.color='#1e7e34';}
+    return true;
+  }catch(e){
+    console.error('saveSecurityChange',e);
+    const badge=(typeof $==='function')?$('sync-status-badge'):null;
+    if(badge){badge.textContent='Security sync pending';badge.style.color='#856404';}
+    alert('Passcode/biometric save did not confirm. Do not refresh yet. Check internet/JSONBin, then try again.');
+    return false;
+  }
+}
 function mergeArrayByKey(a,b,keyFn){
   const out=[], seen={};
   [...(a||[]),...(b||[])].forEach(x=>{
@@ -2270,21 +2297,51 @@ async function pushCloud() {
 // ══════════════════════════════════════════════════════════════
 function getPC(key) { return (cloud.passcodes&&cloud.passcodes[key])||null; }
 async function setPC(key,hash,by) {
-  cloud.passcodes[key]=hash;
+  if(!cloud.passcodes)cloud.passcodes={};
   if(!cloud.passcode_meta)cloud.passcode_meta={};
+  cloud.passcodes[key]=hash;
   cloud.passcode_meta[key]={changedAt:new Date().toLocaleString(),changedBy:by||"user"};
-  await pushCloud();
+  cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(r=>r.profile!==key);
+  const ok=await saveSecurityChange(record=>{
+    if(!record.passcodes)record.passcodes={};
+    if(!record.passcode_meta)record.passcode_meta={};
+    if(!Array.isArray(record.passcode_reset_requests))record.passcode_reset_requests=[];
+    record.passcodes[key]=hash;
+    record.passcode_meta[key]=cloud.passcode_meta[key];
+    record.passcode_reset_requests=record.passcode_reset_requests.filter(r=>r.profile!==key);
+  },record=>!!(record.passcodes&&record.passcodes[key]===hash));
+  if(!ok)throw new Error('Passcode cloud save failed');
 }
 async function clearPC(key) {
-  delete cloud.passcodes[key]; delete (cloud.bio_flags||{})[key]; delete (cloud.passcode_meta||{})[key];
-  await pushCloud();
+  if(!cloud.passcodes)cloud.passcodes={};
+  if(!cloud.bio_flags)cloud.bio_flags={};
+  if(!cloud.passcode_meta)cloud.passcode_meta={};
+  delete cloud.passcodes[key];
+  delete cloud.bio_flags[key];
+  delete cloud.passcode_meta[key];
+  cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(r=>r.profile!==key);
+  const ok=await saveSecurityChange(record=>{
+    if(!record.passcodes)record.passcodes={};
+    if(!record.bio_flags)record.bio_flags={};
+    if(!record.passcode_meta)record.passcode_meta={};
+    if(!Array.isArray(record.passcode_reset_requests))record.passcode_reset_requests=[];
+    delete record.passcodes[key];
+    delete record.bio_flags[key];
+    delete record.passcode_meta[key];
+    record.passcode_reset_requests=record.passcode_reset_requests.filter(r=>r.profile!==key);
+  },record=>!(record.passcodes&&record.passcodes[key]) && !(record.bio_flags&&record.bio_flags[key]));
+  if(!ok)throw new Error('Passcode clear cloud save failed');
 }
 function getMeta(key) { return cloud.passcode_meta&&cloud.passcode_meta[key]; }
 function bioOn(key) { return !!(cloud.bio_flags&&cloud.bio_flags[key]); }
 async function setBio(key,on) {
   if(!cloud.bio_flags)cloud.bio_flags={};
   if(on)cloud.bio_flags[key]=true; else delete cloud.bio_flags[key];
-  await pushCloud();
+  const ok=await saveSecurityChange(record=>{
+    if(!record.bio_flags)record.bio_flags={};
+    if(on)record.bio_flags[key]=true; else delete record.bio_flags[key];
+  },record=>on?!!(record.bio_flags&&record.bio_flags[key]):!(record.bio_flags&&record.bio_flags[key]));
+  if(!ok)throw new Error('Biometric cloud save failed');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2501,7 +2558,7 @@ async function pullCloudSilent() {
     if(!r.ok)return;
     const d=(await r.json()).record;
     cloud=Object.assign(cloud,{
-      admin_pass:d.admin_pass||"2026", passcodes:d.passcodes||{}, bio_flags:d.bio_flags||{},
+      admin_pass:d.admin_pass||"2026", passcodes:d.passcodes||{}, bio_flags:d.bio_flags||{}, passcode_meta:d.passcode_meta||{},
       banned_ips:d.banned_ips||[], is_locked:d.is_locked||false,
       live_calculator:d.live_calculator||{},
       daily_logs:d.daily_logs||{},
@@ -2544,16 +2601,28 @@ function adminLogout() {
 }
 
 async function triggerAdminRecovery() {
-  const k=prompt("Enter Master Recovery Key:\n(Resets cloud password back to: 2026)");
+  const k=prompt("Enter Master Recovery Key:");
   if(!k)return;
   if(k.trim()===MASTER_RECOVERY_KEY) {
     await pullCloud();
     cloud.admin_pass="2026";
-    if(cloud.passcodes)delete cloud.passcodes[ADMIN_KEY];
-    if(cloud.bio_flags)delete cloud.bio_flags[ADMIN_KEY];
+    if(!cloud.passcodes)cloud.passcodes={};
+    if(!cloud.bio_flags)cloud.bio_flags={};
+    if(!cloud.passcode_meta)cloud.passcode_meta={};
+    delete cloud.passcodes[ADMIN_KEY];
+    delete cloud.bio_flags[ADMIN_KEY];
+    delete cloud.passcode_meta[ADMIN_KEY];
     localStorage.removeItem(bioCredKey("admin"));
-    await pushCloud();
-    alert("Access restored! Password reset to: 2026\nLogging you in now.");
+    await saveSecurityChange(record=>{
+      record.admin_pass="2026";
+      if(!record.passcodes)record.passcodes={};
+      if(!record.bio_flags)record.bio_flags={};
+      if(!record.passcode_meta)record.passcode_meta={};
+      delete record.passcodes[ADMIN_KEY];
+      delete record.bio_flags[ADMIN_KEY];
+      delete record.passcode_meta[ADMIN_KEY];
+    },record=>!(record.passcodes&&record.passcodes[ADMIN_KEY]) && !(record.bio_flags&&record.bio_flags[ADMIN_KEY]));
+    alert("Access restored. Logging you in now.");
     grantAdmin(false,true);
   } else if(k.trim()) alert("Incorrect recovery key.");
 }
@@ -2800,7 +2869,7 @@ function adminSetOwnPasscode(){
 async function adminRemoveOwnPasscode(){
   const h=getPC(ADMIN_KEY); if(!h){alert("No passcode set.");return;}
   if(!confirm("Remove admin passcode?"))return;
-  openAuthModal("Verify Passcode","Enter current passcode to remove",h,false,async()=>{delete cloud.passcodes[ADMIN_KEY];delete (cloud.bio_flags||{})[ADMIN_KEY];await pushCloud();localStorage.removeItem(bioCredKey("admin"));alert("Passcode removed.");updateAdminSecStatus();},"admin",null);
+  openAuthModal("Verify Passcode","Enter current passcode to remove",h,false,async()=>{await clearPC(ADMIN_KEY);localStorage.removeItem(bioCredKey("admin"));alert("Passcode removed.");updateAdminSecStatus();},"admin",null);
 }
 async function adminSetupBiometric(){
   if(!await bioAvailable()){alert("Biometrics not supported on this device.");return;}
@@ -4576,15 +4645,9 @@ document.addEventListener('DOMContentLoaded',function(){
     const name=profileName(profileVal);
     openSetModal('Set Passcode for '+name,'Enter a 4-digit passcode for this employee',async function(hash){
       if(!window.supervisorHasPrivilege('manage_passcodes')){alert('Admin has not enabled employee passcode privileges for this supervisor.');return;}
-      if(!cloud.passcodes)cloud.passcodes={};
-      if(!cloud.passcode_meta)cloud.passcode_meta={};
-      if(!cloud.bio_flags)cloud.bio_flags={};
-      cloud.passcodes[profileVal]=hash;
-      cloud.passcode_meta[profileVal]={changedAt:new Date().toLocaleString(),changedBy:'supervisor: '+profileName(activeProfile())};
-      delete cloud.bio_flags[profileVal];
+      await setPC(profileVal,hash,'supervisor: '+profileName(activeProfile()));
+      await setBio(profileVal,false);
       try{localStorage.removeItem(bioCredKey('profile_'+profileVal));}catch(e){}
-      cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(function(r){return r.profile!==profileVal;});
-      await pushCloud();
       try{supervisorRenderConsole();}catch(e){}
       alert('Passcode set for '+name+'.');
     });
@@ -4595,15 +4658,8 @@ document.addEventListener('DOMContentLoaded',function(){
     if(profileVal===activeProfile()){alert('Use your own Account Security panel to remove your own passcode.');return;}
     const name=profileName(profileVal);
     if(!confirm('Clear passcode and biometrics for '+name+'?'))return;
-    if(!cloud.passcodes)cloud.passcodes={};
-    if(!cloud.bio_flags)cloud.bio_flags={};
-    if(!cloud.passcode_meta)cloud.passcode_meta={};
-    delete cloud.passcodes[profileVal];
-    delete cloud.bio_flags[profileVal];
-    delete cloud.passcode_meta[profileVal];
+    await clearPC(profileVal);
     try{localStorage.removeItem(bioCredKey('profile_'+profileVal));}catch(e){}
-    cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(function(r){return r.profile!==profileVal;});
-    await pushCloud();
     try{supervisorRenderConsole();}catch(e){}
     alert('Passcode cleared for '+name+'.');
   };
