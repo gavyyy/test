@@ -551,8 +551,9 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
 // ══════════════════════════════════════════════════════════════
 //  CONSTANTS
 // ══════════════════════════════════════════════════════════════
-const BIN_ID = "6a372915f5f4af5e29165e77";
+const BIN_ID = "6a38c61bf5f4af5e291b1384";
 const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
+const HEADERS = {"X-Master-Key": MASTER_KEY, "X-Access-Key": MASTER_KEY, "Content-Type": "application/json"};
 const SYNC_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
 const ADMIN_KEY = "__admin__";
 const MASTER_RECOVERY_KEY = "DOMSC-RECOVERY-2026";
@@ -593,7 +594,7 @@ async function pullCloud() {
   try {
     dbg('Connecting to JSONBin...','#ffc107');
     // Use Promise.race instead of AbortController — works on all Safari versions
-    const fetchPromise = fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY}});
+    const fetchPromise = fetch(SYNC_URL,{headers:HEADERS});
     const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
     const r = await Promise.race([fetchPromise, timeoutPromise]);
     dbg('JSONBin responded: HTTP '+r.status,'#ffc107');
@@ -634,7 +635,7 @@ async function pullCloud() {
 }
 async function pushCloud() {
   try {
-    await fetch(SYNC_URL,{method:"PUT",headers:{"Content-Type":"application/json","X-Master-Key":MASTER_KEY},body:JSON.stringify(cloud)});
+    await fetch(SYNC_URL,{method:"PUT",headers:HEADERS,body:JSON.stringify(cloud)});
   } catch(e) { console.error('pushCloud',e); }
 }
 
@@ -868,7 +869,7 @@ async function triggerAdminLogin(isBypass,isDedicated) {
 // Pull cloud without triggering UI refresh (used inside login flow)
 async function pullCloudSilent() {
   try {
-    const fetchPromise = fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY}});
+    const fetchPromise = fetch(SYNC_URL,{headers:HEADERS});
     const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
     const r = await Promise.race([fetchPromise, timeoutPromise]);
     if(!r.ok)return;
@@ -1424,7 +1425,7 @@ setInterval(async function(){
   if(document.hidden)return;
   if($('auth-modal-overlay').style.display==='flex')return;
   try {
-    const fetchPromise = fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY}});
+    const fetchPromise = fetch(SYNC_URL,{headers:HEADERS});
     const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
     const r = await Promise.race([fetchPromise, timeoutPromise]);
     if(!r.ok)return;
