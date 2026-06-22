@@ -1566,6 +1566,42 @@ body #user-app-elements #item-cards-container .item-total{
 .supervisor-msg-item:last-child,.supervisor-log-item:last-child{border-bottom:none}
 @media(max-width:720px){.supervisor-priv-table{min-width:780px}.supervisor-control-card{padding:8px}.supervisor-mini-row{align-items:flex-start;flex-direction:column}}
 
+
+/* ══════════════════════════════════════════════════════════════
+   SUPERVISOR CONTROLS ON EMPLOYEE PROFILE
+   Keeps admin as the permission setter only; actual supervisor tools
+   show inside the logged-in employee profile when access is enabled.
+   ══════════════════════════════════════════════════════════════ */
+#supervisor-console-card.employee-profile-supervisor-tools{
+  border:2px solid #9ed1ff!important;
+  background:linear-gradient(180deg,#ffffff,#f1f8ff)!important;
+  margin-top:10px!important;
+}
+#supervisor-console-card.employee-profile-supervisor-tools .employee-feature-title{
+  color:#075bbb!important;
+}
+.supervisor-profile-badge{
+  display:inline-block;
+  background:#e9f5fe;
+  color:#075bbb;
+  border:1px solid #cfe4ff;
+  border-radius:999px;
+  padding:4px 9px;
+  font-size:10px;
+  font-weight:950;
+  margin-bottom:8px;
+}
+.supervisor-profile-note{
+  background:#f4fbff;
+  border:1px solid #dbefff;
+  border-radius:10px;
+  padding:8px;
+  font-size:11px;
+  font-weight:800;
+  color:#075bbb;
+  margin-bottom:8px;
+}
+
 </style>
 </head>
 <body>
@@ -1698,7 +1734,7 @@ body #user-app-elements #item-cards-container .item-total{
           
           <div style="margin-top:10px;border-top:1px dashed #cfe4ff;padding-top:8px">
             <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F9D1;&#x200D;&#x1F4BC; Supervisor Privileges</div>
-            <div style="font-size:11px;color:#666;margin-bottom:6px">Turn an existing employee profile into a supervisor, then choose exactly what supervisor controls they can use.</div>
+            <div style="font-size:11px;color:#666;margin-bottom:6px">Turn an employee profile into a supervisor and choose access. The supervisor tools will appear on that employee profile after they sign in.</div>
             <div id="phase1-supervisor-settings" style="font-size:12px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px">Loading supervisor settings...</div>
           </div>
 
@@ -4636,6 +4672,73 @@ document.addEventListener('DOMContentLoaded',function(){
   document.addEventListener('DOMContentLoaded',function(){
     setTimeout(function(){try{ensureSupervisorStores();phase1RenderSupervisorSettings();phase1ApplySupervisorNotice();}catch(e){}},800);
     setTimeout(function(){try{ensureSupervisorStores();phase1RenderSupervisorSettings();phase1ApplySupervisorNotice();}catch(e){}},2200);
+  });
+})();
+</script>
+
+
+<script>
+/* Supervisor controls placement patch
+   Admin still controls which privileges are enabled, but the actual supervisor
+   tools are shown on the logged-in employee profile that has access. */
+(function(){
+  function activeProfileKey(){return localStorage.getItem('dom_sc_active_profile')||'default';}
+  function isSupervisorProfile(){
+    try{return typeof window.phase1IsSupervisor==='function' && window.phase1IsSupervisor(activeProfileKey());}
+    catch(e){return false;}
+  }
+  function placeSupervisorControlsOnEmployeeProfile(){
+    var card=document.getElementById('supervisor-console-card');
+    if(!card)return;
+    card.classList.add('employee-profile-supervisor-tools');
+    var title=card.querySelector('.employee-feature-title');
+    if(title)title.innerHTML='&#x1F9D1;&#x200D;&#x1F4BC; My Supervisor Controls';
+
+    // Put the supervisor tools with the employee profile area instead of leaving
+    // them above the calculator or inside the admin area.
+    var profileCard=document.getElementById('employee-profile-picture-card');
+    var msgCard=document.getElementById('employee-message-admin-card');
+    if(profileCard && profileCard.parentNode && profileCard.nextSibling!==card){
+      profileCard.parentNode.insertBefore(card, profileCard.nextSibling);
+    }else if(msgCard && msgCard.parentNode && msgCard.previousSibling!==card){
+      msgCard.parentNode.insertBefore(card, msgCard);
+    }
+  }
+
+  var oldRender=window.supervisorRenderConsole;
+  if(typeof oldRender==='function' && !oldRender.__profilePlacementWrapped){
+    var wrappedRender=function(){
+      placeSupervisorControlsOnEmployeeProfile();
+      var result=oldRender.apply(this,arguments);
+      placeSupervisorControlsOnEmployeeProfile();
+      var box=document.getElementById('supervisor-console-body');
+      if(box && isSupervisorProfile() && !document.getElementById('supervisor-profile-top-note')){
+        box.insertAdjacentHTML('afterbegin','<div id="supervisor-profile-top-note" class="supervisor-profile-note">These controls are attached to this employee profile because admin gave this profile supervisor access.</div>');
+      }
+      return result;
+    };
+    wrappedRender.__profilePlacementWrapped=true;
+    window.supervisorRenderConsole=wrappedRender;
+  }
+
+  window.phase1ApplySupervisorNotice=function(){
+    placeSupervisorControlsOnEmployeeProfile();
+    var notice=document.getElementById('phase1-supervisor-notice');
+    var card=document.getElementById('supervisor-console-card');
+    var isSup=isSupervisorProfile();
+    if(notice){
+      notice.style.display=isSup?'block':'none';
+      if(isSup){
+        notice.innerHTML='<span class="supervisor-profile-badge">Supervisor Profile</span><br>Supervisor controls are available on this employee profile. Admin controls which tools appear here.';
+      }
+    }
+    if(card)card.style.display=isSup?'block':'none';
+    if(typeof window.supervisorRenderConsole==='function')window.supervisorRenderConsole();
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(function(){try{placeSupervisorControlsOnEmployeeProfile();window.phase1ApplySupervisorNotice();}catch(e){}},500);
+    setTimeout(function(){try{placeSupervisorControlsOnEmployeeProfile();window.phase1ApplySupervisorNotice();}catch(e){}},1800);
   });
 })();
 </script>
