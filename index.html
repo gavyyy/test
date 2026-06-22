@@ -1,147 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<style id="v12-force-exit-robert-css">
-#v12-exit-robert-bar{
-  position:fixed;
-  top:10px;
-  left:10px;
-  right:10px;
-  z-index:20000;
-  background:#dc2626;
-  color:white;
-  border-radius:14px;
-  padding:12px;
-  box-shadow:0 14px 35px rgba(0,0,0,.35);
-  text-align:center;
-  font-size:13px;
-  font-weight:900;
-}
-#v12-exit-robert-bar button{
-  border:0;
-  border-radius:10px;
-  padding:10px 12px;
-  margin:8px 4px 0;
-  font-size:12px;
-  font-weight:900;
-  cursor:pointer;
-}
-#v12-admin-now{background:#fff;color:#dc2626}
-#v12-login-now{background:#111827;color:#fff}
-</style>
-
-
-<script id="v12-force-exit-robert-js">
-(function(){
-  /*
-    V12 hard fix:
-    If the app is stuck on Robert view-as, this clears the stored profile/view-as state
-    BEFORE the page finishes loading and provides a permanent top rescue bar.
-  */
-
-  var VIEW_KEYS=[
-    "domsc_v9_view_as_active",
-    "domsc_v9_admin_return_profile",
-    "domsc_v11_viewas_active",
-    "domsc_view_as_active"
-  ];
-
-  function clearRobertState(){
-    try{
-      VIEW_KEYS.forEach(function(k){ localStorage.removeItem(k); });
-      var active=localStorage.getItem("dom_sc_active_profile");
-      if(active==="robert" || active==="payton_n" || active==="Robert" || active==="Robert S"){
-        localStorage.removeItem("dom_sc_active_profile");
-      }
-      Object.keys(localStorage).forEach(function(k){
-        if(k.indexOf("view_as")!==-1 || k.indexOf("viewas")!==-1) localStorage.removeItem(k);
-      });
-    }catch(e){}
-    try{
-      document.body.classList.remove("v9-viewas-active","v11-viewas-stuck");
-    }catch(e){}
-  }
-
-  // Run immediately, before DOM init from the old app finishes.
-  clearRobertState();
-
-  window.v12ExitRobertToLogin=function(){
-    clearRobertState();
-    try{
-      localStorage.removeItem("dom_sc_active_profile");
-    }catch(e){}
-    location.reload();
-  };
-
-  window.v12ExitRobertToAdmin=function(){
-    clearRobertState();
-    try{
-      localStorage.setItem("dom_sc_active_profile","gavin");
-      var ps=document.getElementById("profile-select");
-      if(ps) ps.value="gavin";
-      ["local-freeze-screen","lock-overlay","maintenance-overlay"].forEach(function(id){
-        var el=document.getElementById(id);
-        if(el) el.style.display="none";
-      });
-      var login=document.getElementById("login-gateway-portal");
-      var main=document.getElementById("main-app-container");
-      var admin=document.getElementById("admin-panel");
-      var user=document.getElementById("user-app-elements");
-      if(login) login.style.display="none";
-      if(main) main.style.display="block";
-      if(admin) admin.style.display="block";
-      if(user) user.style.display="none";
-      window.isAdminLoggedIn=true;
-      window.isDedicatedAdminMode=true;
-      document.body.classList.add("v8-admin-active","v7-real-admin","v6-admin-mode");
-      if(typeof window._grantAdminAccess==="function"){
-        try{ window._grantAdminAccess(false,true); }catch(e){}
-      }
-    }catch(e){}
-  };
-
-  function injectBar(){
-    if(document.getElementById("v12-exit-robert-bar")) return;
-    var bar=document.createElement("div");
-    bar.id="v12-exit-robert-bar";
-    bar.innerHTML='Stuck as Robert? Use this recovery bar. <br><button id="v12-admin-now" type="button" onclick="v12ExitRobertToAdmin()">Open Gavin/Admin</button><button id="v12-login-now" type="button" onclick="v12ExitRobertToLogin()">Clear & Go To Login</button>';
-    document.body.appendChild(bar);
-  }
-
-  function forceIfRobertVisible(){
-    try{
-      var active=localStorage.getItem("dom_sc_active_profile");
-      var view=localStorage.getItem("domsc_v9_view_as_active");
-      if(active==="robert" || view==="robert"){
-        clearRobertState();
-      }
-    }catch(e){}
-  }
-
-  function boot(){
-    clearRobertState();
-    injectBar();
-    forceIfRobertVisible();
-
-    setInterval(function(){
-      injectBar();
-      forceIfRobertVisible();
-    },500);
-  }
-
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",boot);
-  }else{
-    boot();
-  }
-})();
-</script>
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026 Enterprise V12 Force Exit Robert</title>
+    <title>DOM/SC Norm 2026 Permissions System</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -431,236 +293,78 @@
         .sec-status-off { font-size: 10px; color: #aaa; }
     </style>
 
-<style id="enterprise-v4-css">
-:root{
-  --ent-bg:#0f172a;
-  --ent-panel:#111827;
-  --ent-card:#ffffff;
-  --ent-muted:#64748b;
-  --ent-blue:#2563eb;
-  --ent-green:#16a34a;
-  --ent-red:#dc2626;
-  --ent-orange:#f59e0b;
-  --ent-purple:#7c3aed;
-  --ent-border:#e5e7eb;
-}
-body.ent-dark{
-  background:linear-gradient(135deg,#020617,#111827)!important;
-  color:#e5e7eb!important;
-}
-body.ent-dark .container,
-body.ent-dark .crew-details,
-body.ent-dark .item-card,
-body.ent-dark .metrics-panel,
-body.ent-dark .saved-files-section,
-body.ent-dark .admin-sub-section,
-body.ent-dark .security-panel{
-  background:#111827!important;
-  color:#f8fafc!important;
-  border-color:#334155!important;
-}
-body.ent-dark h2,
-body.ent-dark .item-name,
-body.ent-dark .modal-title,
-body.ent-dark .sec-row-label{
-  color:#f8fafc!important;
-}
-body.ent-dark .text-input,
-body.ent-dark .select-input,
-body.ent-dark input,
-body.ent-dark textarea,
-body.ent-dark select{
-  background:#0f172a!important;
-  color:#f8fafc!important;
-  border-color:#334155!important;
-}
-.enterprise-shell{margin:14px 0}
-.enterprise-hero{
-  background:linear-gradient(135deg,#0f172a,#1d4ed8);
-  color:#fff;border-radius:18px;padding:18px;margin-bottom:14px;
-  box-shadow:0 14px 35px rgba(15,23,42,.28);
-}
-.enterprise-hero h3{margin:0 0 4px;font-size:20px}
-.enterprise-hero p{margin:0;color:#dbeafe;font-size:12px;line-height:1.4}
-.enterprise-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.enterprise-stat{
-  background:#fff;border:1px solid var(--ent-border);border-radius:14px;padding:12px;
-  box-shadow:0 5px 14px rgba(15,23,42,.06);
-}
-.enterprise-stat .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;font-weight:800}
-.enterprise-stat .value{font-size:22px;font-weight:900;color:#0f172a;margin-top:4px}
-body.ent-dark .enterprise-stat{background:#1e293b;border-color:#334155}
-body.ent-dark .enterprise-stat .value{color:#f8fafc}
-.enterprise-card{
-  background:#fff;border:1px solid var(--ent-border);border-radius:14px;padding:12px;margin-top:10px;
-  box-shadow:0 5px 14px rgba(15,23,42,.05);
-}
-body.ent-dark .enterprise-card{background:#1e293b;border-color:#334155}
-.enterprise-card h4{margin:0 0 9px;font-size:14px;color:#0f172a}
-body.ent-dark .enterprise-card h4{color:#f8fafc}
-.enterprise-row{display:flex;gap:7px;align-items:center;margin:7px 0}
-.enterprise-row>*{flex:1}
-.enterprise-input{
-  width:100%;padding:9px;border-radius:9px;border:1px solid #cbd5e1;font-size:13px;background:#fff;
-}
-.enterprise-btn{
-  border:0;border-radius:9px;padding:9px 10px;font-size:12px;font-weight:800;cursor:pointer;color:#fff;background:#2563eb;
-}
-.enterprise-btn.green{background:#16a34a}.enterprise-btn.red{background:#dc2626}.enterprise-btn.orange{background:#f59e0b}.enterprise-btn.dark{background:#111827}.enterprise-btn.purple{background:#7c3aed}
-.enterprise-list{
-  max-height:190px;overflow:auto;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;padding:8px;font-size:12px;
-}
-body.ent-dark .enterprise-list{background:#0f172a;border-color:#334155;color:#e5e7eb}
-.enterprise-list-item{
-  border-bottom:1px solid #e5e7eb;padding:7px 0;line-height:1.35;
-}
-.enterprise-list-item:last-child{border-bottom:0}
-body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
-.enterprise-badge{
-  display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:900;background:#e0f2fe;color:#075985;margin-left:4px;
-}
-.enterprise-badge.green{background:#dcfce7;color:#166534}.enterprise-badge.red{background:#fee2e2;color:#991b1b}.enterprise-badge.orange{background:#ffedd5;color:#9a3412}.enterprise-badge.purple{background:#ede9fe;color:#5b21b6}
-.ent-section-title{font-size:12px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 4px}
-.enterprise-tabs-mini{display:flex;gap:6px;overflow:auto;margin:8px 0}
-.enterprise-mini-tab{white-space:nowrap;border:0;background:#e2e8f0;color:#0f172a;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:900;cursor:pointer}
-.enterprise-mini-tab.active{background:#2563eb;color:white}
-.ent-mini-panel{display:none}.ent-mini-panel.active{display:block}
-#enterprise-notification-bell{
-  position:fixed;right:14px;bottom:14px;z-index:4500;background:#2563eb;color:#fff;border:0;
-  border-radius:999px;width:52px;height:52px;font-size:22px;box-shadow:0 12px 30px rgba(37,99,235,.45);
-}
-#enterprise-notification-count{
-  position:absolute;right:-4px;top:-4px;background:#dc2626;border-radius:999px;font-size:10px;padding:3px 6px;font-weight:900;
-}
-.ent-hidden{display:none!important}
-@media(max-width:560px){
-  .enterprise-grid{grid-template-columns:1fr 1fr}
-  .enterprise-row{flex-direction:column;align-items:stretch}
-}
-</style>
 
 
-<style id="v8-fixed-css">
-:root{--v8-blue:#2563eb;--v8-green:#16a34a;--v8-red:#dc2626;--v8-orange:#f59e0b;--v8-purple:#7c3aed;--v8-border:#e2e8f0}
-#v8-admin-suite{display:none!important}
-body.v8-admin-active #v8-admin-suite{display:block!important}
-.v8-suite{background:#fff;border-radius:16px;padding:14px;margin:14px 0;box-shadow:0 8px 24px rgba(15,23,42,.10)}
-#v8-admin-suite{border:2px solid var(--v8-blue)}
-#v8-employee-suite{border:2px solid var(--v8-green)}
-.v8-hero{background:linear-gradient(135deg,#0f172a,#2563eb);color:#fff;border-radius:14px;padding:14px;margin-bottom:12px}
-.v8-hero.employee{background:linear-gradient(135deg,#052e16,#16a34a)}
-.v8-hero h3{margin:0 0 4px;color:#fff;font-size:20px}
-.v8-hero p{margin:0;color:#dbeafe;font-size:12px;line-height:1.4}
-.v8-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.v8-stat,.v8-card{background:#f8fafc;border:1px solid var(--v8-border);border-radius:12px;padding:10px;margin-top:8px}
-.v8-stat b{display:block;font-size:22px;color:#0f172a}
-.v8-stat span{font-size:10px;color:#64748b;text-transform:uppercase;font-weight:900}
-.v8-card h4{margin:0 0 8px;color:#0f172a;font-size:14px}
-.v8-tabs{display:flex;gap:6px;overflow:auto;background:#eef2ff;border-radius:12px;padding:6px;margin:10px 0}
-.v8-tab{border:0;background:transparent;color:#334155;font-size:11px;font-weight:900;border-radius:999px;padding:8px 10px;white-space:nowrap;cursor:pointer}
-.v8-tab.active{background:var(--v8-blue);color:#fff}
-#v8-employee-suite .v8-tab.active{background:var(--v8-green)}
-.v8-panel{display:none}
-.v8-panel.active{display:block}
-.v8-row{display:flex;gap:6px;margin:6px 0;align-items:center}
-.v8-row>*{flex:1}
-.v8-input{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:8px;font-size:13px;background:white}
-.v8-btn{border:0;border-radius:8px;background:var(--v8-blue);color:white;padding:9px;font-weight:900;font-size:12px;cursor:pointer}
-.v8-btn.green{background:var(--v8-green)}.v8-btn.red{background:var(--v8-red)}.v8-btn.orange{background:var(--v8-orange)}.v8-btn.purple{background:var(--v8-purple)}.v8-btn.dark{background:#111827}.v8-btn.gray{background:#64748b}
-.v8-list{max-height:190px;overflow:auto;background:white;border:1px solid var(--v8-border);border-radius:10px;padding:8px;font-size:12px}
-.v8-item{border-bottom:1px solid var(--v8-border);padding:7px 0;line-height:1.35}.v8-item:last-child{border-bottom:0}
-.v8-badge{display:inline-block;margin-left:4px;padding:2px 7px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:10px;font-weight:900}
-.v8-progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:6px}
-.v8-progress span{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#2563eb);width:0%}
-.v8-warning{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:8px;font-size:11px;font-weight:800;margin:8px 0}
-body.v8-dark{background:#020617!important;color:#e5e7eb!important}
-body.v8-dark .container,body.v8-dark .v8-suite,body.v8-dark .v8-card,body.v8-dark .v8-stat,body.v8-dark .crew-details,body.v8-dark .item-card,body.v8-dark .metrics-panel,body.v8-dark .saved-files-section,body.v8-dark .security-panel,body.v8-dark .admin-sub-section{background:#111827!important;color:#f8fafc!important;border-color:#334155!important}
-body.v8-dark h2,body.v8-dark h3,body.v8-dark h4,body.v8-dark .item-name,body.v8-dark .v8-stat b{color:#f8fafc!important}
-body.v8-dark input,body.v8-dark textarea,body.v8-dark select,body.v8-dark .v8-input{background:#0f172a!important;color:#f8fafc!important;border-color:#334155!important}
-body.v8-dark .v8-list{background:#0f172a;border-color:#334155}
-@media(max-width:560px){.v8-grid{grid-template-columns:1fr}.v8-row{flex-direction:column;align-items:stretch}}
-</style>
 
-
-<style id="v9-admin-unlock-viewas-css">
-#v9-viewas-panel{
-  background:#f8fafc;
-  border:1px solid #c7d2fe;
-  border-radius:12px;
+<style id="stable-reset-css">
+#stable-reset-bar{
+  position:fixed;
+  right:12px;
+  bottom:12px;
+  z-index:99999;
+  background:#111827;
+  color:#fff;
+  border-radius:14px;
   padding:10px;
-  margin:10px 0;
+  box-shadow:0 10px 28px rgba(0,0,0,.25);
+  font-size:12px;
+  max-width:260px;
 }
-#v9-viewas-panel h4{
-  margin:0 0 8px;
-  color:#1e3a8a;
-  font-size:14px;
-}
-.v9-viewas-banner{
-  display:none;
-  background:#fff7ed;
-  border:1px solid #fed7aa;
-  color:#9a3412;
+#stable-reset-bar button{
+  background:#16a34a;
+  color:#fff;
+  border:0;
   border-radius:10px;
-  padding:9px;
-  margin:10px 0;
+  padding:8px 10px;
+  font-weight:800;
+  margin-top:6px;
+  width:100%;
+}
+</style>
+
+
+<style id="permissions-system-css">
+#permissions-panel{
+  background:#ffffff;
+  border:2px solid #2563eb;
+  border-radius:16px;
+  padding:14px;
+  margin:14px 0;
+  box-shadow:0 8px 24px rgba(37,99,235,.15);
+}
+#permissions-panel h3{
+  margin:0 0 6px;
+  color:#0f172a;
+  font-size:18px;
+}
+.perm-note{
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1e3a8a;
+  border-radius:10px;
+  padding:8px;
   font-size:12px;
   font-weight:800;
+  margin:8px 0;
 }
-body.v9-viewas-active .v9-viewas-banner{display:block}
-body.v9-viewas-active #admin-panel{display:none!important}
-body.v9-viewas-active #login-nav-link{display:inline-block!important}
-.v9-btn{
+.perm-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.perm-card{
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  padding:10px;
+  font-size:12px;
+}
+.perm-card b{display:block;margin-bottom:4px;color:#0f172a}
+.perm-btn{
   border:0;
   border-radius:8px;
-  padding:9px 10px;
-  font-size:12px;
-  font-weight:900;
-  cursor:pointer;
-  color:#fff;
   background:#2563eb;
-}
-.v9-btn.green{background:#16a34a}
-.v9-btn.red{background:#dc2626}
-.v9-btn.orange{background:#f59e0b}
-.v9-input{
-  width:100%;
-  border:1px solid #cbd5e1;
-  border-radius:8px;
-  padding:8px;
-  font-size:13px;
-}
-.v9-row{display:flex;gap:6px;margin:6px 0}
-.v9-row>*{flex:1}
-body.v8-dark #v9-viewas-panel{
-  background:#0f172a;
-  border-color:#334155;
-}
-body.v8-dark #v9-viewas-panel h4{color:#bfdbfe}
-body.v8-dark .v9-input{
-  background:#0f172a;
-  color:#f8fafc;
-  border-color:#334155;
-}
-</style>
-
-
-<style id="v10-device-thaw-css">
-#v10-device-thaw-btn{
-  background:#16a34a;
   color:white;
-  border:none;
-  border-radius:24px;
-  padding:14px 24px;
-  font-size:15px;
-  font-weight:900;
-  margin-top:12px;
-  cursor:pointer;
-}
-#v10-device-thaw-btn-admin{
-  background:#16a34a;
-  color:white;
-  border:none;
-  border-radius:8px;
   padding:9px 10px;
   font-size:12px;
   font-weight:900;
@@ -668,49 +372,38 @@ body.v8-dark .v9-input{
   margin-top:6px;
   width:100%;
 }
-.v10-thaw-note{
-  background:#ecfdf5;
-  border:1px solid #86efac;
-  color:#166534;
-  border-radius:10px;
-  padding:8px;
+.perm-btn.green{background:#16a34a}
+.perm-btn.red{background:#dc2626}
+.perm-btn.orange{background:#f59e0b}
+.role-badge{
+  display:inline-block;
+  padding:3px 8px;
+  border-radius:999px;
   font-size:11px;
-  font-weight:800;
-  margin-top:8px;
-}
-</style>
-
-
-<style id="v11-viewas-escape-css">
-#v11-viewas-escape{
-  display:none;
-  position:fixed;
-  left:12px;
-  right:12px;
-  bottom:78px;
-  z-index:12000;
-  background:#fff7ed;
-  border:2px solid #f59e0b;
-  color:#9a3412;
-  border-radius:14px;
-  padding:12px;
-  box-shadow:0 12px 30px rgba(0,0,0,.22);
-  font-size:13px;
-  font-weight:800;
-  text-align:center;
-}
-body.v11-viewas-stuck #v11-viewas-escape{display:block}
-#v11-viewas-escape button{
-  border:0;
-  border-radius:10px;
-  padding:10px 12px;
-  margin:8px 4px 0;
-  color:#fff;
   font-weight:900;
-  cursor:pointer;
+  background:#dbeafe;
+  color:#1e40af;
 }
-#v11-return-admin-btn{background:#2563eb}
-#v11-clear-viewas-btn{background:#dc2626}
+body.role-employee #admin-panel,
+body.role-employee #login-nav-link,
+body.role-employee .admin-dashboard-box,
+body.role-employee #permissions-panel{
+  display:none!important;
+}
+body.role-admin #user-app-elements.admin-hidden-for-master{
+  display:none!important;
+}
+body.role-supervisor .master-only{
+  display:none!important;
+}
+body.role-employee .admin-only,
+body.role-employee .supervisor-only,
+body.role-employee .master-only{
+  display:none!important;
+}
+body.role-admin .employee-only{display:none!important}
+body.role-supervisor .employee-only{display:block}
+@media(max-width:560px){.perm-grid{grid-template-columns:1fr}}
 </style>
 
 </head>
@@ -797,170 +490,41 @@ body.v11-viewas-stuck #v11-viewas-escape{display:block}
         </div>
 
         
-<!-- V8_FIXED_ADMIN_START -->
-<div class="v8-suite" id="v8-admin-suite">
-  <div class="v8-hero">
-    <h3>Gavin Enterprise Admin Center</h3>
-    <p>This admin center is locked to the Admin Console. Employees cannot see it.</p>
+<!-- PERMISSIONS_PANEL_START -->
+<div id="permissions-panel" class="admin-only master-only">
+  <h3>🔐 Permissions System</h3>
+  <div class="perm-note">
+    Gavin = Master Admin. Robert and Payton N = Employees. Supervisor access can be assigned without giving full admin control.
   </div>
-  <div class="v8-grid">
-    <div class="v8-stat"><b id="v8-admin-status">Online</b><span>System Status</span></div>
-    <div class="v8-stat"><b id="v8-admin-records">0</b><span>Enterprise Records</span></div>
-    <div class="v8-stat"><b id="v8-admin-production">0.00</b><span>Overall Production</span></div>
-    <div class="v8-stat"><b id="v8-admin-clocked">0</b><span>Clocked In</span></div>
+  <div class="perm-grid">
+    <div class="perm-card">
+      <b>Gavin</b>
+      <span class="role-badge">Master Admin</span>
+      <p>Full access: admin panel, users, settings, reports, branding, security, backups.</p>
+    </div>
+    <div class="perm-card">
+      <b>Robert</b>
+      <span class="role-badge">Employee</span>
+      <p>Employee view only: calculator, own logs, notes, clock features, notifications.</p>
+    </div>
+    <div class="perm-card">
+      <b>Payton N</b>
+      <span class="role-badge">Employee</span>
+      <p>Employee view only: calculator, own logs, notes, clock features, notifications.</p>
+    </div>
+    <div class="perm-card">
+      <b>Supervisor Mode</b>
+      <span class="role-badge">Limited Admin</span>
+      <p>Can view crew reports and approvals, but cannot change system/security settings.</p>
+    </div>
   </div>
-
-  
-<!-- V9_VIEW_AS_PANEL_START -->
-<div id="v9-viewas-panel">
-  <h4>👁️ Admin View-As / Unlock Tools</h4>
-  <div class="v9-row">
-    <select id="v9-viewas-select" class="v9-input">
-      <option value="robert">Robert</option>
-      <option value="payton_n">Payton N</option>
-    </select>
-    <button class="v9-btn" type="button" onclick="v9ViewAsEmployee()">View Employee Page</button>
-  </div>
-  <div class="v9-row">
-    <button class="v9-btn green" type="button" onclick="v9ReturnAdmin()">Return Admin View</button>
-    <button class="v9-btn orange" type="button" onclick="v9ThawAllAndUnlockAdmin()">Thaw All / Unlock Admin</button>
-  </div>
-  <button class="v9-btn red" type="button" onclick="v9EmergencyAdminRecovery()">Emergency Admin Recovery</button>
+  <button class="perm-btn green" type="button" onclick="permissionsSetRole('gavin','admin')">Set Gavin as Master Admin</button>
+  <button class="perm-btn" type="button" onclick="permissionsSetRole('robert','employee')">Set Robert as Employee</button>
+  <button class="perm-btn" type="button" onclick="permissionsSetRole('payton_n','employee')">Set Payton N as Employee</button>
+  <button class="perm-btn orange" type="button" onclick="permissionsSetRole(prompt('Profile ID to make supervisor:'),'supervisor')">Make Supervisor</button>
+  <button class="perm-btn red" type="button" onclick="permissionsReset()">Reset Permissions</button>
 </div>
-<!-- V9_VIEW_AS_PANEL_END -->
-
-<div class="v8-tabs">
-    <button class="v8-tab active" type="button" onclick="v8Show('admin','system',this)">System</button>
-    <button class="v8-tab" type="button" onclick="v8Show('admin','website',this)">Website</button>
-    <button class="v8-tab" type="button" onclick="v8Show('admin','security',this)">Security</button>
-    <button class="v8-tab" type="button" onclick="v8Show('admin','employees',this)">Employees</button>
-    <button class="v8-tab" type="button" onclick="v8Show('admin','reports',this)">Reports</button>
-    <button class="v8-tab" type="button" onclick="v8Show('admin','communication',this)">Messages</button>
-    <button class="v8-tab" type="button" onclick="v8Show('admin','operations',this)">Operations</button>
-    <button class="v8-tab" type="button" onclick="v8Show('admin','clear',this)">Clear Data</button>
-  </div>
-
-  <div class="v8-panel active" id="v8-admin-panel-system">
-    <div class="v8-card"><h4>System Administration</h4>
-      <div class="v8-row">
-        <button class="v8-btn green" type="button" onclick="v8Add('System Health','Health dashboard checked','admin')">Health</button>
-        <button class="v8-btn" type="button" onclick="v8Add('Uptime Monitor','Website uptime checked','admin')">Uptime</button>
-        <button class="v8-btn orange" type="button" onclick="v8Prompt('Maintenance Scheduled','admin')">Schedule Maintenance</button>
-      </div>
-      <div class="v8-row">
-        <button class="v8-btn red" type="button" onclick="v8Lockdown()">Emergency Lockdown</button>
-        <button class="v8-btn dark" type="button" onclick="v8ReadOnly()">Read-Only</button>
-        <button class="v8-btn purple" type="button" onclick="v8BackupPoint()">Restore Point</button>
-      </div>
-      <div class="v8-list" id="v8-admin-list-system"></div>
-    </div>
-  </div>
-
-  <div class="v8-panel" id="v8-admin-panel-website">
-    <div class="v8-card"><h4>Website Editing</h4>
-      <input class="v8-input" id="v8-site-title" placeholder="Website/App title">
-      <textarea class="v8-input" id="v8-site-policy" rows="3" placeholder="Company policies, help center, welcome message, footer/header text"></textarea>
-      <div class="v8-row">
-        <button class="v8-btn" type="button" onclick="v8SaveWebsite()">Save Edits</button>
-        <button class="v8-btn purple" type="button" onclick="v8Prompt('Admin Form Created','admin')">Create Form</button>
-        <button class="v8-btn dark" type="button" onclick="v8Dark()">Dark Mode</button>
-      </div>
-      <div class="v8-list" id="v8-admin-list-website"></div>
-    </div>
-  </div>
-
-  <div class="v8-panel" id="v8-admin-panel-security">
-    <div class="v8-card"><h4>Security Controls</h4>
-      <select class="v8-input" id="v8-security-user"><option>Gavin</option><option>Robert</option><option>Payton N</option></select>
-      <div class="v8-row">
-        <button class="v8-btn red" type="button" onclick="v8Security('Account Suspended')">Suspend</button>
-        <button class="v8-btn orange" type="button" onclick="v8Security('Forced Password Reset')">Force Reset</button>
-        <button class="v8-btn purple" type="button" onclick="v8Security('Force Logout')">Force Logout</button>
-      </div>
-      <div class="v8-row">
-        <button class="v8-btn" type="button" onclick="v8Add('2FA','Two-factor authentication toggled','admin')">2FA</button>
-        <button class="v8-btn" type="button" onclick="v8Add('Security Audit','Audit report generated','admin')">Audit</button>
-        <button class="v8-btn" type="button" onclick="v8Add('Device/IP Logs','Device and IP logs reviewed','admin')">Device/IP</button>
-      </div>
-      <div class="v8-list" id="v8-admin-list-security"></div>
-    </div>
-  </div>
-
-  <div class="v8-panel" id="v8-admin-panel-employees">
-    <div class="v8-card"><h4>Employee Management</h4>
-      <input class="v8-input" id="v8-new-employee" placeholder="Employee name">
-      <div class="v8-row">
-        <button class="v8-btn green" type="button" onclick="v8AddEmployee()">Create Employee</button>
-        <button class="v8-btn purple" type="button" onclick="v8Prompt('Performance Review','admin')">Review</button>
-        <button class="v8-btn red" type="button" onclick="v8Prompt('Write-Up','admin')">Write-Up</button>
-      </div>
-      <div class="v8-row">
-        <button class="v8-btn" type="button" onclick="v8Prompt('Training Record','admin')">Training</button>
-        <button class="v8-btn" type="button" onclick="v8Prompt('Certification','admin')">Certification</button>
-        <button class="v8-btn orange" type="button" onclick="v8Prompt('Promotion Tracking','admin')">Promotion</button>
-      </div>
-      <div class="v8-list" id="v8-admin-list-employees"></div>
-    </div>
-  </div>
-
-  <div class="v8-panel" id="v8-admin-panel-reports">
-    <div class="v8-card"><h4>Reporting & Analytics</h4>
-      <div class="v8-row">
-        <button class="v8-btn" type="button" onclick="v8Add('Daily Report','Daily production report generated','admin')">Daily</button>
-        <button class="v8-btn" type="button" onclick="v8Add('Weekly Report','Weekly production report generated','admin')">Weekly</button>
-        <button class="v8-btn" type="button" onclick="v8Add('Monthly Report','Monthly production report generated','admin')">Monthly</button>
-        <button class="v8-btn" type="button" onclick="v8Add('Yearly Report','Yearly production report generated','admin')">Yearly</button>
-      </div>
-      <div class="v8-row">
-        <button class="v8-btn green" type="button" onclick="v8ExportCSV()">Export CSV/Excel</button>
-        <button class="v8-btn orange" type="button" onclick="v8PrintReport()">Export PDF/Print</button>
-      </div>
-      <div class="v8-list" id="v8-admin-list-reports"></div>
-    </div>
-  </div>
-
-  <div class="v8-panel" id="v8-admin-panel-communication">
-    <div class="v8-card"><h4>Communication Center</h4>
-      <textarea class="v8-input" id="v8-message-text" rows="2" placeholder="Message, announcement, emergency alert, broadcast"></textarea>
-      <div class="v8-row">
-        <button class="v8-btn green" type="button" onclick="v8Message('Internal Message')">Message</button>
-        <button class="v8-btn" type="button" onclick="v8Message('Announcement')">Announcement</button>
-        <button class="v8-btn red" type="button" onclick="v8Message('Emergency Alert')">Emergency</button>
-      </div>
-      <div class="v8-list" id="v8-admin-list-communication"></div>
-    </div>
-  </div>
-
-  <div class="v8-panel" id="v8-admin-panel-operations">
-    <div class="v8-card"><h4>Operations Center</h4>
-      <textarea class="v8-input" id="v8-operation-text" rows="2" placeholder="Document, SOP, inspection, safety, job ticket, equipment, GPS, bulletin"></textarea>
-      <div class="v8-row">
-        <button class="v8-btn" type="button" onclick="v8Operation('Company Document')">Docs</button>
-        <button class="v8-btn" type="button" onclick="v8Operation('SOP Library')">SOP</button>
-        <button class="v8-btn orange" type="button" onclick="v8Operation('Inspection Form')">Inspection</button>
-      </div>
-      <div class="v8-row">
-        <button class="v8-btn red" type="button" onclick="v8Operation('Safety Incident')">Safety</button>
-        <button class="v8-btn green" type="button" onclick="v8Operation('Job Ticket / Work Order')">Job Ticket</button>
-        <button class="v8-btn purple" type="button" onclick="v8Operation('Digital Bulletin Board')">Bulletin</button>
-      </div>
-      <div class="v8-list" id="v8-admin-list-operations"></div>
-    </div>
-  </div>
-
-  <div class="v8-panel" id="v8-admin-panel-clear">
-    <div class="v8-card"><h4>Clear Enterprise Data</h4>
-      <div class="v8-warning">These buttons clear only the added Enterprise data. They do not delete your original DOM/SC calculator code.</div>
-      <div class="v8-row">
-        <button class="v8-btn orange" type="button" onclick="v8ClearEmployeeEnterprise()">Clear Employee Enterprise Data</button>
-        <button class="v8-btn red" type="button" onclick="v8ClearAdminEnterprise()">Clear Admin Enterprise Data</button>
-      </div>
-      <button class="v8-btn red" type="button" onclick="v8ClearAllEnterprise()">Clear ALL Enterprise Data</button>
-      <div class="v8-list" id="v8-admin-list-clear"></div>
-    </div>
-  </div>
-</div>
-<!-- V8_FIXED_ADMIN_END -->
+<!-- PERMISSIONS_PANEL_END -->
 
 <!-- ── TAB BAR ── -->
         <div class="admin-tab-bar">
@@ -1323,67 +887,7 @@ body.v11-viewas-stuck #v11-viewas-escape{display:block}
         </div>
         <br>
 
-        
-<!-- V8_FIXED_EMPLOYEE_START -->
-<div class="v8-suite" id="v8-employee-suite">
-  <div class="v8-hero employee">
-    <h3>Employee Portal</h3>
-    <p>Employee tools are separated into tabs. Clock in/out records attendance and updates production.</p>
-  </div>
-  <div class="v8-grid">
-    <div class="v8-stat"><b id="v8-my-units">0.00</b><span>My Current Units</span></div>
-    <div class="v8-stat"><b id="v8-my-goal">0%</b><span>Goal Progress</span></div>
-    <div class="v8-stat"><b id="v8-my-clock">Out</b><span>Clock Status</span></div>
-    <div class="v8-stat"><b id="v8-overall-production">0.00</b><span>Overall Production</span></div>
-  </div>
-  <div class="v8-progress"><span id="v8-progress-bar"></span></div>
-
-  <div class="v8-tabs">
-    <button class="v8-tab active" type="button" onclick="v8Show('emp','dashboard',this)">Dashboard</button>
-    <button class="v8-tab" type="button" onclick="v8Show('emp','time',this)">Clock</button>
-    <button class="v8-tab" type="button" onclick="v8Show('emp','notes',this)">Notes</button>
-    <button class="v8-tab" type="button" onclick="v8Show('emp','messages',this)">Messages</button>
-    <button class="v8-tab" type="button" onclick="v8Show('emp','history',this)">History</button>
-  </div>
-
-  <div class="v8-panel active" id="v8-emp-panel-dashboard">
-    <div class="v8-card"><h4>Dashboard</h4><div class="v8-list" id="v8-emp-list-dashboard"></div></div>
-  </div>
-
-  <div class="v8-panel" id="v8-emp-panel-time">
-    <div class="v8-card"><h4>Clock In / Clock Out</h4>
-      <div class="v8-row">
-        <button class="v8-btn green" type="button" onclick="v8Clock('in')">Clock In</button>
-        <button class="v8-btn orange" type="button" onclick="v8Clock('out')">Clock Out</button>
-      </div>
-      <div class="v8-list" id="v8-emp-list-time"></div>
-    </div>
-  </div>
-
-  <div class="v8-panel" id="v8-emp-panel-notes">
-    <div class="v8-card"><h4>Work Notes / Requests</h4>
-      <textarea class="v8-input" id="v8-employee-note" rows="2" placeholder="Work note, safety report, correction request, or bug report"></textarea>
-      <div class="v8-row">
-        <button class="v8-btn" type="button" onclick="v8EmployeeAction('Work Note')">Work Note</button>
-        <button class="v8-btn red" type="button" onclick="v8EmployeeAction('Safety Report')">Safety</button>
-        <button class="v8-btn orange" type="button" onclick="v8EmployeeAction('Correction Request')">Correction</button>
-        <button class="v8-btn purple" type="button" onclick="v8EmployeeAction('Bug Report')">Bug</button>
-      </div>
-      <div class="v8-list" id="v8-emp-list-notes"></div>
-    </div>
-  </div>
-
-  <div class="v8-panel" id="v8-emp-panel-messages">
-    <div class="v8-card"><h4>Messages / Jobs</h4><div class="v8-list" id="v8-emp-list-messages"></div></div>
-  </div>
-
-  <div class="v8-panel" id="v8-emp-panel-history">
-    <div class="v8-card"><h4>My History</h4><div class="v8-list" id="v8-emp-list-history"></div></div>
-  </div>
-</div>
-<!-- V8_FIXED_EMPLOYEE_END -->
-
-<div class="action-buttons">
+        <div class="action-buttons">
             <button class="clear-btn" onclick="clearForm()">&#x1F9F9; Clear</button>
             <button class="save-btn" onclick="showLunchModal()">&#x1F4BE; Save Daily Log</button>
         </div>
@@ -3383,1079 +2887,168 @@ body.v11-viewas-stuck #v11-viewas-escape{display:block}
     }, 4000);
 </script>
 
-<script id="enterprise-v4-module">
+
+
+
+<script id="stable-reset-js">
 (function(){
-  const ENTERPRISE_VERSION = "Enterprise V4 Full";
-  const ENT_KEY = "domsc_enterprise_v4_data";
-
-  const defaultEnterprise = {
-    company:{name:"DOM/SC Norm 2026", subtitle:"Enterprise Workforce Platform", primary:"#2563eb", logo:""},
-    users:[
-      {name:"Gavin", val:"gavin", role:"admin", status:"Active", supervisor:true, notes:"Full administrator"},
-      {name:"Robert", val:"robert", role:"employee", status:"Active", supervisor:false, notes:""},
-      {name:"Payton N", val:"payton_n", role:"employee", status:"Active", supervisor:false, notes:""}
-    ],
-    crews:[],
-    assignments:[],
-    notifications:[],
-    activity:[],
-    attendance:[],
-    reviews:[],
-    discipline:[],
-    supervisorApprovals:[],
-    settings:{darkMode:false, supervisorApprovals:true, showEmployeeHub:true}
-  };
-
-  function loadEnt(){
+  function clearStuckState(){
     try{
-      return Object.assign({}, defaultEnterprise, JSON.parse(localStorage.getItem(ENT_KEY)||"{}"));
-    }catch(e){ return JSON.parse(JSON.stringify(defaultEnterprise)); }
-  }
-  let ent = loadEnt();
-  function saveEnt(){
-    localStorage.setItem(ENT_KEY, JSON.stringify(ent));
-    renderEnterpriseAll();
-  }
-  function esc(s){
-    return String(s==null?"":s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
-  }
-  function now(){return new Date().toLocaleString();}
-  function currentProfile(){
-    try { return localStorage.getItem("dom_sc_active_profile") || (document.getElementById("profile-select")||{}).value || "unknown"; }
-    catch(e){ return "unknown"; }
-  }
-  function profileName(val){
-    const u = ent.users.find(x=>x.val===val || x.name===val);
-    if(u) return u.name;
-    const p = (window.profilesRegistry||[]).find(x=>x.val===val);
-    return p ? p.name : val;
-  }
-  function isAdmin(){
-    return !!window.isAdminLoggedIn;
-  }
-  function addActivity(action, detail){
-    ent.activity.unshift({time:now(), profile:profileName(currentProfile()), action, detail});
-    ent.activity = ent.activity.slice(0,300);
-    localStorage.setItem(ENT_KEY, JSON.stringify(ent));
-    renderEnterpriseAll();
-  }
-
-  // Preserve original functions while adding behavior.
-  const originalCompleteLogin = window._completeProfileLogin;
-  if(typeof originalCompleteLogin === "function"){
-    window._completeProfileLogin = async function(profileVal){
-      const r = await originalCompleteLogin.apply(this, arguments);
-      addActivity("Profile Login", profileName(profileVal)+" logged in");
-      return r;
-    };
-  }
-  const originalGrantAdmin = window._grantAdminAccess;
-  if(typeof originalGrantAdmin === "function"){
-    window._grantAdminAccess = function(){
-      const r = originalGrantAdmin.apply(this, arguments);
-      addActivity("Admin Login", "Gavin/admin console opened");
-      setTimeout(renderEnterpriseAll, 150);
-      return r;
-    };
-  }
-  const originalSaveFields = window.saveFields;
-  if(typeof originalSaveFields === "function"){
-    window.saveFields = function(){
-      const r = originalSaveFields.apply(this, arguments);
-      return r;
-    };
-  }
-  const originalHandleLunch = window.handleLunchDecision;
-  if(typeof originalHandleLunch === "function"){
-    window.handleLunchDecision = function(tookBreak){
-      const before = (window.currentGrandTotal||0);
-      const r = originalHandleLunch.apply(this, arguments);
-      addActivity("Daily Log", "Saved/processed daily log — "+before.toFixed(2)+" units");
-      return r;
-    };
-  }
-
-  function ensureProfiles(){
-    // Keep original app profile system but set the requested users as defaults.
-    const wanted = [
-      {name:"Robert", val:"robert"},
-      {name:"Payton N", val:"payton_n"}
-    ];
-    if(window.profilesRegistry && Array.isArray(window.profilesRegistry)){
-      wanted.forEach(w=>{
-        if(!window.profilesRegistry.some(p=>p.val===w.val)){
-          window.profilesRegistry.push(w);
+      Object.keys(localStorage).forEach(function(k){
+        if(k.indexOf('view_as')!==-1 || k.indexOf('viewas')!==-1 || k.indexOf('failed_admin_attempts_')===0){
+          localStorage.removeItem(k);
         }
       });
-      window.profilesRegistry = window.profilesRegistry.filter(p=>p.val!=="default" || window.profilesRegistry.length<=2);
-    }
-    if(window.globalCloudData){
-      if(!globalCloudData.profiles || !Array.isArray(globalCloudData.profiles)) globalCloudData.profiles = wanted.slice();
-      wanted.forEach(w=>{
-        if(!globalCloudData.profiles.some(p=>p.val===w.val)) globalCloudData.profiles.push(w);
+      ['local-freeze-screen','lock-overlay','maintenance-overlay'].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el) el.style.display='none';
       });
-      if(!globalCloudData.enterprise) globalCloudData.enterprise = {};
-      globalCloudData.enterprise.owner = "Gavin";
+      alert('Local stuck/view-as/freeze state cleared on this device. Reloading now.');
+      location.reload();
+    }catch(e){
+      alert('Reset attempted. Reload the page.');
     }
   }
-
-  function injectAdminTab(){
-    const bar = document.querySelector(".admin-tab-bar");
-    const adminPanel = document.getElementById("admin-panel");
-    if(!bar || !adminPanel || document.getElementById("admin-tab-enterprise")) return;
-
-    const btn = document.createElement("button");
-    btn.className = "admin-tab-btn";
-    btn.setAttribute("data-tab","enterprise");
-    btn.innerHTML = "🏢 Enterprise";
-    btn.onclick = function(){ if(typeof window.switchAdminTab==="function") switchAdminTab("enterprise"); };
-    bar.appendChild(btn);
-
-    const panel = document.createElement("div");
-    panel.className = "admin-tab-panel";
-    panel.id = "admin-tab-enterprise";
-    panel.innerHTML = `
-      <div class="enterprise-shell">
-        <div class="enterprise-hero">
-          <h3 id="ent-company-title">DOM/SC Enterprise</h3>
-          <p id="ent-company-subtitle">Gavin Admin Center • Robert and Payton N Employee Management • Supervisor tools under Admin</p>
-        </div>
-
-        <div class="enterprise-grid">
-          <div class="enterprise-stat"><div class="label">Employees</div><div class="value" id="ent-stat-employees">0</div></div>
-          <div class="enterprise-stat"><div class="label">Crews</div><div class="value" id="ent-stat-crews">0</div></div>
-          <div class="enterprise-stat"><div class="label">Assignments</div><div class="value" id="ent-stat-assignments">0</div></div>
-          <div class="enterprise-stat"><div class="label">Activity Logs</div><div class="value" id="ent-stat-activity">0</div></div>
-        </div>
-
-        <div class="enterprise-tabs-mini">
-          <button class="enterprise-mini-tab active" data-ent-mini="dashboard" onclick="enterpriseSwitchMini('dashboard')">Dashboard</button>
-          <button class="enterprise-mini-tab" data-ent-mini="crews" onclick="enterpriseSwitchMini('crews')">Crews</button>
-          <button class="enterprise-mini-tab" data-ent-mini="people" onclick="enterpriseSwitchMini('people')">Employees</button>
-          <button class="enterprise-mini-tab" data-ent-mini="notifications" onclick="enterpriseSwitchMini('notifications')">Notifications</button>
-          <button class="enterprise-mini-tab" data-ent-mini="history" onclick="enterpriseSwitchMini('history')">History</button>
-          <button class="enterprise-mini-tab" data-ent-mini="branding" onclick="enterpriseSwitchMini('branding')">Branding</button>
-          <button class="enterprise-mini-tab" data-ent-mini="supervisor" onclick="enterpriseSwitchMini('supervisor')">Supervisor</button>
-          <button class="enterprise-mini-tab" data-ent-mini="export" onclick="enterpriseSwitchMini('export')">Export</button>
-        </div>
-
-        <div class="ent-mini-panel active" id="ent-mini-dashboard">
-          <div class="enterprise-card">
-            <h4>Admin Dashboard</h4>
-            <div class="enterprise-row">
-              <button class="enterprise-btn" onclick="enterpriseAddAssignmentPrompt()">+ Assignment</button>
-              <button class="enterprise-btn green" onclick="enterpriseClockForCurrent('in')">Clock In</button>
-              <button class="enterprise-btn orange" onclick="enterpriseClockForCurrent('out')">Clock Out</button>
-            </div>
-            <div class="ent-section-title">Recent Activity</div>
-            <div class="enterprise-list" id="ent-recent-activity"></div>
-          </div>
-        </div>
-
-        <div class="ent-mini-panel" id="ent-mini-crews">
-          <div class="enterprise-card">
-            <h4>Crew Management</h4>
-            <div class="enterprise-row">
-              <input class="enterprise-input" id="ent-crew-name" placeholder="Crew name">
-              <select class="enterprise-input" id="ent-crew-lead"></select>
-              <button class="enterprise-btn green" onclick="enterpriseAddCrew()">Create Crew</button>
-            </div>
-            <div class="enterprise-list" id="ent-crew-list"></div>
-          </div>
-        </div>
-
-        <div class="ent-mini-panel" id="ent-mini-people">
-          <div class="enterprise-card">
-            <h4>Employee Status, Notes, Reviews & Discipline</h4>
-            <div class="enterprise-row">
-              <select class="enterprise-input" id="ent-person-select"></select>
-              <select class="enterprise-input" id="ent-person-status">
-                <option>Active</option><option>Suspended</option><option>Inactive</option><option>Terminated</option>
-              </select>
-              <button class="enterprise-btn" onclick="enterpriseUpdatePersonStatus()">Update Status</button>
-            </div>
-            <textarea class="enterprise-input" id="ent-person-note" rows="2" placeholder="Admin note / performance note"></textarea>
-            <div class="enterprise-row">
-              <button class="enterprise-btn purple" onclick="enterpriseSavePersonNote()">Save Note</button>
-              <button class="enterprise-btn orange" onclick="enterpriseAddReview()">Add Review</button>
-              <button class="enterprise-btn red" onclick="enterpriseAddDiscipline()">Add Discipline</button>
-            </div>
-            <div class="enterprise-list" id="ent-people-list"></div>
-          </div>
-        </div>
-
-        <div class="ent-mini-panel" id="ent-mini-notifications">
-          <div class="enterprise-card">
-            <h4>Notification Center</h4>
-            <textarea class="enterprise-input" id="ent-notification-msg" rows="3" placeholder="Type announcement for employees..."></textarea>
-            <div class="enterprise-row">
-              <select class="enterprise-input" id="ent-notification-target">
-                <option value="all">All Employees</option>
-                <option value="robert">Robert</option>
-                <option value="payton_n">Payton N</option>
-              </select>
-              <button class="enterprise-btn green" onclick="enterpriseSendNotification()">Send Notification</button>
-            </div>
-            <div class="enterprise-list" id="ent-notification-list"></div>
-          </div>
-        </div>
-
-        <div class="ent-mini-panel" id="ent-mini-history">
-          <div class="enterprise-card">
-            <h4>Searchable History & Activity Logs</h4>
-            <input class="enterprise-input" id="ent-history-search" placeholder="Search logs, employees, assignments..." oninput="enterpriseRenderHistory()">
-            <div class="enterprise-list" id="ent-history-list"></div>
-          </div>
-        </div>
-
-        <div class="ent-mini-panel" id="ent-mini-branding">
-          <div class="enterprise-card">
-            <h4>Company Branding</h4>
-            <input class="enterprise-input" id="ent-brand-name" placeholder="Company/App Name">
-            <input class="enterprise-input" id="ent-brand-subtitle" placeholder="Subtitle">
-            <div class="enterprise-row">
-              <input class="enterprise-input" id="ent-brand-color" type="color">
-              <button class="enterprise-btn" onclick="enterpriseSaveBranding()">Save Branding</button>
-              <button class="enterprise-btn dark" onclick="enterpriseToggleDarkMode()">Toggle Dark Mode</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="ent-mini-panel" id="ent-mini-supervisor">
-          <div class="enterprise-card">
-            <h4>Supervisor Controls Under Admin</h4>
-            <p style="font-size:12px;color:#64748b;margin-top:0">Gavin controls supervisor permissions and approvals.</p>
-            <div class="enterprise-row">
-              <select class="enterprise-input" id="ent-supervisor-user"></select>
-              <button class="enterprise-btn purple" onclick="enterpriseToggleSupervisor()">Toggle Supervisor</button>
-            </div>
-            <div class="enterprise-list" id="ent-supervisor-list"></div>
-          </div>
-        </div>
-
-        <div class="ent-mini-panel" id="ent-mini-export">
-          <div class="enterprise-card">
-            <h4>Export / Backup / Restore</h4>
-            <div class="enterprise-row">
-              <button class="enterprise-btn green" onclick="enterpriseExportCSV()">Export CSV</button>
-              <button class="enterprise-btn" onclick="enterpriseDownloadBackup()">Download Backup</button>
-              <button class="enterprise-btn orange" onclick="enterprisePrintReport()">Print Report</button>
-            </div>
-            <textarea class="enterprise-input" id="ent-backup-box" rows="4" placeholder="Backup JSON appears here, or paste JSON to restore..."></textarea>
-            <button class="enterprise-btn red" onclick="enterpriseRestoreBackup()">Restore From Box</button>
-          </div>
-        </div>
-      </div>
-    `;
-    adminPanel.appendChild(panel);
+  window.stableClearStuckState=clearStuckState;
+  function addBar(){
+    if(document.getElementById('stable-reset-bar')) return;
+    var bar=document.createElement('div');
+    bar.id='stable-reset-bar';
+    bar.innerHTML='Stable Reset Build<br><button type="button" onclick="stableClearStuckState()">Clear stuck state on this device</button>';
+    document.body.appendChild(bar);
   }
-
-  function injectEmployeeHub(){
-    const userArea = document.getElementById("user-app-elements");
-    if(!userArea || document.getElementById("enterprise-employee-hub")) return;
-    const hub = document.createElement("div");
-    hub.id = "enterprise-employee-hub";
-    hub.className = "enterprise-card";
-    hub.innerHTML = `
-      <h4>Employee Hub</h4>
-      <div class="enterprise-grid">
-        <div class="enterprise-stat"><div class="label">My Units</div><div class="value" id="ent-my-units">0.00</div></div>
-        <div class="enterprise-stat"><div class="label">Notifications</div><div class="value" id="ent-my-notif-count">0</div></div>
-      </div>
-      <div class="enterprise-row">
-        <button class="enterprise-btn green" onclick="enterpriseClockForCurrent('in')">Clock In</button>
-        <button class="enterprise-btn orange" onclick="enterpriseClockForCurrent('out')">Clock Out</button>
-      </div>
-      <textarea class="enterprise-input" id="ent-work-note" rows="2" placeholder="Work note..."></textarea>
-      <div class="enterprise-row">
-        <button class="enterprise-btn" onclick="enterpriseSaveWorkNote()">Save Work Note</button>
-        <button class="enterprise-btn red" onclick="enterpriseSafetyReport()">Safety Report</button>
-      </div>
-      <div class="ent-section-title">My Notifications</div>
-      <div class="enterprise-list" id="ent-my-notifications"></div>
-    `;
-    userArea.appendChild(hub);
-  }
-
-  function injectNotificationBell(){
-    if(document.getElementById("enterprise-notification-bell")) return;
-    const bell = document.createElement("button");
-    bell.id = "enterprise-notification-bell";
-    bell.innerHTML = `🔔<span id="enterprise-notification-count">0</span>`;
-    bell.onclick = function(){
-      alert((ent.notifications.slice(0,5).map(n=>`${n.time}\n${n.message}`).join("\n\n")) || "No notifications yet.");
-    };
-    document.body.appendChild(bell);
-  }
-
-  window.enterpriseSwitchMini = function(name){
-    document.querySelectorAll(".enterprise-mini-tab").forEach(b=>b.classList.toggle("active", b.dataset.entMini===name));
-    document.querySelectorAll(".ent-mini-panel").forEach(p=>p.classList.toggle("active", p.id==="ent-mini-"+name));
-  };
-
-  window.enterpriseAddCrew = function(){
-    const name = (document.getElementById("ent-crew-name")||{}).value || "";
-    const lead = (document.getElementById("ent-crew-lead")||{}).value || "robert";
-    if(!name.trim()) return alert("Enter a crew name.");
-    ent.crews.unshift({id:Date.now(), name:name.trim(), lead, members:[lead], created:now(), status:"Active"});
-    addActivity("Crew Created", name.trim()+" led by "+profileName(lead));
-    saveEnt();
-  };
-
-  window.enterpriseAddAssignmentPrompt = function(){
-    const text = prompt("Assignment details:");
-    if(!text) return;
-    ent.assignments.unshift({id:Date.now(), text, assignedTo:"all", status:"Open", time:now()});
-    addActivity("Assignment Added", text);
-    saveEnt();
-  };
-
-  window.enterpriseSendNotification = function(){
-    const msg = (document.getElementById("ent-notification-msg")||{}).value || "";
-    const target = (document.getElementById("ent-notification-target")||{}).value || "all";
-    if(!msg.trim()) return alert("Type a notification first.");
-    ent.notifications.unshift({id:Date.now(), message:msg.trim(), target, time:now(), read:false});
-    document.getElementById("ent-notification-msg").value = "";
-    addActivity("Notification Sent", msg.trim());
-    saveEnt();
-  };
-
-  window.enterpriseClockForCurrent = function(type){
-    const prof = currentProfile();
-    ent.attendance.unshift({profile:prof, name:profileName(prof), type, time:now()});
-    addActivity(type==="in"?"Clock In":"Clock Out", profileName(prof));
-    saveEnt();
-  };
-
-  window.enterpriseSaveWorkNote = function(){
-    const note = (document.getElementById("ent-work-note")||{}).value || "";
-    if(!note.trim()) return alert("Type a work note first.");
-    ent.activity.unshift({time:now(), profile:profileName(currentProfile()), action:"Work Note", detail:note.trim()});
-    document.getElementById("ent-work-note").value = "";
-    saveEnt();
-  };
-
-  window.enterpriseSafetyReport = function(){
-    const msg = prompt("Enter safety report:");
-    if(!msg) return;
-    ent.activity.unshift({time:now(), profile:profileName(currentProfile()), action:"Safety Report", detail:msg});
-    saveEnt();
-  };
-
-  window.enterpriseUpdatePersonStatus = function(){
-    const val = document.getElementById("ent-person-select").value;
-    const status = document.getElementById("ent-person-status").value;
-    const u = ent.users.find(x=>x.val===val);
-    if(u){ u.status = status; addActivity("Employee Status", u.name+" set to "+status); saveEnt(); }
-  };
-
-  window.enterpriseSavePersonNote = function(){
-    const val = document.getElementById("ent-person-select").value;
-    const note = document.getElementById("ent-person-note").value;
-    const u = ent.users.find(x=>x.val===val);
-    if(u){ u.notes = note; addActivity("Employee Note", u.name+": "+note); saveEnt(); }
-  };
-
-  window.enterpriseAddReview = function(){
-    const val = document.getElementById("ent-person-select").value;
-    const msg = prompt("Performance review note:");
-    if(!msg) return;
-    ent.reviews.unshift({profile:val, name:profileName(val), note:msg, time:now()});
-    addActivity("Performance Review", profileName(val)+": "+msg);
-    saveEnt();
-  };
-
-  window.enterpriseAddDiscipline = function(){
-    const val = document.getElementById("ent-person-select").value;
-    const msg = prompt("Disciplinary record note:");
-    if(!msg) return;
-    ent.discipline.unshift({profile:val, name:profileName(val), note:msg, time:now()});
-    addActivity("Disciplinary Record", profileName(val)+": "+msg);
-    saveEnt();
-  };
-
-  window.enterpriseSaveBranding = function(){
-    ent.company.name = document.getElementById("ent-brand-name").value || ent.company.name;
-    ent.company.subtitle = document.getElementById("ent-brand-subtitle").value || ent.company.subtitle;
-    ent.company.primary = document.getElementById("ent-brand-color").value || ent.company.primary;
-    document.documentElement.style.setProperty("--ent-blue", ent.company.primary);
-    addActivity("Branding Updated", ent.company.name);
-    saveEnt();
-  };
-
-  window.enterpriseToggleDarkMode = function(){
-    ent.settings.darkMode = !ent.settings.darkMode;
-    document.body.classList.toggle("ent-dark", ent.settings.darkMode);
-    addActivity("Theme Changed", ent.settings.darkMode ? "Dark mode on" : "Dark mode off");
-    saveEnt();
-  };
-
-  window.enterpriseToggleSupervisor = function(){
-    const val = document.getElementById("ent-supervisor-user").value;
-    const u = ent.users.find(x=>x.val===val);
-    if(u){ u.supervisor = !u.supervisor; addActivity("Supervisor Permission", u.name+" supervisor: "+(u.supervisor?"ON":"OFF")); saveEnt(); }
-  };
-
-  window.enterpriseRenderHistory = function(){
-    const q = ((document.getElementById("ent-history-search")||{}).value || "").toLowerCase();
-    const rows = ent.activity.filter(a => JSON.stringify(a).toLowerCase().includes(q));
-    const el = document.getElementById("ent-history-list");
-    if(el) el.innerHTML = rows.map(a=>`<div class="enterprise-list-item"><b>${esc(a.action)}</b> <span class="enterprise-badge">${esc(a.profile)}</span><br><span style="color:#64748b">${esc(a.time)}</span><br>${esc(a.detail)}</div>`).join("") || "<i>No history found.</i>";
-  };
-
-  window.enterpriseExportCSV = function(){
-    const rows = [["Time","Profile","Action","Detail"]].concat(ent.activity.map(a=>[a.time,a.profile,a.action,a.detail]));
-    const csv = rows.map(r=>r.map(x=>`"${String(x||"").replace(/"/g,'""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv],{type:"text/csv"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "dom_sc_enterprise_activity.csv";
-    a.click();
-  };
-
-  window.enterpriseDownloadBackup = function(){
-    const txt = JSON.stringify(ent,null,2);
-    const box = document.getElementById("ent-backup-box");
-    if(box) box.value = txt;
-    const blob = new Blob([txt],{type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "dom_sc_enterprise_backup.json";
-    a.click();
-  };
-
-  window.enterpriseRestoreBackup = function(){
-    const box = document.getElementById("ent-backup-box");
-    if(!box || !box.value.trim()) return alert("Paste backup JSON first.");
-    try{
-      ent = Object.assign({}, defaultEnterprise, JSON.parse(box.value));
-      addActivity("Backup Restored", "Enterprise backup restored");
-      saveEnt();
-    }catch(e){ alert("Invalid JSON backup."); }
-  };
-
-  window.enterprisePrintReport = function(){
-    const report = `
-      <h1>${esc(ent.company.name)} Report</h1>
-      <p>${esc(now())}</p>
-      <h2>Employees</h2>
-      <ul>${ent.users.map(u=>`<li>${esc(u.name)} — ${esc(u.role)} — ${esc(u.status)}</li>`).join("")}</ul>
-      <h2>Recent Activity</h2>
-      <ul>${ent.activity.slice(0,50).map(a=>`<li>${esc(a.time)} — ${esc(a.profile)} — ${esc(a.action)} — ${esc(a.detail)}</li>`).join("")}</ul>
-    `;
-    const w = window.open("", "_blank");
-    w.document.write("<html><body>"+report+"</body></html>");
-    w.document.close();
-    w.print();
-  };
-
-  function fillSelect(id, includeAll){
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.innerHTML = (includeAll?`<option value="all">All</option>`:"") + ent.users.map(u=>`<option value="${esc(u.val)}">${esc(u.name)} (${esc(u.role)}${u.supervisor?", Supervisor":""})</option>`).join("");
-  }
-
-  function renderEnterpriseAll(){
-    ensureProfiles();
-
-    document.body.classList.toggle("ent-dark", !!ent.settings.darkMode);
-    const title = document.getElementById("ent-company-title");
-    const sub = document.getElementById("ent-company-subtitle");
-    if(title) title.textContent = ent.company.name || "DOM/SC Enterprise";
-    if(sub) sub.textContent = ent.company.subtitle || "Enterprise Workforce Platform";
-
-    const h2 = document.querySelector("#main-app-container > h2");
-    if(h2 && ent.company.name) h2.textContent = ent.company.name;
-
-    const brandName = document.getElementById("ent-brand-name");
-    const brandSub = document.getElementById("ent-brand-subtitle");
-    const brandColor = document.getElementById("ent-brand-color");
-    if(brandName) brandName.value = ent.company.name||"";
-    if(brandSub) brandSub.value = ent.company.subtitle||"";
-    if(brandColor) brandColor.value = ent.company.primary||"#2563eb";
-
-    const statMap = {
-      "ent-stat-employees": ent.users.length,
-      "ent-stat-crews": ent.crews.length,
-      "ent-stat-assignments": ent.assignments.length,
-      "ent-stat-activity": ent.activity.length
-    };
-    Object.keys(statMap).forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=statMap[id]; });
-
-    fillSelect("ent-crew-lead");
-    fillSelect("ent-person-select");
-    fillSelect("ent-supervisor-user");
-
-    const crewList = document.getElementById("ent-crew-list");
-    if(crewList) crewList.innerHTML = ent.crews.map(c=>`<div class="enterprise-list-item"><b>${esc(c.name)}</b><span class="enterprise-badge green">${esc(c.status)}</span><br>Lead: ${esc(profileName(c.lead))}<br><span style="color:#64748b">${esc(c.created)}</span></div>`).join("") || "<i>No crews created yet.</i>";
-
-    const peopleList = document.getElementById("ent-people-list");
-    if(peopleList) peopleList.innerHTML = ent.users.map(u=>`<div class="enterprise-list-item"><b>${esc(u.name)}</b><span class="enterprise-badge ${u.role==="admin"?"purple":"green"}">${esc(u.role)}</span><span class="enterprise-badge">${esc(u.status)}</span>${u.supervisor?'<span class="enterprise-badge orange">Supervisor</span>':''}<br>${esc(u.notes||"No notes")}</div>`).join("");
-
-    const notifList = document.getElementById("ent-notification-list");
-    if(notifList) notifList.innerHTML = ent.notifications.map(n=>`<div class="enterprise-list-item"><b>${esc(n.target==="all"?"All Employees":profileName(n.target))}</b><br>${esc(n.message)}<br><span style="color:#64748b">${esc(n.time)}</span></div>`).join("") || "<i>No notifications yet.</i>";
-
-    const recent = document.getElementById("ent-recent-activity");
-    if(recent) recent.innerHTML = ent.activity.slice(0,20).map(a=>`<div class="enterprise-list-item"><b>${esc(a.action)}</b> <span class="enterprise-badge">${esc(a.profile)}</span><br>${esc(a.detail)}<br><span style="color:#64748b">${esc(a.time)}</span></div>`).join("") || "<i>No recent activity.</i>";
-
-    const sup = document.getElementById("ent-supervisor-list");
-    if(sup) sup.innerHTML = ent.users.map(u=>`<div class="enterprise-list-item"><b>${esc(u.name)}</b> — Supervisor: <b>${u.supervisor?"YES":"NO"}</b></div>`).join("");
-
-    window.enterpriseRenderHistory();
-
-    const prof = currentProfile();
-    const myNotifications = ent.notifications.filter(n=>n.target==="all" || n.target===prof);
-    const myNotifCount = document.getElementById("ent-my-notif-count");
-    if(myNotifCount) myNotifCount.textContent = myNotifications.length;
-    const myUnits = document.getElementById("ent-my-units");
-    if(myUnits) myUnits.textContent = ((window.currentGrandTotal||0)).toFixed(2);
-    const myNotifs = document.getElementById("ent-my-notifications");
-    if(myNotifs) myNotifs.innerHTML = myNotifications.map(n=>`<div class="enterprise-list-item">${esc(n.message)}<br><span style="color:#64748b">${esc(n.time)}</span></div>`).join("") || "<i>No notifications.</i>";
-
-    const bellCount = document.getElementById("enterprise-notification-count");
-    if(bellCount) bellCount.textContent = myNotifications.length;
-  }
-
-  function bootEnterprise(){
-    ensureProfiles();
-    injectAdminTab();
-    injectEmployeeHub();
-    injectNotificationBell();
-    if(!ent.activity.length){
-      ent.activity.push({time:now(), profile:"System", action:"Enterprise V4 Installed", detail:"Added admin dashboard, employee hub, crews, notifications, branding, supervisor tools, searchable history and exports."});
-      localStorage.setItem(ENT_KEY, JSON.stringify(ent));
-    }
-    renderEnterpriseAll();
-  }
-
-  // Make available for debugging or future extension.
-  window.DOMSC_ENTERPRISE = {load:()=>ent, save:saveEnt, render:renderEnterpriseAll, activity:addActivity};
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", bootEnterprise);
-  }else{
-    bootEnterprise();
-  }
-  setInterval(renderEnterpriseAll, 2500);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addBar);else addBar();
 })();
 </script>
 
 
-<script id="v8-fixed-js">
+<script id="permissions-system-js">
 (function(){
-  var KEY='domsc_v8_fixed_data';
-  var data;
-  try{data=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){data={}}
-  function initData(){
-    if(!data.records)data.records=[];
-    if(!data.messages)data.messages=[];
-    if(!data.attendance)data.attendance=[];
-    if(!data.production)data.production={};
-    if(!data.clockStatus)data.clockStatus={};
-    if(!data.backups)data.backups=[];
-    if(typeof data.dark==='undefined')data.dark=false;
-    if(typeof data.lockdown==='undefined')data.lockdown=false;
-    if(typeof data.readonly==='undefined')data.readonly=false;
-  }
-  initData();
-  function now(){return new Date().toLocaleString()}
-  function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
-  function esc(s){return String(s||'').replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})}
-  function activeIsTyping(){var e=document.activeElement;if(!e)return false;var t=(e.tagName||'').toLowerCase();return t==='input'||t==='textarea'||t==='select'||e.isContentEditable}
-  function snapActive(){var e=document.activeElement;if(!activeIsTyping()||!e.id)return null;var s={id:e.id,value:e.value,start:null,end:null};try{if(typeof e.selectionStart==='number'){s.start=e.selectionStart;s.end=e.selectionEnd}}catch(x){}return s}
-  function restoreActive(s){if(!s)return;var e=document.getElementById(s.id);if(!e)return;if(e.value!==s.value)e.value=s.value;try{if(document.activeElement===e&&s.start!==null)e.setSelectionRange(s.start,s.end)}catch(x){}}
-  function profile(){try{return localStorage.getItem('dom_sc_active_profile')||(document.getElementById('profile-select')||{}).value||'unknown'}catch(e){return'unknown'}}
-  function profileName(){var p=profile();if(p==='robert')return'Robert';if(p==='payton_n')return'Payton N';if(p==='gavin')return'Gavin';return p}
-  function units(){return Number(window.currentGrandTotal||0)}
-  function add(type,detail,kind){var p=profile();var row={time:now(),type:type,detail:detail,profile:p,name:profileName(),kind:kind||'general',units:units()};data.records.unshift(row);if(data.records.length>800)data.records=data.records.slice(0,800);if(units()>0)data.production[p]=units();save()}
-  window.v8Add=add;
-  function adminOpen(){var p=document.getElementById('admin-panel');if(!p)return false;try{return getComputedStyle(p).display!=='none'&&p.offsetParent!==null}catch(e){return p.style.display==='block'}}
-  function updateAdminVisibility(){document.body.classList.toggle('v8-admin-active',adminOpen());var s=document.getElementById('v8-admin-suite');if(s)s.style.display=adminOpen()?'block':'none'}
-  window.v8Show=function(area,name,btn){var scope=area==='admin'?'#v8-admin-suite ':'#v8-employee-suite ';var prefix=area==='admin'?'v8-admin-panel-':'v8-emp-panel-';document.querySelectorAll(scope+'.v8-tab').forEach(function(x){x.classList.remove('active')});if(btn)btn.classList.add('active');document.querySelectorAll(scope+'.v8-panel').forEach(function(x){x.classList.remove('active')});var p=document.getElementById(prefix+name);if(p)p.classList.add('active')};
-  window.v8Prompt=function(type,kind){var d=prompt(type+' details:');if(d)add(type,d,kind||'general')};
-  window.v8Lockdown=function(){data.lockdown=!data.lockdown;if(window.globalCloudData)globalCloudData.is_locked=data.lockdown;add('Emergency Lockdown',data.lockdown?'ON':'OFF','admin')};
-  window.v8ReadOnly=function(){data.readonly=!data.readonly;if(window.globalCloudData){globalCloudData.settings=globalCloudData.settings||{};globalCloudData.settings.readonly=data.readonly}add('Read-Only Mode',data.readonly?'ON':'OFF','admin')};
-  window.v8BackupPoint=function(){data.backups.unshift({time:now(),json:JSON.stringify(data)});add('Restore Point','One-click restore point created','admin')};
-  window.v8Dark=function(){data.dark=!data.dark;document.body.classList.toggle('v8-dark',data.dark);add('Dark Mode',data.dark?'ON':'OFF','admin')};
-  window.v8SaveWebsite=function(){var title=(document.getElementById('v8-site-title')||{}).value||'';var policy=(document.getElementById('v8-site-policy')||{}).value||'';if(title){var h=document.querySelector('#main-app-container > h2');if(h)h.textContent=title;data.siteTitle=title}add('Website Edited',(title||'Site')+' '+(policy?'policy/help updated':''),'admin')};
-  window.v8Security=function(type){var u=(document.getElementById('v8-security-user')||{}).value||'User';add(type,u,'admin')};
-  window.v8AddEmployee=function(){var n=(document.getElementById('v8-new-employee')||{}).value||'';if(n.trim())add('Employee Created',n.trim(),'admin')};
-  window.v8Message=function(type){var m=(document.getElementById('v8-message-text')||{}).value||prompt(type+':');if(m){data.messages.unshift({time:now(),type:type,msg:m,from:'Gavin/Admin'});add(type,m,'admin')}};
-  window.v8Operation=function(type){var t=(document.getElementById('v8-operation-text')||{}).value||prompt(type+' details:');if(t)add(type,t,'admin')};
-  window.v8Clock=function(direction){var p=profile();data.attendance.unshift({profile:p,name:profileName(),direction:direction,time:now(),units:units()});data.clockStatus[p]=direction==='in'?'In':'Out';data.production[p]=units();add(direction==='in'?'Clock In':'Clock Out',profileName()+' clocked '+(direction==='in'?'in':'out'),'employee')};
-  window.v8EmployeeAction=function(type){var note=(document.getElementById('v8-employee-note')||{}).value||prompt(type+':');if(note){data.messages.unshift({time:now(),type:type,msg:note,from:profileName()});add(type,note,'employee');var box=document.getElementById('v8-employee-note');if(box)box.value=''}};
-  window.v8ExportCSV=function(){var rows=[['Time','Name','Profile','Type','Detail','Units']].concat(data.records.map(function(r){return[r.time,r.name,r.profile,r.type,r.detail,r.units]}));var csv=rows.map(function(r){return r.map(function(x){return '\"'+String(x||'').replace(/\"/g,'\"\"')+'\"'}).join(',')}).join('\\n');download(csv,'dom_sc_v8_report.csv','text/csv')};
-  window.v8PrintReport=function(){var w=window.open('','_blank');w.document.write('<h1>DOM/SC V8 Report</h1><p>Overall Production: '+overallProduction().toFixed(2)+'</p><ul>'+data.records.map(function(r){return'<li>'+esc(r.time)+' - '+esc(r.name)+' - '+esc(r.type)+' - '+esc(r.detail)+' - '+Number(r.units||0).toFixed(2)+' units</li>'}).join('')+'</ul>');w.print()};
-  window.v8ClearEmployeeEnterprise=function(){if(confirm('Clear all employee enterprise notes, attendance, messages, and production?')){data.records=data.records.filter(function(r){return r.kind==='admin'});data.messages=[];data.attendance=[];data.production={};data.clockStatus={};add('Employee Enterprise Cleared','Employee-entered enterprise data cleared','admin')}};
-  window.v8ClearAdminEnterprise=function(){if(confirm('Clear all admin enterprise records and backups?')){data.records=data.records.filter(function(r){return r.kind==='employee'});data.backups=[];add('Admin Enterprise Cleared','Admin-entered enterprise data cleared','admin')}};
-  window.v8ClearAllEnterprise=function(){if(confirm('Clear ALL added enterprise data? This keeps the original DOM/SC calculator code.')){localStorage.removeItem(KEY);data={records:[],messages:[],attendance:[],production:{},clockStatus:{},backups:[],dark:false,lockdown:false,readonly:false};add('All Enterprise Data Cleared','All added enterprise data reset','admin')}};
-  function download(text,name,type){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;a.click()}
-  function overallProduction(){var total=0;Object.keys(data.production||{}).forEach(function(k){total+=Number(data.production[k]||0)});var p=profile(),u=units();if(u>0&&Number(data.production[p]||0)<u)total+=u-Number(data.production[p]||0);return total}
-  function clockedInCount(){var c=0;Object.keys(data.clockStatus||{}).forEach(function(k){if(data.clockStatus[k]==='In')c++});return c}
-  function put(id,items){var e=document.getElementById(id);if(!e)return;e.innerHTML=items.length?items.slice(0,80).map(function(r){return'<div class=\"v8-item\"><b>'+esc(r.type)+'</b><span class=\"v8-badge\">'+esc(r.name||r.profile)+'</span><br>'+esc(r.detail)+'<br><span style=\"color:#64748b\">'+esc(r.time)+' • '+Number(r.units||0).toFixed(2)+' units</span></div>'}).join(''):'<i>No records yet.</i>'}
-  function render(){var snap=snapActive();updateAdminVisibility();document.body.classList.toggle('v8-dark',!!data.dark);if(data.siteTitle){var h=document.querySelector('#main-app-container > h2');if(h)h.textContent=data.siteTitle}var u=units(),pct=Math.min(100,Math.round((u/31)*100));var e=document.getElementById('v8-my-units');if(e)e.textContent=u.toFixed(2);e=document.getElementById('v8-my-goal');if(e)e.textContent=pct+'%';e=document.getElementById('v8-progress-bar');if(e)e.style.width=pct+'%';e=document.getElementById('v8-my-clock');if(e)e.textContent=(data.clockStatus||{})[profile()]||'Out';e=document.getElementById('v8-overall-production');if(e)e.textContent=overallProduction().toFixed(2);e=document.getElementById('v8-admin-production');if(e)e.textContent=overallProduction().toFixed(2);e=document.getElementById('v8-admin-records');if(e)e.textContent=data.records.length;e=document.getElementById('v8-admin-clocked');if(e)e.textContent=clockedInCount();e=document.getElementById('v8-admin-status');if(e)e.textContent=data.lockdown?'Locked':'Online';var all=data.records;put('v8-admin-list-system',all.filter(function(r){return/System|Uptime|Maintenance|Lockdown|Read-Only|Restore/i.test(r.type)}));put('v8-admin-list-website',all.filter(function(r){return/Website|Form|Dark|Policy/i.test(r.type)}));put('v8-admin-list-security',all.filter(function(r){return/Security|Password|Logout|Suspend|2FA|Audit|Device|IP/i.test(r.type)}));put('v8-admin-list-employees',all.filter(function(r){return/Employee|Review|Write|Training|Certification|Promotion/i.test(r.type)}));put('v8-admin-list-reports',all.filter(function(r){return/Report|Daily|Weekly|Monthly|Yearly/i.test(r.type)}));put('v8-admin-list-communication',all.filter(function(r){return/Message|Announcement|Alert|Broadcast/i.test(r.type)}));put('v8-admin-list-operations',all.filter(function(r){return/Document|SOP|Form|Inspection|Safety|Ticket|Work|Equipment|GPS|Bulletin/i.test(r.type)}));put('v8-admin-list-clear',all.filter(function(r){return/Cleared/i.test(r.type)}));put('v8-emp-list-dashboard',all.filter(function(r){return r.profile===profile()||/Message|Announcement|Alert/i.test(r.type)}));put('v8-emp-list-time',all.filter(function(r){return r.profile===profile()&&/Clock/i.test(r.type)}));put('v8-emp-list-notes',all.filter(function(r){return r.profile===profile()&&/Work Note|Safety|Correction|Bug/i.test(r.type)}));put('v8-emp-list-messages',all.filter(function(r){return/Message|Announcement|Alert/i.test(r.type)}));put('v8-emp-list-history',all.filter(function(r){return r.profile===profile()}));restoreActive(snap)}
-  function wrapOriginals(){if(typeof window.applyGlobalState==='function'&&!window.applyGlobalState._v8safe){var og=window.applyGlobalState;window.applyGlobalState=function(){var s=snapActive();var r=og.apply(this,arguments);restoreActive(s);updateAdminVisibility();return r};window.applyGlobalState._v8safe=true}if(typeof window.calculateEverything==='function'&&!window.calculateEverything._v8safe){var oc=window.calculateEverything;window.calculateEverything=function(){var s=snapActive();var r=oc.apply(this,arguments);restoreActive(s);return r};window.calculateEverything._v8safe=true}}
-  function init(){initData();wrapOriginals();updateAdminVisibility();if(!data.records.length)add('V8 Installed','Admin hidden from employees, typing protected, employee tabs working, clock/production fixed, clear buttons added','system');render()}
-  document.addEventListener('input',function(){setTimeout(render,0)},true);
-  document.addEventListener('click',function(){setTimeout(updateAdminVisibility,30)},true);
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-  setInterval(function(){wrapOriginals();render()},1500);
-})();
-</script>
-
-
-<script id="v9-admin-unlock-viewas-js">
-(function(){
-  /*
-    V9 fixes:
-    - Admin can never be locked out by employee freeze/thaw states.
-    - Adds Admin View-As mode to view Robert/Payton's employee page as it appears.
-    - Adds emergency recovery buttons to clear frozen users + unlock site + remove overlays.
-  */
-
-  var ADMIN_VIEW_KEY = "domsc_v9_admin_return_profile";
-  var VIEW_AS_KEY = "domsc_v9_view_as_active";
-
-  function adminIsLoggedIn(){
-    return !!window.isAdminLoggedIn || (document.getElementById("admin-panel") && getComputedStyle(document.getElementById("admin-panel")).display !== "none");
-  }
-
-  function removeLockOverlaysForAdmin(){
-    if(!adminIsLoggedIn()) return;
-    ["local-freeze-screen","lock-overlay","maintenance-overlay"].forEach(function(id){
-      var el=document.getElementById(id);
-      if(el) el.style.display="none";
-    });
-    if(document.body) document.body.classList.add("v8-admin-active");
-  }
-
-  function clearFrozenState(){
-    try{
-      if(window.globalCloudData){
-        globalCloudData.frozen_users = {};
-        globalCloudData.is_locked = false;
-        if(globalCloudData.maintenance) globalCloudData.maintenance.active = false;
-        if(typeof window.pushGlobalData === "function") window.pushGlobalData();
-      }
-    }catch(e){}
-    try{
-      Object.keys(localStorage).forEach(function(k){
-        if(k.indexOf("failed_admin_attempts_")===0) localStorage.setItem(k,"0");
-      });
-    }catch(e){}
-  }
-
-  // Wrap applyGlobalState so frozen users cannot cover admin console.
-  function patchApplyGlobalState(){
-    if(typeof window.applyGlobalState !== "function" || window.applyGlobalState._v9AdminSafe) return;
-    var original = window.applyGlobalState;
-    window.applyGlobalState = function(){
-      var result = original.apply(this, arguments);
-      removeLockOverlaysForAdmin();
-      return result;
-    };
-    window.applyGlobalState._v9AdminSafe = true;
-  }
-
-  // Patch admin grant to immediately clear overlays and admin lock conditions.
-  function patchGrantAdmin(){
-    if(typeof window._grantAdminAccess !== "function" || window._grantAdminAccess._v9AdminSafe) return;
-    var original = window._grantAdminAccess;
-    window._grantAdminAccess = function(){
-      var result = original.apply(this, arguments);
-      removeLockOverlaysForAdmin();
-      return result;
-    };
-    window._grantAdminAccess._v9AdminSafe = true;
-  }
-
-  // Patch admin freeze/thaw action so it never freezes an admin/session by accident.
-  function patchFreezeUser(){
-    if(typeof window.adminToggleFreezeUser !== "function" || window.adminToggleFreezeUser._v9AdminSafe) return;
-    var original = window.adminToggleFreezeUser;
-    window.adminToggleFreezeUser = async function(targetVal){
-      if(targetVal === "gavin" || targetVal === "__admin__" || targetVal === "System_Admin"){
-        alert("Gavin/Admin cannot be frozen.");
-        return;
-      }
-      var result = await original.apply(this, arguments);
-      removeLockOverlaysForAdmin();
-      return result;
-    };
-    window.adminToggleFreezeUser._v9AdminSafe = true;
-  }
-
-  window.v9ThawAllAndUnlockAdmin = async function(){
-    clearFrozenState();
-    removeLockOverlaysForAdmin();
-    alert("All profiles thawed and admin unlock state restored.");
-    try{ if(typeof window.applyGlobalState==="function") window.applyGlobalState(); }catch(e){}
+  var KEY='domsc_permissions_roles';
+  var defaultRoles={
+    gavin:'admin',
+    robert:'employee',
+    robert_s:'employee',
+    payton_n:'employee',
+    default:'employee'
   };
 
-  window.v9EmergencyAdminRecovery = async function(){
-    if(!confirm("Emergency recovery will unlock the site, clear frozen users, turn off maintenance overlay, and reset failed local admin attempts. Continue?")) return;
-    clearFrozenState();
-    removeLockOverlaysForAdmin();
-    alert("Emergency admin recovery completed.");
-    try{ if(typeof window.applyGlobalState==="function") window.applyGlobalState(); }catch(e){}
-  };
-
-  window.v9ViewAsEmployee = function(){
-    var sel=document.getElementById("v9-viewas-select");
-    var target=(sel && sel.value) || "robert";
-    try{
-      localStorage.setItem(ADMIN_VIEW_KEY, localStorage.getItem("dom_sc_active_profile") || "gavin");
-      localStorage.setItem(VIEW_AS_KEY, target);
-      localStorage.setItem("dom_sc_active_profile", target);
-      var ps=document.getElementById("profile-select");
-      if(ps) ps.value=target;
-      document.body.classList.add("v9-viewas-active");
-      if(typeof window.switchProfile==="function") window.switchProfile();
-      if(typeof window.loadSavedData==="function") window.loadSavedData();
-      if(typeof window.calculateEverything==="function") window.calculateEverything();
-    }catch(e){}
-    var banner=document.getElementById("v9-viewas-banner");
-    if(banner) banner.textContent="Viewing employee page as: " + (target==="payton_n" ? "Payton N" : "Robert") + ". Use Return Admin View to go back.";
-    alert("Now viewing employee page as " + (target==="payton_n" ? "Payton N" : "Robert") + ".");
-  };
-
-  window.v9ReturnAdmin = function(){
-    try{
-      var returnProfile=localStorage.getItem(ADMIN_VIEW_KEY) || "gavin";
-      localStorage.removeItem(VIEW_AS_KEY);
-      localStorage.setItem("dom_sc_active_profile", returnProfile);
-      document.body.classList.remove("v9-viewas-active");
-      var ps=document.getElementById("profile-select");
-      if(ps) ps.value=returnProfile;
-      if(typeof window._grantAdminAccess==="function"){
-        window._grantAdminAccess(false,true);
-      }else{
-        var ap=document.getElementById("admin-panel");
-        if(ap) ap.style.display="block";
-      }
-      removeLockOverlaysForAdmin();
-    }catch(e){}
-  };
-
-  function injectBanner(){
-    if(document.getElementById("v9-viewas-banner")) return;
-    var main=document.getElementById("main-app-container");
-    if(!main) return;
-    var b=document.createElement("div");
-    b.id="v9-viewas-banner";
-    b.className="v9-viewas-banner";
-    b.innerHTML='Viewing employee page. <button class="v9-btn green" type="button" onclick="v9ReturnAdmin()" style="padding:6px 8px;margin-left:6px;">Return Admin View</button>';
-    main.insertBefore(b, main.firstChild);
+  function loadRoles(){
+    try{return Object.assign({}, defaultRoles, JSON.parse(localStorage.getItem(KEY)||'{}'))}
+    catch(e){return Object.assign({}, defaultRoles)}
   }
+  var roles=loadRoles();
 
-  function restoreViewAsIfNeeded(){
-    var target=localStorage.getItem(VIEW_AS_KEY);
-    if(!target) return;
-    document.body.classList.add("v9-viewas-active");
-    var ps=document.getElementById("profile-select");
-    if(ps) ps.value=target;
-    var banner=document.getElementById("v9-viewas-banner");
-    if(banner) banner.textContent="Viewing employee page as: " + (target==="payton_n" ? "Payton N" : "Robert") + ".";
+  function saveRoles(){
+    localStorage.setItem(KEY, JSON.stringify(roles));
   }
-
-  function boot(){
-    patchApplyGlobalState();
-    patchGrantAdmin();
-    patchFreezeUser();
-    injectBanner();
-    restoreViewAsIfNeeded();
-    removeLockOverlaysForAdmin();
-    setInterval(function(){
-      patchApplyGlobalState();
-      patchGrantAdmin();
-      patchFreezeUser();
-      injectBanner();
-      restoreViewAsIfNeeded();
-      removeLockOverlaysForAdmin();
-    }, 800);
-  }
-
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
-})();
-</script>
-
-
-<script id="v10-device-thaw-js">
-(function(){
-  /*
-    V10 Device Thaw Fix:
-    The issue is usually that the frozen state exists both in cloud data and device localStorage.
-    This patch clears:
-    - globalCloudData.frozen_users
-    - globalCloudData.is_locked
-    - maintenance overlay
-    - failed_admin_attempts_* localStorage keys
-    - active local freeze overlay display
-    - view-as local state if needed
-  */
 
   function currentProfile(){
     try{
-      return localStorage.getItem("dom_sc_active_profile") || (document.getElementById("profile-select")||{}).value || "";
-    }catch(e){ return ""; }
+      return localStorage.getItem('dom_sc_active_profile') || (document.getElementById('profile-select')||{}).value || '';
+    }catch(e){return ''}
   }
 
-  function clearLocalDeviceLocks(){
-    try{
-      Object.keys(localStorage).forEach(function(k){
-        if(k.indexOf("failed_admin_attempts_") === 0) localStorage.setItem(k,"0");
-        if(k.indexOf("dom_sc_freeze") === 0) localStorage.removeItem(k);
-        if(k.indexOf("frozen") !== -1 && k.indexOf("dom_sc") !== -1) localStorage.removeItem(k);
-      });
-    }catch(e){}
-
-    ["local-freeze-screen","lock-overlay","maintenance-overlay","banned-screen"].forEach(function(id){
-      var el=document.getElementById(id);
-      if(el) el.style.display="none";
-    });
-
-    document.body.classList.remove("v9-viewas-active");
+  function currentRole(){
+    var p=currentProfile();
+    if(!p && window.isAdminLoggedIn) return 'admin';
+    return roles[p] || 'employee';
   }
 
-  async function clearCloudLocks(){
+  function applyRole(){
+    var role=currentRole();
+
+    document.body.classList.remove('role-admin','role-supervisor','role-employee');
+    if(role==='admin') document.body.classList.add('role-admin');
+    else if(role==='supervisor') document.body.classList.add('role-supervisor');
+    else document.body.classList.add('role-employee');
+
+    var adminPanel=document.getElementById('admin-panel');
+    var userArea=document.getElementById('user-app-elements');
+
+    // Admin console can only be visible if actual admin login is active.
+    if(role!=='admin' && !window.isAdminLoggedIn){
+      if(adminPanel) adminPanel.style.display='none';
+    }
+
+    // Dedicated admin mode hides employee tools.
+    if(window.isAdminLoggedIn && role==='admin' && window.isDedicatedAdminMode && userArea){
+      userArea.classList.add('admin-hidden-for-master');
+    }else if(userArea){
+      userArea.classList.remove('admin-hidden-for-master');
+    }
+
+    // Mark admin panel children as admin-only except original safe nav.
+    if(adminPanel) adminPanel.classList.add('admin-only');
+
+    // Keep original calculator visible to employees.
+    if(userArea) userArea.classList.add('employee-area');
+
     try{
       if(window.globalCloudData){
-        globalCloudData.frozen_users = {};
-        globalCloudData.is_locked = false;
-        if(globalCloudData.maintenance) globalCloudData.maintenance.active = false;
-        if(globalCloudData.failed_admin_logins) globalCloudData.failed_admin_logins = [];
-        if(typeof window.pushGlobalData === "function") await window.pushGlobalData();
+        globalCloudData.permission_roles=roles;
       }
     }catch(e){}
   }
 
-  async function fullDeviceThaw(showAlert){
-    clearLocalDeviceLocks();
-    await clearCloudLocks();
-
-    try{
-      if(typeof window.pullGlobalData === "function") await window.pullGlobalData();
-    }catch(e){}
-
-    clearLocalDeviceLocks();
-
-    try{
-      if(typeof window.applyGlobalState === "function") window.applyGlobalState();
-    }catch(e){}
-
-    clearLocalDeviceLocks();
-
-    var main=document.getElementById("main-app-container");
-    var login=document.getElementById("login-gateway-portal");
-    var saved=currentProfile();
-
-    if(saved && main){
-      main.style.display="block";
-      if(login) login.style.display="none";
-    }else if(login){
-      login.style.display="flex";
-    }
-
-    if(showAlert) alert("This device has been thawed/unlocked. If another phone is still locked, open this same V10 file on that phone and tap Force Thaw This Device.");
-  }
-
-  window.v10ForceThawThisDevice = function(){
-    fullDeviceThaw(true);
+  window.permissionsSetRole=function(profile,role){
+    if(!profile) return;
+    roles[String(profile).trim()]=role;
+    saveRoles();
+    applyRole();
+    alert(profile+' set as '+role);
   };
 
-  function addThawButtonToFreezeScreen(){
-    var freeze=document.getElementById("local-freeze-screen");
-    if(!freeze || document.getElementById("v10-device-thaw-btn")) return;
-    var btn=document.createElement("button");
-    btn.id="v10-device-thaw-btn";
-    btn.type="button";
-    btn.textContent="Force Thaw This Device";
-    btn.onclick=function(){ fullDeviceThaw(true); };
-    freeze.appendChild(btn);
-
-    var note=document.createElement("div");
-    note.className="v10-thaw-note";
-    note.textContent="Use this if this device stays frozen after admin thaws the account.";
-    freeze.appendChild(note);
-  }
-
-  function addAdminThawButton(){
-    var panel=document.getElementById("v9-viewas-panel") || document.getElementById("v8-admin-panel-clear") || document.getElementById("v6-admin-suite");
-    if(!panel || document.getElementById("v10-device-thaw-btn-admin")) return;
-    var btn=document.createElement("button");
-    btn.id="v10-device-thaw-btn-admin";
-    btn.type="button";
-    btn.textContent="Force Thaw / Unlock This Device";
-    btn.onclick=function(){ fullDeviceThaw(true); };
-    panel.appendChild(btn);
-  }
-
-  function patchThawAll(){
-    var old=window.v9ThawAllAndUnlockAdmin;
-    if(typeof old==="function" && !old._v10patched){
-      var patched=async function(){
-        try{ await old.apply(this, arguments); }catch(e){}
-        await fullDeviceThaw(false);
-        alert("All profiles and this device have been thawed/unlocked.");
-      };
-      patched._v10patched=true;
-      window.v9ThawAllAndUnlockAdmin=patched;
-    }
-
-    var old2=window.adminThawAll;
-    if(typeof old2==="function" && !old2._v10patched){
-      var patched2=async function(){
-        try{ await old2.apply(this, arguments); }catch(e){}
-        await fullDeviceThaw(false);
-        alert("Admin thaw all completed and this device was locally unlocked.");
-      };
-      patched2._v10patched=true;
-      window.adminThawAll=patched2;
-    }
-  }
-
-  function patchApplyGlobalState(){
-    if(typeof window.applyGlobalState !== "function" || window.applyGlobalState._v10DeviceThaw) return;
-    var original=window.applyGlobalState;
-    window.applyGlobalState=function(){
-      var result=original.apply(this, arguments);
-      // If admin is logged in, never allow freeze overlay to cover admin.
-      if(window.isAdminLoggedIn){
-        clearLocalDeviceLocks();
-      }
-      return result;
-    };
-    window.applyGlobalState._v10DeviceThaw=true;
-  }
-
-  function boot(){
-    addThawButtonToFreezeScreen();
-    addAdminThawButton();
-    patchThawAll();
-    patchApplyGlobalState();
-
-    setInterval(function(){
-      addThawButtonToFreezeScreen();
-      addAdminThawButton();
-      patchThawAll();
-      patchApplyGlobalState();
-      if(window.isAdminLoggedIn) clearLocalDeviceLocks();
-    },700);
-  }
-
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
-})();
-</script>
-
-
-<script id="v11-viewas-escape-js">
-(function(){
-  var VIEW_AS_KEY="domsc_v9_view_as_active";
-  var ADMIN_RETURN_KEY="domsc_v9_admin_return_profile";
-
-  function clearViewAsLocal(){
-    try{
-      localStorage.removeItem(VIEW_AS_KEY);
-      localStorage.removeItem(ADMIN_RETURN_KEY);
-      document.body.classList.remove("v9-viewas-active");
-      document.body.classList.remove("v11-viewas-stuck");
-    }catch(e){}
-  }
-
-  window.v11ReturnFromViewAs = function(){
-    clearViewAsLocal();
-
-    try{
-      localStorage.setItem("dom_sc_active_profile","gavin");
-      var ps=document.getElementById("profile-select");
-      if(ps) ps.value="gavin";
-    }catch(e){}
-
-    try{
-      if(typeof window._grantAdminAccess==="function"){
-        window._grantAdminAccess(false,true);
-      }else{
-        var admin=document.getElementById("admin-panel");
-        if(admin) admin.style.display="block";
-        var user=document.getElementById("user-app-elements");
-        if(user) user.style.display="none";
-      }
-    }catch(e){}
-
-    try{
-      ["local-freeze-screen","lock-overlay","maintenance-overlay"].forEach(function(id){
-        var el=document.getElementById(id);
-        if(el) el.style.display="none";
-      });
-    }catch(e){}
-
-    alert("Returned to Gavin/Admin view.");
+  window.permissionsReset=function(){
+    if(!confirm('Reset role permissions to Gavin admin, Robert/Payton employees?')) return;
+    roles=Object.assign({}, defaultRoles);
+    saveRoles();
+    applyRole();
+    alert('Permissions reset.');
   };
 
-  window.v11ClearViewAsOnly = function(){
-    clearViewAsLocal();
-    try{
-      localStorage.removeItem("dom_sc_active_profile");
-    }catch(e){}
-    alert("Robert view was cleared. Reload/open the file again and choose the correct login.");
-    location.reload();
-  };
-
-  function injectEscapeBox(){
-    if(document.getElementById("v11-viewas-escape")) return;
-    var box=document.createElement("div");
-    box.id="v11-viewas-escape";
-    box.innerHTML = 'You are stuck viewing an employee page. <br><button id="v11-return-admin-btn" type="button" onclick="v11ReturnFromViewAs()">Return to Gavin/Admin</button><button id="v11-clear-viewas-btn" type="button" onclick="v11ClearViewAsOnly()">Clear View-As</button>';
-    document.body.appendChild(box);
-  }
-
-  function detectViewAs(){
-    var viewAs="";
-    try{ viewAs=localStorage.getItem(VIEW_AS_KEY)||""; }catch(e){}
-    var active="";
-    try{ active=localStorage.getItem("dom_sc_active_profile")||""; }catch(e){}
-    var isRobertView = viewAs || active==="robert" || active==="payton_n";
-    // Only show the rescue when the admin panel is not visible and the user is in a view-as/employee state.
-    var adminVisible=false;
-    try{
-      var admin=document.getElementById("admin-panel");
-      adminVisible=admin && getComputedStyle(admin).display!=="none" && admin.offsetParent!==null;
-    }catch(e){}
-    document.body.classList.toggle("v11-viewas-stuck", !!isRobertView && !adminVisible);
-  }
-
-  // Patch old Return Admin if it exists and failed before.
-  function patchOldReturn(){
-    if(typeof window.v9ReturnAdmin==="function" && !window.v9ReturnAdmin._v11patched){
-      var old=window.v9ReturnAdmin;
-      var patched=function(){
-        try{ old.apply(this, arguments); }catch(e){}
-        setTimeout(function(){
-          clearViewAsLocal();
-          try{
-            if(typeof window._grantAdminAccess==="function") window._grantAdminAccess(false,true);
-          }catch(e){}
-        },100);
+  function patchLogin(){
+    if(typeof window._completeProfileLogin==='function' && !window._completeProfileLogin._permPatch){
+      var old=window._completeProfileLogin;
+      window._completeProfileLogin=async function(profileVal){
+        var result=await old.apply(this,arguments);
+        applyRole();
+        return result;
       };
-      patched._v11patched=true;
-      window.v9ReturnAdmin=patched;
+      window._completeProfileLogin._permPatch=true;
+    }
+
+    if(typeof window._grantAdminAccess==='function' && !window._grantAdminAccess._permPatch){
+      var oldAdmin=window._grantAdminAccess;
+      window._grantAdminAccess=function(){
+        try{localStorage.setItem('dom_sc_active_profile','gavin')}catch(e){}
+        var result=oldAdmin.apply(this,arguments);
+        applyRole();
+        return result;
+      };
+      window._grantAdminAccess._permPatch=true;
+    }
+
+    if(typeof window.logoutProfile==='function' && !window.logoutProfile._permPatch){
+      var oldLogout=window.logoutProfile;
+      window.logoutProfile=function(){
+        document.body.classList.remove('role-admin','role-supervisor','role-employee');
+        return oldLogout.apply(this,arguments);
+      };
+      window.logoutProfile._permPatch=true;
     }
   }
 
   function boot(){
-    injectEscapeBox();
-    patchOldReturn();
-    detectViewAs();
+    patchLogin();
+    applyRole();
     setInterval(function(){
-      injectEscapeBox();
-      patchOldReturn();
-      detectViewAs();
-    },700);
+      patchLogin();
+      applyRole();
+    },1000);
   }
 
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);
   else boot();
 })();
 </script>
