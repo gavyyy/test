@@ -1,9 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<style id="v12-force-exit-robert-css">
+#v12-exit-robert-bar{
+  position:fixed;
+  top:10px;
+  left:10px;
+  right:10px;
+  z-index:20000;
+  background:#dc2626;
+  color:white;
+  border-radius:14px;
+  padding:12px;
+  box-shadow:0 14px 35px rgba(0,0,0,.35);
+  text-align:center;
+  font-size:13px;
+  font-weight:900;
+}
+#v12-exit-robert-bar button{
+  border:0;
+  border-radius:10px;
+  padding:10px 12px;
+  margin:8px 4px 0;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+#v12-admin-now{background:#fff;color:#dc2626}
+#v12-login-now{background:#111827;color:#fff}
+</style>
+
+
+<script id="v12-force-exit-robert-js">
+(function(){
+  /*
+    V12 hard fix:
+    If the app is stuck on Robert view-as, this clears the stored profile/view-as state
+    BEFORE the page finishes loading and provides a permanent top rescue bar.
+  */
+
+  var VIEW_KEYS=[
+    "domsc_v9_view_as_active",
+    "domsc_v9_admin_return_profile",
+    "domsc_v11_viewas_active",
+    "domsc_view_as_active"
+  ];
+
+  function clearRobertState(){
+    try{
+      VIEW_KEYS.forEach(function(k){ localStorage.removeItem(k); });
+      var active=localStorage.getItem("dom_sc_active_profile");
+      if(active==="robert" || active==="payton_n" || active==="Robert" || active==="Robert S"){
+        localStorage.removeItem("dom_sc_active_profile");
+      }
+      Object.keys(localStorage).forEach(function(k){
+        if(k.indexOf("view_as")!==-1 || k.indexOf("viewas")!==-1) localStorage.removeItem(k);
+      });
+    }catch(e){}
+    try{
+      document.body.classList.remove("v9-viewas-active","v11-viewas-stuck");
+    }catch(e){}
+  }
+
+  // Run immediately, before DOM init from the old app finishes.
+  clearRobertState();
+
+  window.v12ExitRobertToLogin=function(){
+    clearRobertState();
+    try{
+      localStorage.removeItem("dom_sc_active_profile");
+    }catch(e){}
+    location.reload();
+  };
+
+  window.v12ExitRobertToAdmin=function(){
+    clearRobertState();
+    try{
+      localStorage.setItem("dom_sc_active_profile","gavin");
+      var ps=document.getElementById("profile-select");
+      if(ps) ps.value="gavin";
+      ["local-freeze-screen","lock-overlay","maintenance-overlay"].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el) el.style.display="none";
+      });
+      var login=document.getElementById("login-gateway-portal");
+      var main=document.getElementById("main-app-container");
+      var admin=document.getElementById("admin-panel");
+      var user=document.getElementById("user-app-elements");
+      if(login) login.style.display="none";
+      if(main) main.style.display="block";
+      if(admin) admin.style.display="block";
+      if(user) user.style.display="none";
+      window.isAdminLoggedIn=true;
+      window.isDedicatedAdminMode=true;
+      document.body.classList.add("v8-admin-active","v7-real-admin","v6-admin-mode");
+      if(typeof window._grantAdminAccess==="function"){
+        try{ window._grantAdminAccess(false,true); }catch(e){}
+      }
+    }catch(e){}
+  };
+
+  function injectBar(){
+    if(document.getElementById("v12-exit-robert-bar")) return;
+    var bar=document.createElement("div");
+    bar.id="v12-exit-robert-bar";
+    bar.innerHTML='Stuck as Robert? Use this recovery bar. <br><button id="v12-admin-now" type="button" onclick="v12ExitRobertToAdmin()">Open Gavin/Admin</button><button id="v12-login-now" type="button" onclick="v12ExitRobertToLogin()">Clear & Go To Login</button>';
+    document.body.appendChild(bar);
+  }
+
+  function forceIfRobertVisible(){
+    try{
+      var active=localStorage.getItem("dom_sc_active_profile");
+      var view=localStorage.getItem("domsc_v9_view_as_active");
+      if(active==="robert" || view==="robert"){
+        clearRobertState();
+      }
+    }catch(e){}
+  }
+
+  function boot(){
+    clearRobertState();
+    injectBar();
+    forceIfRobertVisible();
+
+    setInterval(function(){
+      injectBar();
+      forceIfRobertVisible();
+    },500);
+  }
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",boot);
+  }else{
+    boot();
+  }
+})();
+</script>
+
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026 Enterprise V10 Device Thaw Fixed</title>
+    <title>DOM/SC Norm 2026 Enterprise V12 Force Exit Robert</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -540,6 +678,39 @@ body.v8-dark .v9-input{
   font-weight:800;
   margin-top:8px;
 }
+</style>
+
+
+<style id="v11-viewas-escape-css">
+#v11-viewas-escape{
+  display:none;
+  position:fixed;
+  left:12px;
+  right:12px;
+  bottom:78px;
+  z-index:12000;
+  background:#fff7ed;
+  border:2px solid #f59e0b;
+  color:#9a3412;
+  border-radius:14px;
+  padding:12px;
+  box-shadow:0 12px 30px rgba(0,0,0,.22);
+  font-size:13px;
+  font-weight:800;
+  text-align:center;
+}
+body.v11-viewas-stuck #v11-viewas-escape{display:block}
+#v11-viewas-escape button{
+  border:0;
+  border-radius:10px;
+  padding:10px 12px;
+  margin:8px 4px 0;
+  color:#fff;
+  font-weight:900;
+  cursor:pointer;
+}
+#v11-return-admin-btn{background:#2563eb}
+#v11-clear-viewas-btn{background:#dc2626}
 </style>
 
 </head>
@@ -4174,6 +4345,117 @@ body.v8-dark .v9-input{
   }
 
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+
+
+<script id="v11-viewas-escape-js">
+(function(){
+  var VIEW_AS_KEY="domsc_v9_view_as_active";
+  var ADMIN_RETURN_KEY="domsc_v9_admin_return_profile";
+
+  function clearViewAsLocal(){
+    try{
+      localStorage.removeItem(VIEW_AS_KEY);
+      localStorage.removeItem(ADMIN_RETURN_KEY);
+      document.body.classList.remove("v9-viewas-active");
+      document.body.classList.remove("v11-viewas-stuck");
+    }catch(e){}
+  }
+
+  window.v11ReturnFromViewAs = function(){
+    clearViewAsLocal();
+
+    try{
+      localStorage.setItem("dom_sc_active_profile","gavin");
+      var ps=document.getElementById("profile-select");
+      if(ps) ps.value="gavin";
+    }catch(e){}
+
+    try{
+      if(typeof window._grantAdminAccess==="function"){
+        window._grantAdminAccess(false,true);
+      }else{
+        var admin=document.getElementById("admin-panel");
+        if(admin) admin.style.display="block";
+        var user=document.getElementById("user-app-elements");
+        if(user) user.style.display="none";
+      }
+    }catch(e){}
+
+    try{
+      ["local-freeze-screen","lock-overlay","maintenance-overlay"].forEach(function(id){
+        var el=document.getElementById(id);
+        if(el) el.style.display="none";
+      });
+    }catch(e){}
+
+    alert("Returned to Gavin/Admin view.");
+  };
+
+  window.v11ClearViewAsOnly = function(){
+    clearViewAsLocal();
+    try{
+      localStorage.removeItem("dom_sc_active_profile");
+    }catch(e){}
+    alert("Robert view was cleared. Reload/open the file again and choose the correct login.");
+    location.reload();
+  };
+
+  function injectEscapeBox(){
+    if(document.getElementById("v11-viewas-escape")) return;
+    var box=document.createElement("div");
+    box.id="v11-viewas-escape";
+    box.innerHTML = 'You are stuck viewing an employee page. <br><button id="v11-return-admin-btn" type="button" onclick="v11ReturnFromViewAs()">Return to Gavin/Admin</button><button id="v11-clear-viewas-btn" type="button" onclick="v11ClearViewAsOnly()">Clear View-As</button>';
+    document.body.appendChild(box);
+  }
+
+  function detectViewAs(){
+    var viewAs="";
+    try{ viewAs=localStorage.getItem(VIEW_AS_KEY)||""; }catch(e){}
+    var active="";
+    try{ active=localStorage.getItem("dom_sc_active_profile")||""; }catch(e){}
+    var isRobertView = viewAs || active==="robert" || active==="payton_n";
+    // Only show the rescue when the admin panel is not visible and the user is in a view-as/employee state.
+    var adminVisible=false;
+    try{
+      var admin=document.getElementById("admin-panel");
+      adminVisible=admin && getComputedStyle(admin).display!=="none" && admin.offsetParent!==null;
+    }catch(e){}
+    document.body.classList.toggle("v11-viewas-stuck", !!isRobertView && !adminVisible);
+  }
+
+  // Patch old Return Admin if it exists and failed before.
+  function patchOldReturn(){
+    if(typeof window.v9ReturnAdmin==="function" && !window.v9ReturnAdmin._v11patched){
+      var old=window.v9ReturnAdmin;
+      var patched=function(){
+        try{ old.apply(this, arguments); }catch(e){}
+        setTimeout(function(){
+          clearViewAsLocal();
+          try{
+            if(typeof window._grantAdminAccess==="function") window._grantAdminAccess(false,true);
+          }catch(e){}
+        },100);
+      };
+      patched._v11patched=true;
+      window.v9ReturnAdmin=patched;
+    }
+  }
+
+  function boot(){
+    injectEscapeBox();
+    patchOldReturn();
+    detectViewAs();
+    setInterval(function(){
+      injectEscapeBox();
+      patchOldReturn();
+      detectViewAs();
+    },700);
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
   else boot();
 })();
 </script>
