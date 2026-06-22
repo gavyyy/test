@@ -589,16 +589,17 @@ let authCtx = null, pcBuffer = "", pcTarget = "", pcSetStep = 0, pcSetFirst = ""
 //  CLOUD
 // ══════════════════════════════════════════════════════════════
 async function pullCloud() {
-  // Show default profiles immediately so the screen never gets stuck
   renderLoginButtons();
   try {
-    // 8-second timeout — if JSONBin doesn't respond, fall back to defaults
-    const controller = new AbortController();
-    const timeout = setTimeout(()=>controller.abort(), 8000);
-    const r = await fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY},signal:controller.signal});
-    clearTimeout(timeout);
-    if (!r.ok) return true; // network ok but bad response — use defaults
+    dbg('Connecting to JSONBin...','#ffc107');
+    // Use Promise.race instead of AbortController — works on all Safari versions
+    const fetchPromise = fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY}});
+    const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
+    const r = await Promise.race([fetchPromise, timeoutPromise]);
+    dbg('JSONBin responded: HTTP '+r.status,'#ffc107');
+    if (!r.ok) {dbg('Bad response: '+r.status,'#ff4444');return true;}
     const d = (await r.json()).record;
+    dbg('Loaded — '+((d.profiles||[]).length)+' profiles, pass:'+d.admin_pass,'#44ff88');
     cloud = {
       is_locked:              d.is_locked||false,
       drafts:                 d.drafts||[],
@@ -626,8 +627,8 @@ async function pullCloud() {
     }
     return true;
   } catch(e) {
-    // Fetch failed or timed out — app works on defaults (local-only mode)
-    console.warn('Cloud sync unavailable, running on local defaults.');
+    dbg('Fetch ERROR: '+e.message,'#ff4444');
+    console.warn('Cloud sync unavailable:', e.message);
     return true;
   }
 }
@@ -867,10 +868,9 @@ async function triggerAdminLogin(isBypass,isDedicated) {
 // Pull cloud without triggering UI refresh (used inside login flow)
 async function pullCloudSilent() {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(()=>controller.abort(), 8000);
-    const r=await fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY},signal:controller.signal});
-    clearTimeout(timeout);
+    const fetchPromise = fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY}});
+    const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
+    const r = await Promise.race([fetchPromise, timeoutPromise]);
     if(!r.ok)return;
     const d=(await r.json()).record;
     cloud=Object.assign(cloud,{
@@ -1373,41 +1373,95 @@ function hide(id){const e=$(id);if(e)e.style.display='none';}
 // ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
+//  DEBUG STATUS (shows on screen so you can see what's happening)
+// ══════════════════════════════════════════════════════════════
+function dbg(msg,color){
+  const el=$('debug-bar');
+  if(!el)return;
+  const line=document.createElement('div');
+  line.style.cssText='padding:2px 4px;border-bottom:1px solid rgba(255,255,255,.2);font-size:11px';
+  line.style.color=color||'#fff';
+  line.textContent=new Date().toLocaleTimeString()+' — '+msg;
+  el.appendChild(line);
+  el.scrollTop=el.scrollHeight;
+  console.log(msg);
+}
+
 (async function init(){
+  dbg('App starting...','#4dadff');
   // Show login screen immediately with default profiles — never stuck loading
   const saved=localStorage.getItem('dom_sc_active_profile');
   if(saved&&!isDedicatedAdmin){
+    dbg('Saved session: '+saved,'#4dadff');
     hide('login-gateway-portal'); show('main-app-container','block');
   } else {
     renderLoginButtons(); // show default profiles right away
     show('login-gateway-portal','flex'); hide('main-app-container');
+    dbg('Showing login gateway','#4dadff');
   }
 
-  // Resolve IP and render item cards in parallel with cloud fetch
-  resolveIP(); // fire and forget — just for logging
+  resolveIP();
   renderCards();
 
-  // Now fetch cloud data — pullCloud calls renderLoginButtons again on success
-  // so if profiles were customised they update automatically
+  dbg('Fetching cloud data from JSONBin...','#ffc107');
   const ok=await pullCloud();
-  if(ok===false)return; // banned
+  if(ok===false){dbg('BANNED — access blocked','#ff4444');return;}
 
   rebuildItems();
+  dbg('Cloud loaded OK — '+cloud.profiles.length+' profiles, pass='+cloud.admin_pass,'#44ff88');
 
   if(saved&&!isDedicatedAdmin){
     $('profile-select').value=saved;
     loadSavedData();
   }
   applyUI();
+  dbg('Ready','#44ff88');
 })();
 
-// Background sync — doesn't disrupt UI
+// Background sync — only runs when page is visible, every 30s to avoid CORS issues
 setInterval(async function(){
-  if($('auth-modal-overlay').style.display==='flex')return; // don't poll mid-auth
-  const ok=await pullCloud(); if(ok===false)return;
-  applyUI();
-  if(isAdmin){const sm=localStorage.getItem("dom_sc_realtime_stream");const sd=$('live-stream');if(sm&&sd&&!sd.innerText.includes(sm))sd.innerHTML="[LIVE] "+sm;}
-},5000);
+  // Don't sync if page is hidden, auth modal is open, or user is mid-action
+  if(document.hidden)return;
+  if($('auth-modal-overlay').style.display==='flex')return;
+  try {
+    const fetchPromise = fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY}});
+    const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
+    const r = await Promise.race([fetchPromise, timeoutPromise]);
+    if(!r.ok)return;
+    const d=(await r.json()).record;
+    // Only update cloud data — don't replace if fetch failed
+    cloud=Object.assign(cloud,{
+      is_locked:d.is_locked||false,
+      admin_pass:d.admin_pass||"2026",
+      frozen_users:d.frozen_users||{},
+      variables:d.variables||{},
+      active_login_ips:d.active_login_ips||{},
+      banned_ips:d.banned_ips||[],
+      global_alert:d.global_alert||"",
+      targets:Object.assign({man1_8:26,man1_10:32.5,man2_8:32.5,man2_10:39},d.targets||{}),
+      maintenance:Object.assign({active:false,message:"",eta:""},d.maintenance||{}),
+      passcode_reset_requests:d.passcode_reset_requests||[],
+      passcodes:d.passcodes||{},
+      bio_flags:d.bio_flags||{},
+      passcode_meta:d.passcode_meta||{},
+      profile_notes:d.profile_notes||{},
+      settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{}),
+      profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
+      deleted_vars:d.deleted_vars||[]
+    });
+    if(cloud.banned_ips.includes(localIP)){document.getElementById('banned-screen').style.display='flex';return;}
+    applyUI();
+    if(isAdmin){
+      const sm=localStorage.getItem("dom_sc_realtime_stream");
+      const sd=$('live-stream');
+      if(sm&&sd&&!sd.innerText.includes(sm))sd.innerHTML="[LIVE] "+sm;
+    }
+  } catch(e){ /* silent fail on background sync — app still works */ }
+},30000); // 30 seconds instead of 5 — reduces CORS pressure
 </script>
+<!-- Debug bar — shows live status so we can see what's failing -->
+<div id="debug-bar" style="position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,.85);color:#fff;max-height:120px;overflow-y:auto;z-index:99999;font-family:monospace;padding:4px 8px">
+  <div style="font-size:10px;color:#ffc107;font-weight:bold;border-bottom:1px solid rgba(255,255,255,.3);padding-bottom:2px;margin-bottom:2px">&#x1F50D; Debug — Loading...</div>
+</div>
 </body>
 </html>
