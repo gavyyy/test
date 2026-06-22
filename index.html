@@ -1023,10 +1023,10 @@
         const badge = document.getElementById('maint-status-badge');
         if (badge) {
             if (maint.active) {
-                badge.textContent = '🚧 MAINTENANCE ACTIVE';
+                badge.textContent = 'MAINTENANCE ACTIVE';
                 badge.className = 'maint-status-badge maint-status-on';
             } else {
-                badge.textContent = '✅ SITE LIVE';
+                badge.textContent = 'SITE LIVE';
                 badge.className = 'maint-status-badge maint-status-off';
             }
         }
@@ -1035,11 +1035,16 @@
         if (msgInput) msgInput.value = maint.message || "";
         if (etaInput) etaInput.value = maint.eta || "";
 
+        // ── Lock screen — only change visibility if locked ──
         if (globalCloudData.is_locked && !isAdminLoggedIn) {
             document.getElementById('lock-overlay').style.display = 'flex';
             document.getElementById('main-app-container').style.display = 'none';
+            document.getElementById('login-gateway-portal').style.display = 'none';
         } else if (!globalCloudData.is_locked) {
             document.getElementById('lock-overlay').style.display = 'none';
+            // Do NOT touch login-gateway-portal or main-app-container here —
+            // the init function and login flow manage those. Touching them here
+            // during polling would interrupt mid-login flows.
         }
 
         const activeUserProf = document.getElementById('profile-select').value;
@@ -1053,13 +1058,12 @@
         if (globalCloudData.global_alert && globalCloudData.global_alert.trim() !== "") {
             alertBanner.style.display = "block";
             alertBanner.innerText = "ALERT: " + globalCloudData.global_alert;
-            // Style by severity level
             var lvl = (getSettings().alert_level) || "warning";
             if (lvl === "info") {
                 alertBanner.style.background = "#cfe4ff"; alertBanner.style.color = "#0056b3"; alertBanner.style.borderColor = "#9ec5ff";
             } else if (lvl === "urgent") {
                 alertBanner.style.background = "#f8d7da"; alertBanner.style.color = "#721c24"; alertBanner.style.borderColor = "#f1aeb5";
-            } else { // warning (default)
+            } else {
                 alertBanner.style.background = "#ffeeba"; alertBanner.style.color = "#856404"; alertBanner.style.borderColor = "#ffe8a1";
             }
         } else {
@@ -1096,6 +1100,7 @@
         }).join('');
         pSelect.value = currentSel;
 
+        // Rebuild login gateway profile buttons (safe — element always in DOM)
         const buttonListEl = document.getElementById('login-profile-buttons-list');
         if (buttonListEl) {
             buttonListEl.innerHTML = profilesRegistry.map(function(p) {
@@ -1107,12 +1112,14 @@
 
         const lockBtn = document.getElementById('lock-toggle-btn');
         if (lockBtn) lockBtn.textContent = globalCloudData.is_locked ? "Unlock All Screens" : "Lock All Screens";
-        
-        document.getElementById('admin-broadcast-msg').value = globalCloudData.global_alert;
-        document.getElementById('t-1-8').value  = globalCloudData.targets.man1_8;
-        document.getElementById('t-1-10').value = globalCloudData.targets.man1_10;
-        document.getElementById('t-2-8').value  = globalCloudData.targets.man2_8;
-        document.getElementById('t-2-10').value = globalCloudData.targets.man2_10;
+
+        // Safely update admin-only input fields (they're always in DOM, just hidden)
+        var adminBroadcastEl = document.getElementById('admin-broadcast-msg');
+        if (adminBroadcastEl) adminBroadcastEl.value = globalCloudData.global_alert;
+        var t18 = document.getElementById('t-1-8'); if (t18) t18.value = globalCloudData.targets.man1_8;
+        var t110 = document.getElementById('t-1-10'); if (t110) t110.value = globalCloudData.targets.man1_10;
+        var t28 = document.getElementById('t-2-8'); if (t28) t28.value = globalCloudData.targets.man2_8;
+        var t210 = document.getElementById('t-2-10'); if (t210) t210.value = globalCloudData.targets.man2_10;
 
         updateAdminDraftsUI();
         updateAdminPeopleRegistryUI();
@@ -2724,6 +2731,9 @@
     })();
     
     setInterval(function() {
+        // Don't re-poll while the auth modal is open (mid-login) — it would disrupt the flow
+        var authOpen = document.getElementById('auth-modal-overlay').style.display === 'flex';
+        if (authOpen) return;
         pullGlobalData();
         if (isAdminLoggedIn) {
             const streamMsg = localStorage.getItem("dom_sc_realtime_stream");
