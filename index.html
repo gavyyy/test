@@ -1542,6 +1542,30 @@ body #user-app-elements #item-cards-container .item-total{
   margin-left:5px;
 }
 
+
+
+/* ══════════════════════════════════════════════════════════════
+   SUPERVISOR PRIVILEGES + SUPERVISOR CONSOLE
+   Add-on only. Does not remove existing admin features.
+   ══════════════════════════════════════════════════════════════ */
+.supervisor-priv-wrap{overflow-x:auto;background:#fff;border:1px solid #dbefff;border-radius:10px;padding:6px}
+.supervisor-priv-table{width:100%;border-collapse:collapse;font-size:11px;min-width:880px;background:#fff}
+.supervisor-priv-table th,.supervisor-priv-table td{border-bottom:1px solid #eee;padding:6px;text-align:center;vertical-align:middle}
+.supervisor-priv-table th:first-child,.supervisor-priv-table td:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:1;min-width:145px}
+.supervisor-priv-table th{background:#eef6ff!important;color:#24527f!important;font-weight:900}
+.supervisor-priv-table input{width:19px;height:19px}
+.supervisor-control-card{background:#fff;border:1px solid #dbefff;border-radius:12px;padding:10px;margin:8px 0;box-shadow:0 6px 16px rgba(8,45,88,.06)}
+.supervisor-control-title{font-size:13px;font-weight:950;color:#075bbb;margin-bottom:6px}
+.supervisor-control-sub{font-size:11px;color:#687586;margin-bottom:8px}
+.supervisor-mini-row{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #eee;padding:6px 0;font-size:12px}
+.supervisor-mini-row:last-child{border-bottom:none}
+.supervisor-pill{display:inline-block;background:#e9f5fe;color:#075bbb;border:1px solid #cfe4ff;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:900}
+.supervisor-denied{background:#fff8e1;border:1px solid #ffe8a1;color:#856404;border-radius:10px;padding:8px;font-size:12px;font-weight:800}
+.supervisor-console-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.supervisor-msg-item,.supervisor-log-item{border-bottom:1px solid #eee;padding:6px 0;font-size:12px}
+.supervisor-msg-item:last-child,.supervisor-log-item:last-child{border-bottom:none}
+@media(max-width:720px){.supervisor-priv-table{min-width:780px}.supervisor-control-card{padding:8px}.supervisor-mini-row{align-items:flex-start;flex-direction:column}}
+
 </style>
 </head>
 <body>
@@ -1673,8 +1697,8 @@ body #user-app-elements #item-cards-container .item-total{
           <div id="simple-employee-permissions">Loading employee permissions...</div>
           
           <div style="margin-top:10px;border-top:1px dashed #cfe4ff;padding-top:8px">
-            <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F9D1;&#x200D;&#x1F4BC; Supervisor Settings - Phase 1</div>
-            <div style="font-size:11px;color:#666;margin-bottom:6px">Turn an existing employee profile into a supervisor. This phase only saves the role and shows a supervisor notice; no extra powers are added yet.</div>
+            <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F9D1;&#x200D;&#x1F4BC; Supervisor Privileges</div>
+            <div style="font-size:11px;color:#666;margin-bottom:6px">Turn an existing employee profile into a supervisor, then choose exactly what supervisor controls they can use.</div>
             <div id="phase1-supervisor-settings" style="font-size:12px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px">Loading supervisor settings...</div>
           </div>
 
@@ -1886,7 +1910,12 @@ body #user-app-elements #item-cards-container .item-total{
     <select id="profile-select" style="display:none"><option value="default">Default / Custom</option></select>
 
     <div id="phase1-supervisor-notice" style="display:none;background:#f4fbff;border:1px solid #b9dcff;border-radius:14px;padding:10px;margin:8px 0;color:#075bbb;font-size:12px;font-weight:800">
-      &#x1F9D1;&#x200D;&#x1F4BC; Supervisor profile enabled. Extra supervisor controls will be added in the next safe phase.
+      &#x1F9D1;&#x200D;&#x1F4BC; Supervisor profile enabled. Admin controls what supervisor tools you can access.
+    </div>
+
+    <div class="employee-feature-card" id="supervisor-console-card" style="display:none;border-color:#9ed1ff;background:#f7fbff">
+      <div class="employee-feature-title">&#x1F9D1;&#x200D;&#x1F4BC; Supervisor Console</div>
+      <div id="supervisor-console-body" style="font-size:12px;color:#333">Loading supervisor controls...</div>
     </div>
 
     <div class="crew-selection">
@@ -2022,13 +2051,13 @@ const HEADERS = {"X-Master-Key": MASTER_KEY, "X-Access-Key": MASTER_KEY, "Conten
 const SYNC_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
 const ADMIN_KEY = "__admin__";
 const MASTER_RECOVERY_KEY = "DOMSC-RECOVERY-2026";
-const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions"];
+const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions","supervisor_settings","supervisor_privileges"];
 
 // ══════════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════════
 let cloud = {
-  is_locked: false, drafts: [], live_calculator: {}, daily_logs: {}, profile_pictures: {}, employee_calculator: {}, permissions: {}, sync_meta: {}, supervisor_settings: {}, admin_pass: "2026", frozen_users: {},
+  is_locked: false, drafts: [], live_calculator: {}, daily_logs: {}, profile_pictures: {}, employee_calculator: {}, permissions: {}, sync_meta: {}, supervisor_settings: {}, supervisor_privileges: {}, admin_pass: "2026", frozen_users: {},
   variables: {}, active_login_ips: {}, failed_admin_logins: [], banned_ips: [],
   global_alert: "", targets: {man1_8:26,man1_10:32.5,man2_8:32.5,man2_10:39},
   maintenance: {active:false,message:"",eta:""}, passcode_reset_requests: [],
@@ -2074,6 +2103,7 @@ async function pullCloud() {
       permissions:            d.permissions||{},
       sync_meta:              d.sync_meta||{},
       supervisor_settings:     d.supervisor_settings||{},
+      supervisor_privileges:   d.supervisor_privileges||{},
       employee_calculator:    d.employee_calculator||{},
       permissions:            d.permissions||{},
       sync_meta:              d.sync_meta||{},
@@ -2153,6 +2183,7 @@ function mergeCloudRecords(remote,local){
   merged.profile_notes=Object.assign({},remote.profile_notes||{},local.profile_notes||{});
   merged.profile_pictures=Object.assign({},remote.profile_pictures||{},local.profile_pictures||{});
   merged.supervisor_settings=Object.assign({},remote.supervisor_settings||{},local.supervisor_settings||{});
+  merged.supervisor_privileges=Object.assign({},remote.supervisor_privileges||{},local.supervisor_privileges||{});
   merged.live_calculator=newerProfileData(remote.live_calculator,local.live_calculator);
   merged.employee_calculator=newerProfileData(remote.employee_calculator,local.employee_calculator);
 
@@ -2453,6 +2484,8 @@ async function pullCloudSilent() {
       profile_pictures:d.profile_pictures||{},
       frozen_users:d.frozen_users||{}, maintenance:Object.assign({active:false,message:"",eta:""},d.maintenance||{}),
       profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
+      supervisor_settings:d.supervisor_settings||cloud.supervisor_settings||{},
+      supervisor_privileges:d.supervisor_privileges||cloud.supervisor_privileges||{},
       settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{})
     });
     if(cloud.banned_ips.includes(localIP))document.getElementById('banned-screen').style.display='flex';
@@ -3250,7 +3283,7 @@ async function aiApplyConfig(){
   if(!keys.length){cfgResult("No recognized keys.","err");return;}
   if(!confirm(`Apply ${keys.length} change(s)? Keys: ${keys.join(', ')}`))return;
   keys.forEach(k=>{
-    if(["targets","variables","maintenance","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
+    if(["targets","variables","maintenance","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions","supervisor_settings","supervisor_privileges"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
     else cloud[k]=p[k];
   });
   await pushCloud();applyUI();cfgResult(`Applied: <b>${keys.join(', ')}</b>.`,"ok");$('ai-config-input').value="";
@@ -3581,6 +3614,7 @@ setInterval(async function(){
       profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
       employee_calculator:d.employee_calculator||cloud.employee_calculator||{},
       supervisor_settings:d.supervisor_settings||cloud.supervisor_settings||{},
+      supervisor_privileges:d.supervisor_privileges||cloud.supervisor_privileges||{},
       deleted_vars:d.deleted_vars||[]
     });
     if(cloud.banned_ips.includes(localIP)){document.getElementById('banned-screen').style.display='flex';return;}
@@ -4192,6 +4226,418 @@ document.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){phase1RenderSupervisorSettings();phase1ApplySupervisorNotice();},900);
   setTimeout(function(){phase1RenderSupervisorSettings();phase1ApplySupervisorNotice();},2200);
 });
+</script>
+
+
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  SUPERVISOR PRIVILEGES — ADMIN CONTROLLED
+//  Safe add-on: supervisors only see/use tools admin enables.
+// ══════════════════════════════════════════════════════════════
+(function(){
+  const SUPERVISOR_PRIVILEGE_KEYS = [
+    ['view_health','Site Health'],
+    ['view_live','Live Calculators'],
+    ['view_logs','Saved Logs'],
+    ['view_messages','Employee Messages'],
+    ['send_alerts','Send Alerts'],
+    ['freeze_users','Freeze Users'],
+    ['force_sync','Force Sync'],
+    ['edit_targets','Edit Targets'],
+    ['manage_permissions','Employee Permissions'],
+    ['manage_passcodes','Change Passcodes']
+  ];
+
+  function hasCloud(){return typeof cloud!=='undefined' && cloud;}
+  function activeProfile(){return localStorage.getItem('dom_sc_active_profile')||'default';}
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function js(v){return String(v==null?'':v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
+  function slugName(name){return String(name||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40)||('profile_'+Date.now());}
+  function profileName(val){const p=(cloud.profiles||[]).find(x=>x.val===val);return p?(p.name||val):val;}
+
+  function defaultSupervisorPrivileges(enabled){
+    return {
+      view_health:!!enabled,
+      view_live:!!enabled,
+      view_logs:!!enabled,
+      view_messages:!!enabled,
+      send_alerts:false,
+      freeze_users:false,
+      force_sync:false,
+      edit_targets:false,
+      manage_permissions:false,
+      manage_passcodes:false
+    };
+  }
+
+  function ensureSupervisorStores(){
+    if(!hasCloud())return;
+    if(!cloud.supervisor_settings)cloud.supervisor_settings={};
+    if(!cloud.supervisor_privileges)cloud.supervisor_privileges={};
+    if(!cloud.permissions)cloud.permissions={};
+    (cloud.profiles||[]).forEach(function(p){
+      if(!cloud.supervisor_settings[p.val])cloud.supervisor_settings[p.val]={isSupervisor:false};
+      if(!cloud.supervisor_privileges[p.val])cloud.supervisor_privileges[p.val]=defaultSupervisorPrivileges(false);
+      SUPERVISOR_PRIVILEGE_KEYS.forEach(function(k){
+        if(cloud.supervisor_privileges[p.val][k[0]]===undefined)cloud.supervisor_privileges[p.val][k[0]]=false;
+      });
+    });
+  }
+
+  window.phase1SupervisorEnsure = ensureSupervisorStores;
+  window.phase1IsSupervisor = function(profileVal){
+    ensureSupervisorStores();
+    const key=profileVal||activeProfile();
+    const s=(cloud.supervisor_settings||{})[key];
+    return !!(s&&s.isSupervisor===true);
+  };
+  window.supervisorHasPrivilege = function(priv,profileVal){
+    ensureSupervisorStores();
+    const key=profileVal||activeProfile();
+    return window.phase1IsSupervisor(key) && !!((cloud.supervisor_privileges||{})[key]||{})[priv];
+  };
+
+  async function saveSupervisorCloud(){
+    try{if(typeof pushCloud==='function')await pushCloud();}catch(e){console.warn('Supervisor save pending',e);}
+    try{if(typeof hpRefresh==='function')hpRefresh();}catch(e){}
+    try{phase1RenderSupervisorSettings();}catch(e){}
+    try{supervisorRenderConsole();}catch(e){}
+    try{phase1ApplySupervisorNotice();}catch(e){}
+  }
+
+  window.phase1SetSupervisor = async function(profileVal,on){
+    ensureSupervisorStores();
+    const old=(cloud.supervisor_settings||{})[profileVal]||{};
+    cloud.supervisor_settings[profileVal]=Object.assign({},old,{
+      isSupervisor:!!on,
+      updatedAt:new Date().toLocaleString(),
+      updatedAtISO:new Date().toISOString(),
+      updatedBy:activeProfile()
+    });
+    if(!cloud.supervisor_privileges[profileVal])cloud.supervisor_privileges[profileVal]=defaultSupervisorPrivileges(false);
+    if(on){
+      cloud.supervisor_privileges[profileVal]=Object.assign(defaultSupervisorPrivileges(true),cloud.supervisor_privileges[profileVal]||{});
+      // New supervisors get safe view-only privileges by default.
+      cloud.supervisor_privileges[profileVal].view_health=true;
+      cloud.supervisor_privileges[profileVal].view_live=true;
+      cloud.supervisor_privileges[profileVal].view_logs=true;
+      cloud.supervisor_privileges[profileVal].view_messages=true;
+    }else{
+      cloud.supervisor_privileges[profileVal]=defaultSupervisorPrivileges(false);
+    }
+    await saveSupervisorCloud();
+  };
+
+  window.supervisorSetPrivilege = async function(profileVal,priv,on){
+    ensureSupervisorStores();
+    if(!window.phase1IsSupervisor(profileVal)){
+      alert('Turn this person into a supervisor first.');
+      phase1RenderSupervisorSettings();
+      return;
+    }
+    if(!cloud.supervisor_privileges[profileVal])cloud.supervisor_privileges[profileVal]=defaultSupervisorPrivileges(false);
+    cloud.supervisor_privileges[profileVal][priv]=!!on;
+    cloud.supervisor_privileges[profileVal].updatedAt=new Date().toLocaleString();
+    cloud.supervisor_privileges[profileVal].updatedAtISO=new Date().toISOString();
+    cloud.supervisor_privileges[profileVal].updatedBy=activeProfile();
+    await saveSupervisorCloud();
+  };
+
+  window.phase1RenderSupervisorSettings = function(){
+    const box=document.getElementById('phase1-supervisor-settings');
+    if(!box||!hasCloud())return;
+    ensureSupervisorStores();
+    const profiles=cloud.profiles||[];
+    if(!profiles.length){box.innerHTML='<div style="color:#888">No profiles found.</div>';return;}
+    let out='<div style="font-size:11px;color:#666;margin-bottom:8px">Check <b>Supervisor</b>, then choose what that supervisor is allowed to access. Admin can turn every permission on/off anytime.</div>';
+    out+='<div class="supervisor-priv-wrap"><table class="supervisor-priv-table"><thead><tr><th>Profile</th><th>Supervisor</th>';
+    SUPERVISOR_PRIVILEGE_KEYS.forEach(function(k){out+='<th>'+esc(k[1])+'</th>';});
+    out+='</tr></thead><tbody>';
+    profiles.forEach(function(p){
+      const isSup=window.phase1IsSupervisor(p.val);
+      const privs=(cloud.supervisor_privileges||{})[p.val]||{};
+      out+='<tr><td><b>'+esc(p.name||p.val)+'</b>'+(isSup?' <span class="phase1-supervisor-badge">Supervisor</span>':'')+'<br><span style="font-size:10px;color:#777">'+esc(p.val)+'</span></td>';
+      out+='<td><input type="checkbox" '+(isSup?'checked':'')+' onchange="phase1SetSupervisor(\''+js(p.val)+'\',this.checked)"></td>';
+      SUPERVISOR_PRIVILEGE_KEYS.forEach(function(k){
+        out+='<td><input type="checkbox" '+(privs[k[0]]?'checked':'')+' '+(!isSup?'disabled':'')+' onchange="supervisorSetPrivilege(\''+js(p.val)+'\',\''+js(k[0])+'\',this.checked)"></td>';
+      });
+      out+='</tr>';
+    });
+    out+='</tbody></table></div>';
+    box.innerHTML=out;
+  };
+
+  window.phase1ApplySupervisorNotice = function(){
+    const notice=document.getElementById('phase1-supervisor-notice');
+    const card=document.getElementById('supervisor-console-card');
+    const isSup=window.phase1IsSupervisor(activeProfile());
+    if(notice){
+      notice.style.display=isSup?'block':'none';
+      if(isSup){
+        notice.innerHTML='&#x1F9D1;&#x200D;&#x1F4BC; Supervisor profile enabled. Admin controls what supervisor tools you can access.';
+      }
+    }
+    if(card)card.style.display=isSup?'block':'none';
+    supervisorRenderConsole();
+  };
+
+  function liveRows(){
+    const live=cloud.live_calculator||{};
+    const keys=Object.keys(live);
+    if(!keys.length)return '<div class="supervisor-denied">No live calculator data yet.</div>';
+    return keys.map(function(k){
+      const s=live[k]||{};
+      const items=(s.items||[]).filter(it=>Number(it.qty||0)>0).slice(0,8).map(function(it){
+        return '<tr><td>'+esc(it.name)+'</td><td style="text-align:center">'+esc(it.qty)+'</td><td style="text-align:right">'+(Number(it.total||0).toFixed(2))+'</td></tr>';
+      }).join('')||'<tr><td colspan="3" style="color:#999;text-align:center">No quantities entered</td></tr>';
+      return '<div class="live-monitor-card"><div class="live-monitor-head"><span>'+esc(s.profileName||profileName(k))+'</span><span>'+esc(s.timestamp||'')+'</span></div>'+
+        '<div><b>Crew:</b> '+esc(s.crew||'')+' Man &nbsp; <b>Total:</b> '+Number(s.grandTotal||0).toFixed(2)+'</div>'+
+        '<div><b>Foreman:</b> '+esc(s.foreman||'')+(s.member?' &nbsp; <b>Member:</b> '+esc(s.member):'')+'</div>'+
+        '<div><b>Clock:</b> '+esc(s.clockInDisplay||s.start||'')+' - '+esc(s.clockOutDisplay||s.end||'')+'</div>'+
+        '<table class="live-monitor-table"><tbody><tr><td><b>Item</b></td><td style="text-align:center"><b>Qty</b></td><td style="text-align:right"><b>Units</b></td></tr>'+items+'</tbody></table></div>';
+    }).join('');
+  }
+
+  function logsRows(){
+    const logs=cloud.daily_logs||{};
+    const profiles=cloud.profiles||[];
+    let out='';
+    profiles.forEach(function(p){
+      const arr=Array.isArray(logs[p.val])?logs[p.val]:[];
+      if(!arr.length)return;
+      out+='<div class="supervisor-control-card"><div class="supervisor-control-title">'+esc(p.name||p.val)+'</div>';
+      arr.slice(-3).reverse().forEach(function(l){
+        const total=l.totalUnits||l.total||l.grandTotal||'';
+        out+='<div class="supervisor-log-item"><b>'+esc(l.timestamp||l.time||l.date||'Saved log')+'</b><br>Total: '+esc(total)+' units '+(l.crew?'<br>Crew: '+esc(l.crew):'')+'</div>';
+      });
+      out+='</div>';
+    });
+    return out||'<div class="supervisor-denied">No saved logs found yet.</div>';
+  }
+
+  function messagesRows(){
+    const msgs=[...(cloud.employee_messages||[])].slice(-12).reverse();
+    if(!msgs.length)return '<div class="supervisor-denied">No employee messages yet.</div>';
+    return msgs.map(function(m){return '<div class="supervisor-msg-item"><b>'+esc(m.profileName||m.profile)+'</b> <span style="font-size:10px;color:#777">'+esc(m.time||'')+'</span><br>'+esc(m.message||'')+'</div>';}).join('');
+  }
+
+  function freezeRows(){
+    const profiles=(cloud.profiles||[]).filter(p=>p.val!==activeProfile());
+    if(!profiles.length)return '<div class="supervisor-denied">No other profiles found.</div>';
+    return profiles.map(function(p){
+      const frozen=!!((cloud.frozen_users||{})[p.val]);
+      return '<div class="supervisor-mini-row"><div><b>'+esc(p.name||p.val)+'</b><br><span style="font-size:10px;color:#777">'+esc(p.val)+'</span></div><button class="sm-btn '+(frozen?'btn-green':'btn-red')+'" onclick="supervisorToggleFreeze(\''+js(p.val)+'\')">'+(frozen?'Unfreeze':'Freeze')+'</button></div>';
+    }).join('');
+  }
+
+  function permissionRows(){
+    if(typeof hpPermissionKeys!=='function')return '<div class="supervisor-denied">Employee permission system is not available.</div>';
+    const keys=hpPermissionKeys();
+    let out='<div class="supervisor-priv-wrap"><table class="supervisor-priv-table"><thead><tr><th>Employee</th>';
+    keys.forEach(k=>out+='<th>'+esc(k[1])+'</th>');
+    out+='</tr></thead><tbody>';
+    (cloud.profiles||[]).forEach(function(p){
+      out+='<tr><td><b>'+esc(p.name||p.val)+'</b><br><span style="font-size:10px;color:#777">'+esc(p.val)+'</span></td>';
+      keys.forEach(function(k){
+        const checked=(typeof hpGetPerm==='function')?hpGetPerm(p.val,k[0]):true;
+        out+='<td><input type="checkbox" '+(checked?'checked':'')+' onchange="supervisorSetEmployeePerm(\''+js(p.val)+'\',\''+js(k[0])+'\',this.checked)"></td>';
+      });
+      out+='</tr>';
+    });
+    out+='</tbody></table></div>';
+    return out;
+  }
+
+  function passcodeRows(){
+    const profiles=(cloud.profiles||[]).filter(function(p){return p.val!==activeProfile();});
+    if(!profiles.length)return '<div class="supervisor-denied">No other employee profiles found.</div>';
+    return profiles.map(function(p){
+      const hasPc=!!((cloud.passcodes||{})[p.val]);
+      const bio=!!((cloud.bio_flags||{})[p.val]);
+      const meta=(cloud.passcode_meta||{})[p.val]||{};
+      const status=hasPc?'Passcode set'+(bio?' + biometric':''):'No passcode';
+      const metaLine=meta.changedAt?'<br><span style="font-size:10px;color:#777">Last changed: '+esc(meta.changedAt)+'</span>':'';
+      return '<div class="supervisor-mini-row"><div><b>'+esc(p.name||p.val)+'</b><br><span style="font-size:10px;color:#777">'+esc(p.val)+'</span><br><span style="font-size:10px;color:'+(hasPc?'#1e7e34':'#888')+'">'+esc(status)+'</span>'+metaLine+'</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="sm-btn btn-blue" onclick="supervisorSetEmployeePasscode(\''+js(p.val)+'\')">Set / Change</button><button class="sm-btn btn-red" '+(!hasPc?'disabled style="opacity:.45"':'')+' onclick="supervisorClearEmployeePasscode(\''+js(p.val)+'\')">Clear</button></div></div>';
+    }).join('');
+  }
+
+  function healthRows(){
+    let logs=0;Object.values(cloud.daily_logs||{}).forEach(v=>{if(Array.isArray(v))logs+=v.length;});
+    let size=0;try{size=Math.round((JSON.stringify(cloud).length/1024)*10)/10;}catch(e){}
+    return '<div class="supervisor-mini-row"><span>Status</span><span class="supervisor-pill">Loaded</span></div>'+
+      '<div class="supervisor-mini-row"><span>Profiles</span><b>'+((cloud.profiles||[]).length)+'</b></div>'+
+      '<div class="supervisor-mini-row"><span>Daily Logs</span><b>'+logs+'</b></div>'+
+      '<div class="supervisor-mini-row"><span>Live Calculators</span><b>'+Object.keys(cloud.live_calculator||{}).length+'</b></div>'+
+      '<div class="supervisor-mini-row"><span>Cloud Size</span><b>'+size+' KB</b></div>';
+  }
+
+  window.supervisorRenderConsole = function(){
+    const card=document.getElementById('supervisor-console-card');
+    const box=document.getElementById('supervisor-console-body');
+    if(!card||!box||!hasCloud())return;
+    ensureSupervisorStores();
+    if(!window.phase1IsSupervisor(activeProfile())){card.style.display='none';return;}
+    card.style.display='block';
+    const allowed=SUPERVISOR_PRIVILEGE_KEYS.filter(k=>window.supervisorHasPrivilege(k[0])).map(k=>k[1]);
+    let html='<div class="supervisor-control-sub">Allowed tools: '+(allowed.length?allowed.map(esc).join(', '):'none turned on yet')+'</div>';
+    if(!allowed.length){box.innerHTML=html+'<div class="supervisor-denied">Admin has made this profile a supervisor, but has not enabled any supervisor controls yet.</div>';return;}
+    if(window.supervisorHasPrivilege('view_health'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x1F6E1;&#xFE0F; Site Health</div>'+healthRows()+'</div>';
+    if(window.supervisorHasPrivilege('view_live'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x1F441;&#xFE0F; Live Employee Calculators</div>'+liveRows()+'</div>';
+    if(window.supervisorHasPrivilege('view_logs'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x1F4C1; Recent Saved Logs</div>'+logsRows()+'</div>';
+    if(window.supervisorHasPrivilege('view_messages'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x1F4E8; Employee Messages</div>'+messagesRows()+'</div>';
+    if(window.supervisorHasPrivilege('send_alerts'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x1F4E2; Send Team Alert</div><div style="display:flex;gap:6px"><input type="text" id="supervisor-alert-input" placeholder="Alert message..." style="flex:1;padding:8px;font-size:12px;border:1px solid #ccc;border-radius:8px"><button class="sm-btn btn-blue" onclick="supervisorSetAlert()">Send</button><button class="sm-btn btn-red" onclick="supervisorClearAlert()">Clear</button></div></div>';
+    if(window.supervisorHasPrivilege('freeze_users'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x2744;&#xFE0F; Freeze / Unfreeze Employees</div>'+freezeRows()+'</div>';
+    if(window.supervisorHasPrivilege('edit_targets'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x1F3AF; Edit Shift Targets</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><input id="sup-t-1-8" type="number" step="0.1" value="'+esc((cloud.targets||{}).man1_8||26)+'" placeholder="1 Man 8"><input id="sup-t-1-10" type="number" step="0.1" value="'+esc((cloud.targets||{}).man1_10||32.5)+'" placeholder="1 Man 10"><input id="sup-t-2-8" type="number" step="0.1" value="'+esc((cloud.targets||{}).man2_8||32.5)+'" placeholder="2 Man 8"><input id="sup-t-2-10" type="number" step="0.1" value="'+esc((cloud.targets||{}).man2_10||39)+'" placeholder="2 Man 10"></div><button class="sm-btn btn-green" style="margin-top:8px;width:100%" onclick="supervisorSaveTargets()">Save Targets</button></div>';
+    if(window.supervisorHasPrivilege('manage_permissions'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x1F511; Employee Page Permissions</div>'+permissionRows()+'</div>';
+    if(window.supervisorHasPrivilege('manage_passcodes'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x1F522; Employee Passcodes</div><div class="supervisor-control-sub">Supervisors can set/change or clear employee passcodes only when admin enables this privilege.</div>'+passcodeRows()+'</div>';
+    if(window.supervisorHasPrivilege('force_sync'))html+='<div class="supervisor-control-card"><div class="supervisor-control-title">&#x1F504; Sync</div><button class="sm-btn btn-blue" onclick="supervisorForceSync()">Force Safe Sync</button></div>';
+    box.innerHTML=html;
+  };
+
+  window.supervisorSetAlert = async function(){
+    if(!window.supervisorHasPrivilege('send_alerts')){alert('Admin has not enabled alert privileges for this supervisor.');return;}
+    const msg=(document.getElementById('supervisor-alert-input')||{}).value||'';
+    if(!msg.trim()){alert('Type an alert first.');return;}
+    cloud.global_alert=msg.trim();
+    await pushCloud();
+    applyUI();
+    alert('Supervisor alert sent.');
+  };
+  window.supervisorClearAlert = async function(){
+    if(!window.supervisorHasPrivilege('send_alerts')){alert('Admin has not enabled alert privileges for this supervisor.');return;}
+    cloud.global_alert='';
+    await pushCloud();
+    applyUI();
+  };
+  window.supervisorToggleFreeze = async function(profileVal){
+    if(!window.supervisorHasPrivilege('freeze_users')){alert('Admin has not enabled freeze privileges for this supervisor.');return;}
+    if(!confirm('Change freeze status for '+profileName(profileVal)+'?'))return;
+    if(!cloud.frozen_users)cloud.frozen_users={};
+    cloud.frozen_users[profileVal]=!cloud.frozen_users[profileVal];
+    await pushCloud();
+    applyUI();
+  };
+  window.supervisorSaveTargets = async function(){
+    if(!window.supervisorHasPrivilege('edit_targets')){alert('Admin has not enabled target editing for this supervisor.');return;}
+    if(!cloud.targets)cloud.targets={};
+    cloud.targets.man1_8=parseFloat((document.getElementById('sup-t-1-8')||{}).value)||cloud.targets.man1_8||26;
+    cloud.targets.man1_10=parseFloat((document.getElementById('sup-t-1-10')||{}).value)||cloud.targets.man1_10||32.5;
+    cloud.targets.man2_8=parseFloat((document.getElementById('sup-t-2-8')||{}).value)||cloud.targets.man2_8||32.5;
+    cloud.targets.man2_10=parseFloat((document.getElementById('sup-t-2-10')||{}).value)||cloud.targets.man2_10||39;
+    await pushCloud();
+    applyUI();
+    alert('Targets saved by supervisor.');
+  };
+  window.supervisorSetEmployeePasscode = function(profileVal){
+    if(!window.supervisorHasPrivilege('manage_passcodes')){alert('Admin has not enabled employee passcode privileges for this supervisor.');return;}
+    if(profileVal===activeProfile()){alert('Use your own Account Security panel to change your own passcode.');return;}
+    const name=profileName(profileVal);
+    openSetModal('Set Passcode for '+name,'Enter a 4-digit passcode for this employee',async function(hash){
+      if(!window.supervisorHasPrivilege('manage_passcodes')){alert('Admin has not enabled employee passcode privileges for this supervisor.');return;}
+      if(!cloud.passcodes)cloud.passcodes={};
+      if(!cloud.passcode_meta)cloud.passcode_meta={};
+      if(!cloud.bio_flags)cloud.bio_flags={};
+      cloud.passcodes[profileVal]=hash;
+      cloud.passcode_meta[profileVal]={changedAt:new Date().toLocaleString(),changedBy:'supervisor: '+profileName(activeProfile())};
+      delete cloud.bio_flags[profileVal];
+      try{localStorage.removeItem(bioCredKey('profile_'+profileVal));}catch(e){}
+      cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(function(r){return r.profile!==profileVal;});
+      await pushCloud();
+      try{supervisorRenderConsole();}catch(e){}
+      alert('Passcode set for '+name+'.');
+    });
+  };
+
+  window.supervisorClearEmployeePasscode = async function(profileVal){
+    if(!window.supervisorHasPrivilege('manage_passcodes')){alert('Admin has not enabled employee passcode privileges for this supervisor.');return;}
+    if(profileVal===activeProfile()){alert('Use your own Account Security panel to remove your own passcode.');return;}
+    const name=profileName(profileVal);
+    if(!confirm('Clear passcode and biometrics for '+name+'?'))return;
+    if(!cloud.passcodes)cloud.passcodes={};
+    if(!cloud.bio_flags)cloud.bio_flags={};
+    if(!cloud.passcode_meta)cloud.passcode_meta={};
+    delete cloud.passcodes[profileVal];
+    delete cloud.bio_flags[profileVal];
+    delete cloud.passcode_meta[profileVal];
+    try{localStorage.removeItem(bioCredKey('profile_'+profileVal));}catch(e){}
+    cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(function(r){return r.profile!==profileVal;});
+    await pushCloud();
+    try{supervisorRenderConsole();}catch(e){}
+    alert('Passcode cleared for '+name+'.');
+  };
+
+  window.supervisorSetEmployeePerm = async function(profileVal,key,on){
+    if(!window.supervisorHasPrivilege('manage_permissions')){alert('Admin has not enabled employee permission management for this supervisor.');return;}
+    if(!cloud.permissions)cloud.permissions={};
+    if(!cloud.permissions[profileVal])cloud.permissions[profileVal]={};
+    cloud.permissions[profileVal][key]=!!on;
+    await pushCloud();
+    try{if(typeof hpRefresh==='function')hpRefresh();}catch(e){}
+    supervisorRenderConsole();
+  };
+  window.supervisorForceSync = async function(){
+    if(!window.supervisorHasPrivilege('force_sync')){alert('Admin has not enabled sync privileges for this supervisor.');return;}
+    if(!cloud.sync_meta)cloud.sync_meta={};
+    cloud.sync_meta.lastSync=new Date().toLocaleString();
+    await pushCloud();
+    supervisorRenderConsole();
+    alert('Safe sync requested.');
+  };
+
+  // Safer Add Person override: keeps old behavior but initializes supervisor + permission stores.
+  window.adminAddPerson = async function(){
+    const nameBox=document.getElementById('new-person-name');
+    const valueBox=document.getElementById('new-person-value');
+    const emailBox=document.getElementById('new-person-email');
+    const n=(nameBox&&nameBox.value||'').trim();
+    let v=(valueBox&&valueBox.value||'').trim();
+    const e=(emailBox&&emailBox.value||'').trim();
+    if(!n){alert('Type the employee name first.');return;}
+    if(!v)v=slugName(n);
+    v=slugName(v);
+    ensureSupervisorStores();
+    if(!Array.isArray(cloud.profiles))cloud.profiles=[];
+    const existing=cloud.profiles.find(p=>p.val===v);
+    if(existing){existing.name=n;if(e)existing.email=e;}
+    else{const entry={name:n,val:v};if(e)entry.email=e;cloud.profiles.push(entry);}
+    if(!cloud.permissions)cloud.permissions={};
+    if(!cloud.permissions[v])cloud.permissions[v]={};
+    if(typeof hpPermissionKeys==='function')hpPermissionKeys().forEach(k=>{if(cloud.permissions[v][k[0]]===undefined)cloud.permissions[v][k[0]]=true;});
+    if(!cloud.frozen_users)cloud.frozen_users={};
+    if(cloud.frozen_users[v]===undefined)cloud.frozen_users[v]=false;
+    if(!cloud.daily_logs)cloud.daily_logs={};
+    if(!cloud.daily_logs[v])cloud.daily_logs[v]=[];
+    if(!cloud.employee_calculator)cloud.employee_calculator={};
+    if(!cloud.employee_calculator[v])cloud.employee_calculator[v]={profile:v};
+    if(!cloud.live_calculator)cloud.live_calculator={};
+    if(!cloud.supervisor_settings)cloud.supervisor_settings={};
+    if(!cloud.supervisor_settings[v])cloud.supervisor_settings[v]={isSupervisor:false};
+    if(!cloud.supervisor_privileges)cloud.supervisor_privileges={};
+    if(!cloud.supervisor_privileges[v])cloud.supervisor_privileges[v]=defaultSupervisorPrivileges(false);
+    await pushCloud();
+    if(nameBox)nameBox.value=''; if(valueBox)valueBox.value=''; if(emailBox)emailBox.value='';
+    try{renderLoginButtons();}catch(e){}
+    try{applyUI();}catch(e){}
+    alert((existing?'Updated ':'Added ')+n+' and saved profile setup.');
+  };
+
+  const oldApplyUI = window.applyUI;
+  if(typeof oldApplyUI==='function' && !oldApplyUI.__supervisorWrapped){
+    const wrapped=function(){
+      const r=oldApplyUI.apply(this,arguments);
+      try{ensureSupervisorStores();phase1RenderSupervisorSettings();phase1ApplySupervisorNotice();}catch(e){}
+      return r;
+    };
+    wrapped.__supervisorWrapped=true;
+    window.applyUI=wrapped;
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(function(){try{ensureSupervisorStores();phase1RenderSupervisorSettings();phase1ApplySupervisorNotice();}catch(e){}},800);
+    setTimeout(function(){try{ensureSupervisorStores();phase1RenderSupervisorSettings();phase1ApplySupervisorNotice();}catch(e){}},2200);
+  });
+})();
 </script>
 
 </body>
