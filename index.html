@@ -181,6 +181,23 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
 .daily-log-item{padding:6px;border-bottom:1px solid #e5e5e5;font-size:12px}
 .daily-log-item b{color:#111}
 .daily-hours-box{background:#eef8ff;border:1px solid #cfe4ff;border-radius:8px;padding:8px;margin:6px 0;font-size:12px}
+
+/* Admin Control Center additions */
+.acc-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.acc-card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px;font-size:12px}
+.acc-card-title{font-size:13px;font-weight:800;color:#0056b3;margin-bottom:8px}
+.acc-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #eee}
+.acc-row:last-child{border-bottom:none}
+.acc-pill{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800}
+.acc-ok{background:#d4edda;color:#1e7e34}
+.acc-warn{background:#fff3cd;color:#856404}
+.acc-bad{background:#f8d7da;color:#721c24}
+.perm-table{width:100%;border-collapse:collapse;font-size:11px}
+.perm-table th,.perm-table td{border-bottom:1px solid #eee;padding:5px;text-align:left}
+.perm-check{width:18px;height:18px}
+.permission-disabled{opacity:.55;pointer-events:none}
+.backup-box{width:100%;min-height:90px;font-family:monospace;font-size:10px;border:1px solid #ccc;border-radius:8px;padding:8px}
+
 </style>
 </head>
 <body>
@@ -291,6 +308,7 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
       <button class="admin-tab-btn" data-tab="data" onclick="switchTab('data')">&#x1F4C8; Data</button>
       <button class="admin-tab-btn" data-tab="settings" onclick="switchTab('settings')">&#x2699;&#xFE0F; Settings</button>
       <button class="admin-tab-btn" data-tab="assistant" onclick="switchTab('assistant')">&#x1F916; AI</button>
+      <button class="admin-tab-btn" data-tab="controlcenter" onclick="switchTab('controlcenter')">&#x1F6E1;&#xFE0F; Control</button>
     </div>
 
     <!-- OVERVIEW -->
@@ -491,6 +509,39 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
         <div id="ai-config-result"></div>
       </div>
     </div>
+
+    <!-- CONTROL CENTER -->
+    <div class="admin-tab-panel" id="admin-tab-controlcenter">
+      <div class="admin-sub" style="border:1px solid #0076d6;background:#f4fbff">
+        <div class="admin-sub-title" style="color:#0056b3">&#x1F6E1;&#xFE0F; Admin Control Center</div>
+        <div class="acc-grid">
+          <div class="acc-card">
+            <div class="acc-card-title">&#x1F4E1; Sync Health</div>
+            <div id="sync-health-dashboard">Loading sync health...</div>
+            <button class="sm-btn btn-blue" style="margin-top:8px" onclick="forceFullCloudSyncSafe()">Force Safe Sync</button>
+          </div>
+          <div class="acc-card">
+            <div class="acc-card-title">&#x1F511; Employee Permissions</div>
+            <div id="employee-permissions-table">Loading permissions...</div>
+          </div>
+          <div class="acc-card">
+            <div class="acc-card-title">&#x1F4BE; Backup / Restore</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+              <button class="sm-btn btn-green" onclick="createCloudBackup()">Create Backup</button>
+              <button class="sm-btn btn-blue" onclick="downloadCloudBackup()">Download Backup File</button>
+              <button class="sm-btn btn-yellow" onclick="copyCloudBackup()">Copy Backup JSON</button>
+            </div>
+            <textarea id="backup-output" class="backup-box" placeholder="Backup JSON appears here. Paste backup JSON here to restore."></textarea>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="sm-btn btn-red" onclick="restoreCloudBackup()" style="flex:1">Restore From Box</button>
+              <button class="sm-btn btn-dark" onclick="clearBackupBox()" style="flex:1">Clear Box</button>
+            </div>
+            <div style="font-size:10px;color:#856404;margin-top:6px">Restore merges data safely. It does not wipe JSONBin first.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /admin-panel -->
 
   <!-- ══ USER APP ══ -->
@@ -586,13 +637,13 @@ const HEADERS = {"X-Master-Key": MASTER_KEY, "X-Access-Key": MASTER_KEY, "Conten
 const SYNC_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
 const ADMIN_KEY = "__admin__";
 const MASTER_RECOVERY_KEY = "DOMSC-RECOVERY-2026";
-const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator"];
+const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions","sync_meta"];
 
 // ══════════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════════
 let cloud = {
-  is_locked: false, drafts: [], live_calculator: {}, daily_logs: {}, profile_pictures: {}, employee_calculator: {}, admin_pass: "2026", frozen_users: {},
+  is_locked: false, drafts: [], live_calculator: {}, daily_logs: {}, profile_pictures: {}, employee_calculator: {}, permissions: {}, sync_meta: {}, admin_pass: "2026", frozen_users: {},
   variables: {}, active_login_ips: {}, failed_admin_logins: [], banned_ips: [],
   global_alert: "", targets: {man1_8:26,man1_10:32.5,man2_8:32.5,man2_10:39},
   maintenance: {active:false,message:"",eta:""}, passcode_reset_requests: [],
@@ -635,6 +686,8 @@ async function pullCloud() {
       daily_logs:             d.daily_logs||{},
       profile_pictures:       d.profile_pictures||{},
       employee_calculator:    d.employee_calculator||{},
+      permissions:            d.permissions||{},
+      sync_meta:              d.sync_meta||{},
       daily_logs:             d.daily_logs||{},
       profile_pictures:       d.profile_pictures||{},
       employee_calculator:    d.employee_calculator||{},
@@ -710,6 +763,8 @@ function mergeCloudRecords(remote,local){
   merged.passcode_meta=Object.assign({},remote.passcode_meta||{},local.passcode_meta||{});
   merged.profile_notes=Object.assign({},remote.profile_notes||{},local.profile_notes||{});
   merged.profile_pictures=Object.assign({},remote.profile_pictures||{},local.profile_pictures||{});
+  merged.permissions=Object.assign({},remote.permissions||{},local.permissions||{});
+  merged.sync_meta=Object.assign({},remote.sync_meta||{},local.sync_meta||{});
   merged.live_calculator=newerProfileData(remote.live_calculator,local.live_calculator);
   merged.employee_calculator=newerProfileData(remote.employee_calculator,local.employee_calculator);
 
@@ -996,6 +1051,8 @@ async function pullCloudSilent() {
       daily_logs:d.daily_logs||{},
       profile_pictures:d.profile_pictures||{},
       employee_calculator:d.employee_calculator||{},
+      permissions:d.permissions||{},
+      sync_meta:d.sync_meta||{},
       daily_logs:d.daily_logs||{},
       profile_pictures:d.profile_pictures||{},
       employee_calculator:d.employee_calculator||{},
@@ -1091,6 +1148,7 @@ function profilePicMarkup(p){
   return `<div class="profile-initials">${initialsForName(p.name)}</div>`;
 }
 function setProfilePicFromFile(profileVal,input){
+  if(typeof getPerm==='function' && !getPerm(profileVal,'allow_profile_pic')){alert('Profile picture changes are disabled by admin.');return;}
   const file=input.files && input.files[0];
   if(!file)return;
   const reader=new FileReader();
@@ -1609,6 +1667,8 @@ function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['for
 
 // Save flow
 function showLunchModal(){
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  if(typeof getPerm==='function' && !getPerm(pv,'allow_save')){alert('Saving is disabled by admin.');return;}
   if((cloud.settings||{}).readonly){alert("View-only mode — saving is disabled.");return;}
   if((cloud.settings||{}).require_lunch===false){handleLunchDecision(null);return;}
   show('lunch-modal','flex');
@@ -1729,7 +1789,7 @@ async function aiApplyConfig(){
   if(!keys.length){cfgResult("No recognized keys.","err");return;}
   if(!confirm(`Apply ${keys.length} change(s)? Keys: ${keys.join(', ')}`))return;
   keys.forEach(k=>{
-    if(["targets","variables","maintenance","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
+    if(["targets","variables","maintenance","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions","sync_meta"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
     else cloud[k]=p[k];
   });
   await pushCloud();applyUI();cfgResult(`Applied: <b>${keys.join(', ')}</b>.`,"ok");$('ai-config-input').value="";
@@ -1748,10 +1808,171 @@ function $(id){return document.getElementById(id);}
 function show(id,d){const e=$(id);if(e)e.style.display=d||'block';}
 function hide(id){const e=$(id);if(e)e.style.display='none';}
 
+
+// ══════════════════════════════════════════════════════════════
+//  ADMIN CONTROL CENTER: permissions, sync health, backup/restore
+// ══════════════════════════════════════════════════════════════
+function ensureAdminControlStores(){
+  if(!cloud.permissions) cloud.permissions={};
+  if(!cloud.sync_meta) cloud.sync_meta={lastSync:"", failedSyncs:0, lastBackup:""};
+  (cloud.profiles||[]).forEach(p=>{
+    if(!cloud.permissions[p.val]){
+      cloud.permissions[p.val]={
+        allow_save:true,
+        allow_edit_quantities:true,
+        allow_profile_pic:true,
+        allow_passcode:true,
+        allow_biometrics:true,
+        allow_view_logs:true
+      };
+    }
+  });
+}
+function getPerm(profileVal,key){
+  ensureAdminControlStores();
+  const p=cloud.permissions[profileVal]||{};
+  return p[key]!==false;
+}
+async function setPerm(profileVal,key,val){
+  ensureAdminControlStores();
+  cloud.permissions[profileVal][key]=!!val;
+  await pushCloud();
+  applyPermissions();
+  updatePermissionsUI();
+}
+function applyPermissions(){
+  ensureAdminControlStores();
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  const p=cloud.permissions[pv]||{};
+
+  const saveBtn=document.querySelector('.save-btn');
+  if(saveBtn){
+    saveBtn.disabled=(p.allow_save===false);
+    saveBtn.style.opacity=(p.allow_save===false)?'.45':'1';
+    saveBtn.textContent=(p.allow_save===false)?'Saving Disabled by Admin':'💾 Save Daily Log';
+  }
+
+  document.querySelectorAll('.qty-input,.qty-btn').forEach(el=>{
+    el.disabled=(p.allow_edit_quantities===false);
+    el.classList.toggle('permission-disabled',p.allow_edit_quantities===false);
+  });
+
+  const picAllowed=p.allow_profile_pic!==false;
+  document.querySelectorAll('input[type="file"]').forEach(el=>{
+    el.disabled=!picAllowed;
+  });
+
+  ['passcode-set-btn','passcode-change-btn','passcode-remove-btn','bio-enable-btn','bio-disable-btn'].forEach(id=>{
+    const el=$(id);
+    if(el){
+      const isBio=id.indexOf('bio-')===0;
+      const allowed=isBio?(p.allow_biometrics!==false):(p.allow_passcode!==false);
+      el.disabled=!allowed;
+      el.style.opacity=allowed?'1':'.45';
+    }
+  });
+
+  const saved=$('profile-saved-files-list');
+  if(saved){
+    saved.style.display=(p.allow_view_logs===false)?'none':'block';
+  }
+}
+function updatePermissionsUI(){
+  const box=$('employee-permissions-table'); if(!box)return;
+  ensureAdminControlStores();
+  const keys=[
+    ['allow_save','Save'],
+    ['allow_edit_quantities','Edit Qty'],
+    ['allow_profile_pic','Profile Pic'],
+    ['allow_passcode','Passcode'],
+    ['allow_biometrics','Biometrics'],
+    ['allow_view_logs','View Logs']
+  ];
+  box.innerHTML=`<table class="perm-table"><thead><tr><th>Employee</th>${keys.map(k=>`<th>${k[1]}</th>`).join('')}</tr></thead><tbody>${
+    (cloud.profiles||[]).map(p=>`<tr><td><b>${p.name}</b></td>${
+      keys.map(k=>`<td><input class="perm-check" type="checkbox" ${getPerm(p.val,k[0])?'checked':''} onchange="setPerm('${p.val}','${k[0]}',this.checked)"></td>`).join('')
+    }</tr>`).join('')
+  }</tbody></table>`;
+}
+function estimateCloudSizeKB(){
+  try{return Math.round((JSON.stringify(cloud).length/1024)*10)/10;}catch(e){return 0;}
+}
+function updateSyncHealthDashboard(){
+  const box=$('sync-health-dashboard'); if(!box)return;
+  ensureAdminControlStores();
+  const sm=cloud.sync_meta||{};
+  const deviceCount=Object.keys(cloud.active_login_ips||{}).length;
+  const logsCount=Object.values(cloud.daily_logs||{}).reduce((a,b)=>a+(Array.isArray(b)?b.length:0),0);
+  const picsCount=Object.keys(cloud.profile_pictures||{}).length;
+  const size=estimateCloudSizeKB();
+  const status=(sm.failedSyncs||0)>0?'<span class="acc-pill acc-warn">Needs attention</span>':'<span class="acc-pill acc-ok">Healthy</span>';
+  box.innerHTML=`
+    <div class="acc-row"><span>Status</span>${status}</div>
+    <div class="acc-row"><span>Last Sync</span><b>${sm.lastSync||'Not recorded yet'}</b></div>
+    <div class="acc-row"><span>Failed Syncs</span><b>${sm.failedSyncs||0}</b></div>
+    <div class="acc-row"><span>Known Employee Devices</span><b>${deviceCount}</b></div>
+    <div class="acc-row"><span>Daily Logs Stored</span><b>${logsCount}</b></div>
+    <div class="acc-row"><span>Profile Pictures Stored</span><b>${picsCount}</b></div>
+    <div class="acc-row"><span>Cloud Size Estimate</span><b>${size} KB</b></div>
+    <div class="acc-row"><span>Last Backup</span><b>${sm.lastBackup||'None'}</b></div>
+  `;
+}
+async function forceFullCloudSyncSafe(){
+  ensureAdminControlStores();
+  if(typeof syncLocalStoresToCloud==='function') await syncLocalStoresToCloud();
+  if(typeof forceFullCloudSync==='function') await forceFullCloudSync();
+  await pushCloud();
+  updateSyncHealthDashboard();
+}
+function createCloudBackup(){
+  ensureAdminControlStores();
+  cloud.sync_meta.lastBackup=new Date().toLocaleString();
+  const backup={createdAt:new Date().toISOString(),app:"DOM/SC Norm 2026",record:cloud};
+  const out=$('backup-output');
+  if(out)out.value=JSON.stringify(backup,null,2);
+  pushCloud();
+  updateSyncHealthDashboard();
+}
+function copyCloudBackup(){
+  const out=$('backup-output');
+  if(!out||!out.value){alert('Create a backup first.');return;}
+  out.select();
+  document.execCommand('copy');
+  alert('Backup copied.');
+}
+function downloadCloudBackup(){
+  createCloudBackup();
+  const out=$('backup-output');
+  const blob=new Blob([out.value],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='DOMSC_JSONBin_Backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+async function restoreCloudBackup(){
+  const out=$('backup-output');
+  if(!out||!out.value.trim()){alert('Paste backup JSON first.');return;}
+  if(!confirm('Restore backup by safely merging it into current JSONBin data?'))return;
+  try{
+    const parsed=JSON.parse(out.value);
+    const record=parsed.record||parsed;
+    if(typeof mergeCloudRecords==='function') cloud=mergeCloudRecords(cloud,record);
+    else cloud=Object.assign({},cloud,record);
+    ensureAdminControlStores();
+    cloud.sync_meta.lastSync=new Date().toLocaleString();
+    await pushCloud();
+    applyUI();
+    alert('Backup restored safely.');
+  }catch(e){alert('Backup JSON is invalid.');}
+}
+function clearBackupBox(){const out=$('backup-output');if(out)out.value='';}
+
 // ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
 (async function init(){
+  if(typeof ensureAdminControlStores==='function')ensureAdminControlStores();
   const saved=localStorage.getItem('dom_sc_active_profile');
   if(saved&&!isDedicatedAdmin){
     hide('login-gateway-portal');
@@ -2068,3 +2289,4 @@ document.addEventListener("change", function(e){ if(e.target && e.target.closest
 </script>
 
 </body>
+</html>
