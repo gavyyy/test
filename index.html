@@ -1518,6 +1518,30 @@ body #user-app-elements #item-cards-container .item-total{
   .clock-btn{min-height:50px!important}
 }
 
+
+/* Phase 1 supervisor settings - safe role only */
+.phase1-supervisor-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  border-bottom:1px solid #eee;
+  padding:8px 0;
+}
+.phase1-supervisor-row:last-child{border-bottom:none}
+.phase1-supervisor-name{font-weight:800;color:#123}
+.phase1-supervisor-sub{font-size:10px;color:#777;margin-top:2px}
+.phase1-supervisor-badge{
+  display:inline-block;
+  background:#dbefff;
+  color:#075bbb;
+  border-radius:999px;
+  padding:3px 7px;
+  font-size:10px;
+  font-weight:900;
+  margin-left:5px;
+}
+
 </style>
 </head>
 <body>
@@ -1647,6 +1671,13 @@ body #user-app-elements #item-cards-container .item-total{
         <div style="background:#fff;border:1px solid #dbefff;border-radius:8px;padding:8px">
           <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F511; Employee Permissions</div>
           <div id="simple-employee-permissions">Loading employee permissions...</div>
+          
+          <div style="margin-top:10px;border-top:1px dashed #cfe4ff;padding-top:8px">
+            <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F9D1;&#x200D;&#x1F4BC; Supervisor Settings - Phase 1</div>
+            <div style="font-size:11px;color:#666;margin-bottom:6px">Turn an existing employee profile into a supervisor. This phase only saves the role and shows a supervisor notice; no extra powers are added yet.</div>
+            <div id="phase1-supervisor-settings" style="font-size:12px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px">Loading supervisor settings...</div>
+          </div>
+
           <div style="margin-top:10px;border-top:1px dashed #cfe4ff;padding-top:8px">
             <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F4E8; Employee Messages</div>
             <div id="admin-employee-messages" style="font-size:12px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px;max-height:180px;overflow:auto">No messages yet.</div>
@@ -1853,6 +1884,11 @@ body #user-app-elements #item-cards-container .item-total{
   <!-- ══ USER APP ══ -->
   <div id="user-app-elements">
     <select id="profile-select" style="display:none"><option value="default">Default / Custom</option></select>
+
+    <div id="phase1-supervisor-notice" style="display:none;background:#f4fbff;border:1px solid #b9dcff;border-radius:14px;padding:10px;margin:8px 0;color:#075bbb;font-size:12px;font-weight:800">
+      &#x1F9D1;&#x200D;&#x1F4BC; Supervisor profile enabled. Extra supervisor controls will be added in the next safe phase.
+    </div>
+
     <div class="crew-selection">
       <label class="crew-option"><input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything();saveFields()"> 1 Man</label>
       <label class="crew-option"><input type="radio" name="crew" value="2" id="crew-2" onchange="calculateEverything();saveFields()"> 2 Man</label>
@@ -1992,7 +2028,7 @@ const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variable
 //  STATE
 // ══════════════════════════════════════════════════════════════
 let cloud = {
-  is_locked: false, drafts: [], live_calculator: {}, daily_logs: {}, profile_pictures: {}, employee_calculator: {}, permissions: {}, sync_meta: {}, admin_pass: "2026", frozen_users: {},
+  is_locked: false, drafts: [], live_calculator: {}, daily_logs: {}, profile_pictures: {}, employee_calculator: {}, permissions: {}, sync_meta: {}, supervisor_settings: {}, admin_pass: "2026", frozen_users: {},
   variables: {}, active_login_ips: {}, failed_admin_logins: [], banned_ips: [],
   global_alert: "", targets: {man1_8:26,man1_10:32.5,man2_8:32.5,man2_10:39},
   maintenance: {active:false,message:"",eta:""}, passcode_reset_requests: [],
@@ -2037,6 +2073,7 @@ async function pullCloud() {
       employee_messages:      d.employee_messages||[],
       permissions:            d.permissions||{},
       sync_meta:              d.sync_meta||{},
+      supervisor_settings:     d.supervisor_settings||{},
       employee_calculator:    d.employee_calculator||{},
       permissions:            d.permissions||{},
       sync_meta:              d.sync_meta||{},
@@ -2115,6 +2152,7 @@ function mergeCloudRecords(remote,local){
   merged.passcode_meta=Object.assign({},remote.passcode_meta||{},local.passcode_meta||{});
   merged.profile_notes=Object.assign({},remote.profile_notes||{},local.profile_notes||{});
   merged.profile_pictures=Object.assign({},remote.profile_pictures||{},local.profile_pictures||{});
+  merged.supervisor_settings=Object.assign({},remote.supervisor_settings||{},local.supervisor_settings||{});
   merged.live_calculator=newerProfileData(remote.live_calculator,local.live_calculator);
   merged.employee_calculator=newerProfileData(remote.employee_calculator,local.employee_calculator);
 
@@ -2630,11 +2668,11 @@ function applyUI() {
     if(mb){mb.textContent=m.active?"MAINTENANCE ACTIVE":"SITE LIVE";mb.className="maint-status-badge "+(m.active?"maint-on":"maint-off");}
     ['t-1-8','t-1-10','t-2-8','t-2-10'].forEach((id,i)=>{const el=$(id);if(el)el.value=[cloud.targets.man1_8,cloud.targets.man1_10,cloud.targets.man2_8,cloud.targets.man2_10][i];});
     updateAdminSecStatus(); updateAdminPeople(); updateAdminDrafts(); updateResetRequests(); updateBannedIPs(); updateSettingsUI();
-    updateAlertLevelBtns(); if(typeof hpRefresh==='function')hpRefresh(); if(typeof employeeRefreshFeatures==='function')employeeRefreshFeatures(); renderAdminLiveCalculatorView();
+    updateAlertLevelBtns(); if(typeof phase1RenderSupervisorSettings==='function')phase1RenderSupervisorSettings(); if(typeof phase1ApplySupervisorNotice==='function')phase1ApplySupervisorNotice(); if(typeof hpRefresh==='function')hpRefresh(); if(typeof employeeRefreshFeatures==='function')employeeRefreshFeatures(); renderAdminLiveCalculatorView();
   }
   calculateEverything();
   // User security panel (async, fire and forget — won't break anything)
-  updateSecurityPanel(); if(typeof hpApplyPermissions==='function')hpApplyPermissions(); if(typeof employeeRefreshFeatures==='function')employeeRefreshFeatures();
+  updateSecurityPanel(); if(typeof phase1ApplySupervisorNotice==='function')phase1ApplySupervisorNotice(); if(typeof hpApplyPermissions==='function')hpApplyPermissions(); if(typeof employeeRefreshFeatures==='function')employeeRefreshFeatures();
 }
 function rebuildItems() {
   saveQtyByName();
@@ -3542,6 +3580,7 @@ setInterval(async function(){
       settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{}),
       profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
       employee_calculator:d.employee_calculator||cloud.employee_calculator||{},
+      supervisor_settings:d.supervisor_settings||cloud.supervisor_settings||{},
       deleted_vars:d.deleted_vars||[]
     });
     if(cloud.banned_ips.includes(localIP)){document.getElementById('banned-screen').style.display='flex';return;}
@@ -4086,6 +4125,72 @@ document.addEventListener('DOMContentLoaded',function(){
   setTimeout(refreshClockDisplays,700);
   setTimeout(refreshClockDisplays,1800);
   setTimeout(function(){if(typeof applyClockAccessPermission==='function')applyClockAccessPermission();},2200);
+});
+</script>
+
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  PHASE 1 SUPERVISOR SETTINGS - SAFE ROLE ONLY
+//  Adds supervisor role toggles without changing calculator/login logic.
+// ══════════════════════════════════════════════════════════════
+function phase1SupervisorEnsure(){
+  if(!window.cloud)return;
+  if(!cloud.supervisor_settings)cloud.supervisor_settings={};
+}
+function phase1SupervisorName(profileVal){
+  const p=(cloud.profiles||[]).find(x=>x.val===profileVal);
+  return p?p.name:profileVal;
+}
+function phase1IsSupervisor(profileVal){
+  phase1SupervisorEnsure();
+  const s=(cloud.supervisor_settings||{})[profileVal||localStorage.getItem('dom_sc_active_profile')||'default'];
+  return !!(s&&s.isSupervisor===true);
+}
+async function phase1SetSupervisor(profileVal,on){
+  phase1SupervisorEnsure();
+  const old=cloud.supervisor_settings[profileVal]||{};
+  cloud.supervisor_settings[profileVal]=Object.assign({},old,{
+    isSupervisor:!!on,
+    updatedAt:new Date().toLocaleString(),
+    updatedAtISO:new Date().toISOString(),
+    updatedBy:localStorage.getItem('dom_sc_active_profile')||'admin'
+  });
+  try{await pushCloud();}catch(e){}
+  phase1RenderSupervisorSettings();
+  phase1ApplySupervisorNotice();
+  try{renderLoginButtons();}catch(e){}
+}
+function phase1RenderSupervisorSettings(){
+  const box=document.getElementById('phase1-supervisor-settings');
+  if(!box)return;
+  phase1SupervisorEnsure();
+  const profiles=cloud.profiles||[];
+  if(!profiles.length){
+    box.innerHTML='<div style="color:#888">No profiles found.</div>';
+    return;
+  }
+  box.innerHTML=profiles.map(p=>{
+    const checked=phase1IsSupervisor(p.val)?'checked':'';
+    const badge=checked?'<span class="phase1-supervisor-badge">Supervisor</span>':'';
+    return `<label class="phase1-supervisor-row">
+      <span>
+        <span class="phase1-supervisor-name">${p.name||p.val}</span>${badge}
+        <div class="phase1-supervisor-sub">${p.val}</div>
+      </span>
+      <input type="checkbox" ${checked} onchange="phase1SetSupervisor('${p.val}',this.checked)" style="width:22px;height:22px">
+    </label>`;
+  }).join('');
+}
+function phase1ApplySupervisorNotice(){
+  const notice=document.getElementById('phase1-supervisor-notice');
+  if(!notice)return;
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  notice.style.display=phase1IsSupervisor(pv)?'block':'none';
+}
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){phase1RenderSupervisorSettings();phase1ApplySupervisorNotice();},900);
+  setTimeout(function(){phase1RenderSupervisorSettings();phase1ApplySupervisorNotice();},2200);
 });
 </script>
 
