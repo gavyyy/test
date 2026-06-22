@@ -507,7 +507,6 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
         <div class="input-group"><label>Start Time</label><input type="time" id="start-time" class="text-input" onchange="saveFields()"></div>
         <div class="input-group"><label>End Time</label><input type="time" id="end-time" class="text-input" onchange="saveFields()"></div>
       </div>
-      <div class="input-group"><label>Break Minutes</label><input type="number" id="break-minutes" class="text-input" min="0" step="1" placeholder="Example: 30" oninput="saveFields();calculateEverything()"></div>
     </div>
     <div id="item-cards-container"></div>
     <div class="total-banner"><span>Total Units:</span><span id="grand-total">0.00</span></div>
@@ -1445,10 +1444,9 @@ function minutesFromTime(t){
 function formatHours(n){
   return (Math.round((n||0)*100)/100).toFixed(2);
 }
-function dailyTimeSummary(){
+function dailyTimeSummary(tookLunch){
   const start=(($('start-time')||{}).value)||'';
   const end=(($('end-time')||{}).value)||'';
-  const breakMinutes=parseInt((($('break-minutes')||{}).value)||'0')||0;
   const s=minutesFromTime(start), e0=minutesFromTime(end);
   let totalMinutes=0;
   if(s!==null && e0!==null){
@@ -1456,8 +1454,13 @@ function dailyTimeSummary(){
     if(e<s) e+=24*60;
     totalMinutes=Math.max(0,e-s);
   }
-  const unpaidBreakMinutes=Math.max(0,breakMinutes-30);
+
+  // Uses the existing daily save lunch question.
+  // A normal lunch/break is recorded as 30 minutes and does not deduct extra unpaid time here.
+  const breakMinutes = tookLunch === true ? 30 : 0;
+  const unpaidBreakMinutes = 0;
   const paidMinutes=Math.max(0,totalMinutes-unpaidBreakMinutes);
+
   return {
     start:start,
     end:end,
@@ -1485,7 +1488,6 @@ function saveFields(){
   localStorage.setItem(p+'member',$('crew-member-name').value);
   localStorage.setItem(p+'start',$('start-time').value);
   localStorage.setItem(p+'end',$('end-time').value);
-  if($('break-minutes')) localStorage.setItem(p+'break',$('break-minutes').value);
   scheduleLiveCalculatorState();
 }
 function loadSavedData(){
@@ -1497,7 +1499,6 @@ function loadSavedData(){
   $('crew-member-name').value=localStorage.getItem(p+'member')||"";
   $('start-time').value=localStorage.getItem(p+'start')||"";
   $('end-time').value=localStorage.getItem(p+'end')||"";
-  if($('break-minutes')) $('break-minutes').value=localStorage.getItem(p+'break')||"";
   restoreQtyByName();
   calculateEverything(); renderProfileFiles(); updateSecurityPanel();
 }
@@ -1525,7 +1526,7 @@ function calculateEverything(){
   scheduleLiveCalculatorState();
 }
 function setRemain(id,v){const el=$(id);if(!el)return;if(v<=0){el.textContent="MET (+"+Math.abs(v).toFixed(2)+")";el.className="metric-value rem-pos";}else{el.textContent=v.toFixed(2)+" left";el.className="metric-value rem-neg";}}
-function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end','break'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time','break-minutes'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+qtyNameKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
+function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+qtyNameKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
 
 // Save flow
 function showLunchModal(){
@@ -1536,7 +1537,7 @@ function showLunchModal(){
 function handleLunchDecision(took){hide('lunch-modal');performSave(took);}
 async function performSave(took){
   const pv=localStorage.getItem('dom_sc_active_profile')||'default';
-  const timeSummary=dailyTimeSummary();
+  const timeSummary=dailyTimeSummary(took);
   const itemRows=getDailyItemRows();
   const entry={
     timestamp:new Date().toLocaleString(),
@@ -1554,7 +1555,7 @@ async function performSave(took){
   saves.push(entry);
   await saveCloudProfileLogs(pv, saves);
   renderProfileFiles();
-  alert('Daily log saved to JSONBin. Paid hours: '+timeSummary.paidHours+' hrs. Unpaid break: '+timeSummary.unpaidBreakMinutes+' min.');
+  alert('Daily log saved to JSONBin. Hours saved from start/end time. Lunch/break recorded from save question.');
 }
 function renderProfileFiles(){
   const el=$('profile-saved-files-list'); if(!el)return;
@@ -1792,7 +1793,7 @@ document.addEventListener("change", function(e){ if(e.target && e.target.closest
       member: getFieldValue("crew-member-name"),
       start: getFieldValue("start-time"),
       end: getFieldValue("end-time"),
-      breakMinutes: getFieldValue("break-minutes"),
+      
       quantities: quantities
     };
   }
@@ -1810,8 +1811,7 @@ document.addEventListener("change", function(e){ if(e.target && e.target.closest
     setFieldValue("crew-member-name", data.member);
     setFieldValue("start-time", data.start);
     setFieldValue("end-time", data.end);
-    setFieldValue("break-minutes", data.breakMinutes);
-
+    
     const q = data.quantities || {};
     if(window.items && Array.isArray(items)){
       items.forEach((it,i)=>{
@@ -1931,7 +1931,7 @@ document.addEventListener("change", function(e){ if(e.target && e.target.closest
         crew: (document.querySelector('input[name="crew"]:checked') || {}).value || "1",
         totalUnits: parseFloat((document.getElementById("grand-total") || {}).textContent || "0") || 0,
         lunch: took,
-        time: dailyTimeSummary(),
+        time: dailyTimeSummary(took),
         items: getDailyItemRows()
       };
       const logs = getCloudProfileLogs(pv);
