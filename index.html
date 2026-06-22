@@ -5324,7 +5324,7 @@ document.addEventListener('DOMContentLoaded',function(){
         const t=e.target;
         if(!t || !t.closest) return;
         if(t.closest('#auth-modal-overlay')) return;
-        if(t.matches('input,select,textarea')) scheduleSave('field '+evt, evt==='input'?1300:800);
+        if(t.matches('input,select,textarea')) scheduleSave('field '+evt, evt==='input'?2400:1200);
       },true);
     });
     window.addEventListener('beforeunload',function(){
@@ -5534,7 +5534,7 @@ document.addEventListener('DOMContentLoaded',function(){
     saveBadge('Watching','info');
     setSaveDetails('Universal auto-save is active. Any cloud data change will queue one safe JSONBin save.');
     setTimeout(function(){try{organizeAdminControls();enhanceSupervisorRenderer();wrapSupervisorSetters();window.DOMSC_WATCH_CLOUD();}catch(e){}},1000);
-    setInterval(function(){try{window.DOMSC_WATCH_CLOUD();}catch(e){}},5000);
+    // Lag fix: removed repeated full cloud re-watch. Cloud is wrapped on load and after pulls/saves.
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
@@ -6209,8 +6209,7 @@ document.addEventListener('DOMContentLoaded',function(){
       const admin = t.closest && t.closest('#admin-panel');
       const app = t.closest && t.closest('#main-app-container');
       if(admin || app){
-        watchCloud();
-        scheduleSave('UI changed: ' + (t.id || t.name || t.type || t.tagName), 1000);
+        scheduleSave('UI changed: ' + (t.id || t.name || t.type || t.tagName), 1800);
       }
     }, true);
     document.addEventListener('input', function(e){
@@ -6218,8 +6217,7 @@ document.addEventListener('DOMContentLoaded',function(){
       if(!t) return;
       const admin = t.closest && t.closest('#admin-panel');
       if(admin){
-        watchCloud();
-        scheduleSave('admin input changed: ' + (t.id || t.name || t.type || t.tagName), 1500);
+        scheduleSave('admin input changed: ' + (t.id || t.name || t.type || t.tagName), 2200);
       }
     }, true);
     document.addEventListener('click', function(e){
@@ -6229,8 +6227,7 @@ document.addEventListener('DOMContentLoaded',function(){
       const app = b.closest('#main-app-container');
       if(admin || app){
         setTimeout(function(){
-          watchCloud();
-          scheduleSave('button used: ' + (b.textContent || b.id || 'control').trim().slice(0,60), 950);
+          scheduleSave('button used: ' + (b.textContent || b.id || 'control').trim().slice(0,60), 1600);
         }, 120);
       }
     }, true);
@@ -6423,8 +6420,8 @@ document.addEventListener('DOMContentLoaded',function(){
     setBadge('Watching','info');
     setDetails('Save Everything is active. App data changes queue one safe JSONBin save automatically.');
     setTimeout(function(){ watchCloud(); wrapKnownChanges(); organizeAdminMobile(); }, 800);
-    setInterval(function(){ watchCloud(); wrapKnownChanges(); }, 4000);
-    setInterval(function(){ organizeAdminMobile(); }, 6000);
+    // Lag fix: removed repeated watchCloud/wrapKnownChanges loop. Changes still save through event listeners and wrapped save functions.
+    // Lag fix: removed repeated admin reorganize loop. Admin layout is organized on load and tab changes.
   }
 
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootV2);
@@ -7137,7 +7134,657 @@ document.addEventListener('DOMContentLoaded',function(){
     protectPullCloud();
     renderAll();
     setTimeout(function(){ensureStores(cloudSafe()||{}); ensureUI(); wrapKnown(); protectPullCloud(); renderAll();},700);
-    setInterval(function(){ensureStores(cloudSafe()||{}); ensureUI(); wrapKnown(); renderAll();},5000);
+    // Lag fix: removed repeated admin feature render loop. Refresh manually or after changes.
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
+
+<!-- DOM/SC Norm 2026 — NO-LAG OPTIMIZED BUILD: repeated background render loops removed -->
+<!-- DOM/SC Norm 2026 — Operations Features Add-On
+Adds: role templates, employee status board, employee request inbox,
+admin announcements, and end-of-day submit.
+Safe add-on only: does not rebuild or remove existing app code. -->
+<style>
+/* ══════════════════════════════════════════════════════════════
+   DOM/SC OPERATIONS FEATURES — MOBILE ADMIN + EMPLOYEE UPGRADES
+   ══════════════════════════════════════════════════════════════ */
+.domsc-ops-card{
+  background:linear-gradient(180deg,#ffffff,#f7fbff)!important;
+  border:1px solid #dce8f7!important;
+  border-radius:18px!important;
+  padding:12px!important;
+  margin:10px 0!important;
+  box-shadow:0 10px 26px rgba(7,30,61,.09)!important;
+}
+.domsc-ops-head{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  margin-bottom:8px!important;
+}
+.domsc-ops-title{
+  font-size:14px!important;
+  font-weight:950!important;
+  color:#075bbb!important;
+  letter-spacing:-.01em!important;
+}
+.domsc-ops-sub{
+  font-size:11px!important;
+  color:#687586!important;
+  font-weight:700!important;
+  margin-bottom:8px!important;
+}
+.domsc-ops-grid{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+}
+.domsc-ops-row{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+  padding:8px 0!important;
+  border-bottom:1px solid #eef2f7!important;
+  font-size:12px!important;
+}
+.domsc-ops-row:last-child{border-bottom:none!important}
+.domsc-ops-pill{
+  display:inline-block!important;
+  border-radius:999px!important;
+  padding:3px 8px!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  background:#e9f5fe!important;
+  color:#075bbb!important;
+  border:1px solid #cfe4ff!important;
+  white-space:nowrap!important;
+}
+.domsc-ops-pill.ok{background:#e8f5e9!important;color:#1e7e34!important;border-color:#bce6c9!important}
+.domsc-ops-pill.warn{background:#fff3cd!important;color:#856404!important;border-color:#ffe8a1!important}
+.domsc-ops-pill.bad{background:#fde8e8!important;color:#c5221f!important;border-color:#f5c6cb!important}
+.domsc-ops-input,
+.domsc-ops-card input,
+.domsc-ops-card select,
+.domsc-ops-card textarea{
+  width:100%!important;
+  padding:9px!important;
+  border:1px solid #dce8f7!important;
+  border-radius:12px!important;
+  background:#fbfdff!important;
+  font-size:13px!important;
+}
+.domsc-ops-card textarea{min-height:74px!important;resize:vertical!important}
+.domsc-ops-actions{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+  margin-top:8px!important;
+}
+.domsc-status-card{
+  background:#fff!important;
+  border:1px solid #e8eef7!important;
+  border-radius:14px!important;
+  padding:9px!important;
+  font-size:12px!important;
+}
+.domsc-status-name{font-weight:950!important;color:#102033!important;margin-bottom:5px!important}
+.domsc-status-tags{display:flex!important;flex-wrap:wrap!important;gap:4px!important}
+.domsc-announcement-employee{
+  background:linear-gradient(135deg,#fff7e6,#fffdf7)!important;
+  border:1px solid #ffd58a!important;
+  border-radius:16px!important;
+  padding:12px!important;
+  margin:10px 0!important;
+  box-shadow:0 8px 22px rgba(182,120,20,.10)!important;
+}
+.domsc-announcement-employee b{color:#9a5a00!important}
+.domsc-request-item,.domsc-submit-item,.domsc-inbox-item{
+  background:#fff!important;
+  border:1px solid #e8eef7!important;
+  border-radius:12px!important;
+  padding:9px!important;
+  margin:7px 0!important;
+  font-size:12px!important;
+}
+@media(max-width:720px){
+  .domsc-ops-grid{grid-template-columns:1fr!important}
+  .domsc-ops-head{align-items:flex-start!important;flex-direction:column!important}
+  .domsc-ops-row{align-items:flex-start!important;flex-direction:column!important}
+  .domsc-ops-actions{display:grid!important;grid-template-columns:1fr!important}
+  .domsc-ops-actions button,.domsc-ops-card button{min-height:42px!important;width:100%!important}
+  .domsc-status-tags{gap:6px!important}
+  .domsc-ops-card{padding:11px!important;border-radius:16px!important}
+}
+</style>
+
+<script>
+(function(){
+  if(window.__DOMSC_OPERATIONS_FEATURES_V1__) return;
+  window.__DOMSC_OPERATIONS_FEATURES_V1__ = true;
+
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function js(s){return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n').replace(/\r/g,'');}
+  function nowISO(){return new Date().toISOString();}
+  function nowLocal(){return new Date().toLocaleString();}
+  function todayISO(){return new Date().toISOString().slice(0,10);}
+  function activeProfile(){return localStorage.getItem('dom_sc_active_profile')||'default';}
+  function profileName(v){
+    try{
+      var p=(cloud.profiles||[]).find(function(x){return String(x.val)===String(v);});
+      return (p&&p.name)||v||'Unknown';
+    }catch(e){return v||'Unknown';}
+  }
+  function canAdmin(){try{return !!isAdmin;}catch(e){return false;}}
+  function canSupervisor(){
+    try{
+      if(typeof supervisorIsCurrentProfile==='function') return supervisorIsCurrentProfile();
+      var pv=activeProfile();
+      return !!((cloud.supervisor_settings||{})[pv]||{}).isSupervisor;
+    }catch(e){return false;}
+  }
+  function profileList(){
+    try{return Array.isArray(cloud.profiles)?cloud.profiles:[];}catch(e){return [];}
+  }
+  function saveSoon(reason){
+    try{
+      if(typeof DOMSC_ADD_AUDIT==='function') DOMSC_ADD_AUDIT('Data changed',reason||'Operations feature saved a change.','ok',false);
+    }catch(e){}
+    try{
+      if(typeof DOMSC_FORCE_JSONBIN_SAVE==='function') return DOMSC_FORCE_JSONBIN_SAVE();
+      if(typeof pushCloud==='function') return pushCloud();
+    }catch(e){}
+  }
+  function safeAudit(action,detail,kind){
+    try{
+      if(typeof DOMSC_ADD_AUDIT==='function') DOMSC_ADD_AUDIT(action,detail||'',kind||'ok');
+    }catch(e){}
+  }
+
+  function defaultPermsForRole(role){
+    var base={
+      allow_save:true,
+      allow_edit_quantities:true,
+      allow_clear:true,
+      allow_clock:true,
+      allow_view_logs:true,
+      allow_account_security:true,
+      allow_passcode:true,
+      allow_biometrics:true,
+      allow_admin_request:true,
+      allow_profile_pic:true
+    };
+    if(role==='viewer'){
+      base.allow_save=false; base.allow_edit_quantities=false; base.allow_clear=false; base.allow_clock=false;
+    }
+    if(role==='limited'){
+      base.allow_clear=false; base.allow_account_security=false; base.allow_passcode=false; base.allow_biometrics=false;
+    }
+    return base;
+  }
+
+  function defaultSupervisorPrivs(role){
+    var off={
+      view_health:false, view_live:false, view_logs:false, view_messages:false,
+      send_alerts:false, freeze_users:false, force_sync:false, edit_targets:false,
+      manage_permissions:false, manage_passcodes:false
+    };
+    if(role==='lead'){
+      off.view_live=true; off.view_logs=true; off.view_messages=true; off.send_alerts=true;
+    }
+    if(role==='supervisor'){
+      off.view_health=true; off.view_live=true; off.view_logs=true; off.view_messages=true;
+      off.send_alerts=true; off.freeze_users=true; off.force_sync=true;
+      off.manage_passcodes=true;
+    }
+    if(role==='manager' || role==='admin_assistant'){
+      Object.keys(off).forEach(function(k){off[k]=true;});
+    }
+    return off;
+  }
+
+  function ensureOpsStores(){
+    if(!window.cloud) return;
+    if(!cloud.permissions) cloud.permissions={};
+    if(!cloud.supervisor_settings) cloud.supervisor_settings={};
+    if(!cloud.supervisor_privileges) cloud.supervisor_privileges={};
+    if(!Array.isArray(cloud.employee_requests)) cloud.employee_requests=[];
+    if(!Array.isArray(cloud.announcements)) cloud.announcements=[];
+    if(!Array.isArray(cloud.day_submissions)) cloud.day_submissions=[];
+    if(!cloud.role_assignments) cloud.role_assignments={};
+    if(!cloud.employee_status_notes) cloud.employee_status_notes={};
+    profileList().forEach(function(p){
+      if(!cloud.permissions[p.val]) cloud.permissions[p.val]=defaultPermsForRole('employee');
+      if(!cloud.supervisor_settings[p.val]) cloud.supervisor_settings[p.val]={isSupervisor:false,updatedAtISO:nowISO()};
+      if(!cloud.supervisor_privileges[p.val]) cloud.supervisor_privileges[p.val]=defaultSupervisorPrivs('employee');
+    });
+  }
+
+  function getTodaysLogs(profileVal){
+    var arr=((cloud.daily_logs||{})[profileVal]||[]);
+    return arr.filter(function(x){return String(x.timestampISO||'').slice(0,10)===todayISO() || String(x.timestamp||'').includes(new Date().toLocaleDateString());});
+  }
+  function getTodaySubmission(profileVal){
+    var arr=cloud.day_submissions||[];
+    for(var i=arr.length-1;i>=0;i--){
+      if(arr[i].profile===profileVal && arr[i].date===todayISO()) return arr[i];
+    }
+    return null;
+  }
+  function clockedStatus(profileVal){
+    var d=(cloud.employee_calculator||{})[profileVal] || {};
+    var live=(cloud.live_calculator||{})[profileVal] || {};
+    var inTime=d.clockInDisplay||d.start||live.start||'';
+    var outTime=d.clockOutDisplay||d.end||live.end||'';
+    if(inTime && !outTime) return 'Clocked In';
+    if(inTime && outTime) return 'Clocked Out';
+    return 'No Clock';
+  }
+
+  function renderStatusBoard(){
+    ensureOpsStores();
+    var box=$('domsc-status-board-body'); if(!box) return;
+    var profiles=profileList();
+    if(!profiles.length){box.innerHTML='<div class="domsc-ops-sub">No employee profiles yet.</div>';return;}
+    box.innerHTML=profiles.map(function(p){
+      var logs=getTodaysLogs(p.val);
+      var units=logs.reduce(function(a,b){return a+(Number(b.totalUnits||0)||0);},0);
+      var sup=!!((cloud.supervisor_settings||{})[p.val]||{}).isSupervisor;
+      var frozen=!!((cloud.frozen_users||{})[p.val]);
+      var submitted=!!getTodaySubmission(p.val);
+      var status=clockedStatus(p.val);
+      var pass=!!((cloud.passcodes||{})[p.val]);
+      var tags='';
+      tags+='<span class="domsc-ops-pill '+(status==='Clocked In'?'ok':status==='Clocked Out'?'warn':'')+'">'+esc(status)+'</span>';
+      tags+='<span class="domsc-ops-pill '+(logs.length?'ok':'warn')+'">'+logs.length+' log(s)</span>';
+      tags+='<span class="domsc-ops-pill">'+units.toFixed(2)+' units</span>';
+      if(submitted) tags+='<span class="domsc-ops-pill ok">Day Submitted</span>';
+      if(frozen) tags+='<span class="domsc-ops-pill bad">Frozen</span>';
+      if(sup) tags+='<span class="domsc-ops-pill ok">Supervisor</span>';
+      if(!pass) tags+='<span class="domsc-ops-pill warn">No Passcode</span>';
+      return '<div class="domsc-status-card"><div class="domsc-status-name">'+esc(p.name||p.val)+'</div><div class="domsc-status-tags">'+tags+'</div></div>';
+    }).join('');
+  }
+
+  function renderRoleTemplates(){
+    ensureOpsStores();
+    var box=$('domsc-role-templates-body'); if(!box) return;
+    var opts=profileList().map(function(p){return '<option value="'+esc(p.val)+'">'+esc(p.name||p.val)+'</option>';}).join('');
+    box.innerHTML=
+      '<div class="domsc-ops-sub">Pick an employee and apply a preset. Admin can still edit individual permissions after this.</div>'+
+      '<div class="domsc-ops-grid">'+
+        '<div><label style="font-size:11px;font-weight:900">Employee</label><select id="domsc-role-profile">'+opts+'</select></div>'+
+        '<div><label style="font-size:11px;font-weight:900">Role Template</label><select id="domsc-role-template">'+
+          '<option value="employee">Employee</option>'+
+          '<option value="limited">Limited Employee</option>'+
+          '<option value="lead">Lead Employee</option>'+
+          '<option value="supervisor">Supervisor</option>'+
+          '<option value="manager">Manager</option>'+
+          '<option value="admin_assistant">Admin Assistant</option>'+
+          '<option value="viewer">View Only</option>'+
+        '</select></div>'+
+      '</div>'+
+      '<div class="domsc-ops-actions"><button class="sm-btn btn-green" type="button" onclick="DOMSC_APPLY_ROLE_TEMPLATE()">Apply Role Template</button><button class="sm-btn btn-blue" type="button" onclick="DOMSC_RENDER_OPERATIONS_FEATURES()">Refresh</button></div>';
+  }
+
+  function renderRequestsInbox(){
+    ensureOpsStores();
+    var box=$('domsc-requests-inbox-body'); if(!box) return;
+    var reqs=(cloud.employee_requests||[]).slice().sort(function(a,b){return (Date.parse(b.timeISO||0)||0)-(Date.parse(a.timeISO||0)||0);});
+    if(!reqs.length){box.innerHTML='<div class="domsc-ops-sub">No employee requests yet.</div>';return;}
+    box.innerHTML=reqs.slice(0,80).map(function(r){
+      var cls=r.status==='closed'?'ok':r.priority==='urgent'?'bad':'warn';
+      return '<div class="domsc-inbox-item">'+
+        '<div class="domsc-ops-row"><div><b>'+esc(profileName(r.profile))+'</b><br><span style="color:#687586">'+esc(r.time||r.timeISO||'')+'</span></div><span class="domsc-ops-pill '+cls+'">'+esc(r.status||'open')+'</span></div>'+
+        '<div><b>'+esc(r.type||'Request')+'</b></div>'+
+        '<div style="white-space:pre-wrap">'+esc(r.message||'')+'</div>'+
+        '<div class="domsc-ops-actions">'+
+          '<button class="sm-btn btn-green" type="button" onclick="DOMSC_SET_REQUEST_STATUS(\''+js(r.id)+'\',\'closed\')">Mark Done</button>'+
+          '<button class="sm-btn btn-yellow" type="button" onclick="DOMSC_SET_REQUEST_STATUS(\''+js(r.id)+'\',\'open\')">Reopen</button>'+
+          '<button class="sm-btn btn-red" type="button" onclick="DOMSC_DELETE_REQUEST(\''+js(r.id)+'\')">Delete</button>'+
+        '</div></div>';
+    }).join('');
+  }
+
+  function renderAnnouncementCenter(){
+    ensureOpsStores();
+    var box=$('domsc-announcement-center-body'); if(!box) return;
+    var opts='<option value="all">All Employees</option>'+profileList().map(function(p){return '<option value="'+esc(p.val)+'">'+esc(p.name||p.val)+'</option>';}).join('');
+    var list=(cloud.announcements||[]).slice().sort(function(a,b){return (Date.parse(b.timeISO||0)||0)-(Date.parse(a.timeISO||0)||0);}).slice(0,30);
+    box.innerHTML=
+      '<div class="domsc-ops-grid">'+
+        '<div><label style="font-size:11px;font-weight:900">Send To</label><select id="domsc-ann-target">'+opts+'</select></div>'+
+        '<div><label style="font-size:11px;font-weight:900">Priority</label><select id="domsc-ann-priority"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select></div>'+
+      '</div>'+
+      '<textarea id="domsc-ann-message" placeholder="Type announcement..."></textarea>'+
+      '<div class="domsc-ops-actions"><button class="sm-btn btn-blue" type="button" onclick="DOMSC_SEND_ANNOUNCEMENT()">Send Announcement</button><button class="sm-btn btn-red" type="button" onclick="DOMSC_CLEAR_ANNOUNCEMENTS()">Clear All</button></div>'+
+      '<div style="margin-top:8px">'+(list.length?list.map(function(a){
+        var cls=a.priority==='urgent'?'bad':a.priority==='important'?'warn':'';
+        return '<div class="domsc-request-item"><div class="domsc-ops-row"><b>'+esc(a.target==='all'?'All Employees':profileName(a.target))+'</b><span class="domsc-ops-pill '+cls+'">'+esc(a.priority||'normal')+'</span></div><div style="white-space:pre-wrap">'+esc(a.message||'')+'</div><div style="font-size:10px;color:#687586;margin-top:4px">'+esc(a.time||'')+'</div><button class="sm-btn btn-red" type="button" onclick="DOMSC_DELETE_ANNOUNCEMENT(\''+js(a.id)+'\')">Remove</button></div>';
+      }).join(''):'<div class="domsc-ops-sub">No announcements yet.</div>')+'</div>';
+  }
+
+  function renderEmployeeAnnouncements(){
+    ensureOpsStores();
+    var wrap=$('domsc-employee-announcements');
+    var anchor=$('user-app-elements');
+    if(!wrap && anchor){
+      wrap=document.createElement('div');
+      wrap.id='domsc-employee-announcements';
+      var h2=document.querySelector('#main-app-container h2');
+      if(h2 && h2.parentNode) h2.parentNode.insertBefore(wrap,h2.nextSibling);
+      else anchor.insertBefore(wrap,anchor.firstChild);
+    }
+    if(!wrap) return;
+    var pv=activeProfile();
+    var anns=(cloud.announcements||[]).filter(function(a){
+      if(a.closed) return false;
+      if(a.target!=='all' && a.target!==pv) return false;
+      if((a.ack||{})[pv]) return false;
+      return true;
+    }).slice(-5).reverse();
+    if(!anns.length){wrap.innerHTML='';return;}
+    wrap.innerHTML=anns.map(function(a){
+      var cls=a.priority==='urgent'?'bad':a.priority==='important'?'warn':'';
+      return '<div class="domsc-announcement-employee"><div class="domsc-ops-row"><b>&#x1F4E2; Admin Announcement</b><span class="domsc-ops-pill '+cls+'">'+esc(a.priority||'normal')+'</span></div><div style="white-space:pre-wrap">'+esc(a.message||'')+'</div><div style="font-size:10px;color:#856404;margin-top:5px">'+esc(a.time||'')+'</div><button class="sm-btn btn-green" style="margin-top:8px" type="button" onclick="DOMSC_ACK_ANNOUNCEMENT(\''+js(a.id)+'\')">Acknowledge</button></div>';
+    }).join('');
+  }
+
+  function renderEmployeeRequestsCard(){
+    ensureOpsStores();
+    var anchor=$('user-app-elements'); if(!anchor) return;
+    var card=$('domsc-employee-requests-card');
+    if(!card){
+      card=document.createElement('div');
+      card.id='domsc-employee-requests-card';
+      card.className='employee-feature-card domsc-ops-card';
+      card.innerHTML='<div class="employee-feature-title">&#x1F198; Request Help / Admin Review</div><div id="domsc-employee-requests-body"></div>';
+      var sec=document.querySelector('.security-panel');
+      if(sec && sec.parentNode) sec.parentNode.insertBefore(card,sec);
+      else anchor.appendChild(card);
+    }
+    var box=$('domsc-employee-requests-body'); if(!box) return;
+    box.innerHTML=
+      '<div class="domsc-ops-sub">Send a request to admin/supervisors. It saves into JSONBin.</div>'+
+      '<select id="domsc-emp-req-type"><option>Need passcode reset</option><option>Need account unlock</option><option>Need supervisor help</option><option>Need saved log corrected</option><option>Need admin review</option><option>Other</option></select>'+
+      '<select id="domsc-emp-req-priority" style="margin-top:6px"><option value="normal">Normal</option><option value="urgent">Urgent</option></select>'+
+      '<textarea id="domsc-emp-req-msg" placeholder="Type details..."></textarea>'+
+      '<button class="employee-small-btn" style="background:#0076d6;color:#fff;width:100%;margin-top:7px" type="button" onclick="DOMSC_EMPLOYEE_SEND_REQUEST()">Send Request</button>';
+  }
+
+  function renderEndDayCard(){
+    ensureOpsStores();
+    var anchor=$('user-app-elements'); if(!anchor) return;
+    var card=$('domsc-end-day-card');
+    if(!card){
+      card=document.createElement('div');
+      card.id='domsc-end-day-card';
+      card.className='employee-feature-card domsc-ops-card';
+      card.innerHTML='<div class="employee-feature-title">&#x2705; End-of-Day Submit</div><div id="domsc-end-day-body"></div>';
+      var saved=document.querySelector('.saved-files-section');
+      if(saved && saved.parentNode) saved.parentNode.insertBefore(card,saved);
+      else anchor.appendChild(card);
+    }
+    var box=$('domsc-end-day-body'); if(!box) return;
+    var pv=activeProfile();
+    var sub=getTodaySubmission(pv);
+    var logs=getTodaysLogs(pv);
+    var total=logs.reduce(function(a,b){return a+(Number(b.totalUnits||0)||0);},0);
+    box.innerHTML=
+      '<div class="domsc-ops-sub">Today: '+logs.length+' saved log(s), '+total.toFixed(2)+' units.</div>'+
+      (sub?'<div class="domsc-ops-pill ok" style="margin-bottom:7px">Submitted today at '+esc(sub.time||'')+'</div>':'')+
+      '<textarea id="domsc-end-day-notes" placeholder="End-of-day notes, delays, issues, or corrections needed...">'+esc((sub&&sub.notes)||'')+'</textarea>'+
+      '<button class="employee-small-btn" style="background:#28a745;color:#fff;width:100%;margin-top:7px" type="button" onclick="DOMSC_SUBMIT_END_OF_DAY()">Submit My Day</button>';
+  }
+
+  function renderAdminOpsUI(){
+    var panel=$('admin-panel'); if(!panel) return;
+    ensureOpsStores();
+
+    var bar=panel.querySelector('.admin-tab-bar');
+    if(bar && !bar.querySelector('[data-tab="ops"]')){
+      var btn=document.createElement('button');
+      btn.className='admin-tab-btn';
+      btn.dataset.tab='ops';
+      btn.type='button';
+      btn.innerHTML='&#x1F9F0; Ops';
+      btn.onclick=function(){ if(typeof switchTab==='function') switchTab('ops'); };
+      bar.insertBefore(btn,bar.firstChild);
+    }
+
+    var ops=$('admin-tab-ops');
+    if(!ops){
+      ops=document.createElement('div');
+      ops.className='admin-tab-panel';
+      ops.id='admin-tab-ops';
+      ops.innerHTML=
+        '<div class="domsc-ops-card"><div class="domsc-ops-head"><div><div class="domsc-ops-title">&#x1F3F7;&#xFE0F; Role Templates</div><div class="domsc-ops-sub">Fast preset permissions for employee, lead, supervisor, manager, and view-only roles.</div></div><span class="domsc-ops-pill">Admin</span></div><div id="domsc-role-templates-body"></div></div>'+
+        '<div class="domsc-ops-card"><div class="domsc-ops-head"><div><div class="domsc-ops-title">&#x1F4CA; Employee Status Board</div><div class="domsc-ops-sub">Clock, logs, units, frozen status, supervisor status, and submissions.</div></div><button class="sm-btn btn-blue" type="button" onclick="DOMSC_RENDER_OPERATIONS_FEATURES()">Refresh</button></div><div id="domsc-status-board-body" class="domsc-ops-grid"></div></div>'+
+        '<div class="domsc-ops-card"><div class="domsc-ops-head"><div><div class="domsc-ops-title">&#x1F4E5; Employee Requests Inbox</div><div class="domsc-ops-sub">Requests sent from employee profiles.</div></div><span class="domsc-ops-pill" id="domsc-requests-count">0</span></div><div id="domsc-requests-inbox-body"></div></div>'+
+        '<div class="domsc-ops-card"><div class="domsc-ops-head"><div><div class="domsc-ops-title">&#x1F4E2; Admin Announcement Center</div><div class="domsc-ops-sub">Send messages to everyone or one employee. Employees can acknowledge them.</div></div><span class="domsc-ops-pill">JSONBin</span></div><div id="domsc-announcement-center-body"></div></div>';
+      if(bar && bar.parentNode) bar.parentNode.insertBefore(ops,bar.nextSibling);
+      else panel.appendChild(ops);
+    }
+
+    renderRoleTemplates();
+    renderStatusBoard();
+    renderRequestsInbox();
+    renderAnnouncementCenter();
+    var count=$('domsc-requests-count');
+    if(count) count.textContent=String((cloud.employee_requests||[]).filter(function(r){return r.status!=='closed';}).length)+' open';
+  }
+
+  function renderEmployeeOpsUI(){
+    if(canAdmin()) return;
+    renderEmployeeAnnouncements();
+    renderEmployeeRequestsCard();
+    renderEndDayCard();
+  }
+
+  window.DOMSC_RENDER_OPERATIONS_FEATURES = function(){
+    ensureOpsStores();
+    renderAdminOpsUI();
+    renderEmployeeOpsUI();
+  };
+
+  window.DOMSC_APPLY_ROLE_TEMPLATE = async function(){
+    if(!canAdmin()){alert('Admin only.');return;}
+    ensureOpsStores();
+    var pv=($('domsc-role-profile')||{}).value||'';
+    var role=($('domsc-role-template')||{}).value||'employee';
+    if(!pv){alert('Choose an employee.');return;}
+    if(!confirm('Apply '+role+' role to '+profileName(pv)+'?')) return;
+
+    cloud.role_assignments[pv]={role:role,updatedAt:nowLocal(),updatedAtISO:nowISO(),by:'Admin'};
+    cloud.permissions[pv]=Object.assign({},cloud.permissions[pv]||{},defaultPermsForRole(role));
+
+    var isSup=(role==='lead'||role==='supervisor'||role==='manager'||role==='admin_assistant');
+    cloud.supervisor_settings[pv]=Object.assign({},cloud.supervisor_settings[pv]||{},{
+      isSupervisor:isSup,
+      roleTemplate:role,
+      updatedAt:nowLocal(),
+      updatedAtISO:nowISO(),
+      updatedBy:'Admin'
+    });
+    cloud.supervisor_privileges[pv]=Object.assign({},cloud.supervisor_privileges[pv]||{},defaultSupervisorPrivs(role),{
+      updatedAt:nowLocal(),
+      updatedAtISO:nowISO(),
+      updatedBy:'Admin'
+    });
+
+    safeAudit('Role template applied',profileName(pv)+' set to '+role,'ok');
+    await saveSoon('role template applied to '+pv);
+    try{ if(typeof phase1RenderSupervisorSettings==='function') phase1RenderSupervisorSettings(); }catch(e){}
+    try{ if(typeof hpRefresh==='function') hpRefresh(); }catch(e){}
+    window.DOMSC_RENDER_OPERATIONS_FEATURES();
+    alert('Role template saved to JSONBin queue.');
+  };
+
+  window.DOMSC_EMPLOYEE_SEND_REQUEST = async function(){
+    ensureOpsStores();
+    var pv=activeProfile();
+    var type=($('domsc-emp-req-type')||{}).value||'Request';
+    var priority=($('domsc-emp-req-priority')||{}).value||'normal';
+    var msg=(($('domsc-emp-req-msg')||{}).value||'').trim();
+    if(!msg){alert('Type request details first.');return;}
+    cloud.employee_requests.unshift({
+      id:'req_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+      profile:pv,
+      type:type,
+      priority:priority,
+      message:msg,
+      status:'open',
+      time:nowLocal(),
+      timeISO:nowISO()
+    });
+    cloud.employee_requests=cloud.employee_requests.slice(0,250);
+    safeAudit('Employee request sent',profileName(pv)+' — '+type,priority==='urgent'?'warn':'ok');
+    await saveSoon('employee request sent');
+    var m=$('domsc-emp-req-msg'); if(m)m.value='';
+    window.DOMSC_RENDER_OPERATIONS_FEATURES();
+    alert('Request sent and saved.');
+  };
+
+  window.DOMSC_SET_REQUEST_STATUS = async function(id,status){
+    if(!canAdmin() && !canSupervisor()){alert('Admin or supervisor only.');return;}
+    ensureOpsStores();
+    (cloud.employee_requests||[]).forEach(function(r){
+      if(r.id===id){r.status=status;r.updatedAt=nowLocal();r.updatedAtISO=nowISO();r.updatedBy=canAdmin()?'Admin':profileName(activeProfile());}
+    });
+    safeAudit('Employee request updated','Request '+id+' marked '+status,status==='closed'?'ok':'warn');
+    await saveSoon('request status changed');
+    window.DOMSC_RENDER_OPERATIONS_FEATURES();
+  };
+
+  window.DOMSC_DELETE_REQUEST = async function(id){
+    if(!canAdmin()){alert('Admin only.');return;}
+    if(!confirm('Delete this request?'))return;
+    ensureOpsStores();
+    cloud.employee_requests=(cloud.employee_requests||[]).filter(function(r){return r.id!==id;});
+    safeAudit('Employee request deleted','Request '+id,'warn');
+    await saveSoon('request deleted');
+    window.DOMSC_RENDER_OPERATIONS_FEATURES();
+  };
+
+  window.DOMSC_SEND_ANNOUNCEMENT = async function(){
+    if(!canAdmin()){alert('Admin only.');return;}
+    ensureOpsStores();
+    var target=($('domsc-ann-target')||{}).value||'all';
+    var priority=($('domsc-ann-priority')||{}).value||'normal';
+    var msg=(($('domsc-ann-message')||{}).value||'').trim();
+    if(!msg){alert('Type an announcement first.');return;}
+    cloud.announcements.unshift({
+      id:'ann_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+      target:target,
+      priority:priority,
+      message:msg,
+      ack:{},
+      closed:false,
+      time:nowLocal(),
+      timeISO:nowISO(),
+      by:'Admin'
+    });
+    cloud.announcements=cloud.announcements.slice(0,80);
+    safeAudit('Announcement sent',(target==='all'?'All Employees':profileName(target))+' — '+msg.slice(0,80),priority==='urgent'?'warn':'ok');
+    await saveSoon('announcement sent');
+    var el=$('domsc-ann-message'); if(el)el.value='';
+    window.DOMSC_RENDER_OPERATIONS_FEATURES();
+    alert('Announcement saved and will show on employee profiles.');
+  };
+
+  window.DOMSC_ACK_ANNOUNCEMENT = async function(id){
+    ensureOpsStores();
+    var pv=activeProfile();
+    (cloud.announcements||[]).forEach(function(a){
+      if(a.id===id){
+        if(!a.ack)a.ack={};
+        a.ack[pv]={time:nowLocal(),timeISO:nowISO()};
+      }
+    });
+    await saveSoon('announcement acknowledged');
+    renderEmployeeAnnouncements();
+  };
+
+  window.DOMSC_DELETE_ANNOUNCEMENT = async function(id){
+    if(!canAdmin()){alert('Admin only.');return;}
+    if(!confirm('Remove this announcement?'))return;
+    ensureOpsStores();
+    cloud.announcements=(cloud.announcements||[]).filter(function(a){return a.id!==id;});
+    safeAudit('Announcement removed','Announcement '+id,'warn');
+    await saveSoon('announcement removed');
+    window.DOMSC_RENDER_OPERATIONS_FEATURES();
+  };
+
+  window.DOMSC_CLEAR_ANNOUNCEMENTS = async function(){
+    if(!canAdmin()){alert('Admin only.');return;}
+    if(!confirm('Clear all announcements?'))return;
+    ensureOpsStores();
+    cloud.announcements=[];
+    safeAudit('Announcements cleared','Admin cleared all announcements.','warn');
+    await saveSoon('announcements cleared');
+    window.DOMSC_RENDER_OPERATIONS_FEATURES();
+  };
+
+  window.DOMSC_SUBMIT_END_OF_DAY = async function(){
+    ensureOpsStores();
+    var pv=activeProfile();
+    var notes=(($('domsc-end-day-notes')||{}).value||'').trim();
+    var logs=getTodaysLogs(pv);
+    var total=logs.reduce(function(a,b){return a+(Number(b.totalUnits||0)||0);},0);
+    var existing=getTodaySubmission(pv);
+    if(existing){
+      existing.notes=notes;
+      existing.logsCount=logs.length;
+      existing.totalUnits=total;
+      existing.updatedAt=nowLocal();
+      existing.updatedAtISO=nowISO();
+    }else{
+      cloud.day_submissions.unshift({
+        id:'submit_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+        profile:pv,
+        date:todayISO(),
+        notes:notes,
+        logsCount:logs.length,
+        totalUnits:total,
+        time:nowLocal(),
+        timeISO:nowISO()
+      });
+      cloud.day_submissions=cloud.day_submissions.slice(0,500);
+    }
+    safeAudit('Employee submitted day',profileName(pv)+' — '+total.toFixed(2)+' units / '+logs.length+' log(s)','ok');
+    await saveSoon('end of day submitted');
+    window.DOMSC_RENDER_OPERATIONS_FEATURES();
+    alert('Your day was submitted and saved.');
+  };
+
+  function wrapApplyUI(){
+    try{
+      if(typeof applyUI==='function' && !applyUI.__domscOpsWrapped){
+        var old=applyUI;
+        var wrapped=function(){
+          var res=old.apply(this,arguments);
+          setTimeout(window.DOMSC_RENDER_OPERATIONS_FEATURES,120);
+          return res;
+        };
+        wrapped.__domscOpsWrapped=true;
+        window.applyUI=wrapped;
+        applyUI=wrapped;
+      }
+    }catch(e){}
+  }
+
+  function boot(){
+    try{ensureOpsStores();}catch(e){}
+    renderAdminOpsUI();
+    renderEmployeeOpsUI();
+    wrapApplyUI();
+    setTimeout(window.DOMSC_RENDER_OPERATIONS_FEATURES,700);
+    setTimeout(window.DOMSC_RENDER_OPERATIONS_FEATURES,2000);
+    // Lag fix: removed repeated operations render loop. It renders on load and after feature changes.
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
 })();
