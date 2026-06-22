@@ -229,9 +229,7 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
 <div class="container" id="login-gateway-portal">
   <div class="login-title">DOM/SC Platform</div>
   <div class="login-subtitle">Select your profile to sign in</div>
-  <div id="login-profile-buttons-list" style="width:100%;max-width:400px">
-    <p style="color:#777;font-style:italic">Loading profiles...</p>
-  </div>
+  <div id="login-profile-buttons-list" style="width:100%;max-width:400px"></div>
   <div style="width:100%;max-width:400px;margin-top:20px;padding-top:15px;border-top:1px solid #e0e0e0">
     <button class="profile-tap-btn admin-gateway-btn" onclick="triggerAdminLogin(false,true)">
       <span>&#x2699;&#xFE0F; System Administrator</span>
@@ -591,9 +589,15 @@ let authCtx = null, pcBuffer = "", pcTarget = "", pcSetStep = 0, pcSetFirst = ""
 //  CLOUD
 // ══════════════════════════════════════════════════════════════
 async function pullCloud() {
+  // Show default profiles immediately so the screen never gets stuck
+  renderLoginButtons();
   try {
-    const r = await fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY}});
-    if (!r.ok) return;
+    // 8-second timeout — if JSONBin doesn't respond, fall back to defaults
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 8000);
+    const r = await fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY},signal:controller.signal});
+    clearTimeout(timeout);
+    if (!r.ok) return true; // network ok but bad response — use defaults
     const d = (await r.json()).record;
     cloud = {
       is_locked:              d.is_locked||false,
@@ -618,10 +622,14 @@ async function pullCloud() {
     };
     if (cloud.banned_ips.includes(localIP)) {
       document.getElementById('banned-screen').style.display='flex';
-      return false; // banned
+      return false;
     }
     return true;
-  } catch(e) { console.error('pullCloud',e); return true; }
+  } catch(e) {
+    // Fetch failed or timed out — app works on defaults (local-only mode)
+    console.warn('Cloud sync unavailable, running on local defaults.');
+    return true;
+  }
 }
 async function pushCloud() {
   try {
@@ -859,7 +867,10 @@ async function triggerAdminLogin(isBypass,isDedicated) {
 // Pull cloud without triggering UI refresh (used inside login flow)
 async function pullCloudSilent() {
   try {
-    const r=await fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY}});
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 8000);
+    const r=await fetch(SYNC_URL,{headers:{"X-Master-Key":MASTER_KEY},signal:controller.signal});
+    clearTimeout(timeout);
     if(!r.ok)return;
     const d=(await r.json()).record;
     cloud=Object.assign(cloud,{
@@ -870,7 +881,7 @@ async function pullCloudSilent() {
       settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{})
     });
     if(cloud.banned_ips.includes(localIP))document.getElementById('banned-screen').style.display='flex';
-  } catch(e){}
+  } catch(e){ console.warn('pullCloudSilent failed'); }
 }
 
 function grantAdmin(isBypass,isDedicated) {
@@ -931,8 +942,20 @@ async function completeLogin(profileVal) {
 function logoutProfile(){localStorage.removeItem('dom_sc_active_profile');location.reload();}
 
 // ══════════════════════════════════════════════════════════════
-//  APPLY UI STATE (safe — never disrupts login flow)
+//  APPLY UI STATE
 // ══════════════════════════════════════════════════════════════
+
+// Renders profile buttons on the login gateway — called immediately on load
+// so the screen is never stuck on "Loading profiles..."
+function renderLoginButtons() {
+  const bl=$('login-profile-buttons-list');
+  if(!bl)return;
+  bl.innerHTML=cloud.profiles.map(p=>
+    `<button class="profile-tap-btn" onclick="processInstantProfileTap('${p.val}')">` +
+    `<span>&#x1F464; ${p.name}</span>` +
+    `<span style="color:#0076d6;font-size:12px">Tap to enter &#x2192;</span></button>`
+  ).join('');
+}
 function applyUI() {
   const m=cloud.maintenance||{};
   // Maintenance
@@ -963,9 +986,8 @@ function applyUI() {
   const pSel=$('profile-select'), cur=pSel.value;
   pSel.innerHTML=cloud.profiles.map(p=>`<option value="${p.val}">${p.name}</option>`).join('');
   pSel.value=cur;
-  // Login buttons
-  const bl=$('login-profile-buttons-list');
-  if(bl)bl.innerHTML=cloud.profiles.map(p=>`<button class="profile-tap-btn" onclick="processInstantProfileTap('${p.val}')"><span>&#x1F464; ${p.name}</span><span style="color:#0076d6;font-size:12px">Tap to enter &#x2192;</span></button>`).join('');
+  // Login buttons — always rebuild from current profiles
+  renderLoginButtons();
   // Admin UI
   if(isAdmin){
     const lb=$('lock-toggle-btn'); if(lb)lb.textContent=cloud.is_locked?"Unlock All Screens":"Lock All Screens";
@@ -1352,22 +1374,30 @@ function hide(id){const e=$(id);if(e)e.style.display='none';}
 //  INIT
 // ══════════════════════════════════════════════════════════════
 (async function init(){
-  await resolveIP();
-  renderCards();
-  const ok=await pullCloud();
-  if(ok===false)return; // banned
-  // Rebuild items with cloud vars
-  rebuildItems();
-  // Check saved session
+  // Show login screen immediately with default profiles — never stuck loading
   const saved=localStorage.getItem('dom_sc_active_profile');
   if(saved&&!isDedicatedAdmin){
-    hide('login-gateway-portal');show('main-app-container','block');
+    hide('login-gateway-portal'); show('main-app-container','block');
+  } else {
+    renderLoginButtons(); // show default profiles right away
+    show('login-gateway-portal','flex'); hide('main-app-container');
+  }
+
+  // Resolve IP and render item cards in parallel with cloud fetch
+  resolveIP(); // fire and forget — just for logging
+  renderCards();
+
+  // Now fetch cloud data — pullCloud calls renderLoginButtons again on success
+  // so if profiles were customised they update automatically
+  const ok=await pullCloud();
+  if(ok===false)return; // banned
+
+  rebuildItems();
+
+  if(saved&&!isDedicatedAdmin){
     $('profile-select').value=saved;
     loadSavedData();
-  } else {
-    show('login-gateway-portal','flex');hide('main-app-container');
   }
-  // Apply cloud-driven overlay states (lock/maintenance)
   applyUI();
 })();
 
