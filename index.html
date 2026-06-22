@@ -187,6 +187,14 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
 .simple-perm-table input{width:18px;height:18px}
 .health-row{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:5px 0;font-size:12px}
 .health-pill{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;background:#d4edda;color:#1e7e34}
+
+.employee-feature-card{background:#f8fbff;border:1px solid #cfe4ff;border-radius:12px;padding:12px;margin-top:14px}
+.employee-feature-title{font-size:14px;font-weight:800;color:#0056b3;margin-bottom:8px}
+.employee-profile-row{display:flex;align-items:center;gap:12px}
+.employee-profile-preview{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#e9f5fe;border:2px solid #cfe4ff}
+.employee-profile-initials{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e9f5fe;border:2px solid #cfe4ff;color:#0076d6;font-weight:900;font-size:18px}
+.employee-small-btn{font-size:12px;font-weight:800;padding:8px 10px;border:none;border-radius:8px;cursor:pointer}
+.employee-msg-box{width:100%;min-height:70px;padding:8px;border:1px solid #ccc;border-radius:8px;font-size:13px;resize:vertical}
 </style>
 </head>
 <body>
@@ -315,6 +323,10 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
         <div style="background:#fff;border:1px solid #dbefff;border-radius:8px;padding:8px">
           <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F511; Employee Permissions</div>
           <div id="simple-employee-permissions">Loading employee permissions...</div>
+          <div style="margin-top:10px;border-top:1px dashed #cfe4ff;padding-top:8px">
+            <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F4E8; Employee Messages</div>
+            <div id="admin-employee-messages" style="font-size:12px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px;max-height:180px;overflow:auto">No messages yet.</div>
+          </div>
         </div>
       </div>
       <div class="admin-sub" style="display:none">
@@ -541,6 +553,26 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
     <div class="saved-files-section">
       <span style="font-weight:700;font-size:14px;color:#1e7e34">&#x1F4C1; My Saved Files</span>
       <div id="profile-saved-files-list" style="margin-top:8px;font-size:12px;background:#fff;border:1px solid #d0e6d6;padding:8px;border-radius:6px;max-height:180px;overflow-y:auto"><div style="color:#888;font-style:italic;text-align:center">No entries saved.</div></div>
+
+    </div>
+
+    <div class="employee-feature-card" id="employee-profile-picture-card">
+      <div class="employee-feature-title">&#x1F464; My Profile Picture</div>
+      <div class="employee-profile-row">
+        <div id="employee-profile-picture-preview"></div>
+        <div style="flex:1">
+          <input type="file" id="employee-profile-picture-input" accept="image/*" style="font-size:12px;width:100%;margin-bottom:8px" onchange="employeeChangeOwnProfilePicture(this)">
+          <button class="employee-small-btn" style="background:#dc3545;color:#fff" onclick="employeeDeleteOwnProfilePicture()">Delete Picture</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#666;margin-top:6px">This picture appears on your login profile.</div>
+    </div>
+
+    <div class="employee-feature-card" id="employee-message-admin-card">
+      <div class="employee-feature-title">&#x1F4E8; Message Admin / Request Help</div>
+      <textarea id="employee-admin-message" class="employee-msg-box" placeholder="Type a message or correction request for admin..."></textarea>
+      <button class="employee-small-btn" style="background:#0076d6;color:#fff;margin-top:8px" onclick="employeeSendAdminMessage()">Send to Admin</button>
+      <div id="employee-admin-message-status" style="font-size:11px;color:#666;margin-top:6px"></div>
     </div>
 
     <div class="security-panel">
@@ -655,6 +687,7 @@ async function pullCloud() {
       live_calculator:        d.live_calculator||{},
       daily_logs:             d.daily_logs||{},
       profile_pictures:       d.profile_pictures||{},
+      employee_messages:      d.employee_messages||[],
       permissions:            d.permissions||{},
       sync_meta:              d.sync_meta||{},
       employee_calculator:    d.employee_calculator||{},
@@ -750,6 +783,7 @@ function mergeCloudRecords(remote,local){
   merged.profiles=mergeArrayByKey(remote.profiles||[],local.profiles||[],x=>x.val||x.name||JSON.stringify(x));
   merged.drafts=mergeArrayByKey(remote.drafts||[],local.drafts||[],x=>x.timestampISO||x.timestamp||JSON.stringify(x));
   merged.passcode_reset_requests=mergeArrayByKey(remote.passcode_reset_requests||[],local.passcode_reset_requests||[],x=>x.id||x.time||JSON.stringify(x));
+  merged.employee_messages=mergeArrayByKey(remote.employee_messages||[],local.employee_messages||[],x=>x.id||x.timeISO||JSON.stringify(x));
   merged.failed_admin_logins=mergeArrayByKey(remote.failed_admin_logins||[],local.failed_admin_logins||[],x=>x.time+'_'+x.profile+'_'+x.attempt);
   merged.banned_ips=Array.from(new Set([...(remote.banned_ips||[]),...(local.banned_ips||[])]));
   merged.deleted_vars=Array.from(new Set([...(remote.deleted_vars||[]),...(local.deleted_vars||[])]));
@@ -1020,6 +1054,7 @@ async function pullCloudSilent() {
       live_calculator:d.live_calculator||{},
       daily_logs:d.daily_logs||{},
       profile_pictures:d.profile_pictures||{},
+      employee_messages:d.employee_messages||[],
       permissions:d.permissions||{},
       sync_meta:d.sync_meta||{},
       employee_calculator:d.employee_calculator||{},
@@ -1242,11 +1277,11 @@ function applyUI() {
     if(mb){mb.textContent=m.active?"MAINTENANCE ACTIVE":"SITE LIVE";mb.className="maint-status-badge "+(m.active?"maint-on":"maint-off");}
     ['t-1-8','t-1-10','t-2-8','t-2-10'].forEach((id,i)=>{const el=$(id);if(el)el.value=[cloud.targets.man1_8,cloud.targets.man1_10,cloud.targets.man2_8,cloud.targets.man2_10][i];});
     updateAdminSecStatus(); updateAdminPeople(); updateAdminDrafts(); updateResetRequests(); updateBannedIPs(); updateSettingsUI();
-    updateAlertLevelBtns(); if(typeof hpRefresh==='function')hpRefresh(); renderAdminLiveCalculatorView();
+    updateAlertLevelBtns(); if(typeof hpRefresh==='function')hpRefresh(); if(typeof employeeRefreshFeatures==='function')employeeRefreshFeatures(); renderAdminLiveCalculatorView();
   }
   calculateEverything();
   // User security panel (async, fire and forget — won't break anything)
-  updateSecurityPanel(); if(typeof hpApplyPermissions==='function')hpApplyPermissions();
+  updateSecurityPanel(); if(typeof hpApplyPermissions==='function')hpApplyPermissions(); if(typeof employeeRefreshFeatures==='function')employeeRefreshFeatures();
 }
 function rebuildItems() {
   saveQtyByName();
@@ -1416,31 +1451,47 @@ function updateSettingsUI(){
 // ══════════════════════════════════════════════════════════════
 //  USER PASSCODE / BIOMETRIC MANAGEMENT
 // ══════════════════════════════════════════════════════════════
+function userSecurityAllowed(kind){
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  if(typeof hpGetPerm!=='function')return true;
+  if(!hpGetPerm(pv,'allow_account_security')){alert('Account security is disabled by admin.');return false;}
+  if(kind==='passcode'&&!hpGetPerm(pv,'allow_passcode')){alert('Passcode changes are disabled by admin.');return false;}
+  if(kind==='bio'&&!hpGetPerm(pv,'allow_biometrics')){alert('Biometrics are disabled by admin.');return false;}
+  return true;
+}
 function openSetPasscode(){
+  if(!userSecurityAllowed('passcode'))return;
   const pv=localStorage.getItem('dom_sc_active_profile');
   openSetModal("Set Passcode","Enter a new 4-digit passcode",async h=>{await setPC(pv,h,"user");alert("Passcode set!");updateSecurityPanel();});
 }
 function openChangePasscode(){
+  if(!userSecurityAllowed('passcode'))return;
   const pv=localStorage.getItem('dom_sc_active_profile'),h=getPC(pv),bCtx="profile_"+pv;
   openAuthModal("Verify Passcode","Enter your current passcode",h,false,()=>setTimeout(openSetPasscode,200),bCtx,null);
 }
 function removePasscode(){
+  if(!userSecurityAllowed('passcode'))return;
   const pv=localStorage.getItem('dom_sc_active_profile'),h=getPC(pv),bCtx="profile_"+pv;
   openAuthModal("Remove Passcode","Verify to remove",h,false,async()=>{await clearPC(pv);localStorage.removeItem(bioCredKey(bCtx));alert("Passcode removed.");updateSecurityPanel();},bCtx,null);
 }
 async function enableBiometricForProfile(){
+  if(!userSecurityAllowed('bio'))return;
   if(!await bioAvailable()){alert("Platform biometrics not supported on this device.");return;}
   const pv=localStorage.getItem('dom_sc_active_profile');
   if(!getPC(pv)){alert("Set a passcode first, then enable biometrics.");return;}
-  const bCtx="profile_"+pv;
-  openAuthModal("Enable Biometrics","Confirm passcode to enroll Face ID/Fingerprint",getPC(pv),false,async()=>{
-    const ok=await registerBio(bCtx,pv);
-    if(ok){await setBio(pv,true);alert("Biometrics enrolled!");updateSecurityPanel();}
-    else alert("Enrollment failed. Make sure biometrics are configured in device settings.");
-  },null,null);
+  const ok=await registerBio("profile_"+pv,pv);
+  if(ok){await setBio(pv,true);alert("Biometrics enabled on this device.");updateSecurityPanel();}
+  else alert("Biometric setup failed or was canceled.");
 }
-async function disableBiometricForProfile(){const pv=localStorage.getItem('dom_sc_active_profile');await setBio(pv,false);localStorage.removeItem(bioCredKey("profile_"+pv));alert("Biometrics disabled.");updateSecurityPanel();}
-async function requestPasscodeReset(explicitProfile){
+async function disableBiometricForProfile(){
+  if(!userSecurityAllowed('bio'))return;
+  const pv=localStorage.getItem('dom_sc_active_profile');
+  await setBio(pv,false);
+  localStorage.removeItem(bioCredKey("profile_"+pv));
+  alert("Biometrics disabled.");
+  updateSecurityPanel();
+}
+async function requestPasscodeReset(explicitProfile){const __pv=explicitProfile||localStorage.getItem('dom_sc_active_profile')||'default';if(typeof hpGetPerm==='function'&&!hpGetPerm(__pv,'allow_admin_request')){alert('Reset requests are disabled by admin.');return;}
   const pv=explicitProfile||localStorage.getItem('dom_sc_active_profile');
   if(!pv||pv==="null"){alert("Couldn't identify which profile to reset.");return;}
   const name=(cloud.profiles.find(p=>p.val===pv)||{}).name||pv;
@@ -1618,7 +1669,7 @@ function renderCards(){
   }).join('');
   const vs=$('var-item-select'); if(vs)vs.innerHTML=items.map(it=>`<option value="${it.name}">${it.name}</option>`).join('');
 }
-function adj(i,d){const el=$('qty-'+i);if(!el)return;el.value=Math.max(0,(parseInt(el.value)||0)+d);calculateEverything();saveQtyByName();}
+function adj(i,d){const pv=localStorage.getItem('dom_sc_active_profile')||'default';if(typeof hpGetPerm==='function'&&!hpGetPerm(pv,'allow_edit_quantities')){alert('Editing quantities is disabled by admin.');return;}const el=$('qty-'+i);if(!el)return;el.value=Math.max(0,(parseInt(el.value)||0)+d);calculateEverything();saveQtyByName();}
 function calculateEverything(){
   let total=0;
   const pv=prefix(),crew=(document.querySelector('input[name="crew"]:checked')||{}).value||"1";
@@ -1634,7 +1685,7 @@ function calculateEverything(){
   scheduleLiveCalculatorState();
 }
 function setRemain(id,v){const el=$(id);if(!el)return;if(v<=0){el.textContent="MET (+"+Math.abs(v).toFixed(2)+")";el.className="metric-value rem-pos";}else{el.textContent=v.toFixed(2)+" left";el.className="metric-value rem-neg";}}
-function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+qtyNameKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
+function clearForm(){const pv=localStorage.getItem('dom_sc_active_profile')||'default';if(typeof hpGetPerm==='function'&&!hpGetPerm(pv,'allow_clear')){alert('Clear is disabled by admin.');return;}if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+qtyNameKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
 
 // Save flow
 function showLunchModal(){
@@ -1780,23 +1831,30 @@ function show(id,d){const e=$(id);if(e)e.style.display=d||'block';}
 function hide(id){const e=$(id);if(e)e.style.display='none';}
 
 
+
 // ══════════════════════════════════════════════════════════════
-//  OVERVIEW SITE HEALTH + EMPLOYEE PERMISSIONS
+//  OVERVIEW SITE HEALTH + REAL EMPLOYEE PAGE PERMISSIONS
 // ══════════════════════════════════════════════════════════════
+function hpPermissionKeys(){
+  return [
+    ['allow_save','Save Daily Log'],
+    ['allow_edit_quantities','Edit Quantities'],
+    ['allow_clear','Clear Calculator'],
+    ['allow_view_logs','View Saved Logs'],
+    ['allow_account_security','Account Security'],
+    ['allow_passcode','Change Passcode'],
+    ['allow_biometrics','Use Biometrics'],
+    ['allow_admin_request','Request Reset']
+  ];
+}
 function hpEnsureStores(){
   if(!cloud.permissions) cloud.permissions={};
   if(!cloud.sync_meta) cloud.sync_meta={lastSync:"",failedSyncs:0};
   (cloud.profiles||[]).forEach(function(p){
-    if(!cloud.permissions[p.val]){
-      cloud.permissions[p.val]={
-        allow_save:true,
-        allow_edit_quantities:true,
-        allow_profile_pic:true,
-        allow_passcode:true,
-        allow_biometrics:true,
-        allow_view_logs:true
-      };
-    }
+    if(!cloud.permissions[p.val]) cloud.permissions[p.val]={};
+    hpPermissionKeys().forEach(function(k){
+      if(cloud.permissions[p.val][k[0]]===undefined) cloud.permissions[p.val][k[0]]=true;
+    });
   });
 }
 function hpGetPerm(profileVal,key){
@@ -1833,15 +1891,9 @@ function hpRenderPermissions(){
   const box=document.getElementById('simple-employee-permissions');
   if(!box)return;
   hpEnsureStores();
-  const keys=[
-    ['allow_save','Save'],
-    ['allow_edit_quantities','Edit Qty'],
-    ['allow_profile_pic','Pic'],
-    ['allow_passcode','Passcode'],
-    ['allow_biometrics','Bio'],
-    ['allow_view_logs','Logs']
-  ];
-  let out='<table class="simple-perm-table"><thead><tr><th>Employee</th>';
+  const keys=hpPermissionKeys();
+  let out='<div style="font-size:11px;color:#666;margin-bottom:6px">These controls only manage features that exist on the employee calculator page.</div>';
+  out+='<table class="simple-perm-table"><thead><tr><th>Employee</th>';
   keys.forEach(k=>out+='<th>'+k[1]+'</th>');
   out+='</tr></thead><tbody>';
   (cloud.profiles||[]).forEach(p=>{
@@ -1854,18 +1906,51 @@ function hpRenderPermissions(){
   out+='</tbody></table>';
   box.innerHTML=out;
 }
+function hpSetDisabled(selector, disabled){
+  document.querySelectorAll(selector).forEach(el=>{
+    el.disabled=disabled;
+    el.style.opacity=disabled?'.45':'1';
+    el.style.pointerEvents=disabled?'none':'auto';
+  });
+}
 function hpApplyPermissions(){
   hpEnsureStores();
   const pv=localStorage.getItem('dom_sc_active_profile')||'default';
   const p=cloud.permissions[pv]||{};
+
+  // Save Daily Log button
   const saveBtn=document.querySelector('.save-btn');
-  if(saveBtn){saveBtn.disabled=p.allow_save===false;saveBtn.style.opacity=p.allow_save===false?'.45':'1';}
-  document.querySelectorAll('.qty-input,.qty-btn').forEach(el=>{
-    el.disabled=p.allow_edit_quantities===false;
-    el.style.opacity=p.allow_edit_quantities===false?'.45':'1';
-  });
-  const saved=document.getElementById('profile-saved-files-list');
-  if(saved)saved.style.display=p.allow_view_logs===false?'none':'block';
+  if(saveBtn){
+    saveBtn.disabled=p.allow_save===false;
+    saveBtn.style.opacity=p.allow_save===false?'.45':'1';
+    saveBtn.style.pointerEvents=p.allow_save===false?'none':'auto';
+    saveBtn.title=p.allow_save===false?'Disabled by admin':'';
+  }
+
+  // Quantity inputs and +/- buttons
+  hpSetDisabled('.qty-input,.qty-btn', p.allow_edit_quantities===false);
+
+  // Clear button
+  const clearBtn=document.querySelector('.clear-btn');
+  if(clearBtn){
+    clearBtn.disabled=p.allow_clear===false;
+    clearBtn.style.opacity=p.allow_clear===false?'.45':'1';
+    clearBtn.style.pointerEvents=p.allow_clear===false?'none':'auto';
+    clearBtn.title=p.allow_clear===false?'Disabled by admin':'';
+  }
+
+  // Saved files section/list
+  const savedSection=document.querySelector('.saved-files-section');
+  if(savedSection)savedSection.style.display=p.allow_view_logs===false?'none':'block';
+
+  // Whole account security panel
+  const secPanel=document.querySelector('.security-panel');
+  if(secPanel)secPanel.style.display=p.allow_account_security===false?'none':'block';
+
+  // Individual security features
+  hpSetDisabled('#passcode-set-btn,#passcode-change-btn,#passcode-remove-btn', p.allow_passcode===false || p.allow_account_security===false);
+  hpSetDisabled('#bio-enable-btn,#bio-disable-btn', p.allow_biometrics===false || p.allow_account_security===false);
+  hpSetDisabled('.sec-btn-request', p.allow_admin_request===false || p.allow_account_security===false);
 }
 async function simpleForceSafeSync(){
   hpEnsureStores();
@@ -1879,6 +1964,122 @@ function hpRefresh(){
   hpRenderHealth();
   hpRenderPermissions();
   hpApplyPermissions();
+}
+
+
+// ══════════════════════════════════════════════════════════════
+//  EMPLOYEE PAGE FEATURES CONTROLLED BY ADMIN PERMISSIONS
+// ══════════════════════════════════════════════════════════════
+function employeeActiveProfile(){
+  return localStorage.getItem('dom_sc_active_profile')||'default';
+}
+function employeeProfileName(profileVal){
+  const p=(cloud.profiles||[]).find(x=>x.val===profileVal);
+  return p?p.name:profileVal;
+}
+function employeeInitials(name){
+  return String(name||'?').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('')||'?';
+}
+function employeeEnsureFeatureStores(){
+  if(!cloud.profile_pictures)cloud.profile_pictures={};
+  if(!cloud.employee_messages)cloud.employee_messages=[];
+}
+function employeeGetProfilePic(val){
+  employeeEnsureFeatureStores();
+  if(typeof getProfilePic==='function')return getProfilePic(val);
+  return cloud.profile_pictures[val]||localStorage.getItem('dom_sc_profile_pic_'+val)||'';
+}
+function employeeRenderProfilePicture(){
+  const box=document.getElementById('employee-profile-picture-preview');
+  if(!box)return;
+  const pv=employeeActiveProfile();
+  const pic=employeeGetProfilePic(pv);
+  const name=employeeProfileName(pv);
+  box.innerHTML=pic?`<img class="employee-profile-preview" src="${pic}" alt="">`:`<div class="employee-profile-initials">${employeeInitials(name)}</div>`;
+}
+function employeeChangeOwnProfilePicture(input){
+  const pv=employeeActiveProfile();
+  if(typeof hpGetPerm==='function'&&!hpGetPerm(pv,'allow_profile_pic')){alert('Profile picture changes are disabled by admin.');return;}
+  const file=input.files&&input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async function(){
+    employeeEnsureFeatureStores();
+    cloud.profile_pictures[pv]=reader.result;
+    localStorage.setItem('dom_sc_profile_pic_'+pv,reader.result);
+    if(typeof pushCloud==='function')await pushCloud();
+    employeeRenderProfilePicture();
+    if(typeof renderLoginButtons==='function')renderLoginButtons();
+    alert('Profile picture saved.');
+  };
+  reader.readAsDataURL(file);
+}
+async function employeeDeleteOwnProfilePicture(){
+  const pv=employeeActiveProfile();
+  if(typeof hpGetPerm==='function'&&!hpGetPerm(pv,'allow_profile_pic')){alert('Profile picture changes are disabled by admin.');return;}
+  if(!confirm('Delete your profile picture?'))return;
+  employeeEnsureFeatureStores();
+  delete cloud.profile_pictures[pv];
+  localStorage.removeItem('dom_sc_profile_pic_'+pv);
+  if(typeof pushCloud==='function')await pushCloud();
+  employeeRenderProfilePicture();
+  if(typeof renderLoginButtons==='function')renderLoginButtons();
+}
+async function employeeSendAdminMessage(){
+  const pv=employeeActiveProfile();
+  if(typeof hpGetPerm==='function'&&!hpGetPerm(pv,'allow_admin_request')){alert('Admin requests are disabled by admin.');return;}
+  const box=document.getElementById('employee-admin-message');
+  const status=document.getElementById('employee-admin-message-status');
+  const msg=(box&&box.value||'').trim();
+  if(!msg){alert('Type a message first.');return;}
+  employeeEnsureFeatureStores();
+  cloud.employee_messages.push({
+    id:'msg_'+Date.now(),
+    profile:pv,
+    profileName:employeeProfileName(pv),
+    message:msg,
+    time:new Date().toLocaleString(),
+    timeISO:new Date().toISOString(),
+    status:'new'
+  });
+  if(typeof pushCloud==='function')await pushCloud();
+  if(box)box.value='';
+  if(status)status.textContent='Message sent to admin.';
+  if(typeof adminRenderEmployeeMessages==='function')adminRenderEmployeeMessages();
+}
+function adminRenderEmployeeMessages(){
+  const box=document.getElementById('admin-employee-messages');
+  if(!box)return;
+  employeeEnsureFeatureStores();
+  const msgs=[...(cloud.employee_messages||[])].reverse();
+  if(!msgs.length){box.innerHTML='No messages yet.';return;}
+  box.innerHTML=msgs.map(m=>`<div style="border-bottom:1px solid #eee;padding:6px 0">
+    <b>${m.profileName||m.profile}</b> <span style="font-size:10px;color:#777">${m.time||''}</span><br>
+    <span>${String(m.message||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</span>
+    <br><button class="sm-btn btn-red" style="margin-top:4px" onclick="adminDeleteEmployeeMessage('${m.id}')">Delete</button>
+  </div>`).join('');
+}
+async function adminDeleteEmployeeMessage(id){
+  employeeEnsureFeatureStores();
+  cloud.employee_messages=(cloud.employee_messages||[]).filter(m=>m.id!==id);
+  if(typeof pushCloud==='function')await pushCloud();
+  adminRenderEmployeeMessages();
+}
+function employeeApplyFeaturePermissions(){
+  const pv=employeeActiveProfile();
+  const picAllowed=!(typeof hpGetPerm==='function')||hpGetPerm(pv,'allow_profile_pic');
+  const picCard=document.getElementById('employee-profile-picture-card');
+  if(picCard)picCard.style.display=picAllowed?'block':'none';
+  const msgAllowed=!(typeof hpGetPerm==='function')||hpGetPerm(pv,'allow_admin_request');
+  const msgCard=document.getElementById('employee-message-admin-card');
+  if(msgCard)msgCard.style.display=msgAllowed?'block':'none';
+  employeeRenderProfilePicture();
+}
+function employeeRefreshFeatures(){
+  employeeEnsureFeatureStores();
+  employeeRenderProfilePicture();
+  employeeApplyFeaturePermissions();
+  adminRenderEmployeeMessages();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2205,6 +2406,14 @@ document.addEventListener("change", function(e){ if(e.target && e.target.closest
 document.addEventListener("DOMContentLoaded",function(){
   setTimeout(function(){if(typeof hpRefresh==="function")hpRefresh();},1000);
   setTimeout(function(){if(typeof hpRefresh==="function")hpRefresh();},2500);
+});
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  setTimeout(function(){if(typeof employeeRefreshFeatures==="function")employeeRefreshFeatures();},1000);
+  setTimeout(function(){if(typeof employeeRefreshFeatures==="function")employeeRefreshFeatures();},2500);
 });
 </script>
 
