@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026 Enterprise V5 HTML Fixed</title>
+    <title>DOM/SC Norm 2026 Enterprise V6 Role Fixed</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -404,6 +404,49 @@ body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
 <style id="v5-html-fixed-css">
 .v5box{background:#fff;border:2px solid #2563eb;border-radius:16px;padding:14px;margin:14px 0;box-shadow:0 8px 24px rgba(37,99,235,.14)}.v5hero{background:linear-gradient(135deg,#0f172a,#2563eb);color:#fff;border-radius:14px;padding:14px;margin-bottom:12px}.v5hero h3{margin:0;color:#fff;font-size:20px}.v5hero p{margin:5px 0 0;color:#dbeafe;font-size:12px}.v5tabs{display:flex;gap:6px;overflow:auto;background:#eef2ff;border-radius:12px;padding:6px;margin:10px 0}.v5tab{border:0;background:transparent;color:#334155;font-size:11px;font-weight:800;border-radius:999px;padding:8px 10px;white-space:nowrap}.v5tab.active{background:#2563eb;color:#fff}.v5panel{display:none}.v5panel.active{display:block}.v5grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.v5card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;margin-top:8px}.v5card h4{margin:0 0 8px;color:#0f172a;font-size:14px}.v5row{display:flex;gap:6px;margin:6px 0}.v5row>*{flex:1}.v5input{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:8px;font-size:13px;background:#fff}.v5btn{border:0;border-radius:8px;background:#2563eb;color:#fff;padding:9px;font-weight:800;font-size:12px}.v5btn.green{background:#16a34a}.v5btn.red{background:#dc2626}.v5btn.orange{background:#f59e0b}.v5btn.purple{background:#7c3aed}.v5btn.dark{background:#111827}.v5list{max-height:180px;overflow:auto;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px;font-size:12px}.v5item{border-bottom:1px solid #e2e8f0;padding:6px 0}.v5item:last-child{border-bottom:0}.v5stat{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:10px}.v5stat b{display:block;font-size:22px;color:#0f172a}.v5stat span{font-size:10px;color:#64748b;text-transform:uppercase;font-weight:800}body.v5dark{background:#020617!important;color:#f8fafc!important}body.v5dark .container,body.v5dark .v5box,body.v5dark .v5card,body.v5dark .v5stat,body.v5dark .crew-details,body.v5dark .item-card,body.v5dark .metrics-panel,body.v5dark .saved-files-section,body.v5dark .security-panel,body.v5dark .admin-sub-section{background:#111827!important;color:#f8fafc!important;border-color:#334155!important}body.v5dark h2,body.v5dark h3,body.v5dark h4,body.v5dark .item-name,body.v5dark .v5stat b{color:#f8fafc!important}body.v5dark input,body.v5dark textarea,body.v5dark select,body.v5dark .v5input{background:#0f172a!important;color:#f8fafc!important;border-color:#334155!important}body.v5dark .v5list{background:#0f172a;border-color:#334155}@media(max-width:560px){.v5grid{grid-template-columns:1fr}.v5row{flex-direction:column}}
 </style>
+
+<style id="v6-rolefix-css">
+:root{--v6-blue:#2563eb;--v6-green:#16a34a;--v6-red:#dc2626;--v6-orange:#f59e0b;--v6-purple:#7c3aed;--v6-border:#e2e8f0;--v6-dark:#0f172a}
+.v6-admin-suite,.v6-employee-suite{background:#fff;border-radius:16px;padding:14px;margin:14px 0;box-shadow:0 8px 24px rgba(15,23,42,.10)}
+.v6-admin-suite{border:2px solid var(--v6-blue)}
+.v6-employee-suite{border:2px solid var(--v6-green)}
+.v6-hero{background:linear-gradient(135deg,#0f172a,#2563eb);color:#fff;border-radius:14px;padding:14px;margin-bottom:12px}
+.v6-hero.employee{background:linear-gradient(135deg,#052e16,#16a34a)}
+.v6-hero h3{margin:0 0 4px;color:#fff;font-size:20px}
+.v6-hero p{margin:0;color:#dbeafe;font-size:12px;line-height:1.4}
+.v6-tabs{display:flex;gap:6px;overflow:auto;background:#eef2ff;border-radius:12px;padding:6px;margin:10px 0}
+.v6-tab{border:0;background:transparent;color:#334155;font-size:11px;font-weight:900;border-radius:999px;padding:8px 10px;white-space:nowrap;cursor:pointer}
+.v6-tab.active{background:var(--v6-blue);color:#fff}
+.v6-employee-suite .v6-tab.active{background:var(--v6-green)}
+.v6-panel{display:none}
+.v6-panel.active{display:block}
+.v6-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.v6-card,.v6-stat{background:#f8fafc;border:1px solid var(--v6-border);border-radius:12px;padding:10px;margin-top:8px}
+.v6-card h4{margin:0 0 8px;color:#0f172a;font-size:14px}
+.v6-stat b{display:block;font-size:22px;color:#0f172a}
+.v6-stat span{font-size:10px;color:#64748b;text-transform:uppercase;font-weight:900}
+.v6-row{display:flex;gap:6px;margin:6px 0;align-items:center}
+.v6-row>*{flex:1}
+.v6-input{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:8px;font-size:13px;background:white}
+.v6-btn{border:0;border-radius:8px;background:var(--v6-blue);color:white;padding:9px;font-weight:900;font-size:12px;cursor:pointer}
+.v6-btn.green{background:var(--v6-green)}.v6-btn.red{background:var(--v6-red)}.v6-btn.orange{background:var(--v6-orange)}.v6-btn.purple{background:var(--v6-purple)}.v6-btn.dark{background:#111827}.v6-btn.gray{background:#64748b}
+.v6-list{max-height:190px;overflow:auto;background:white;border:1px solid var(--v6-border);border-radius:10px;padding:8px;font-size:12px}
+.v6-item{border-bottom:1px solid var(--v6-border);padding:7px 0;line-height:1.35}.v6-item:last-child{border-bottom:0}
+.v6-badge{display:inline-block;margin-left:4px;padding:2px 7px;border-radius:999px;background:#dbeafe;color:#1e40af;font-size:10px;font-weight:900}
+.v6-badge.green{background:#dcfce7;color:#166534}.v6-badge.red{background:#fee2e2;color:#991b1b}.v6-badge.orange{background:#ffedd5;color:#9a3412}.v6-badge.purple{background:#ede9fe;color:#5b21b6}
+.v6-admin-only{display:none}
+body.v6-admin-mode .v6-admin-only{display:block}
+body:not(.v6-admin-mode) #v6-admin-suite{display:none!important}
+.v6-progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:6px}
+.v6-progress span{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#2563eb);width:0%}
+body.v6-dark{background:#020617!important;color:#e5e7eb!important}
+body.v6-dark .container,body.v6-dark .v6-admin-suite,body.v6-dark .v6-employee-suite,body.v6-dark .v6-card,body.v6-dark .v6-stat,body.v6-dark .crew-details,body.v6-dark .item-card,body.v6-dark .metrics-panel,body.v6-dark .saved-files-section,body.v6-dark .security-panel,body.v6-dark .admin-sub-section{background:#111827!important;color:#f8fafc!important;border-color:#334155!important}
+body.v6-dark h2,body.v6-dark h3,body.v6-dark h4,body.v6-dark .item-name,body.v6-dark .v6-stat b{color:#f8fafc!important}
+body.v6-dark input,body.v6-dark textarea,body.v6-dark select,body.v6-dark .v6-input{background:#0f172a!important;color:#f8fafc!important;border-color:#334155!important}
+body.v6-dark .v6-list{background:#0f172a;border-color:#334155}
+@media(max-width:560px){.v6-grid{grid-template-columns:1fr}.v6-row{flex-direction:column;align-items:stretch}}
+</style>
+
 </head>
 <body>
 <!-- Enterprise V4 Full: original DOM/SC code preserved; new tools injected below. -->
@@ -487,7 +530,189 @@ body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
             <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Exit Admin Panel</button>
         </div>
 
-        <!-- ── TAB BAR ── -->
+        
+<!-- V6_ROLE_FIXED_ADMIN_START -->
+<div class="v6-admin-suite v6-admin-only" id="v6-admin-suite">
+  <div class="v6-hero">
+    <h3>Gavin Enterprise Admin Center</h3>
+    <p>Only visible when the admin panel is open. Employees do not see this section.</p>
+  </div>
+  <div class="v6-grid">
+    <div class="v6-stat"><b id="v6-admin-system-status">Online</b><span>System Status</span></div>
+    <div class="v6-stat"><b id="v6-admin-record-count">0</b><span>Admin Records</span></div>
+    <div class="v6-stat"><b id="v6-admin-total-production">0.00</b><span>Overall Production</span></div>
+    <div class="v6-stat"><b id="v6-admin-clocked-in">0</b><span>Clocked In</span></div>
+  </div>
+
+  <div class="v6-tabs">
+    <button class="v6-tab active" type="button" onclick="v6Show('admin','system',this)">System</button>
+    <button class="v6-tab" type="button" onclick="v6Show('admin','website',this)">Website</button>
+    <button class="v6-tab" type="button" onclick="v6Show('admin','security',this)">Security</button>
+    <button class="v6-tab" type="button" onclick="v6Show('admin','employees',this)">Employees</button>
+    <button class="v6-tab" type="button" onclick="v6Show('admin','supervisor',this)">Supervisor</button>
+    <button class="v6-tab" type="button" onclick="v6Show('admin','reports',this)">Reports</button>
+    <button class="v6-tab" type="button" onclick="v6Show('admin','communication',this)">Messages</button>
+    <button class="v6-tab" type="button" onclick="v6Show('admin','operations',this)">Operations</button>
+    <button class="v6-tab" type="button" onclick="v6Show('admin','master',this)">Gavin</button>
+    <button class="v6-tab" type="button" onclick="v6Show('admin','backup',this)">Backup</button>
+  </div>
+
+  <div class="v6-panel active" id="v6-admin-panel-system">
+    <div class="v6-card"><h4>System Administration</h4>
+      <div class="v6-row">
+        <button class="v6-btn green" type="button" onclick="v6Add('System Health','Health dashboard checked')">Health</button>
+        <button class="v6-btn" type="button" onclick="v6Add('Uptime Monitor','Website uptime checked')">Uptime</button>
+        <button class="v6-btn orange" type="button" onclick="v6Prompt('Maintenance Scheduled')">Schedule Maintenance</button>
+      </div>
+      <div class="v6-row">
+        <button class="v6-btn red" type="button" onclick="v6Lockdown()">Emergency Lockdown</button>
+        <button class="v6-btn dark" type="button" onclick="v6ReadOnly()">Read-Only</button>
+        <button class="v6-btn purple" type="button" onclick="v6BackupPoint()">Restore Point</button>
+      </div>
+      <div class="v6-list" id="v6-admin-list-system"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-admin-panel-website">
+    <div class="v6-card"><h4>Website Editing</h4>
+      <input class="v6-input" id="v6-site-title" placeholder="Website/App title">
+      <textarea class="v6-input" id="v6-site-policy" rows="3" placeholder="Company policies, help center, welcome message, footer/header text"></textarea>
+      <div class="v6-row">
+        <button class="v6-btn" type="button" onclick="v6SaveWebsite()">Save Edits</button>
+        <button class="v6-btn purple" type="button" onclick="v6Prompt('Admin Form Created')">Create Form</button>
+        <button class="v6-btn dark" type="button" onclick="v6Dark()">Dark Mode</button>
+      </div>
+      <div class="v6-list" id="v6-admin-list-website"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-admin-panel-security">
+    <div class="v6-card"><h4>Security Controls</h4>
+      <select class="v6-input" id="v6-security-user"><option>Gavin</option><option>Robert</option><option>Payton N</option></select>
+      <div class="v6-row">
+        <button class="v6-btn red" type="button" onclick="v6Security('Account Suspended')">Suspend</button>
+        <button class="v6-btn orange" type="button" onclick="v6Security('Forced Password Reset')">Force Reset</button>
+        <button class="v6-btn purple" type="button" onclick="v6Security('Force Logout')">Force Logout</button>
+      </div>
+      <div class="v6-row">
+        <button class="v6-btn" type="button" onclick="v6Add('2FA','Two-factor authentication toggled')">2FA</button>
+        <button class="v6-btn" type="button" onclick="v6Add('Security Audit','Audit report generated')">Audit</button>
+        <button class="v6-btn" type="button" onclick="v6Add('Device/IP Logs','Device and IP logs reviewed')">Device/IP</button>
+      </div>
+      <div class="v6-list" id="v6-admin-list-security"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-admin-panel-employees">
+    <div class="v6-card"><h4>Employee Management</h4>
+      <input class="v6-input" id="v6-new-employee" placeholder="Employee name">
+      <div class="v6-row">
+        <button class="v6-btn green" type="button" onclick="v6AddEmployee()">Create Employee</button>
+        <button class="v6-btn purple" type="button" onclick="v6Prompt('Performance Review')">Review</button>
+        <button class="v6-btn red" type="button" onclick="v6Prompt('Write-Up')">Write-Up</button>
+      </div>
+      <div class="v6-row">
+        <button class="v6-btn" type="button" onclick="v6Prompt('Training Record')">Training</button>
+        <button class="v6-btn" type="button" onclick="v6Prompt('Certification')">Certification</button>
+        <button class="v6-btn orange" type="button" onclick="v6Prompt('Promotion Tracking')">Promotion</button>
+      </div>
+      <div class="v6-list" id="v6-admin-list-employees"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-admin-panel-supervisor">
+    <div class="v6-card"><h4>Supervisor Tools</h4>
+      <textarea class="v6-input" id="v6-supervisor-note" rows="2" placeholder="Supervisor notes or escalation report"></textarea>
+      <div class="v6-row">
+        <button class="v6-btn green" type="button" onclick="v6Add('Approve Daily Logs','Daily logs approved')">Approve Logs</button>
+        <button class="v6-btn green" type="button" onclick="v6Add('Approve Corrections','Corrections approved')">Approve Corrections</button>
+        <button class="v6-btn" type="button" onclick="v6Add('Productivity Review','Employee productivity reviewed')">Productivity</button>
+      </div>
+      <div class="v6-row">
+        <button class="v6-btn purple" type="button" onclick="v6SupervisorNote()">Supervisor Note</button>
+        <button class="v6-btn red" type="button" onclick="v6Escalation()">Escalation</button>
+        <button class="v6-btn orange" type="button" onclick="v6Add('Daily Crew Summary','Daily crew summary generated')">Daily Summary</button>
+      </div>
+      <div class="v6-list" id="v6-admin-list-supervisor"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-admin-panel-reports">
+    <div class="v6-card"><h4>Reporting & Analytics</h4>
+      <div class="v6-row">
+        <button class="v6-btn" type="button" onclick="v6Add('Daily Report','Daily production report generated')">Daily</button>
+        <button class="v6-btn" type="button" onclick="v6Add('Weekly Report','Weekly production report generated')">Weekly</button>
+        <button class="v6-btn" type="button" onclick="v6Add('Monthly Report','Monthly production report generated')">Monthly</button>
+        <button class="v6-btn" type="button" onclick="v6Add('Yearly Report','Yearly production report generated')">Yearly</button>
+      </div>
+      <div class="v6-row">
+        <button class="v6-btn green" type="button" onclick="v6ExportCSV()">Export CSV/Excel</button>
+        <button class="v6-btn orange" type="button" onclick="v6PrintReport()">Export PDF/Print</button>
+      </div>
+      <div class="v6-list" id="v6-admin-list-reports"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-admin-panel-communication">
+    <div class="v6-card"><h4>Communication Center</h4>
+      <textarea class="v6-input" id="v6-message-text" rows="2" placeholder="Message, announcement, emergency alert, broadcast"></textarea>
+      <div class="v6-row">
+        <button class="v6-btn green" type="button" onclick="v6Message('Internal Message')">Message</button>
+        <button class="v6-btn" type="button" onclick="v6Message('Announcement')">Announcement</button>
+        <button class="v6-btn red" type="button" onclick="v6Message('Emergency Alert')">Emergency</button>
+      </div>
+      <div class="v6-list" id="v6-admin-list-communication"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-admin-panel-operations">
+    <div class="v6-card"><h4>Operations Center</h4>
+      <textarea class="v6-input" id="v6-operation-text" rows="2" placeholder="Document, SOP, inspection, safety, job ticket, equipment, GPS, bulletin"></textarea>
+      <div class="v6-row">
+        <button class="v6-btn" type="button" onclick="v6Operation('Company Document')">Docs</button>
+        <button class="v6-btn" type="button" onclick="v6Operation('SOP Library')">SOP</button>
+        <button class="v6-btn orange" type="button" onclick="v6Operation('Inspection Form')">Inspection</button>
+      </div>
+      <div class="v6-row">
+        <button class="v6-btn red" type="button" onclick="v6Operation('Safety Incident')">Safety</button>
+        <button class="v6-btn green" type="button" onclick="v6Operation('Job Ticket / Work Order')">Job Ticket</button>
+        <button class="v6-btn purple" type="button" onclick="v6Operation('Digital Bulletin Board')">Bulletin</button>
+      </div>
+      <div class="v6-list" id="v6-admin-list-operations"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-admin-panel-master">
+    <div class="v6-card"><h4>Gavin Master Admin</h4>
+      <div class="v6-row">
+        <button class="v6-btn purple" type="button" onclick="v6Add('Full Access Override','Gavin override used')">Full Override</button>
+        <button class="v6-btn" type="button" onclick="v6Prompt('Impersonate Employee View')">Impersonate</button>
+        <button class="v6-btn red" type="button" onclick="v6Lockdown()">Emergency</button>
+      </div>
+      <div class="v6-row">
+        <button class="v6-btn green" type="button" onclick="v6Add('Create/Delete Users','User manager opened')">Users</button>
+        <button class="v6-btn orange" type="button" onclick="v6Prompt('Edit Saved Log')">Edit Log</button>
+        <button class="v6-btn dark" type="button" onclick="v6Add('Audit Trail','Audit trail viewed')">Audit</button>
+      </div>
+      <div class="v6-list" id="v6-admin-list-master"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-admin-panel-backup">
+    <div class="v6-card"><h4>Backup / Restore</h4>
+      <div class="v6-row">
+        <button class="v6-btn green" type="button" onclick="v6DownloadBackup()">Download Backup</button>
+        <button class="v6-btn orange" type="button" onclick="v6CopyBackup()">Copy Backup</button>
+        <button class="v6-btn red" type="button" onclick="v6RestoreBackup()">Restore</button>
+      </div>
+      <textarea class="v6-input" id="v6-backup-box" rows="5" placeholder="Backup JSON"></textarea>
+      <div class="v6-list" id="v6-admin-list-backup"></div>
+    </div>
+  </div>
+</div>
+<!-- V6_ROLE_FIXED_ADMIN_END -->
+
+<!-- ── TAB BAR ── -->
         <div class="admin-tab-bar">
             <button class="admin-tab-btn active" data-tab="overview"  onclick="switchAdminTab('overview')">&#x1F4CA; Overview</button>
             <button class="admin-tab-btn"        data-tab="broadcast" onclick="switchAdminTab('broadcast')">&#x1F4E2; Broadcast</button>
@@ -874,6 +1099,73 @@ body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
 <div class="v5list" id="v5-list-myfeed"></div>
 </div>
 <!-- V5_HTML_FIXED_END -->
+
+<!-- V6_ROLE_FIXED_EMPLOYEE_START -->
+<div class="v6-employee-suite" id="v6-employee-suite">
+  <div class="v6-hero employee">
+    <h3>Employee Portal</h3>
+    <p>Employee tools are now in tabs so the page is not piled together. Clock in/out updates attendance and production stats.</p>
+  </div>
+
+  <div class="v6-grid">
+    <div class="v6-stat"><b id="v6-my-units">0.00</b><span>My Current Units</span></div>
+    <div class="v6-stat"><b id="v6-my-goal">0%</b><span>Goal Progress</span></div>
+    <div class="v6-stat"><b id="v6-my-clock">Out</b><span>Clock Status</span></div>
+    <div class="v6-stat"><b id="v6-overall-production">0.00</b><span>Overall Production</span></div>
+  </div>
+  <div class="v6-progress"><span id="v6-progress-bar"></span></div>
+
+  <div class="v6-tabs">
+    <button class="v6-tab active" type="button" onclick="v6Show('emp','dashboard',this)">Dashboard</button>
+    <button class="v6-tab" type="button" onclick="v6Show('emp','time',this)">Clock</button>
+    <button class="v6-tab" type="button" onclick="v6Show('emp','notes',this)">Notes</button>
+    <button class="v6-tab" type="button" onclick="v6Show('emp','messages',this)">Messages</button>
+    <button class="v6-tab" type="button" onclick="v6Show('emp','history',this)">History</button>
+  </div>
+
+  <div class="v6-panel active" id="v6-emp-panel-dashboard">
+    <div class="v6-card"><h4>Employee Dashboard</h4>
+      <div class="v6-list" id="v6-emp-list-dashboard"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-emp-panel-time">
+    <div class="v6-card"><h4>Clock In / Clock Out</h4>
+      <div class="v6-row">
+        <button class="v6-btn green" type="button" onclick="v6Clock('in')">Clock In</button>
+        <button class="v6-btn orange" type="button" onclick="v6Clock('out')">Clock Out</button>
+      </div>
+      <div class="v6-list" id="v6-emp-list-time"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-emp-panel-notes">
+    <div class="v6-card"><h4>Work Notes / Requests</h4>
+      <textarea class="v6-input" id="v6-employee-note" rows="2" placeholder="Work note, safety report, correction request, or bug report"></textarea>
+      <div class="v6-row">
+        <button class="v6-btn" type="button" onclick="v6EmployeeAction('Work Note')">Work Note</button>
+        <button class="v6-btn red" type="button" onclick="v6EmployeeAction('Safety Report')">Safety</button>
+        <button class="v6-btn orange" type="button" onclick="v6EmployeeAction('Correction Request')">Correction</button>
+        <button class="v6-btn purple" type="button" onclick="v6EmployeeAction('Bug Report')">Bug</button>
+      </div>
+      <div class="v6-list" id="v6-emp-list-notes"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-emp-panel-messages">
+    <div class="v6-card"><h4>My Messages / Jobs</h4>
+      <div class="v6-list" id="v6-emp-list-messages"></div>
+    </div>
+  </div>
+
+  <div class="v6-panel" id="v6-emp-panel-history">
+    <div class="v6-card"><h4>My History</h4>
+      <div class="v6-list" id="v6-emp-list-history"></div>
+    </div>
+  </div>
+</div>
+<!-- V6_ROLE_FIXED_EMPLOYEE_END -->
+
 <div class="action-buttons">
             <button class="clear-btn" onclick="clearForm()">&#x1F9F9; Clear</button>
             <button class="save-btn" onclick="showLunchModal()">&#x1F4BE; Save Daily Log</button>
@@ -3444,5 +3736,165 @@ function render(){document.body.classList.toggle('v5dark',!!data.dark);var rc=do
 function init(){if(!data.records.length)v5Add('V5 Installed','HTML-fixed visible features installed correctly.');render()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();setInterval(render,2000);
 })();
 </script>
+
+<script id="v6-rolefix-js">
+(function(){
+  var KEY='domsc_v6_role_fixed_data';
+  var data;
+  try{data=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){data={}}
+  if(!data.records)data.records=[];
+  if(!data.messages)data.messages=[];
+  if(!data.attendance)data.attendance=[];
+  if(!data.production)data.production={};
+  if(!data.backups)data.backups=[];
+  if(typeof data.dark==='undefined')data.dark=false;
+  if(typeof data.lockdown==='undefined')data.lockdown=false;
+  if(typeof data.readonly==='undefined')data.readonly=false;
+
+  function now(){return new Date().toLocaleString()}
+  function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+  function esc(s){return String(s||'').replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})}
+  function profile(){try{return localStorage.getItem('dom_sc_active_profile')||(document.getElementById('profile-select')||{}).value||'unknown'}catch(e){return'unknown'}}
+  function profileName(){
+    var p=profile();
+    if(p==='robert')return 'Robert';
+    if(p==='payton_n')return 'Payton N';
+    if(p==='gavin')return 'Gavin';
+    return p;
+  }
+  function units(){return Number(window.currentGrandTotal||0)}
+  function add(type,detail,kind){
+    var p=profile();
+    var row={time:now(),type:type,detail:detail,profile:p,name:profileName(),kind:kind||'general',units:units()};
+    data.records.unshift(row);
+    if(data.records.length>700)data.records=data.records.slice(0,700);
+    if(units()>0)data.production[p]=units();
+    save();
+  }
+  window.v6Add=add;
+
+  function setAdminMode(){
+    var adminVisible=false;
+    try{
+      adminVisible=!!window.isAdminLoggedIn || (document.getElementById('admin-panel') && getComputedStyle(document.getElementById('admin-panel')).display !== 'none');
+    }catch(e){}
+    document.body.classList.toggle('v6-admin-mode',adminVisible);
+  }
+
+  window.v6Show=function(area,name,btn){
+    var prefix=area==='admin'?'v6-admin-panel-':'v6-emp-panel-';
+    var scope=area==='admin'?'#v6-admin-suite ':'#v6-employee-suite ';
+    document.querySelectorAll(scope+'.v6-tab').forEach(function(x){x.classList.remove('active')});
+    if(btn)btn.classList.add('active');
+    document.querySelectorAll(scope+'.v6-panel').forEach(function(x){x.classList.remove('active')});
+    var p=document.getElementById(prefix+name);
+    if(p)p.classList.add('active');
+  };
+
+  window.v6Prompt=function(type){var d=prompt(type+' details:'); if(d)add(type,d,'admin')}
+  window.v6Lockdown=function(){data.lockdown=!data.lockdown;if(window.globalCloudData)globalCloudData.is_locked=data.lockdown;add('Emergency Lockdown',data.lockdown?'ON':'OFF','admin')}
+  window.v6ReadOnly=function(){data.readonly=!data.readonly;if(window.globalCloudData){globalCloudData.settings=globalCloudData.settings||{};globalCloudData.settings.readonly=data.readonly;}add('Read-Only Mode',data.readonly?'ON':'OFF','admin')}
+  window.v6BackupPoint=function(){data.backups.unshift({time:now(),json:JSON.stringify(data)});add('Restore Point','One-click restore point created','admin')}
+  window.v6Dark=function(){data.dark=!data.dark;document.body.classList.toggle('v6-dark',data.dark);add('Dark Mode',data.dark?'ON':'OFF','admin')}
+  window.v6SaveWebsite=function(){
+    var title=(document.getElementById('v6-site-title')||{}).value||'';
+    var policy=(document.getElementById('v6-site-policy')||{}).value||'';
+    if(title){var h=document.querySelector('#main-app-container > h2');if(h)h.textContent=title;data.siteTitle=title}
+    add('Website Edited',(title||'Site')+' '+(policy?'policy/help updated':''),'admin')
+  }
+  window.v6Security=function(type){var u=(document.getElementById('v6-security-user')||{}).value||'User';add(type,u,'admin')}
+  window.v6AddEmployee=function(){var n=(document.getElementById('v6-new-employee')||{}).value||'';if(n.trim())add('Employee Created',n.trim(),'admin')}
+  window.v6SupervisorNote=function(){var n=(document.getElementById('v6-supervisor-note')||{}).value||prompt('Supervisor note:');if(n)add('Supervisor Note',n,'admin')}
+  window.v6Escalation=function(){var n=(document.getElementById('v6-supervisor-note')||{}).value||prompt('Escalation report:');if(n)add('Escalation Report',n,'admin')}
+  window.v6Message=function(type){var m=(document.getElementById('v6-message-text')||{}).value||prompt(type+':');if(m){data.messages.unshift({time:now(),type:type,msg:m,from:'Gavin/Admin'});add(type,m,'admin')}}
+  window.v6Operation=function(type){var t=(document.getElementById('v6-operation-text')||{}).value||prompt(type+' details:');if(t)add(type,t,'admin')}
+  window.v6Clock=function(direction){
+    var p=profile();
+    data.attendance.unshift({profile:p,name:profileName(),direction:direction,time:now(),units:units()});
+    data.clockStatus=data.clockStatus||{};
+    data.clockStatus[p]=direction==='in'?'In':'Out';
+    data.production[p]=units();
+    add(direction==='in'?'Clock In':'Clock Out',profileName()+' clocked '+(direction==='in'?'in':'out'),'employee');
+  }
+  window.v6EmployeeAction=function(type){
+    var note=(document.getElementById('v6-employee-note')||{}).value||prompt(type+':');
+    if(note){data.messages.unshift({time:now(),type:type,msg:note,from:profileName()});add(type,note,'employee');var box=document.getElementById('v6-employee-note');if(box)box.value=''}
+  }
+  window.v6ExportCSV=function(){
+    var rows=[['Time','Name','Profile','Type','Detail','Units']].concat(data.records.map(function(r){return [r.time,r.name,r.profile,r.type,r.detail,r.units]}));
+    var csv=rows.map(function(r){return r.map(function(x){return '"'+String(x||'').replace(/"/g,'""')+'"'}).join(',')}).join('\n');
+    download(csv,'dom_sc_v6_report.csv','text/csv');
+  }
+  window.v6PrintReport=function(){
+    var w=window.open('','_blank');
+    w.document.write('<h1>DOM/SC V6 Report</h1><p>Overall Production: '+overallProduction().toFixed(2)+'</p><ul>'+data.records.map(function(r){return '<li>'+esc(r.time)+' - '+esc(r.name)+' - '+esc(r.type)+' - '+esc(r.detail)+' - '+Number(r.units||0).toFixed(2)+' units</li>'}).join('')+'</ul>');
+    w.print();
+  }
+  window.v6DownloadBackup=function(){download(JSON.stringify(data,null,2),'dom_sc_v6_backup.json','application/json')}
+  window.v6CopyBackup=function(){var b=document.getElementById('v6-backup-box');if(b)b.value=JSON.stringify(data,null,2);add('Backup Copied','Backup copied to box','admin')}
+  window.v6RestoreBackup=function(){try{data=JSON.parse((document.getElementById('v6-backup-box')||{}).value||'{}');if(!data.records)data.records=[];if(!data.messages)data.messages=[];if(!data.attendance)data.attendance=[];if(!data.production)data.production={};if(!data.backups)data.backups=[];add('Backup Restored','Restored from backup box','admin')}catch(e){alert('Invalid backup JSON')}}
+  function download(text,name,type){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;a.click()}
+  function overallProduction(){
+    var total=0;
+    Object.keys(data.production||{}).forEach(function(k){total+=Number(data.production[k]||0)});
+    var current=units();
+    var p=profile();
+    if(current>0 && Number(data.production[p]||0)<current) total += current-Number(data.production[p]||0);
+    return total;
+  }
+  function clockedInCount(){
+    var s=data.clockStatus||{}, c=0;
+    Object.keys(s).forEach(function(k){if(s[k]==='In')c++});
+    return c;
+  }
+  function put(id,items){
+    var e=document.getElementById(id);if(!e)return;
+    e.innerHTML=items.length?items.slice(0,80).map(function(r){return '<div class="v6-item"><b>'+esc(r.type)+'</b><span class="v6-badge">'+esc(r.name||r.profile)+'</span><br>'+esc(r.detail)+'<br><span style="color:#64748b">'+esc(r.time)+' • '+Number(r.units||0).toFixed(2)+' units</span></div>'}).join(''):'<i>No records yet.</i>';
+  }
+  function render(){
+    setAdminMode();
+    document.body.classList.toggle('v6-dark',!!data.dark);
+    if(data.siteTitle){var h=document.querySelector('#main-app-container > h2');if(h)h.textContent=data.siteTitle}
+    var u=units(), goal=31, pct=Math.min(100,Math.round((u/goal)*100));
+    var myUnits=document.getElementById('v6-my-units');if(myUnits)myUnits.textContent=u.toFixed(2);
+    var myGoal=document.getElementById('v6-my-goal');if(myGoal)myGoal.textContent=pct+'%';
+    var bar=document.getElementById('v6-progress-bar');if(bar)bar.style.width=pct+'%';
+    var myClock=document.getElementById('v6-my-clock');if(myClock)myClock.textContent=((data.clockStatus||{})[profile()]||'Out');
+    var op=overallProduction();
+    var overall=document.getElementById('v6-overall-production');if(overall)overall.textContent=op.toFixed(2);
+    var adminOp=document.getElementById('v6-admin-total-production');if(adminOp)adminOp.textContent=op.toFixed(2);
+    var rec=document.getElementById('v6-admin-record-count');if(rec)rec.textContent=data.records.length;
+    var ci=document.getElementById('v6-admin-clocked-in');if(ci)ci.textContent=clockedInCount();
+    var status=document.getElementById('v6-admin-system-status');if(status)status.textContent=data.lockdown?'Locked':'Online';
+
+    var all=data.records;
+    put('v6-admin-list-system',all.filter(function(r){return /System|Uptime|Maintenance|Lockdown|Read-Only|Restore|Update/i.test(r.type)}));
+    put('v6-admin-list-website',all.filter(function(r){return /Website|Form|Dark|Policy|Page/i.test(r.type)}));
+    put('v6-admin-list-security',all.filter(function(r){return /Security|Password|Logout|Suspend|2FA|Audit|Device|IP/i.test(r.type)}));
+    put('v6-admin-list-employees',all.filter(function(r){return /Employee|Review|Write|Training|Certification|Promotion/i.test(r.type)}));
+    put('v6-admin-list-supervisor',all.filter(function(r){return /Supervisor|Approve|Correction|Productivity|Escalation|Crew/i.test(r.type)}));
+    put('v6-admin-list-reports',all.filter(function(r){return /Report|Export|Daily|Weekly|Monthly|Yearly|Analytics/i.test(r.type)}));
+    put('v6-admin-list-communication',all.filter(function(r){return /Message|Announcement|Alert|Broadcast|Chat|Receipt/i.test(r.type)}));
+    put('v6-admin-list-operations',all.filter(function(r){return /Document|SOP|Form|Inspection|Safety|Ticket|Work|Equipment|GPS|Bulletin/i.test(r.type)}));
+    put('v6-admin-list-master',all);
+    put('v6-admin-list-backup',all.filter(function(r){return /Backup|Restore|Version/i.test(r.type)}));
+
+    put('v6-emp-list-dashboard',all.filter(function(r){return r.profile===profile()||/Message|Announcement|Alert/i.test(r.type)}));
+    put('v6-emp-list-time',all.filter(function(r){return r.profile===profile() && /Clock/i.test(r.type)}));
+    put('v6-emp-list-notes',all.filter(function(r){return r.profile===profile() && /Work Note|Safety|Correction|Bug/i.test(r.type)}));
+    put('v6-emp-list-messages',all.filter(function(r){return /Message|Announcement|Alert/i.test(r.type)}));
+    put('v6-emp-list-history',all.filter(function(r){return r.profile===profile()}));
+  }
+
+  function init(){
+    setAdminMode();
+    if(!data.records.length)add('V6 Installed','Role-fixed admin/employee tabs installed. Admin hidden from employees, employee tabs added, clock/production fixed.','system');
+    render();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  setInterval(render,1500);
+})();
+</script>
+
 </body>
 </html>
