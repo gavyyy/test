@@ -1202,6 +1202,86 @@ button,.sm-btn,.admin-ctrl-btn,.save-btn,.clear-btn,.qty-btn{
   }
 }
 
+
+/* ══════════════════════════════════════════════════════════════
+   SIDE-BY-SIDE VARIABLE BOXES
+   Puts variable/item boxes in compact columns to save screen space.
+   ══════════════════════════════════════════════════════════════ */
+#item-cards-container{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+.item-card{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  min-width:0!important;
+  padding:8px!important;
+  gap:6px!important;
+}
+.item-info{
+  width:100%!important;
+  min-width:0!important;
+}
+.item-name{
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  font-size:12px!important;
+}
+.item-val{
+  font-size:10px!important;
+}
+.item-actions{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:1fr auto!important;
+  align-items:center!important;
+  gap:5px!important;
+}
+.qty-control{
+  width:100%!important;
+  justify-content:space-between!important;
+  gap:3px!important;
+}
+.qty-btn{
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+}
+.qty-input{
+  width:40px!important;
+  height:28px!important;
+  min-height:28px!important;
+}
+.item-total{
+  width:auto!important;
+  min-width:42px!important;
+  text-align:right!important;
+  font-size:12px!important;
+}
+@media(min-width:900px){
+  #item-cards-container{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:380px){
+  #item-cards-container{
+    grid-template-columns:1fr!important;
+  }
+  .item-card{
+    flex-direction:row!important;
+    align-items:center!important;
+  }
+  .item-actions{
+    width:auto!important;
+    min-width:155px!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3468,3 +3548,4 @@ document.addEventListener("DOMContentLoaded",function(){
 
 </script>
 </body>
+</html>
