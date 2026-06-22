@@ -934,7 +934,11 @@ async function completeLogin(profileVal) {
   const locStr=geo.error?`Location ${geo.error}`:`${geo.lat},${geo.lng} (±${geo.accuracy}m)`;
   try{emailjs.send("service_h1nnfhv","template_aienmjb",{profile_name:name,ip_address:localIP,location:locStr,time:new Date().toLocaleString()});}catch(e){}
   localStorage.setItem('dom_sc_active_profile',profileVal);
-  hide('login-gateway-portal'); show('main-app-container','block');
+  hide('login-gateway-portal');
+  show('main-app-container','block');
+  show('user-app-elements','block'); // always show for regular profile login
+  show('login-nav-link','inline-block'); // show admin console button
+  hide('admin-panel'); // hide admin panel if previously open
   loadSavedData();
 }
 function logoutProfile(){localStorage.removeItem('dom_sc_active_profile');location.reload();}
@@ -1374,7 +1378,11 @@ function hide(id){const e=$(id);if(e)e.style.display='none';}
 (async function init(){
   const saved=localStorage.getItem('dom_sc_active_profile');
   if(saved&&!isDedicatedAdmin){
-    hide('login-gateway-portal'); show('main-app-container','block');
+    hide('login-gateway-portal');
+    show('main-app-container','block');
+    show('user-app-elements','block');
+    show('login-nav-link','inline-block');
+    hide('admin-panel');
   } else {
     renderLoginButtons();
     show('login-gateway-portal','flex'); hide('main-app-container');
