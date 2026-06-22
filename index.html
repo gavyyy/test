@@ -587,32 +587,6 @@ let localIP = "0.0.0.0";
 let adminTimer = null;
 let authCtx = null, pcBuffer = "", pcTarget = "", pcSetStep = 0, pcSetFirst = "";
 
-
-// ══════════════════════════════════════════════════════════════
-//  LOCAL VARIABLE BACKUP
-//  Keeps admin-created variables/items after refresh even if JSONBin is slow,
-//  blocked, or does not save correctly.
-// ══════════════════════════════════════════════════════════════
-function loadLocalVariablesBackup(){
-  try{
-    const saved=JSON.parse(localStorage.getItem("dom_sc_local_variables_backup")||"{}");
-    if(saved.variables && typeof saved.variables==="object"){
-      cloud.variables=Object.assign({}, saved.variables, cloud.variables||{});
-    }
-    if(Array.isArray(saved.deleted_vars)){
-      cloud.deleted_vars=Array.from(new Set([...(cloud.deleted_vars||[]), ...saved.deleted_vars]));
-    }
-  }catch(e){}
-}
-function saveLocalVariablesBackup(){
-  try{
-    localStorage.setItem("dom_sc_local_variables_backup", JSON.stringify({
-      variables: cloud.variables||{},
-      deleted_vars: cloud.deleted_vars||[]
-    }));
-  }catch(e){}
-}
-
 // ══════════════════════════════════════════════════════════════
 //  CLOUD
 // ══════════════════════════════════════════════════════════════
@@ -647,8 +621,6 @@ async function pullCloud() {
       profiles:               (d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
       deleted_vars:           d.deleted_vars||[]
     };
-    loadLocalVariablesBackup();
-    saveLocalVariablesBackup();
     if (cloud.banned_ips.includes(localIP)) {
       document.getElementById('banned-screen').style.display='flex';
       return false;
@@ -656,7 +628,6 @@ async function pullCloud() {
     return true;
   } catch(e) {
     console.warn('Cloud sync unavailable:', e.message);
-    loadLocalVariablesBackup();
     return true;
   }
 }
@@ -982,15 +953,6 @@ function logoutProfile(){localStorage.removeItem('dom_sc_active_profile');locati
 function renderLoginButtons() {
   const bl=$('login-profile-buttons-list');
   if(!bl)return;
-
-  if(!cloud.profiles || !Array.isArray(cloud.profiles) || cloud.profiles.length===0){
-    cloud.profiles=[
-      {name:"Robert S",val:"robert_s"},
-      {name:"Payton N",val:"payton_n"},
-      {name:"Default / Custom",val:"default"}
-    ];
-  }
-
   bl.innerHTML=cloud.profiles.map(p=>
     `<button class="profile-tap-btn" onclick="processInstantProfileTap('${p.val}')">` +
     `<span>&#x1F464; ${p.name}</span>` +
@@ -1010,8 +972,8 @@ function applyUI() {
   if(cloud.is_locked&&!isAdmin){show('lock-overlay','flex');hide('main-app-container');hide('login-gateway-portal');return;}
   else hide('lock-overlay');
   // Freeze
-  const prof=(localStorage.getItem('dom_sc_active_profile')||'default');
-  if(cloud.frozen_users && cloud.frozen_users[prof] && !isAdmin)show('local-freeze-screen','flex'); else hide('local-freeze-screen');
+  const prof=(($('profile-select')&&$('profile-select').value)||localStorage.getItem('dom_sc_active_profile')||'default');
+  if(cloud.frozen_users[prof]&&!isAdmin)show('local-freeze-screen','flex'); else hide('local-freeze-screen');
   // Alert banner
   const banner=$('global-alert-banner');
   if(cloud.global_alert&&cloud.global_alert.trim()){
@@ -1025,11 +987,7 @@ function applyUI() {
   rebuildItems();
   // Profiles
   const pSel=$('profile-select');
-  if(pSel){
-    const cur=pSel.value;
-    pSel.innerHTML=cloud.profiles.map(p=>`<option value="${p.val}">${p.name}</option>`).join('');
-    pSel.value=cur;
-  }
+  if(pSel){const cur=pSel.value;pSel.innerHTML=cloud.profiles.map(p=>`<option value="${p.val}">${p.name}</option>`).join('');pSel.value=cur;}
   // Login buttons — always rebuild from current profiles
   renderLoginButtons();
   // Admin UI
@@ -1049,15 +1007,13 @@ function applyUI() {
   updateSecurityPanel();
 }
 function rebuildItems() {
-  saveEmployeeCalculatorQuantities();
-  if(typeof loadLocalVariablesBackup==='function')loadLocalVariablesBackup();
+  saveQtyByName();
   let base=[...BASE_ITEMS.map(i=>({...i}))];
   Object.keys(cloud.variables||{}).forEach(k=>{const e=base.find(i=>i.name===k);if(e)e.val=parseFloat(cloud.variables[k]);else base.push({name:k,val:parseFloat(cloud.variables[k])});});
   if(cloud.deleted_vars)base=base.filter(i=>!cloud.deleted_vars.includes(i.name));
   items=base;
   renderCards();
-  loadEmployeeCalculatorQuantities();
-  calculateEverything();
+  restoreQtyByName();
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1194,9 +1150,9 @@ function updateAdminDrafts(){
 }
 
 // Items
-async async function adminAddItem(){const n=$('new-var-name').value.trim(),v=parseFloat($('new-var-val').value);if(!n||isNaN(v))return;saveEmployeeCalculatorQuantities();cloud.variables[n]=v;cloud.deleted_vars=(cloud.deleted_vars||[]).filter(x=>x!==n);saveLocalVariablesBackup();await pushCloud();$('new-var-name').value=$('new-var-val').value="";applyUI();}
-async function adminUpdateItem(){const k=$('var-item-select').value,v=parseFloat($('var-item-val').value);if(isNaN(v))return;saveEmployeeCalculatorQuantities();cloud.variables[k]=v;saveLocalVariablesBackup();await pushCloud();applyUI();}
-async function adminDeleteItem(){const k=$('var-item-select').value;if(!confirm(`Remove "${k}"?`))return;saveEmployeeCalculatorQuantities();delete cloud.variables[k];cloud.deleted_vars=[...(cloud.deleted_vars||[]),k];saveLocalVariablesBackup();await pushCloud();applyUI();}
+async function adminAddItem(){const n=$('new-var-name').value.trim(),v=parseFloat($('new-var-val').value);if(!n||isNaN(v))return;cloud.variables[n]=v;cloud.deleted_vars=(cloud.deleted_vars||[]).filter(x=>x!==n);await pushCloud();$('new-var-name').value=$('new-var-val').value="";applyUI();}
+async function adminUpdateItem(){const k=$('var-item-select').value,v=parseFloat($('var-item-val').value);if(isNaN(v))return;cloud.variables[k]=v;await pushCloud();applyUI();}
+async function adminDeleteItem(){const k=$('var-item-select').value;if(!confirm(`Remove "${k}"?`))return;delete cloud.variables[k];cloud.deleted_vars=[...(cloud.deleted_vars||[]),k];await pushCloud();applyUI();}
 
 // Bulk
 async function adminFreezeAll(){if(!confirm("Freeze ALL profiles?"))return;(cloud.profiles||[]).forEach(p=>cloud.frozen_users[p.val]=true);await pushCloud();applyUI();alert("All frozen.");}
@@ -1269,31 +1225,34 @@ async function updateSecurityPanel(){
 // ══════════════════════════════════════════════════════════════
 function prefix(){return 'dom_sc_'+(localStorage.getItem('dom_sc_active_profile')||'default')+'_';}
 
-function safeQtyKey(itemName){
+function qtyNameKey(itemName){
   return 'qty_name_' + String(itemName||'').toLowerCase().replace(/[^a-z0-9]+/g,'_');
 }
-function saveEmployeeCalculatorQuantities(){
+function getQtyForItem(itemName,i){
+  const p=prefix();
+  const byName=localStorage.getItem(p+qtyNameKey(itemName));
+  if(byName!==null)return byName;
+  const byIndex=localStorage.getItem(p+'qty_'+i);
+  return byIndex!==null ? byIndex : "";
+}
+function saveQtyByName(){
   const p=prefix();
   items.forEach((it,i)=>{
     const el=$('qty-'+i);
     if(!el)return;
-    localStorage.setItem(p+'qty_'+i, el.value);
-    localStorage.setItem(p+safeQtyKey(it.name), el.value);
+    // Do not let a refresh/rebuild blank box erase the saved amount.
+    if(el.value!==""){
+      localStorage.setItem(p+'qty_'+i,el.value);
+      localStorage.setItem(p+qtyNameKey(it.name),el.value);
+    }
   });
 }
-function getSavedQtyForItem(itemName, index){
-  const p=prefix();
-  const byName=localStorage.getItem(p+safeQtyKey(itemName));
-  if(byName !== null) return byName;
-  const byIndex=localStorage.getItem(p+'qty_'+index);
-  return byIndex !== null ? byIndex : "";
-}
-function loadEmployeeCalculatorQuantities(){
-  const p=prefix();
+function restoreQtyByName(){
   items.forEach((it,i)=>{
     const el=$('qty-'+i);
     if(!el)return;
-    el.value = getSavedQtyForItem(it.name, i);
+    const saved=getQtyForItem(it.name,i);
+    if(saved!=="")el.value=saved;
   });
 }
 
@@ -1313,23 +1272,23 @@ function loadSavedData(){
   $('crew-member-name').value=localStorage.getItem(p+'member')||"";
   $('start-time').value=localStorage.getItem(p+'start')||"";
   $('end-time').value=localStorage.getItem(p+'end')||"";
-  loadEmployeeCalculatorQuantities();
+  restoreQtyByName();
   calculateEverything(); renderProfileFiles(); updateSecurityPanel();
 }
 function renderCards(){
   const c=$('item-cards-container'); if(!c)return;
   c.innerHTML=items.map((item,i)=>{
-    const savedQty=getSavedQtyForItem(item.name,i);
-    return `<div class="item-card"><div class="item-info"><div class="item-name">${item.name}</div><div class="item-val" id="val-${i}">Unit: ${item.val.toFixed(2)}</div></div><div class="item-actions"><div class="qty-control"><button class="qty-btn" onclick="adj(${i},-1)">-</button><input type="number" class="qty-input" id="qty-${i}" min="0" placeholder="0" value="${savedQty}" oninput="calculateEverything();saveEmployeeCalculatorQuantities()"><button class="qty-btn" onclick="adj(${i},1)">+</button></div><div class="item-total" id="tot-${i}">0.00</div></div></div>`;
+    const savedQty=getQtyForItem(item.name,i);
+    return `<div class="item-card"><div class="item-info"><div class="item-name">${item.name}</div><div class="item-val" id="val-${i}">Unit: ${item.val.toFixed(2)}</div></div><div class="item-actions"><div class="qty-control"><button class="qty-btn" onclick="adj(${i},-1)">-</button><input type="number" class="qty-input" id="qty-${i}" min="0" placeholder="0" value="${savedQty}" oninput="calculateEverything();saveQtyByName()"><button class="qty-btn" onclick="adj(${i},1)">+</button></div><div class="item-total" id="tot-${i}">0.00</div></div></div>`;
   }).join('');
   const vs=$('var-item-select'); if(vs)vs.innerHTML=items.map(it=>`<option value="${it.name}">${it.name}</option>`).join('');
 }
-function adj(i,d){const el=$('qty-'+i);if(!el)return;el.value=Math.max(0,(parseInt(el.value)||0)+d);calculateEverything();saveEmployeeCalculatorQuantities();}
+function adj(i,d){const el=$('qty-'+i);if(!el)return;el.value=Math.max(0,(parseInt(el.value)||0)+d);calculateEverything();saveQtyByName();}
 function calculateEverything(){
   let total=0;
   const pv=prefix(),crew=(document.querySelector('input[name="crew"]:checked')||{}).value||"1";
   localStorage.setItem(pv+'crew',crew);
-  items.forEach((it,i)=>{const el=$('qty-'+i);if(!el)return;if(el.value!==""){localStorage.setItem(pv+'qty_'+i,el.value);localStorage.setItem(pv+safeQtyKey(it.name),el.value);}const q=parseInt(el.value)||0;total+=q*it.val;const t=$('tot-'+i);if(t)t.textContent=(q*it.val).toFixed(2);});
+  items.forEach((it,i)=>{const el=$('qty-'+i);if(!el)return;if(el.value!==""){localStorage.setItem(pv+'qty_'+i,el.value);localStorage.setItem(pv+qtyNameKey(it.name),el.value);}const q=parseInt(el.value)||0;total+=q*it.val;const t=$('tot-'+i);if(t)t.textContent=(q*it.val).toFixed(2);});
   const gt=$('grand-total'); if(gt)gt.textContent=total.toFixed(2);
   const one=crew==="1";
   const cm=$('crew-member-container'); if(cm)cm.style.display=one?'none':'flex';
@@ -1339,7 +1298,7 @@ function calculateEverything(){
   setRemain('rem-8hr',t8-total); setRemain('rem-10hr',t10-total);
 }
 function setRemain(id,v){const el=$(id);if(!el)return;if(v<=0){el.textContent="MET (+"+Math.abs(v).toFixed(2)+")";el.className="metric-value rem-pos";}else{el.textContent=v.toFixed(2)+" left";el.className="metric-value rem-neg";}}
-function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+safeQtyKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
+function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+qtyNameKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
 
 // Save flow
 function showLunchModal(){
@@ -1467,14 +1426,12 @@ function hide(id){const e=$(id);if(e)e.style.display='none';}
     show('login-gateway-portal','flex'); hide('main-app-container');
   }
   resolveIP();
-  loadLocalVariablesBackup();
   renderCards();
   const ok=await pullCloud();
   if(ok===false)return;
   rebuildItems();
   if(saved&&!isDedicatedAdmin){
-    const ps=$('profile-select');
-    if(ps) ps.value=saved;
+    const ps=$('profile-select'); if(ps)ps.value=saved;
     loadSavedData();
   }
   applyUI();
@@ -1511,8 +1468,6 @@ setInterval(async function(){
       profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
       deleted_vars:d.deleted_vars||[]
     });
-    loadLocalVariablesBackup();
-    saveLocalVariablesBackup();
     if(cloud.banned_ips.includes(localIP)){document.getElementById('banned-screen').style.display='flex';return;}
     applyUI();
     if(isAdmin){
@@ -1523,190 +1478,5 @@ setInterval(async function(){
   } catch(e){ /* silent fail on background sync — app still works */ }
 },30000); // 30 seconds instead of 5 — reduces CORS pressure
 </script>
-
-<script>
-/* Refresh-safe calculator persistence patch */
-(function(){
-  function key(){
-    return "dom_sc_calc_autosave_" + (localStorage.getItem("dom_sc_active_profile") || "default");
-  }
-
-  window.domScAutoSave = function(){
-    const data = {};
-    document.querySelectorAll("#user-app-elements input, #user-app-elements textarea, #user-app-elements select").forEach(el=>{
-      if(!el.id && !el.name) return;
-      const k = el.id || el.name;
-      if(el.type === "radio"){
-        if(el.checked) data[k] = el.value;
-      } else if(el.type === "checkbox"){
-        data[k] = el.checked;
-      } else {
-        data[k] = el.value;
-      }
-    });
-    localStorage.setItem(key(), JSON.stringify(data));
-  };
-
-  window.domScAutoLoad = function(){
-    let data = {};
-    try { data = JSON.parse(localStorage.getItem(key()) || "{}"); } catch(e) { data = {}; }
-    Object.keys(data).forEach(k=>{
-      const el = document.getElementById(k) || document.querySelector('[name="'+CSS.escape(k)+'"]');
-      if(!el) return;
-      if(el.type === "radio"){
-        const radio = document.querySelector('input[name="'+CSS.escape(el.name)+'"][value="'+CSS.escape(data[k])+'"]');
-        if(radio) radio.checked = true;
-      } else if(el.type === "checkbox"){
-        el.checked = !!data[k];
-      } else {
-        el.value = data[k];
-      }
-    });
-    if(typeof calculateEverything === "function") calculateEverything(); if(typeof saveEmployeeCalculatorQuantities === "function") saveEmployeeCalculatorQuantities();
-  };
-
-  document.addEventListener("input", function(e){
-    if(e.target && e.target.closest && e.target.closest("#user-app-elements")) domScAutoSave();
-  });
-  document.addEventListener("change", function(e){
-    if(e.target && e.target.closest && e.target.closest("#user-app-elements")) domScAutoSave();
-  });
-  document.addEventListener("DOMContentLoaded", function(){
-    setTimeout(domScAutoLoad, 500);
-    setTimeout(domScAutoLoad, 1500);
-  });
-})();
-</script>
-
-
-<script>
-/* FINAL FIX: keep employee quantity boxes after refresh */
-(function(){
-  const QTY_STORE = "dom_sc_employee_quantity_backup_v2";
-
-  function activeProfile(){
-    return localStorage.getItem("dom_sc_active_profile") || "default";
-  }
-
-  function itemNameFromInput(input){
-    const card = input.closest(".item-card");
-    if(!card) return input.id || "";
-    const nameEl = card.querySelector(".item-name");
-    return nameEl ? nameEl.textContent.trim() : (input.id || "");
-  }
-
-  function readStore(){
-    try { return JSON.parse(localStorage.getItem(QTY_STORE) || "{}"); }
-    catch(e){ return {}; }
-  }
-
-  function writeStore(store){
-    localStorage.setItem(QTY_STORE, JSON.stringify(store));
-  }
-
-  function saveQuantities(){
-    const profile = activeProfile();
-    const store = readStore();
-    if(!store[profile]) store[profile] = {};
-
-    document.querySelectorAll("#item-cards-container .qty-input").forEach(input=>{
-      const name = itemNameFromInput(input);
-      if(!name) return;
-
-      // IMPORTANT: Do not let blank refresh-created inputs erase saved values.
-      // The Clear button still removes values using its own clearForm logic.
-      if(input.value !== ""){
-        store[profile][name] = input.value;
-      }
-    });
-
-    writeStore(store);
-  }
-
-  function restoreQuantities(){
-    const profile = activeProfile();
-    const store = readStore();
-    const saved = store[profile] || {};
-
-    document.querySelectorAll("#item-cards-container .qty-input").forEach(input=>{
-      const name = itemNameFromInput(input);
-      if(saved[name] !== undefined && saved[name] !== null && saved[name] !== ""){
-        input.value = saved[name];
-      }
-    });
-
-    // Rebuild totals without erasing saved quantities.
-    let total = 0;
-    document.querySelectorAll("#item-cards-container .item-card").forEach(card=>{
-      const qtyInput = card.querySelector(".qty-input");
-      const unitText = (card.querySelector(".item-val") || {}).textContent || "";
-      const totalBox = card.querySelector(".item-total");
-      const qty = parseFloat(qtyInput && qtyInput.value ? qtyInput.value : "0") || 0;
-      const unit = parseFloat(unitText.replace(/[^0-9.]/g, "")) || 0;
-      const rowTotal = qty * unit;
-      total += rowTotal;
-      if(totalBox) totalBox.textContent = rowTotal.toFixed(2);
-    });
-
-    const grand = document.getElementById("grand-total");
-    if(grand) grand.textContent = total.toFixed(2);
-
-    try { if(typeof calculateEverything === "function") calculateEverything(); } catch(e){}
-  }
-
-  // Override calculateEverything after the original file loads so it cannot wipe blanks on refresh.
-  const originalCalculate = window.calculateEverything;
-  window.calculateEverything = function(){
-    if(typeof originalCalculate === "function"){
-      originalCalculate.apply(this, arguments);
-    }
-    saveQuantities();
-  };
-
-  // Override plus/minus too.
-  const originalAdj = window.adj;
-  window.adj = function(i,d){
-    if(typeof originalAdj === "function"){
-      originalAdj.apply(this, arguments);
-    }
-    saveQuantities();
-    restoreQuantities();
-  };
-
-  // Override renderCards so every rebuild restores saved quantities.
-  const originalRenderCards = window.renderCards;
-  window.renderCards = function(){
-    if(typeof originalRenderCards === "function"){
-      originalRenderCards.apply(this, arguments);
-    }
-    restoreQuantities();
-  };
-
-  document.addEventListener("input", function(e){
-    if(e.target && e.target.classList && e.target.classList.contains("qty-input")){
-      saveQuantities();
-      restoreQuantities();
-    }
-  });
-
-  document.addEventListener("change", function(e){
-    if(e.target && e.target.classList && e.target.classList.contains("qty-input")){
-      saveQuantities();
-      restoreQuantities();
-    }
-  });
-
-  window.addEventListener("beforeunload", saveQuantities);
-
-  // Run several times because your app rebuilds the cards after cloud/profile loading.
-  document.addEventListener("DOMContentLoaded", function(){
-    setTimeout(restoreQuantities, 100);
-    setTimeout(restoreQuantities, 600);
-    setTimeout(restoreQuantities, 1500);
-    setTimeout(restoreQuantities, 3000);
-  });
-})();
-</script>
-
 </body>
 </html>
