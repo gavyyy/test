@@ -1,74 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<style id="true-emergency-unlock-css">
-#local-freeze-screen,
-#lock-overlay,
-#maintenance-overlay,
-#banned-screen{
-  display:none!important;
-  visibility:hidden!important;
-  opacity:0!important;
-  pointer-events:none!important;
-}
-#true-emergency-panel{
-  position:fixed!important;
-  top:8px!important;
-  left:8px!important;
-  right:8px!important;
-  z-index:2147483647!important;
-  background:#991b1b!important;
-  color:#fff!important;
-  border-radius:14px!important;
-  padding:12px!important;
-  text-align:center!important;
-  box-shadow:0 12px 36px rgba(0,0,0,.35)!important;
-  font-family:Arial,sans-serif!important;
-  font-weight:900!important;
-  font-size:13px!important;
-}
-#true-emergency-panel button{
-  border:0!important;
-  border-radius:10px!important;
-  padding:10px 12px!important;
-  margin:8px 4px 0!important;
-  font-weight:900!important;
-  cursor:pointer!important;
-}
-#true-open-admin{background:#111827!important;color:white!important}
-#true-show-login{background:#16a34a!important;color:white!important}
-#true-clear-locks{background:#fff!important;color:#991b1b!important}
-body.true-unlocked #local-freeze-screen,
-body.true-unlocked #lock-overlay,
-body.true-unlocked #maintenance-overlay,
-body.true-unlocked #banned-screen{display:none!important}
-</style>
-
-<script id="true-emergency-unlock-early-js">
-(function(){
-  function clearLocal(){
-    try{
-      Object.keys(localStorage).forEach(function(k){
-        if(k.indexOf("failed_admin_attempts_")===0 ||
-           k.indexOf("view_as")!==-1 ||
-           k.indexOf("viewas")!==-1 ||
-           k.indexOf("freeze")!==-1 ||
-           k.indexOf("frozen")!==-1){
-          localStorage.removeItem(k);
-        }
-      });
-    }catch(e){}
-  }
-  clearLocal();
-  window.DOMSC_TRUE_UNLOCK = true;
-})();
-</script>
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026 True Emergency Unlock</title>
+    <title>DOM/SC Norm 2026</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -463,6 +398,27 @@ body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
 @media(max-width:560px){
   .enterprise-grid{grid-template-columns:1fr 1fr}
   .enterprise-row{flex-direction:column;align-items:stretch}
+}
+</style>
+
+
+<style id="safe-production-css">
+.safe-production-note{
+  background:#ecfdf5;
+  color:#166534;
+  border:1px solid #86efac;
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:11px;
+  font-weight:800;
+  margin:8px 0;
+  text-align:center;
+}
+body:not(.safe-admin-active) #admin-panel{
+  display:none;
+}
+body.safe-admin-active #admin-panel{
+  display:block;
 }
 </style>
 
@@ -1124,19 +1080,19 @@ body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
                 const r = await res.json();
                 const d = r.record;
                 globalCloudData = {
-                    is_locked:            false,
+                    is_locked:            d.is_locked || false,
                     drafts:               d.drafts || [],
                     admin_pass:           d.admin_pass || "2026",
-                    frozen_users:         {},
+                    frozen_users:         d.frozen_users || {},
                     variables:            d.variables || {},
                     active_login_ips:     d.active_login_ips || {},
-                    failed_admin_logins:  [],
-                    banned_ips:           [],
+                    failed_admin_logins:  d.failed_admin_logins || [],
+                    banned_ips:           d.banned_ips || [],
                     global_alert:         d.global_alert || "",
                     targets:              d.targets || { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
                     profiles:             d.profiles || profilesRegistry,
                     deleted_vars:         d.deleted_vars || [],
-                    maintenance:          { active: false, message: "", eta: "" },
+                    maintenance:          d.maintenance || { active: false, message: "", eta: "" },
                     passcode_reset_requests: d.passcode_reset_requests || [],
                     passcodes:            d.passcodes || {},
                     bio_flags:            d.bio_flags || {},
@@ -1669,7 +1625,7 @@ body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
             let attempts = parseInt(localStorage.getItem(failedAttemptsKey)) || 0;
             attempts++;
             localStorage.setItem(failedAttemptsKey, attempts);
-            if (!isDedicatedMode && attempts >= 999999) {
+            if (!isDedicatedMode && attempts >= 3) {
                 globalCloudData.frozen_users[currentProf] = true;
                 await pushGlobalData();
                 applyGlobalState();
@@ -3468,126 +3424,131 @@ body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
 </script>
 
 
-<script id="true-emergency-unlock-final-js">
+<script id="safe-production-js">
 (function(){
-  function id(x){return document.getElementById(x)}
-  function hideLocks(){
-    ["local-freeze-screen","lock-overlay","maintenance-overlay","banned-screen"].forEach(function(x){
-      var el=id(x);
-      if(el){
-        el.style.display="none";
-        el.style.visibility="hidden";
-        el.style.opacity="0";
-        el.style.pointerEvents="none";
-      }
-    });
-    document.body.classList.add("true-unlocked");
-  }
-  function clearCloud(){
+  /*
+    SAFE PRODUCTION BUILD
+    Upload this file to GitHub as index.html.
+    - No emergency unlock
+    - Employees cannot thaw/unlock themselves
+    - Gavin admin login remains password/passcode protected
+    - Clears only old view-as local state so nobody gets stuck as Robert/Payton
+  */
+
+  function clearOldViewAsOnly(){
     try{
-      if(window.globalCloudData){
-        globalCloudData.is_locked=false;
-        globalCloudData.frozen_users={};
-        globalCloudData.banned_ips=[];
-        globalCloudData.failed_admin_logins=[];
-        if(globalCloudData.maintenance) globalCloudData.maintenance.active=false;
-        if(typeof window.pushGlobalData==="function") window.pushGlobalData();
-      }
-    }catch(e){}
-  }
-  function clearLocal(){
-    try{
+      [
+        "domsc_v9_view_as_active",
+        "domsc_v9_admin_return_profile",
+        "domsc_v11_viewas_active",
+        "domsc_view_as_active"
+      ].forEach(function(k){ localStorage.removeItem(k); });
       Object.keys(localStorage).forEach(function(k){
-        if(k.indexOf("failed_admin_attempts_")===0 ||
-           k.indexOf("view_as")!==-1 ||
-           k.indexOf("viewas")!==-1 ||
-           k.indexOf("freeze")!==-1 ||
-           k.indexOf("frozen")!==-1){
+        if(k.indexOf("view_as") !== -1 || k.indexOf("viewas") !== -1){
           localStorage.removeItem(k);
         }
       });
+      document.body.classList.remove("v9-viewas-active","v11-viewas-stuck");
     }catch(e){}
   }
-  function fullClear(){
-    clearLocal();
-    clearCloud();
-    hideLocks();
-  }
-  window.trueEmergencyOpenAdmin=function(){
-    fullClear();
+
+  function adminIsActuallyOpen(){
+    var panel=document.getElementById("admin-panel");
+    if(!panel) return false;
     try{
-      window.isAdminLoggedIn=true;
-      window.isDedicatedAdminMode=true;
-      localStorage.setItem("dom_sc_active_profile","gavin");
-    }catch(e){}
-    var login=id("login-gateway-portal");
-    var main=id("main-app-container");
-    var admin=id("admin-panel");
-    var user=id("user-app-elements");
-    var link=id("login-nav-link");
-    if(login) login.style.display="none";
-    if(main) main.style.display="block";
-    if(admin) admin.style.display="block";
-    if(user) user.style.display="none";
-    if(link) link.style.display="none";
-    try{ if(typeof window.switchAdminTab==="function") window.switchAdminTab("overview"); }catch(e){}
-    hideLocks();
-  };
-  window.trueEmergencyShowLogin=function(){
-    fullClear();
-    try{ localStorage.removeItem("dom_sc_active_profile"); }catch(e){}
-    var login=id("login-gateway-portal");
-    var main=id("main-app-container");
-    var admin=id("admin-panel");
-    if(login) login.style.display="flex";
-    if(main) main.style.display="none";
-    if(admin) admin.style.display="none";
-  };
-  window.trueEmergencyClearLocks=function(){
-    fullClear();
-    alert("Locks cleared. Freeze screen is disabled in this build.");
-  };
-  function addPanel(){
-    if(id("true-emergency-panel")) return;
-    var p=document.createElement("div");
-    p.id="true-emergency-panel";
-    p.innerHTML='TRUE EMERGENCY UNLOCK<br><button id="true-open-admin" type="button" onclick="trueEmergencyOpenAdmin()">Open Gavin/Admin</button><button id="true-show-login" type="button" onclick="trueEmergencyShowLogin()">Show Login</button><button id="true-clear-locks" type="button" onclick="trueEmergencyClearLocks()">Clear Locks</button>';
-    document.body.appendChild(p);
+      return !!window.isAdminLoggedIn && getComputedStyle(panel).display !== "none";
+    }catch(e){
+      return !!window.isAdminLoggedIn;
+    }
   }
-  function patchFunctions(){
-    window.triggerAdminLogin=function(){ trueEmergencyOpenAdmin(); };
-    window.adminFreezeAll=function(){ alert("Freeze is disabled in True Emergency Unlock build."); };
-    window.adminToggleFreezeUser=function(){ alert("Freeze is disabled in True Emergency Unlock build."); };
-    window.adminThawAll=function(){ fullClear(); alert("All users are unlocked."); };
-    if(typeof window.applyGlobalState==="function" && !window.applyGlobalState._trueUnlock){
-      var old=window.applyGlobalState;
-      window.applyGlobalState=function(){
-        var result;
-        try{ result=old.apply(this,arguments); }catch(e){}
-        fullClear();
+
+  function applySafeVisibility(){
+    document.body.classList.toggle("safe-admin-active", adminIsActuallyOpen());
+
+    // Employees should never see admin panel unless admin login succeeded.
+    var panel=document.getElementById("admin-panel");
+    if(panel && !window.isAdminLoggedIn){
+      panel.style.display="none";
+    }
+  }
+
+  function patchAdminGrant(){
+    if(typeof window._grantAdminAccess === "function" && !window._grantAdminAccess._safeProduction){
+      var old=window._grantAdminAccess;
+      window._grantAdminAccess=function(){
+        clearOldViewAsOnly();
+        var result=old.apply(this,arguments);
+        document.body.classList.add("safe-admin-active");
         return result;
       };
-      window.applyGlobalState._trueUnlock=true;
+      window._grantAdminAccess._safeProduction=true;
     }
-    document.querySelectorAll("button").forEach(function(btn){
-      var t=(btn.textContent||"").toLowerCase();
-      if(t.indexOf("admin")!==-1 || t.indexOf("system administrator")!==-1){
-        btn.onclick=function(){ trueEmergencyOpenAdmin(); };
+  }
+
+  function patchLogout(){
+    if(typeof window.logoutProfile === "function" && !window.logoutProfile._safeProduction){
+      var old=window.logoutProfile;
+      window.logoutProfile=function(){
+        document.body.classList.remove("safe-admin-active");
+        return old.apply(this,arguments);
+      };
+      window.logoutProfile._safeProduction=true;
+    }
+  }
+
+  function addProductionNote(){
+    var portal=document.getElementById("login-gateway-portal");
+    if(!portal || document.getElementById("safe-production-note")) return;
+    var note=document.createElement("div");
+    note.id="safe-production-note";
+    note.className="safe-production-note";
+    note.textContent="Production Version: employees can use their profile; admin tools require Gavin/Admin login.";
+    portal.appendChild(note);
+  }
+
+  function ensureProfiles(){
+    try{
+      if(window.profilesRegistry && Array.isArray(window.profilesRegistry)){
+        var wanted=[{name:"Robert",val:"robert"},{name:"Payton N",val:"payton_n"}];
+        wanted.forEach(function(w){
+          if(!profilesRegistry.some(function(p){return p.val===w.val;})){
+            profilesRegistry.push(w);
+          }
+        });
+        profilesRegistry=profilesRegistry.filter(function(p){return p.val!=="default";});
       }
-    });
+      if(window.globalCloudData){
+        globalCloudData.profiles=globalCloudData.profiles||[];
+        [{name:"Robert",val:"robert"},{name:"Payton N",val:"payton_n"}].forEach(function(w){
+          if(!globalCloudData.profiles.some(function(p){return p.val===w.val;})){
+            globalCloudData.profiles.push(w);
+          }
+        });
+        globalCloudData.profiles=globalCloudData.profiles.filter(function(p){return p.val!=="default";});
+      }
+    }catch(e){}
   }
+
   function boot(){
-    fullClear();
-    addPanel();
-    patchFunctions();
+    clearOldViewAsOnly();
+    patchAdminGrant();
+    patchLogout();
+    addProductionNote();
+    ensureProfiles();
+    applySafeVisibility();
+
     setInterval(function(){
-      hideLocks();
-      patchFunctions();
-    },300);
+      patchAdminGrant();
+      patchLogout();
+      ensureProfiles();
+      applySafeVisibility();
+    },1000);
   }
+
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",boot);
   else boot();
 })();
 </script>
 
 </body>
+</html>
