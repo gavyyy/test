@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026 Enterprise V9 Admin Unlock View As</title>
+    <title>DOM/SC Norm 2026 Enterprise V10 Device Thaw Fixed</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -502,6 +502,43 @@ body.v8-dark .v9-input{
   background:#0f172a;
   color:#f8fafc;
   border-color:#334155;
+}
+</style>
+
+
+<style id="v10-device-thaw-css">
+#v10-device-thaw-btn{
+  background:#16a34a;
+  color:white;
+  border:none;
+  border-radius:24px;
+  padding:14px 24px;
+  font-size:15px;
+  font-weight:900;
+  margin-top:12px;
+  cursor:pointer;
+}
+#v10-device-thaw-btn-admin{
+  background:#16a34a;
+  color:white;
+  border:none;
+  border-radius:8px;
+  padding:9px 10px;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+  margin-top:6px;
+  width:100%;
+}
+.v10-thaw-note{
+  background:#ecfdf5;
+  border:1px solid #86efac;
+  color:#166534;
+  border-radius:10px;
+  padding:8px;
+  font-size:11px;
+  font-weight:800;
+  margin-top:8px;
 }
 </style>
 
@@ -3972,5 +4009,173 @@ body.v8-dark .v9-input{
 })();
 </script>
 
+
+<script id="v10-device-thaw-js">
+(function(){
+  /*
+    V10 Device Thaw Fix:
+    The issue is usually that the frozen state exists both in cloud data and device localStorage.
+    This patch clears:
+    - globalCloudData.frozen_users
+    - globalCloudData.is_locked
+    - maintenance overlay
+    - failed_admin_attempts_* localStorage keys
+    - active local freeze overlay display
+    - view-as local state if needed
+  */
+
+  function currentProfile(){
+    try{
+      return localStorage.getItem("dom_sc_active_profile") || (document.getElementById("profile-select")||{}).value || "";
+    }catch(e){ return ""; }
+  }
+
+  function clearLocalDeviceLocks(){
+    try{
+      Object.keys(localStorage).forEach(function(k){
+        if(k.indexOf("failed_admin_attempts_") === 0) localStorage.setItem(k,"0");
+        if(k.indexOf("dom_sc_freeze") === 0) localStorage.removeItem(k);
+        if(k.indexOf("frozen") !== -1 && k.indexOf("dom_sc") !== -1) localStorage.removeItem(k);
+      });
+    }catch(e){}
+
+    ["local-freeze-screen","lock-overlay","maintenance-overlay","banned-screen"].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.style.display="none";
+    });
+
+    document.body.classList.remove("v9-viewas-active");
+  }
+
+  async function clearCloudLocks(){
+    try{
+      if(window.globalCloudData){
+        globalCloudData.frozen_users = {};
+        globalCloudData.is_locked = false;
+        if(globalCloudData.maintenance) globalCloudData.maintenance.active = false;
+        if(globalCloudData.failed_admin_logins) globalCloudData.failed_admin_logins = [];
+        if(typeof window.pushGlobalData === "function") await window.pushGlobalData();
+      }
+    }catch(e){}
+  }
+
+  async function fullDeviceThaw(showAlert){
+    clearLocalDeviceLocks();
+    await clearCloudLocks();
+
+    try{
+      if(typeof window.pullGlobalData === "function") await window.pullGlobalData();
+    }catch(e){}
+
+    clearLocalDeviceLocks();
+
+    try{
+      if(typeof window.applyGlobalState === "function") window.applyGlobalState();
+    }catch(e){}
+
+    clearLocalDeviceLocks();
+
+    var main=document.getElementById("main-app-container");
+    var login=document.getElementById("login-gateway-portal");
+    var saved=currentProfile();
+
+    if(saved && main){
+      main.style.display="block";
+      if(login) login.style.display="none";
+    }else if(login){
+      login.style.display="flex";
+    }
+
+    if(showAlert) alert("This device has been thawed/unlocked. If another phone is still locked, open this same V10 file on that phone and tap Force Thaw This Device.");
+  }
+
+  window.v10ForceThawThisDevice = function(){
+    fullDeviceThaw(true);
+  };
+
+  function addThawButtonToFreezeScreen(){
+    var freeze=document.getElementById("local-freeze-screen");
+    if(!freeze || document.getElementById("v10-device-thaw-btn")) return;
+    var btn=document.createElement("button");
+    btn.id="v10-device-thaw-btn";
+    btn.type="button";
+    btn.textContent="Force Thaw This Device";
+    btn.onclick=function(){ fullDeviceThaw(true); };
+    freeze.appendChild(btn);
+
+    var note=document.createElement("div");
+    note.className="v10-thaw-note";
+    note.textContent="Use this if this device stays frozen after admin thaws the account.";
+    freeze.appendChild(note);
+  }
+
+  function addAdminThawButton(){
+    var panel=document.getElementById("v9-viewas-panel") || document.getElementById("v8-admin-panel-clear") || document.getElementById("v6-admin-suite");
+    if(!panel || document.getElementById("v10-device-thaw-btn-admin")) return;
+    var btn=document.createElement("button");
+    btn.id="v10-device-thaw-btn-admin";
+    btn.type="button";
+    btn.textContent="Force Thaw / Unlock This Device";
+    btn.onclick=function(){ fullDeviceThaw(true); };
+    panel.appendChild(btn);
+  }
+
+  function patchThawAll(){
+    var old=window.v9ThawAllAndUnlockAdmin;
+    if(typeof old==="function" && !old._v10patched){
+      var patched=async function(){
+        try{ await old.apply(this, arguments); }catch(e){}
+        await fullDeviceThaw(false);
+        alert("All profiles and this device have been thawed/unlocked.");
+      };
+      patched._v10patched=true;
+      window.v9ThawAllAndUnlockAdmin=patched;
+    }
+
+    var old2=window.adminThawAll;
+    if(typeof old2==="function" && !old2._v10patched){
+      var patched2=async function(){
+        try{ await old2.apply(this, arguments); }catch(e){}
+        await fullDeviceThaw(false);
+        alert("Admin thaw all completed and this device was locally unlocked.");
+      };
+      patched2._v10patched=true;
+      window.adminThawAll=patched2;
+    }
+  }
+
+  function patchApplyGlobalState(){
+    if(typeof window.applyGlobalState !== "function" || window.applyGlobalState._v10DeviceThaw) return;
+    var original=window.applyGlobalState;
+    window.applyGlobalState=function(){
+      var result=original.apply(this, arguments);
+      // If admin is logged in, never allow freeze overlay to cover admin.
+      if(window.isAdminLoggedIn){
+        clearLocalDeviceLocks();
+      }
+      return result;
+    };
+    window.applyGlobalState._v10DeviceThaw=true;
+  }
+
+  function boot(){
+    addThawButtonToFreezeScreen();
+    addAdminThawButton();
+    patchThawAll();
+    patchApplyGlobalState();
+
+    setInterval(function(){
+      addThawButtonToFreezeScreen();
+      addAdminThawButton();
+      patchThawAll();
+      patchApplyGlobalState();
+      if(window.isAdminLoggedIn) clearLocalDeviceLocks();
+    },700);
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+
 </body>
-</html>
