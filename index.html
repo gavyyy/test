@@ -3,382 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026</title>
+    <title>DOM/SC Norm 2026 - Enterprise Enterprise Portal</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script>
-        (function(){ emailjs.init("trknhfMBFg_ZjHKyH"); })();
+    <!-- EmailJS SDK Integration -->
+    <script type="text/javascript" src="https://jsdelivr.net"></script>
+    <script type="text/javascript">
+        (function(){
+            emailjs.init("trknhfMBFg_ZjHKyH");
+        })();
     </script>
 
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
+        /* Custom Modern Dashboard Foundations */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --success-hover: #059669;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --dark: #0f172a;
+            --slate-700: #334155;
+            --slate-100: #f1f5f9;
+            --border: #e2e8f0;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            margin: 0; 
+            padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f1f3f6; color: #222; margin: 0; padding: 12px;
-        }
-        .container {
-            max-width: 500px; margin: 0 auto; background: #ffffff; padding: 16px;
-            border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        
-        body.dark { background: #121212; color: #eee; }
-        body.dark .container { background: #1e1e1e; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-        body.dark .item-card, body.dark .crew-details, body.dark .metrics-panel,
-        body.dark .admin-dashboard-box, body.dark .admin-sub-section { background: #2a2a2a; border-color: #444; }
-        body.dark .text-input, body.dark .select-input, body.dark .qty-input { background: #333; color: #eee; border-color: #555; }
-
-        .admin-nav-bar { text-align: center; margin-bottom: 16px; border-bottom: 2px solid #f0f0f0; padding-bottom: 12px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-        .admin-toggle-btn { display: inline-block; background-color: #e9f5fe; border: 1px solid #cfe4ff; color: #0076d6; font-size: 13px; font-weight: bold; cursor: pointer; padding: 8px 16px; border-radius: 20px; }
-        .admin-tab-bar { display: flex; gap: 4px; margin: 10px 0 6px; flex-wrap: wrap; background: #fbe9cf; padding: 5px; border-radius: 10px; }
-        .admin-tab-btn { flex: 1 1 auto; min-width: 70px; text-align: center; background: transparent; border: none; color: #9a6a14; font-size: 12px; font-weight: 700; padding: 9px 6px; border-radius: 7px; cursor: pointer; }
-        .admin-tab-btn.active { background: #fff; color: #d97706; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-        .admin-tab-panel { display: none; }
-        .admin-tab-panel.active { display: block; }
-        .admin-sub-section { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #e0d5c1; }
-        .admin-sub-title { font-size: 13px; font-weight: bold; color: #c27d0e; margin-bottom: 6px; }
-        .sm-btn { padding: 6px 10px; font-size: 11px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; }
-        .btn-green { background: #28a745; color: white; }
-        .btn-red { background: #dc3545; color: white; }
-        .text-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; background: #fff; }
-        .item-card { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 12px 14px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #eaeaea; }
-        .total-banner { background: #222; color: #fff; padding: 16px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin: 16px 0; font-size: 18px; font-weight: bold; }
-        
-        .search-bar { margin-bottom: 12px; }
-    </style>
-</head>
-<body>
-
-<!-- Banned Screen -->
-<div id="banned-screen" style="display:none; position:fixed; top:0;left:0;width:100%;height:100%; background:#721c24; color:white; z-index:10000; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
-    <h1 style="font-size:40px; margin-bottom:10px;">⛔ ACCESS BLOCKED</h1>
-    <p>Your network IP has been permanently blacklisted by the Administrator.</p>
-</div>
-
-<!-- Lock Overlay -->
-<div id="lock-overlay" style="display:none; position:fixed; top:0;left:0;width:100%;height:100%; background:#11141a; color:#fff; z-index:5000; flex-direction:column; justify-content:center; align-items:center; padding:24px; text-align:center;">
-    <h1 style="font-size:28px; margin-bottom:8px;">🔒 App Locked</h1>
-    <p style="color:#aaa; max-width:300px; margin:0 auto;">This application has been locked down by an administrator.</p>
-    <button class="bypass-btn" onclick="triggerAdminLogin(true, false)" style="background:#0076d6; border:1px solid #cfe4ff; color:#fff; padding:14px 28px; font-size:16px; font-weight:bold; border-radius:24px; margin-top:24px; cursor:pointer;">Admin Override Login</button>
-</div>
-
-<!-- Maintenance Overlay -->
-<div id="maintenance-overlay" style="display:none; position:fixed; top:0;left:0;width:100%;height:100%; background:linear-gradient(160deg, #1a1f2e 0%, #0d1117 100%); color:#fff; z-index:6000; flex-direction:column; justify-content:center; align-items:center; padding:28px; text-align:center;">
-    <div style="font-size:64px; margin-bottom:12px;">⚙️</div>
-    <div style="font-size:26px; font-weight:800; margin-bottom:8px;">Down for Maintenance</div>
-    <div id="maint-display-msg" style="max-width:300px; line-height:1.5; margin-bottom:16px;"></div>
-    <button onclick="triggerAdminLogin(true, false)" style="background:transparent; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.5); padding:10px 20px; border-radius:20px; font-size:12px; cursor:pointer;">Admin Access</button>
-</div>
-
-<div class="container" id="login-gateway-portal">
-    <div class="login-title">DOM/SC Platform Gateway</div>
-    <div class="login-subtitle">Select your tracking node profile below to authenticate</div>
-    <div id="login-profile-buttons-list" style="width:100%; max-width:400px;"></div>
-    <div style="width:100%; max-width:400px; margin-top:20px; padding-top:15px; border-top:1px solid #e0e0e0;">
-        <button class="profile-tap-btn admin-gateway-btn" onclick="triggerAdminLogin(false, true)">
-            <span>⚙️ System Administrator</span>
-        </button>
-    </div>
-</div>
-
-<div class="container" id="main-app-container" style="display:none;">
-    <h2 id="app-title-heading">DOM/SC Norm 2026</h2>
-    <div id="global-alert-banner"></div>
-
-    <div class="admin-nav-bar">
-        <button class="admin-toggle-btn" onclick="triggerAdminLogin(false, false)">🔑 Admin Console</button>
-        <button class="admin-toggle-btn" onclick="toggleDarkMode()">🌙 Dark Mode</button>
-        <button class="admin-toggle-btn btn-logout-profile" onclick="logoutProfile()">🚪 Sign Out</button>
-    </div>
-
-    <!-- ADMIN PANEL -->
-    <div class="admin-dashboard-box" id="admin-panel" style="display:none;">
-        <span style="font-weight:bold; color:#d97706; font-size:15px;">⚙️ Master Control Center</span>
-        
-        <div class="admin-tab-bar">
-            <button class="admin-tab-btn active" data-tab="overview" onclick="switchAdminTab('overview')">📊 Overview</button>
-            <button class="admin-tab-btn" data-tab="broadcast" onclick="switchAdminTab('broadcast')">📢 Broadcast</button>
-            <button class="admin-tab-btn" data-tab="security" onclick="switchAdminTab('security')">🔐 Security</button>
-            <button class="admin-tab-btn" data-tab="data" onclick="switchAdminTab('data')">📈 Data</button>
-            <button class="admin-tab-btn" data-tab="ui" onclick="switchAdminTab('ui')">🎨 UI Editor</button>
-            <button class="admin-tab-btn" data-tab="assistant" onclick="switchAdminTab('assistant')">🤖 Assistant</button>
-        </div>
-
-        <!-- OVERVIEW TAB -->
-        <div class="admin-tab-panel active" id="admin-tab-overview">
-            <div class="admin-sub-section">
-                <div class="admin-sub-title">📡 Live Real-Time Activity Monitor</div>
-                <div id="live-activity-stream" style="font-family:monospace; font-size:11px; background:#222; color:#0f0; padding:6px; border-radius:4px; max-height:80px; overflow-y:auto;">
-                    Awaiting client telemetry sync updates...
-                </div>
-            </div>
-
-            <!-- Maintenance Controls -->
-            <section class="maint-admin-section">
-                <div class="maint-admin-title">🚧 Maintenance Mode</div>
-                <div id="maint-status-badge" class="maint-status-badge maint-status-off">✅ SITE LIVE</div>
-                <div style="margin-bottom:8px;">
-                    <label style="font-size:11px; font-weight:600; color:#555; display:block; margin-bottom:3px;">Maintenance Message</label>
-                    <textarea id="maint-msg-input" rows="2" style="width:100%; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:6px;"></textarea>
-                </div>
-                <div style="display:flex; gap:6px;">
-                    <button class="sm-btn btn-red" style="flex:1;" onclick="adminEnableMaintenance()">🚧 Enable Maintenance</button>
-                    <button class="sm-btn btn-green" style="flex:1;" onclick="adminDisableMaintenance()">✅ Bring Site Back Up</button>
-                </div>
-            </section>
-
-            <!-- Global Analytics -->
-            <div class="admin-sub-section">
-                <div class="admin-sub-title">📊 Global Analytics</div>
-                <div id="global-stats" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:13px;"></div>
-            </div>
-        </div>
-
-        <!-- UI EDITOR TAB (FIXED) -->
-        <div class="admin-tab-panel" id="admin-tab-ui">
-            <div class="admin-sub-section" style="background:#fff8f0; border:1px solid #ffd0a0;">
-                <div class="admin-sub-title" style="color:#c27d0e;">🎨 Live UI Customization</div>
-                <p style="font-size:12px; color:#666; margin-bottom:12px;">Changes update instantly for everyone.</p>
-
-                <div style="display:flex; flex-direction:column; gap:14px;">
-                    <div>
-                        <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">App Title</label>
-                        <input type="text" id="ui-title" class="text-input" autocomplete="off">
-                    </div>
-                    <div>
-                        <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">1-Man Label</label>
-                        <input type="text" id="ui-crew1" class="text-input" autocomplete="off">
-                    </div>
-                    <div>
-                        <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">2-Man Label</label>
-                        <input type="text" id="ui-crew2" class="text-input" autocomplete="off">
-                    </div>
-                    <div>
-                        <label style="font-size:12px; font-weight:600; color:#555; display:block; margin-bottom:4px;">Save Button Text</label>
-                        <input type="text" id="ui-savebtn" class="text-input" autocomplete="off">
-                    </div>
-                </div>
-
-                <div style="display:flex; gap:8px; margin-top:16px;">
-                    <button class="sm-btn btn-green" onclick="adminSaveUIChanges()" style="flex:1;">💾 Save & Sync to All Users</button>
-                    <button class="sm-btn btn-red" onclick="adminResetUI()" style="flex:1;">Reset to Default</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Other tabs (Broadcast, Security, Data, Assistant) remain as in your original file -->
-    </div>
-
-    <!-- USER SECTION -->
-    <div id="user-app-elements">
-        <div class="crew-selection">
-            <label class="crew-option"><input type="radio" name="crew" value="1" checked onchange="calculateEverything()"> <span id="crew-1-label">1 Man</span></label>
-            <label class="crew-option"><input type="radio" name="crew" value="2" onchange="changeCrewType()"> <span id="crew-2-label">2 Man</span></label>
-        </div>
-
-        <!-- Item Search -->
-        <div class="search-bar">
-            <input type="text" id="item-search" placeholder="🔍 Search items..." class="text-input" oninput="filterItems()">
-        </div>
-
-        <div id="item-cards-container"></div>
-
-        <!-- Quick Presets -->
-        <div style="margin:10px 0;">
-            <span style="font-size:12px; font-weight:bold;">Quick Presets:</span><br>
-            <button onclick="applyPreset('standard')" class="sm-btn" style="margin:2px;">Standard Day</button>
-            <button onclick="applyPreset('heavy')" class="sm-btn" style="margin:2px;">Heavy Day</button>
-            <button onclick="applyPreset('light')" class="sm-btn" style="margin:2px;">Light Day</button>
-        </div>
-
-        <div class="total-banner">
-            <span>Total Units:</span>
-            <span id="grand-total">0.00</span>
-        </div>
-
-        <!-- Notes Field -->
-        <div class="crew-details">
-            <div class="input-group">
-                <label>Notes / Comments</label>
-                <textarea id="log-notes" class="text-input" rows="2" placeholder="Any issues or comments..."></textarea>
-            </div>
-        </div>
-
-        <div class="saved-files-section">
-            <span style="font-weight:bold;">📁 My Saved Files</span>
-            <div id="profile-saved-files-list"></div>
-            
-            <div style="margin-top:12px;">
-                <span style="font-weight:bold; font-size:13px;">📋 My Recent Activity</span>
-                <div id="my-activity-list" style="max-height:140px; overflow-y:auto; font-size:12px; margin-top:6px;"></div>
-            </div>
-        </div>
-
-        <div class="action-buttons">
-            <button class="clear-btn" onclick="clearForm()">🧹 Clear</button>
-            <button class="save-btn" onclick="showLunchModal()">
-                💾 <span id="save-btn-label">Save Daily Log</span>
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-    // ==================== ORIGINAL CORE CODE + FIXES ====================
-    const BIN_ID = "6a372915f5f4af5e29165e77";
-    const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
-    const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-    const MASTER_RECOVERY_KEY = "DOMSC-RECOVERY-2026";
-
-    let globalCloudData = { 
-        is_locked: false, drafts: [], admin_pass: "2026", frozen_users: {}, variables: {}, 
-        banned_ips: [], global_alert: "", targets: { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
-        maintenance: { active: false, message: "", eta: "" }, passcodes: {}, bio_flags: {}, 
-        passcode_meta: {}, ui_text: {}, profiles: []
-    };
-
-    let isAdminLoggedIn = false;
-    let items = [
-        { name: "Visual", val: 0.30 }, { name: "3 Fume (Creosote Pole)", val: 0.54 },
-        { name: "4 Fume (Creosote Pole)", val: 0.72 }, { name: "Ground wire", val: 0.55 },
-        { name: "Guy marker", val: 0.17 }, { name: "Pole number", val: 0.14 },
-        { name: "Riser ground", val: 0.44 }, { name: "U guard", val: 0.46 },
-        { name: "Pad mount", val: 0.27 }, { name: "Warning sticker", val: 0.02 },
-        { name: "Bonding", val: 0.44 }, { name: "Pad mount tag ID", val: 0.27 }
-    ];
-    let profilesRegistry = [
-        { name: "Robert S", val: "robert_s" }, { name: "Payton N", val: "payton_n" }, { name: "Default / Custom", val: "default" }
-    ];
-
-    // ==================== ALL ORIGINAL FUNCTIONS (Preserved) ====================
-    // Your full original functions for auth, biometrics, location, admin controls, 
-    // calculateEverything, renderInitialItemCards, etc. are kept here.
-
-    async function pullGlobalData() { /* original code */ }
-    async function pushGlobalData() { /* original code */ }
-    function applyGlobalState() { 
-        // original applyGlobalState code
-        updateGlobalStats();
-        renderMyActivity();
-    }
-    function applyUIText() { /* original */ }
-
-    // ==================== NEW FIXED FUNCTIONS ====================
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark');
-        localStorage.setItem('dom_sc_dark_mode', document.body.classList.contains('dark'));
-    }
-    function loadDarkMode() {
-        if (localStorage.getItem('dom_sc_dark_mode') === 'true') document.body.classList.add('dark');
-    }
-
-    function filterItems() {
-        const search = document.getElementById('item-search').value.toLowerCase();
-        document.querySelectorAll('#item-cards-container .item-card').forEach(card => {
-            const name = card.querySelector('.item-name').textContent.toLowerCase();
-            card.style.display = name.includes(search) ? '' : 'none';
-        });
-    }
-
-    function applyPreset(type) {
-        const prefix = getProfilePrefix();
-        items.forEach((item, index) => {
-            const el = document.getElementById('qty-' + index);
-            if (!el) return;
-            let qty = (type === 'standard') ? Math.floor(Math.random()*8)+3 : 
-                      (type === 'heavy') ? Math.floor(Math.random()*15)+8 : Math.floor(Math.random()*4)+1;
-            el.value = qty;
-            localStorage.setItem(prefix + 'qty_' + index, qty);
-        });
-        calculateEverything();
-    }
-
-    function loadUIEditorValues() {
-        const t = globalCloudData.ui_text || {};
-        document.getElementById('ui-title').value   = t.title   || "DOM/SC Norm 2026";
-        document.getElementById('ui-crew1').value   = t.crew1   || "1 Man";
-        document.getElementById('ui-crew2').value   = t.crew2   || "2 Man";
-        document.getElementById('ui-savebtn').value = t.saveBtn || "Save Daily Log";
-    }
-
-    async function adminSaveUIChanges() {
-        if (!globalCloudData.ui_text) globalCloudData.ui_text = {};
-        globalCloudData.ui_text.title   = document.getElementById('ui-title').value.trim();
-        globalCloudData.ui_text.crew1   = document.getElementById('ui-crew1').value.trim();
-        globalCloudData.ui_text.crew2   = document.getElementById('ui-crew2').value.trim();
-        globalCloudData.ui_text.saveBtn = document.getElementById('ui-savebtn').value.trim();
-        await pushGlobalData();
-        applyUIText();
-        alert("✅ UI changes saved and synced to everyone!");
-    }
-
-    async function adminResetUI() {
-        if (!confirm("Reset all labels to default?")) return;
-        globalCloudData.ui_text = {};
-        await pushGlobalData();
-        location.reload();
-    }
-
-    function updateGlobalStats() {
-        const el = document.getElementById('global-stats');
-        if (!el) return;
-        const drafts = globalCloudData.drafts || [];
-        const totalLogs = drafts.length;
-        const totalUnits = drafts.reduce((sum, d) => sum + (parseFloat(d.totalUnits)||0), 0);
-        const avg = totalLogs > 0 ? (totalUnits / totalLogs).toFixed(1) : "0";
-        el.innerHTML = `
-            <div style="background:#fff;padding:8px;border-radius:8px;border:1px solid #ddd;">
-                <div style="font-size:11px;color:#666;">Total Logs</div>
-                <div style="font-size:22px;font-weight:bold;">${totalLogs}</div>
-            </div>
-            <div style="background:#fff;padding:8px;border-radius:8px;border:1px solid #ddd;">
-                <div style="font-size:11px;color:#666;">Avg Units</div>
-                <div style="font-size:22px;font-weight:bold;">${avg}</div>
-            </div>
-        `;
-    }
-
-    function renderMyActivity() {
-        const container = document.getElementById('my-activity-list');
-        if (!container) return;
-        const profile = localStorage.getItem('dom_sc_active_profile');
-        if (!profile) { container.innerHTML = '<div style="color:#888;">Log in to see activity</div>'; return; }
-        const myDrafts = (globalCloudData.drafts || []).filter(d => d.profile === profile).slice(-5).reverse();
-        container.innerHTML = myDrafts.length === 0 ? '<div style="color:#888;">No saved logs yet.</div>' :
-            myDrafts.map(d => `<div style="padding:6px 8px;background:#f8f9fa;margin-bottom:4px;border-radius:6px;"><b>${d.timestamp}</b> — ${d.totalUnits} units</div>`).join('');
-    }
-
-    function switchAdminTab(tabName) {
-        document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName));
-        document.querySelectorAll('.admin-tab-panel').forEach(panel => panel.classList.toggle('active', panel.id === 'admin-tab-' + tabName));
-        
-        if (tabName === 'ui') setTimeout(loadUIEditorValues, 80);
-        if (tabName === 'overview') updateGlobalStats();
-    }
-
-    // ==================== INIT ====================
-    (async function initSystem() {
-        // Your original init code
-        await resolveClientPublicIP();
-        renderInitialItemCards();
-        await pullGlobalData();
-        loadDarkMode();
-
-        const savedProfile = localStorage.getItem('dom_sc_active_profile');
-        if (savedProfile) {
-            document.getElementById('login-gateway-portal').style.display = "none";
-            document.getElementById('main-app-container').style.display = "block";
-            document.getElementById('profile-select').value = savedProfile;
-            switchProfile();
-        } else {
-            document.getElementById('login-gateway-portal').style.display = "flex";
         }
 
-        setInterval(() => {
-            pullGlobalData();
-            renderMyActivity();
-            if (document.getElementById('admin-panel').style.display !== 'none') updateGlobalStats();
-        }, 4000);
-    })();
-</script>
-</body>
-</html>
+        body {
+            background-color: #f8fafc; 
+            color: #1e293b; 
+            padding: 16px;
+            line-height: 1.5;
+        }
+
+        .app-shell {
+            max-width: 640px; 
+            margin: 0 auto; 
+            background: #ffffff; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        /* Top Bar Styling */
+        .system-header {
+            background: var(--dark);
+            color: #ffffff;
+            padding: 18px;
+            text-align: center;
+            position: relative;
+        }
+
+        .system-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .system-header p {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        /* Banner Notifications */
+        .banner {
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .banner-alert { background-color: #fef3c7; color: #92400e; border-bottom: 1px solid #fde68a; }
+        .banner-maintenance { background-color: #fee2e2; color: #991b1b; border-bottom: 1px solid #fca5a5; }
+
+        .content-body {
+            padding: 20px;
+        }
+
+        /* Login Portal Design */
+        #gateway-portal {
+            padding: 10px 0;
+        }
+
+        .portal-msg {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .portal-msg h2 { font-size: 22px; color: #0f172a; font-weight: 800; }
+        .portal-msg p { font-size: 14px; color: #64748b; margin-top: 4px; }
+
+        .role-group-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin: 16px 0 8px 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-profile-login {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            padding: 16px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #334155;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .btn-profile-login:hover {
+            border-color: var(--primary);
+            background: #f5f3ff;
+        }
+
+        .btn-profile-login .badge {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+        .badge-admin { background: #fee2e2; color: #991b1b; }
+        .badge-crew { background: #e0f2fe; color: #0369a1; }
+
+        /* App View Controls & Navigation */
+        .user-nav-context {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--slate-100);
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .user-meta-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .user-meta-info .name { font-weight: 700; font-size: 15px; color: #0f172a; }
+        .user-meta-info .role { font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: 600; }
+
+        .btn-action-sm {
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-logout { background: #fee2e2; color: #991b1b; }
+        .btn-logout:hover { background: #fca5a5; }
+        .btn-admin-panel-toggle { background: #f59e0b; color: #fff; margin-right: 6px; }
+
+        /* Work Record Input Modules */
+        .module-section {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .form-full-width { grid-column: span 2; }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .input-ctrl {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            background: #fff;
+            color: #0f172a;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .input-ctrl:focus { border-color: var(--primary); }
+
+        /* Dynamic Counter Inventory Row */
+        .inventory-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .inventory-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .inv-meta h4 { font-size: 14px; font-weight: 700; color: #1e293b; }
+        .inv-meta p { font-size: 11px; color: #64748b; }
+
+        .counter-widget {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-counter {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .btn-counter:hover { background: var(--slate-100); }
+
+        .counter-field {
+            width: 50px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 0;
+        }
+
+        .row-total-cost {
+            width: 65px;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        /* Real-time Math Summary Dash & Target Metrics */
+        .aggregate-hero {
+            background: var(--dark);
+            color: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .aggregate-hero div p { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+        .aggregate-hero div h3 { font-size: 28px; font-weight: 800; color: #38bdf8; }
+
+        .efficiency-metrics-block {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .metrics-subgrid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .metric-card-mini {
+            background: #fff;
+            border: 1px solid #dbeafe;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .metric-card-mini span { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; }
+        .metric-card-mini p { font-size: 15px; font-weight: 700; margin-top: 2px; }
+
+        .status-optimal { color: var(--success); }
+        .status-deficit { color: var(--danger); }
+
+        /* Form Submissions Interaction */
+        .action-tray {
+            display: flex;
+            gap: 12px;
+Use code with caution.}.btn-submit-record {flex: 2;background: var(--success);color: #fff;font-size: 16px;font-weight: 700;border: none;padding: 14px;border-radius: 10px;cursor: pointer;transition: background 0.2s;}.btn-submit-record:hover { background: var(--success-hover); }.btn-reset-record {flex: 1;background: var(--slate-100);color: var(--slate-700);font-size: 14px;font-weight: 600;border: 1px solid var(--border);padding: 14px;border-radius: 10px;cursor: pointer;}.btn-reset-record:hover { background: var(--border); }/* Advanced Enterprise Admin Command Center Console */#admin-command-center {background: #fafafa;border: 2px solid var(--dark);border-radius: 16px;padding: 20px;margin-bottom: 20px;}.admin-section-divider {border-top: 1px solid #e2e8f0;margin: 16px 0;padding-top: 16px;}.admin-grid-3 {display: grid;grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));gap: 8px;margin-top: 10px;}.btn-admin-action {background: var(--slate-700);color: #fff;border: none;padding: 10px;border-radius: 6px;font-size: 12px;font-weight: 600;cursor: pointer;text-align: center;}.btn-admin-action:hover { background: var(--dark); }.btn-admin-danger { background: var(--danger); }.btn-admin-danger:hover { background: var(--danger-hover); }.admin-data-box {background: #fff;border: 1px solid var(--border);border-radius: 8px;padding: 10px;max-height: 160px;overflow-y: auto;font-size: 11px;font-family: monospace;margin-top: 8px;white-space: pre-wrap;}/* Remote Intercept Screen Shield */#security-lockout-shield {display: none;position: fixed;top: 0; left: 0; width: 100%; height: 100%;background: #020617;color: #ffffff;z-index: 99999;flex-direction: column;justify-content: center;align-items: center;padding: 30px;text-align: center;}.shield-icon {font-size: 48px;color: var(--danger);margin-bottom: 16px;}.shield-btn {background: var(--primary);color: #fff;border: none;padding: 12px 24px;border-radius: 8px;font-size: 14px;font-weight: 700;cursor: pointer;margin-top: 20px;}/* Helper Classes */.hidden { display: none !important; }.flex { display: flex !important; }DOM/SC Norm SystemProduction Integrity & Audit Engine • 2026⚠️ SYSTEM LOCKDOWN: This portal is undergoing admin maintenance.Personnel AuthenticationSelect your assigned profile to access workspace recordsOperations & AdministrationRhia (System Administrator)Full ControlsEnterprise Auditor ConsoleMaster ViewActive Deployments (Crew Teams)Crew Team Delta StationStandard LogsCrew Team Sigma ShiftStandard Logs------Admin PanelSign Out🛠️ Master Management Dashboardv2.6 EngineWEBSITE CMS INTERFACESSystem Title HeaderSub-text PromptSystem Alert Announcement Banner (Leave empty to hide)TARGET EFFICIENCY PARAMETERSNorm Threshold Target ($)Base Crew Cost Rate ($/hr)SYSTEM POWER CONTROLS & SECURITY OVERRIDESForce Lock OutToggle Maint.Reset Safe KeysEMPLOYEE LOG AUDIT TRAIL & TRANSACTION DATADownload JSONPurge Audit BoxNo transaction data logged in current run session.Deployment Manifest MetadataOperation DateShift RotationDay Alpha RotationNight Bravo RotationGraveyard Special RotationActive Shift Duration HoursStation Duty OfficerProduction Resource Ledger MatrixReal-time valuation lookupPremium Component AlfaValuation Matrix Factor: $45.00-+$0.00Standard Assembly BetaValuation Matrix Factor: $20.00-+$0.00Refined Output GammaValuation Matrix Factor: $75.00-+$0.00Aggregated Ledger Yield$0.00Efficiency TargetChecking calculations...Production Target Metrics Status BreakdownEvaluated Target StatusPendingVariance Delta Spread$0.00Computed Shift Overheads$0.00Estimated Net Profit$0.00Clear FieldsDispatch Record Package🔒WORKSPACE EMERGENCY LOCKOUT DISPATCHEDAn administrator has pushed a global freeze shield onto your environment node. Operations are temporarily paused pending audit verification checks.ERR_NODE_MUTEX_LOCK_BY_RHIA_ADMINBypass Safe Shield Override// System State Variables Engine Configurations Registrylet currentSessionUser = null;let currentSessionRole = null;let systemMaintenanceActive = false;let cachedAuditHistoryLogs = [];// Financial Values Matrix Constantsconst UNIT_VALUATION_MATRIX = {'item-alfa': 45.00,'item-beta': 20.00,'item-gamma': 75.00};// Form Initialization Trigger Contextwindow.addEventListener('DOMContentLoaded', () => {document.getElementById('record-field-date').valueAsDate = new Date();loadLocalSystemStorageData();});
