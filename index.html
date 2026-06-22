@@ -2592,6 +2592,11 @@ async function completeLogin(profileVal) {
   show('login-nav-link','inline-block'); // show admin console button
   hide('admin-panel'); // hide admin panel if previously open
   loadSavedData();
+  // Refresh the employee page after login so supervisor controls appear immediately.
+  try{if(typeof applyUI==='function')applyUI();}catch(e){}
+  try{if(typeof phase1SupervisorEnsure==='function')phase1SupervisorEnsure();}catch(e){}
+  try{if(typeof phase1ApplySupervisorNotice==='function')phase1ApplySupervisorNotice();}catch(e){}
+  try{if(typeof supervisorRenderConsole==='function')supervisorRenderConsole();}catch(e){}
 }
 function logoutProfile(){localStorage.removeItem('dom_sc_active_profile');location.reload();}
 
@@ -4739,6 +4744,104 @@ document.addEventListener('DOMContentLoaded',function(){
   document.addEventListener('DOMContentLoaded',function(){
     setTimeout(function(){try{placeSupervisorControlsOnEmployeeProfile();window.phase1ApplySupervisorNotice();}catch(e){}},500);
     setTimeout(function(){try{placeSupervisorControlsOnEmployeeProfile();window.phase1ApplySupervisorNotice();}catch(e){}},1800);
+  });
+})();
+</script>
+
+
+
+<script>
+/* Supervisor employee-profile visibility fix
+   Shows supervisor controls on the employee profile immediately after login,
+   after cloud refresh, and after admin changes supervisor privileges. */
+(function(){
+  function activeProfileKey(){return localStorage.getItem('dom_sc_active_profile')||'default';}
+  function isLoggedIntoEmployee(){
+    var main=document.getElementById('main-app-container');
+    var user=document.getElementById('user-app-elements');
+    return !!(main&&user&&main.style.display!=='none'&&user.style.display!=='none');
+  }
+  function isSupervisorProfile(){
+    try{return typeof window.phase1IsSupervisor==='function' && window.phase1IsSupervisor(activeProfileKey());}
+    catch(e){return false;}
+  }
+  function moveSupervisorCard(){
+    var card=document.getElementById('supervisor-console-card');
+    if(!card)return;
+    card.classList.add('employee-profile-supervisor-tools');
+    var title=card.querySelector('.employee-feature-title');
+    if(title)title.innerHTML='&#x1F9D1;&#x200D;&#x1F4BC; My Supervisor Controls';
+
+    // Keep the controls on the employee profile side, not inside Admin Controls.
+    var profilePic=document.getElementById('employee-profile-picture-card');
+    var messageCard=document.getElementById('employee-message-admin-card');
+    var securityPanel=document.querySelector('#user-app-elements .security-panel');
+    if(profilePic && profilePic.parentNode && profilePic.nextSibling!==card){
+      profilePic.parentNode.insertBefore(card, profilePic.nextSibling);
+    }else if(messageCard && messageCard.parentNode && messageCard.previousSibling!==card){
+      messageCard.parentNode.insertBefore(card, messageCard);
+    }else if(securityPanel && securityPanel.parentNode && securityPanel.previousSibling!==card){
+      securityPanel.parentNode.insertBefore(card, securityPanel);
+    }
+  }
+  function refreshSupervisorProfileControls(){
+    var card=document.getElementById('supervisor-console-card');
+    var body=document.getElementById('supervisor-console-body');
+    var notice=document.getElementById('phase1-supervisor-notice');
+    if(!card)return;
+    try{if(typeof window.phase1SupervisorEnsure==='function')window.phase1SupervisorEnsure();}catch(e){}
+    moveSupervisorCard();
+    var show=isLoggedIntoEmployee() && isSupervisorProfile();
+    card.style.display=show?'block':'none';
+    if(notice){
+      notice.style.display=show?'block':'none';
+      if(show){
+        notice.innerHTML='<span class="supervisor-profile-badge">Supervisor Profile</span><br>Supervisor controls are available on this employee profile. Admin controls which tools appear here.';
+      }
+    }
+    if(show){
+      try{if(typeof window.supervisorRenderConsole==='function')window.supervisorRenderConsole();}catch(e){}
+      if(body && !document.getElementById('supervisor-profile-top-note')){
+        body.insertAdjacentHTML('afterbegin','<div id="supervisor-profile-top-note" class="supervisor-profile-note">These supervisor controls appear here because admin gave this employee profile supervisor access.</div>');
+      }
+      // Scroll it into view once when a supervisor logs in so it visibly pops up.
+      if(!sessionStorage.getItem('dom_sc_supervisor_seen_'+activeProfileKey())){
+        sessionStorage.setItem('dom_sc_supervisor_seen_'+activeProfileKey(),'1');
+        setTimeout(function(){try{card.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},350);
+      }
+    }
+  }
+  window.domscRefreshSupervisorProfileControls=refreshSupervisorProfileControls;
+
+  var oldApplyUI=window.applyUI;
+  if(typeof oldApplyUI==='function' && !oldApplyUI.__supervisorProfileFixed){
+    var wrappedApplyUI=function(){
+      var result=oldApplyUI.apply(this,arguments);
+      setTimeout(refreshSupervisorProfileControls,0);
+      setTimeout(refreshSupervisorProfileControls,250);
+      return result;
+    };
+    wrappedApplyUI.__supervisorProfileFixed=true;
+    window.applyUI=wrappedApplyUI;
+  }
+
+  var oldCompleteLogin=window.completeLogin;
+  if(typeof oldCompleteLogin==='function' && !oldCompleteLogin.__supervisorProfileFixed){
+    var wrappedCompleteLogin=async function(profileVal){
+      var result=await oldCompleteLogin.apply(this,arguments);
+      setTimeout(refreshSupervisorProfileControls,50);
+      setTimeout(refreshSupervisorProfileControls,500);
+      setTimeout(refreshSupervisorProfileControls,1500);
+      return result;
+    };
+    wrappedCompleteLogin.__supervisorProfileFixed=true;
+    window.completeLogin=wrappedCompleteLogin;
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(refreshSupervisorProfileControls,500);
+    setTimeout(refreshSupervisorProfileControls,1500);
+    setTimeout(refreshSupervisorProfileControls,3000);
   });
 })();
 </script>
