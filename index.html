@@ -1078,6 +1078,130 @@ button,.sm-btn,.admin-ctrl-btn,.save-btn,.clear-btn,.qty-btn{
   }
 }
 
+
+/* ══════════════════════════════════════════════════════════════
+   COMPACT VARIABLE / ITEM BOXES
+   Makes calculator variable boxes smaller and less bulky.
+   ══════════════════════════════════════════════════════════════ */
+#item-cards-container{
+  gap:6px!important;
+}
+.item-card{
+  padding:8px 10px!important;
+  min-height:54px!important;
+  border-radius:14px!important;
+  gap:8px!important;
+}
+.item-info{
+  min-width:0!important;
+}
+.item-name{
+  font-size:13px!important;
+  line-height:1.15!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.item-val{
+  font-size:10px!important;
+  margin-top:1px!important;
+}
+.item-actions{
+  gap:6px!important;
+}
+.qty-control{
+  padding:2px!important;
+  gap:3px!important;
+  border-radius:12px!important;
+}
+.qty-btn{
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  min-height:30px!important;
+  font-size:16px!important;
+  border-radius:10px!important;
+}
+.qty-input{
+  width:45px!important;
+  height:30px!important;
+  min-height:30px!important;
+  padding:4px!important;
+  font-size:14px!important;
+  border-radius:10px!important;
+}
+.item-total{
+  min-width:48px!important;
+  width:48px!important;
+  font-size:12px!important;
+}
+.total-banner{
+  padding:12px 14px!important;
+  margin:10px 0!important;
+  font-size:15px!important;
+}
+.total-banner span:last-child{
+  font-size:18px!important;
+}
+.metrics-panel{
+  padding:10px!important;
+  margin-bottom:10px!important;
+}
+.metric-item{
+  padding:8px 6px!important;
+}
+.metric-label{
+  font-size:10px!important;
+}
+.metric-value{
+  font-size:12px!important;
+}
+@media(max-width:720px){
+  #item-cards-container{
+    gap:6px!important;
+  }
+  .item-card{
+    display:grid!important;
+    grid-template-columns:1fr auto!important;
+    padding:8px!important;
+    min-height:unset!important;
+  }
+  .item-actions{
+    grid-column:1/-1!important;
+    gap:6px!important;
+  }
+  .qty-control{
+    flex:0 0 auto!important;
+  }
+  .item-total{
+    min-width:54px!important;
+    width:auto!important;
+    font-size:13px!important;
+  }
+}
+@media(max-width:430px){
+  .item-card{
+    padding:7px 8px!important;
+    border-radius:12px!important;
+  }
+  .item-name{
+    font-size:12px!important;
+  }
+  .qty-btn{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+    min-height:28px!important;
+    font-size:15px!important;
+  }
+  .qty-input{
+    width:42px!important;
+    height:28px!important;
+    min-height:28px!important;
+    font-size:13px!important;
+  }
+}
+
 </style>
 </head>
 <body>
