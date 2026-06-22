@@ -169,6 +169,18 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
 .profile-pic-preview{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#eee;border:1px solid #ddd}
 .profile-pic-admin-row input[type=file]{font-size:10px;max-width:120px}
 
+
+.live-monitor-box{background:#eef8ff;border:1px solid #b8e2ff;border-radius:10px;padding:10px;margin-top:10px}
+.live-monitor-card{background:#fff;border:1px solid #dbefff;border-radius:8px;padding:8px;margin:8px 0;font-size:12px}
+.live-monitor-head{display:flex;justify-content:space-between;gap:8px;font-weight:800;color:#0056b3;margin-bottom:6px}
+.live-monitor-table{width:100%;border-collapse:collapse;font-size:11px}
+.live-monitor-table td{border-bottom:1px solid #eee;padding:3px 2px}
+.live-monitor-empty{font-size:12px;color:#888;font-style:italic;text-align:center;padding:8px}
+.monitor-notice{background:#fff3cd;border:1px solid #ffe8a1;color:#856404;border-radius:8px;padding:8px;font-size:11px;margin:8px 0}
+
+.daily-log-item{padding:6px;border-bottom:1px solid #e5e5e5;font-size:12px}
+.daily-log-item b{color:#111}
+.daily-hours-box{background:#eef8ff;border:1px solid #cfe4ff;border-radius:8px;padding:8px;margin:6px 0;font-size:12px}
 </style>
 </head>
 <body>
@@ -268,6 +280,7 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
       <button id="lock-toggle-btn" class="admin-ctrl-btn lock-btn" onclick="adminToggleLock()">&#x1F512; Lock All Screens</button>
       <button class="admin-ctrl-btn" onclick="adminFactoryReset()" style="background:#850000">&#x26A0;&#xFE0F; Factory Reset</button>
       <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Exit Admin</button>
+      <button class="admin-ctrl-btn" style="background:#0076d6" onclick="forceFullCloudSync()">Sync All Devices Now</button>
     </div>
 
     <!-- Tab Bar -->
@@ -285,6 +298,11 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
       <div class="admin-sub">
         <div class="admin-sub-title">&#x1F4E1; Live Activity</div>
         <div id="live-stream" style="font-family:monospace;font-size:11px;background:#222;color:#0f0;padding:6px;border-radius:4px;max-height:80px;overflow-y:auto">Waiting...</div>
+        <div class="live-monitor-box">
+          <div class="admin-sub-title" style="color:#0056b3">&#x1F441;&#xFE0F; Employee Live Calculator View</div>
+          <div class="monitor-notice">This shows only what employees enter inside this DOM/SC calculator page: quantities, totals, crew, and time fields. It does not view other apps or secretly record their phone screen.</div>
+          <div id="admin-live-calculator-view"><div class="live-monitor-empty">No live employee calculator data yet.</div></div>
+        </div>
       </div>
       <div class="admin-sub" style="background:#fff8f0;border-color:#ffd0a0;margin-top:10px">
         <div class="admin-sub-title">&#x1F6A7; Maintenance Mode</div>
@@ -489,6 +507,7 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
         <div class="input-group"><label>Start Time</label><input type="time" id="start-time" class="text-input" onchange="saveFields()"></div>
         <div class="input-group"><label>End Time</label><input type="time" id="end-time" class="text-input" onchange="saveFields()"></div>
       </div>
+      <div class="input-group"><label>Break Minutes</label><input type="number" id="break-minutes" class="text-input" min="0" step="1" placeholder="Example: 30" oninput="saveFields();calculateEverything()"></div>
     </div>
     <div id="item-cards-container"></div>
     <div class="total-banner"><span>Total Units:</span><span id="grand-total">0.00</span></div>
@@ -568,13 +587,13 @@ const HEADERS = {"X-Master-Key": MASTER_KEY, "X-Access-Key": MASTER_KEY, "Conten
 const SYNC_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
 const ADMIN_KEY = "__admin__";
 const MASTER_RECOVERY_KEY = "DOMSC-RECOVERY-2026";
-const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes"];
+const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator"];
 
 // ══════════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════════
 let cloud = {
-  is_locked: false, drafts: [], admin_pass: "2026", frozen_users: {},
+  is_locked: false, drafts: [], live_calculator: {}, daily_logs: {}, profile_pictures: {}, employee_calculator: {}, admin_pass: "2026", frozen_users: {},
   variables: {}, active_login_ips: {}, failed_admin_logins: [], banned_ips: [],
   global_alert: "", targets: {man1_8:26,man1_10:32.5,man2_8:32.5,man2_10:39},
   maintenance: {active:false,message:"",eta:""}, passcode_reset_requests: [],
@@ -613,6 +632,16 @@ async function pullCloud() {
     cloud = {
       is_locked:              d.is_locked||false,
       drafts:                 d.drafts||[],
+      live_calculator:        d.live_calculator||{},
+      daily_logs:             d.daily_logs||{},
+      profile_pictures:       d.profile_pictures||{},
+      employee_calculator:    d.employee_calculator||{},
+      daily_logs:             d.daily_logs||{},
+      profile_pictures:       d.profile_pictures||{},
+      employee_calculator:    d.employee_calculator||{},
+      live_calculator:        d.live_calculator||{},
+      daily_logs:             d.daily_logs||{},
+      profile_pictures:       d.profile_pictures||{},
       admin_pass:             d.admin_pass||"2026",
       frozen_users:           d.frozen_users||{},
       variables:              d.variables||{},
@@ -885,6 +914,16 @@ async function pullCloudSilent() {
     cloud=Object.assign(cloud,{
       admin_pass:d.admin_pass||"2026", passcodes:d.passcodes||{}, bio_flags:d.bio_flags||{},
       banned_ips:d.banned_ips||[], is_locked:d.is_locked||false,
+      live_calculator:d.live_calculator||{},
+      daily_logs:d.daily_logs||{},
+      profile_pictures:d.profile_pictures||{},
+      employee_calculator:d.employee_calculator||{},
+      daily_logs:d.daily_logs||{},
+      profile_pictures:d.profile_pictures||{},
+      employee_calculator:d.employee_calculator||{},
+      live_calculator:d.live_calculator||{},
+      daily_logs:d.daily_logs||{},
+      profile_pictures:d.profile_pictures||{},
       frozen_users:d.frozen_users||{}, maintenance:Object.assign({active:false,message:"",eta:""},d.maintenance||{}),
       profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
       settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{})
@@ -967,9 +1006,7 @@ const DEFAULT_PROFILE_PICS = {
 function initialsForName(name){
   return String(name||'?').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('') || '?';
 }
-function getProfilePic(val){
-  return localStorage.getItem('dom_sc_profile_pic_'+val) || DEFAULT_PROFILE_PICS[val] || '';
-}
+function getProfilePic(val){ ensureCloudStores(); return cloud.profile_pictures[val] || localStorage.getItem('dom_sc_profile_pic_'+val) || DEFAULT_PROFILE_PICS[val] || ''; }
 function profilePicMarkup(p){
   const pic=getProfilePic(p.val);
   if(pic) return `<img class="profile-avatar" src="${pic}" alt="">`;
@@ -979,19 +1016,70 @@ function setProfilePicFromFile(profileVal,input){
   const file=input.files && input.files[0];
   if(!file)return;
   const reader=new FileReader();
-  reader.onload=function(){
+  reader.onload=async function(){
+    ensureCloudStores();
+    cloud.profile_pictures[profileVal]=reader.result;
     localStorage.setItem('dom_sc_profile_pic_'+profileVal, reader.result);
+    await pushCloud();
     renderLoginButtons();
     updateAdminPeople();
-    alert('Profile picture updated.');
+    alert('Profile picture updated and saved to JSONBin.');
   };
   reader.readAsDataURL(file);
 }
-function deleteProfilePic(profileVal){
+async function deleteProfilePic(profileVal){
   if(!confirm('Delete this profile picture?'))return;
+  ensureCloudStores();
+  delete cloud.profile_pictures[profileVal];
   localStorage.removeItem('dom_sc_profile_pic_'+profileVal);
+  await pushCloud();
   renderLoginButtons();
   updateAdminPeople();
+}
+
+
+function ensureCloudStores(){
+  if(!cloud.daily_logs) cloud.daily_logs={};
+  if(!cloud.profile_pictures) cloud.profile_pictures={};
+}
+function getCloudProfileLogs(profileVal){
+  ensureCloudStores();
+  const localLogs=JSON.parse(localStorage.getItem('dom_sc_saves_'+profileVal)||'[]');
+  const cloudLogs=cloud.daily_logs[profileVal]||[];
+  if(cloudLogs.length >= localLogs.length) return cloudLogs;
+  return localLogs;
+}
+async function saveCloudProfileLogs(profileVal, logs){
+  ensureCloudStores();
+  cloud.daily_logs[profileVal]=logs;
+  localStorage.setItem('dom_sc_saves_'+profileVal, JSON.stringify(logs));
+  await pushCloud();
+}
+function migrateLocalLogsToCloud(){
+  ensureCloudStores();
+  (cloud.profiles||[]).forEach(p=>{
+    const key='dom_sc_saves_'+p.val;
+    const localLogs=JSON.parse(localStorage.getItem(key)||'[]');
+    if(localLogs.length && (!cloud.daily_logs[p.val] || localLogs.length > cloud.daily_logs[p.val].length)){
+      cloud.daily_logs[p.val]=localLogs;
+    } else if(cloud.daily_logs[p.val]) {
+      localStorage.setItem(key, JSON.stringify(cloud.daily_logs[p.val]));
+    }
+  });
+}
+function migrateLocalProfilePicsToCloud(){
+  ensureCloudStores();
+  (cloud.profiles||[]).forEach(p=>{
+    const lk='dom_sc_profile_pic_'+p.val;
+    const localPic=localStorage.getItem(lk);
+    if(localPic && !cloud.profile_pictures[p.val]) cloud.profile_pictures[p.val]=localPic;
+    if(cloud.profile_pictures[p.val]) localStorage.setItem(lk, cloud.profile_pictures[p.val]);
+  });
+}
+async function syncLocalStoresToCloud(){
+  migrateLocalLogsToCloud();
+  migrateLocalProfilePicsToCloud();
+  await pushCloud();
 }
 
 function renderLoginButtons() {
@@ -1047,7 +1135,7 @@ function applyUI() {
     if(mb){mb.textContent=m.active?"MAINTENANCE ACTIVE":"SITE LIVE";mb.className="maint-status-badge "+(m.active?"maint-on":"maint-off");}
     ['t-1-8','t-1-10','t-2-8','t-2-10'].forEach((id,i)=>{const el=$(id);if(el)el.value=[cloud.targets.man1_8,cloud.targets.man1_10,cloud.targets.man2_8,cloud.targets.man2_10][i];});
     updateAdminSecStatus(); updateAdminPeople(); updateAdminDrafts(); updateResetRequests(); updateBannedIPs(); updateSettingsUI();
-    updateAlertLevelBtns();
+    updateAlertLevelBtns(); renderAdminLiveCalculatorView();
   }
   calculateEverything();
   // User security panel (async, fire and forget — won't break anything)
@@ -1306,12 +1394,99 @@ function restoreQtyByName(){
   });
 }
 
+
+function getCurrentCalculatorSnapshot(){
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  const prof=(cloud.profiles||[]).find(p=>p.val===pv);
+  const rows=[];
+  items.forEach((it,i)=>{
+    const el=$('qty-'+i);
+    const q=parseFloat(el&&el.value?el.value:'0')||0;
+    if(q>0) rows.push({name:it.name,qty:q,unit:it.val,total:parseFloat((q*it.val).toFixed(2))});
+  });
+  return {
+    profile:pv,profileName:prof?prof.name:pv,timestamp:new Date().toLocaleString(),
+    crew:(document.querySelector('input[name="crew"]:checked')||{}).value||'1',
+    foreman:(($('foreman-name')||{}).value)||'',member:(($('crew-member-name')||{}).value)||'',
+    start:(($('start-time')||{}).value)||'',end:(($('end-time')||{}).value)||'',
+    grandTotal:parseFloat((($('grand-total')||{}).textContent)||'0')||0,items:rows
+  };
+}
+async function pushLiveCalculatorState(){
+  try{
+    const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+    if(!cloud.live_calculator)cloud.live_calculator={};
+    cloud.live_calculator[pv]=getCurrentCalculatorSnapshot();
+    await pushCloud();
+  }catch(e){}
+}
+let liveStateTimer=null;
+function scheduleLiveCalculatorState(){
+  clearTimeout(liveStateTimer);
+  liveStateTimer=setTimeout(pushLiveCalculatorState,700);
+}
+function renderAdminLiveCalculatorView(){
+  const box=$('admin-live-calculator-view'); if(!box)return;
+  const live=cloud.live_calculator||{}, profiles=Object.keys(live);
+  if(!profiles.length){box.innerHTML='<div class="live-monitor-empty">No live employee calculator data yet.</div>';return;}
+  box.innerHTML=profiles.map(k=>{
+    const s=live[k]||{};
+    const rows=(s.items||[]).length?(s.items||[]).map(it=>`<tr><td>${it.name}</td><td style="text-align:center">${it.qty}</td><td style="text-align:right">${Number(it.total||0).toFixed(2)}</td></tr>`).join(''):'<tr><td colspan="3" style="color:#999;text-align:center">No quantities entered</td></tr>';
+    return `<div class="live-monitor-card"><div class="live-monitor-head"><span>${s.profileName||k}</span><span>${s.timestamp||''}</span></div><div><b>Crew:</b> ${s.crew||''} Man &nbsp; <b>Total:</b> ${Number(s.grandTotal||0).toFixed(2)}</div><div><b>Foreman:</b> ${s.foreman||''} ${s.member?`&nbsp; <b>Member:</b> ${s.member}`:''}</div><div><b>Time:</b> ${s.start||''} - ${s.end||''}</div><table class="live-monitor-table"><tbody><tr><td><b>Item</b></td><td style="text-align:center"><b>Qty</b></td><td style="text-align:right"><b>Units</b></td></tr>${rows}</tbody></table></div>`;
+  }).join('');
+}
+
+
+function minutesFromTime(t){
+  if(!t || !/^\d{2}:\d{2}$/.test(t)) return null;
+  const parts=t.split(':').map(Number);
+  return parts[0]*60+parts[1];
+}
+function formatHours(n){
+  return (Math.round((n||0)*100)/100).toFixed(2);
+}
+function dailyTimeSummary(){
+  const start=(($('start-time')||{}).value)||'';
+  const end=(($('end-time')||{}).value)||'';
+  const breakMinutes=parseInt((($('break-minutes')||{}).value)||'0')||0;
+  const s=minutesFromTime(start), e0=minutesFromTime(end);
+  let totalMinutes=0;
+  if(s!==null && e0!==null){
+    let e=e0;
+    if(e<s) e+=24*60;
+    totalMinutes=Math.max(0,e-s);
+  }
+  const unpaidBreakMinutes=Math.max(0,breakMinutes-30);
+  const paidMinutes=Math.max(0,totalMinutes-unpaidBreakMinutes);
+  return {
+    start:start,
+    end:end,
+    breakMinutes:breakMinutes,
+    totalHours:formatHours(totalMinutes/60),
+    unpaidBreakMinutes:unpaidBreakMinutes,
+    paidHours:formatHours(paidMinutes/60)
+  };
+}
+function getDailyItemRows(){
+  const rows=[];
+  items.forEach((it,i)=>{
+    const el=$('qty-'+i);
+    const q=parseFloat(el&&el.value?el.value:'0')||0;
+    if(q>0){
+      rows.push({name:it.name, quantity:q, unitValue:it.val, units:parseFloat((q*it.val).toFixed(2))});
+    }
+  });
+  return rows;
+}
+
 function saveFields(){
   const p=prefix();
   localStorage.setItem(p+'foreman',$('foreman-name').value);
   localStorage.setItem(p+'member',$('crew-member-name').value);
   localStorage.setItem(p+'start',$('start-time').value);
   localStorage.setItem(p+'end',$('end-time').value);
+  if($('break-minutes')) localStorage.setItem(p+'break',$('break-minutes').value);
+  scheduleLiveCalculatorState();
 }
 function loadSavedData(){
   const pv=localStorage.getItem('dom_sc_active_profile')||'default';
@@ -1322,6 +1497,7 @@ function loadSavedData(){
   $('crew-member-name').value=localStorage.getItem(p+'member')||"";
   $('start-time').value=localStorage.getItem(p+'start')||"";
   $('end-time').value=localStorage.getItem(p+'end')||"";
+  if($('break-minutes')) $('break-minutes').value=localStorage.getItem(p+'break')||"";
   restoreQtyByName();
   calculateEverything(); renderProfileFiles(); updateSecurityPanel();
 }
@@ -1346,9 +1522,10 @@ function calculateEverything(){
   const tv8=$('target-8-val'),tv10=$('target-10-val');
   if(tv8)tv8.textContent=t8.toFixed(2); if(tv10)tv10.textContent=t10.toFixed(2);
   setRemain('rem-8hr',t8-total); setRemain('rem-10hr',t10-total);
+  scheduleLiveCalculatorState();
 }
 function setRemain(id,v){const el=$(id);if(!el)return;if(v<=0){el.textContent="MET (+"+Math.abs(v).toFixed(2)+")";el.className="metric-value rem-pos";}else{el.textContent=v.toFixed(2)+" left";el.className="metric-value rem-neg";}}
-function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+qtyNameKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
+function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end','break'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time','break-minutes'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+qtyNameKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
 
 // Save flow
 function showLunchModal(){
@@ -1357,23 +1534,54 @@ function showLunchModal(){
   show('lunch-modal','flex');
 }
 function handleLunchDecision(took){hide('lunch-modal');performSave(took);}
-function performSave(took){
-  // Simple local save (full save logic can be expanded)
-  const p=prefix(),pv=localStorage.getItem('dom_sc_active_profile')||'default';
-  const entry={timestamp:new Date().toLocaleString(),profile:pv,foreman:$('foreman-name').value,totalUnits:parseFloat($('grand-total').textContent)||0,lunch:took};
-  const key='dom_sc_saves_'+pv; const saves=JSON.parse(localStorage.getItem(key)||'[]');
-  saves.push(entry); localStorage.setItem(key,JSON.stringify(saves));
-  renderProfileFiles(); alert("Saved!");
+async function performSave(took){
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  const timeSummary=dailyTimeSummary();
+  const itemRows=getDailyItemRows();
+  const entry={
+    timestamp:new Date().toLocaleString(),
+    timestampISO:new Date().toISOString(),
+    profile:pv,
+    foreman:(($('foreman-name')||{}).value)||'',
+    crewMember:(($('crew-member-name')||{}).value)||'',
+    crew:(document.querySelector('input[name="crew"]:checked')||{}).value||'1',
+    totalUnits:parseFloat((($('grand-total')||{}).textContent)||'0')||0,
+    lunch:took,
+    time:timeSummary,
+    items:itemRows
+  };
+  const saves=getCloudProfileLogs(pv);
+  saves.push(entry);
+  await saveCloudProfileLogs(pv, saves);
+  renderProfileFiles();
+  alert('Daily log saved to JSONBin. Paid hours: '+timeSummary.paidHours+' hrs. Unpaid break: '+timeSummary.unpaidBreakMinutes+' min.');
 }
 function renderProfileFiles(){
   const el=$('profile-saved-files-list'); if(!el)return;
   const pv=localStorage.getItem('dom_sc_active_profile')||'default';
-  const saves=JSON.parse(localStorage.getItem('dom_sc_saves_'+pv)||'[]');
-  el.innerHTML=saves.length?[...saves].reverse().map((s,i)=>`<div style="padding:4px 0;border-bottom:1px solid #e0f0e0;font-size:12px;display:flex;justify-content:space-between"><span><b>${s.timestamp}</b> — ${s.totalUnits} units</span><button class="sm-btn" style="background:#e9f5fe;color:#0056b3" onclick="viewSave(${saves.length-1-i})">View</button></div>`).join(''):"<div style='color:#888;font-style:italic;text-align:center'>No entries saved.</div>";
+  const saves=getCloudProfileLogs(pv);
+  if(!saves.length){el.innerHTML='<div style="color:#888;font-style:italic;text-align:center">No entries saved.</div>';return;}
+  el.innerHTML=[...saves].reverse().map((s,idx)=>{
+    const realIndex=saves.length-1-idx;
+    const t=s.time||{};
+    const items=(s.items||[]).map(it=>`${it.name}: ${it.quantity} = ${Number(it.units||0).toFixed(2)} units`).join('<br>');
+    return `<div class="daily-log-item"><b>${s.timestamp}</b><br>
+      Foreman: ${s.foreman||''}<br>
+      Total Units: <b>${Number(s.totalUnits||0).toFixed(2)}</b>
+      <div class="daily-hours-box">
+        Start: ${t.start||''} | End: ${t.end||''}<br>
+        Full Hours: <b>${t.totalHours||'0.00'}</b><br>
+        Break: ${t.breakMinutes||0} min | Unpaid Break: <b>${t.unpaidBreakMinutes||0} min</b><br>
+        Paid Hours: <b>${t.paidHours||'0.00'}</b>
+      </div>
+      ${items?'<div>'+items+'</div>':'<span style="color:#999">No item quantities saved.</span>'}
+      <br><button class="sm-btn btn-blue" onclick="viewSavedLog(${realIndex})">View</button>
+    </div>`;
+  }).join('');
 }
 function viewSave(i){
   const pv=localStorage.getItem('dom_sc_active_profile')||'default';
-  const saves=JSON.parse(localStorage.getItem('dom_sc_saves_'+pv)||'[]');
+  const saves=getCloudProfileLogs(pv);
   const s=saves[i]; if(!s)return;
   $('view-file-content').value=`Profile: ${s.profile}\nDate: ${s.timestamp}\nForeman: ${s.foreman}\nTotal Units: ${s.totalUnits}\nLunch: ${s.lunch===null?"Skipped":s.lunch?"Yes":"No"}`;
   show('view-file-modal','flex');
@@ -1441,7 +1649,7 @@ async function aiApplyConfig(){
   if(!keys.length){cfgResult("No recognized keys.","err");return;}
   if(!confirm(`Apply ${keys.length} change(s)? Keys: ${keys.join(', ')}`))return;
   keys.forEach(k=>{
-    if(["targets","variables","maintenance","settings","profile_notes"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
+    if(["targets","variables","maintenance","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
     else cloud[k]=p[k];
   });
   await pushCloud();applyUI();cfgResult(`Applied: <b>${keys.join(', ')}</b>.`,"ok");$('ai-config-input').value="";
@@ -1479,6 +1687,7 @@ function hide(id){const e=$(id);if(e)e.style.display='none';}
   renderCards();
   const ok=await pullCloud();
   if(ok===false)return;
+  syncLocalStoresToCloud();
   rebuildItems();
   if(saved&&!isDedicatedAdmin){
     const ps=$('profile-select'); if(ps)ps.value=saved;
@@ -1528,4 +1737,255 @@ setInterval(async function(){
   } catch(e){ /* silent fail on background sync — app still works */ }
 },30000); // 30 seconds instead of 5 — reduces CORS pressure
 </script>
+
+<script>
+document.addEventListener("input", function(e){ if(e.target && e.target.closest && e.target.closest("#user-app-elements") && typeof scheduleLiveCalculatorState==="function") scheduleLiveCalculatorState(); });
+document.addEventListener("change", function(e){ if(e.target && e.target.closest && e.target.closest("#user-app-elements") && typeof scheduleLiveCalculatorState==="function") scheduleLiveCalculatorState(); });
+</script>
+
+<script>
+/* CROSS-DEVICE JSONBIN SYNC PATCH */
+(function(){
+  function ensureSyncStores(){
+    if(!window.cloud) return;
+    if(!cloud.daily_logs) cloud.daily_logs = {};
+    if(!cloud.profile_pictures) cloud.profile_pictures = {};
+    if(!cloud.employee_calculator) cloud.employee_calculator = {};
+    if(!cloud.live_calculator) cloud.live_calculator = {};
+  }
+
+  function activeProfile(){
+    return localStorage.getItem("dom_sc_active_profile") || "default";
+  }
+
+  function itemKey(name){
+    return String(name || "").toLowerCase().replace(/[^a-z0-9]+/g,"_");
+  }
+
+  function getFieldValue(id){
+    const el = document.getElementById(id);
+    return el ? el.value : "";
+  }
+
+  function setFieldValue(id,val){
+    const el = document.getElementById(id);
+    if(el && val !== undefined && val !== null) el.value = val;
+  }
+
+  function collectEmployeeCalculator(){
+    ensureSyncStores();
+    const quantities = {};
+    if(window.items && Array.isArray(items)){
+      items.forEach((it,i)=>{
+        const el = document.getElementById("qty-"+i);
+        if(el && el.value !== ""){
+          quantities[itemKey(it.name)] = {name: it.name, value: el.value, unit: it.val};
+        }
+      });
+    }
+    return {
+      profile: activeProfile(),
+      updatedAt: new Date().toLocaleString(),
+      updatedAtISO: new Date().toISOString(),
+      crew: (document.querySelector('input[name="crew"]:checked') || {}).value || "1",
+      foreman: getFieldValue("foreman-name"),
+      member: getFieldValue("crew-member-name"),
+      start: getFieldValue("start-time"),
+      end: getFieldValue("end-time"),
+      breakMinutes: getFieldValue("break-minutes"),
+      quantities: quantities
+    };
+  }
+
+  function applyEmployeeCalculator(profile){
+    ensureSyncStores();
+    const data = cloud.employee_calculator && cloud.employee_calculator[profile || activeProfile()];
+    if(!data) return;
+
+    if(data.crew){
+      const crewEl = document.getElementById(data.crew === "2" ? "crew-2" : "crew-1");
+      if(crewEl) crewEl.checked = true;
+    }
+    setFieldValue("foreman-name", data.foreman);
+    setFieldValue("crew-member-name", data.member);
+    setFieldValue("start-time", data.start);
+    setFieldValue("end-time", data.end);
+    setFieldValue("break-minutes", data.breakMinutes);
+
+    const q = data.quantities || {};
+    if(window.items && Array.isArray(items)){
+      items.forEach((it,i)=>{
+        const el = document.getElementById("qty-"+i);
+        const saved = q[itemKey(it.name)];
+        if(el && saved && saved.value !== undefined) el.value = saved.value;
+      });
+    }
+
+    try { if(typeof calculateEverything === "function") calculateEverything(); } catch(e){}
+  }
+
+  let calcSyncTimer = null;
+  async function saveEmployeeCalculatorToCloud(){
+    ensureSyncStores();
+    const profile = activeProfile();
+    cloud.employee_calculator[profile] = collectEmployeeCalculator();
+
+    // Keep live admin view pointed at the same data too.
+    if(typeof getCurrentCalculatorSnapshot === "function"){
+      cloud.live_calculator[profile] = getCurrentCalculatorSnapshot();
+    }
+
+    try { await pushCloud(); } catch(e){}
+  }
+
+  function scheduleEmployeeCloudSync(){
+    clearTimeout(calcSyncTimer);
+    calcSyncTimer = setTimeout(saveEmployeeCalculatorToCloud, 800);
+  }
+
+  // Daily logs - cloud first, local cache second
+  window.getCloudProfileLogs = function(profileVal){
+    ensureSyncStores();
+    const p = profileVal || activeProfile();
+    const cloudLogs = cloud.daily_logs[p] || [];
+    let localLogs = [];
+    try { localLogs = JSON.parse(localStorage.getItem("dom_sc_saves_"+p) || "[]"); } catch(e){}
+    const best = cloudLogs.length >= localLogs.length ? cloudLogs : localLogs;
+    cloud.daily_logs[p] = best;
+    localStorage.setItem("dom_sc_saves_"+p, JSON.stringify(best));
+    return best;
+  };
+
+  window.saveCloudProfileLogs = async function(profileVal, logs){
+    ensureSyncStores();
+    const p = profileVal || activeProfile();
+    cloud.daily_logs[p] = logs || [];
+    localStorage.setItem("dom_sc_saves_"+p, JSON.stringify(cloud.daily_logs[p]));
+    await pushCloud();
+  };
+
+  // Profile pictures - cloud first, local cache second
+  const originalDefaultPics = window.DEFAULT_PROFILE_PICS || {};
+  window.getProfilePic = function(val){
+    ensureSyncStores();
+    return (cloud.profile_pictures && cloud.profile_pictures[val]) ||
+           localStorage.getItem("dom_sc_profile_pic_"+val) ||
+           originalDefaultPics[val] || "";
+  };
+
+  window.setProfilePicFromFile = function(profileVal,input){
+    const file = input.files && input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async function(){
+      ensureSyncStores();
+      cloud.profile_pictures[profileVal] = reader.result;
+      localStorage.setItem("dom_sc_profile_pic_"+profileVal, reader.result);
+      await pushCloud();
+      if(typeof renderLoginButtons === "function") renderLoginButtons();
+      if(typeof updateAdminPeople === "function") updateAdminPeople();
+      alert("Profile picture saved across devices.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.deleteProfilePic = async function(profileVal){
+    if(!confirm("Delete this profile picture?")) return;
+    ensureSyncStores();
+    delete cloud.profile_pictures[profileVal];
+    localStorage.removeItem("dom_sc_profile_pic_"+profileVal);
+    await pushCloud();
+    if(typeof renderLoginButtons === "function") renderLoginButtons();
+    if(typeof updateAdminPeople === "function") updateAdminPeople();
+  };
+
+  // Wrap original load/render/calculate so cloud data comes back after every refresh and card rebuild.
+  const oldLoadSavedData = window.loadSavedData;
+  window.loadSavedData = function(){
+    if(typeof oldLoadSavedData === "function") oldLoadSavedData.apply(this, arguments);
+    setTimeout(()=>applyEmployeeCalculator(activeProfile()), 50);
+  };
+
+  const oldRenderCards = window.renderCards;
+  window.renderCards = function(){
+    if(typeof oldRenderCards === "function") oldRenderCards.apply(this, arguments);
+    setTimeout(()=>applyEmployeeCalculator(activeProfile()), 50);
+  };
+
+  const oldCalculateEverything = window.calculateEverything;
+  window.calculateEverything = function(){
+    if(typeof oldCalculateEverything === "function") oldCalculateEverything.apply(this, arguments);
+    scheduleEmployeeCloudSync();
+  };
+
+  const oldPerformSave = window.performSave;
+  window.performSave = async function(took){
+    if(typeof dailyTimeSummary === "function" && typeof getDailyItemRows === "function"){
+      const pv = activeProfile();
+      const entry = {
+        timestamp: new Date().toLocaleString(),
+        timestampISO: new Date().toISOString(),
+        profile: pv,
+        foreman: getFieldValue("foreman-name"),
+        crewMember: getFieldValue("crew-member-name"),
+        crew: (document.querySelector('input[name="crew"]:checked') || {}).value || "1",
+        totalUnits: parseFloat((document.getElementById("grand-total") || {}).textContent || "0") || 0,
+        lunch: took,
+        time: dailyTimeSummary(),
+        items: getDailyItemRows()
+      };
+      const logs = getCloudProfileLogs(pv);
+      logs.push(entry);
+      await saveCloudProfileLogs(pv, logs);
+      await saveEmployeeCalculatorToCloud();
+      if(typeof renderProfileFiles === "function") renderProfileFiles();
+      alert("Daily log saved across devices.");
+      return;
+    }
+    if(typeof oldPerformSave === "function") oldPerformSave.apply(this, arguments);
+    await saveEmployeeCalculatorToCloud();
+  };
+
+  function migrateLocalToCloud(){
+    ensureSyncStores();
+    (cloud.profiles || []).forEach(p=>{
+      const logs = getCloudProfileLogs(p.val);
+      cloud.daily_logs[p.val] = logs;
+
+      const pic = localStorage.getItem("dom_sc_profile_pic_"+p.val);
+      if(pic && !cloud.profile_pictures[p.val]) cloud.profile_pictures[p.val] = pic;
+      if(cloud.profile_pictures[p.val]) localStorage.setItem("dom_sc_profile_pic_"+p.val, cloud.profile_pictures[p.val]);
+    });
+    if(!cloud.employee_calculator[activeProfile()]){
+      cloud.employee_calculator[activeProfile()] = collectEmployeeCalculator();
+    }
+    try { pushCloud(); } catch(e){}
+  }
+
+  document.addEventListener("input", function(e){
+    if(e.target && e.target.closest && e.target.closest("#user-app-elements")) scheduleEmployeeCloudSync();
+  });
+  document.addEventListener("change", function(e){
+    if(e.target && e.target.closest && e.target.closest("#user-app-elements")) scheduleEmployeeCloudSync();
+  });
+
+  document.addEventListener("DOMContentLoaded", function(){
+    setTimeout(function(){
+      ensureSyncStores();
+      migrateLocalToCloud();
+      applyEmployeeCalculator(activeProfile());
+      if(typeof renderLoginButtons === "function") renderLoginButtons();
+      if(typeof renderProfileFiles === "function") renderProfileFiles();
+    }, 1200);
+    setTimeout(()=>applyEmployeeCalculator(activeProfile()), 3000);
+  });
+
+  window.forceFullCloudSync = async function(){
+    migrateLocalToCloud();
+    await saveEmployeeCalculatorToCloud();
+    alert("Full JSONBin sync complete.");
+  };
+})();
+</script>
+
 </body>
