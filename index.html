@@ -1986,7 +1986,7 @@ const HEADERS = {"X-Master-Key": MASTER_KEY, "X-Access-Key": MASTER_KEY, "Conten
 const SYNC_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
 const ADMIN_KEY = "__admin__";
 const MASTER_RECOVERY_KEY = "DOMSC-RECOVERY-2026";
-const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator"];
+const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions"];
 
 // ══════════════════════════════════════════════════════════════
 //  STATE
@@ -3212,7 +3212,7 @@ async function aiApplyConfig(){
   if(!keys.length){cfgResult("No recognized keys.","err");return;}
   if(!confirm(`Apply ${keys.length} change(s)? Keys: ${keys.join(', ')}`))return;
   keys.forEach(k=>{
-    if(["targets","variables","maintenance","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
+    if(["targets","variables","maintenance","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
     else cloud[k]=p[k];
   });
   await pushCloud();applyUI();cfgResult(`Applied: <b>${keys.join(', ')}</b>.`,"ok");$('ai-config-input').value="";
@@ -3241,6 +3241,7 @@ function hpPermissionKeys(){
     ['allow_save','Save Daily Log'],
     ['allow_edit_quantities','Edit Quantities'],
     ['allow_clear','Clear Calculator'],
+    ['allow_clock','Clock In/Out'],
     ['allow_view_logs','View Saved Logs'],
     ['allow_account_security','Account Security'],
     ['allow_passcode','Change Passcode'],
@@ -3979,6 +3980,25 @@ document.addEventListener('DOMContentLoaded',function(){
 // ══════════════════════════════════════════════════════════════
 //  EMPLOYEE CLOCK IN / CLOCK OUT BUTTONS
 // ══════════════════════════════════════════════════════════════
+
+// Admin-controlled permission for Clock In / Clock Out
+function clockAccessAllowed(){
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  return !(typeof hpGetPerm==='function') || hpGetPerm(pv,'allow_clock');
+}
+function applyClockAccessPermission(){
+  const allowed=clockAccessAllowed();
+  const card=document.getElementById('employee-clock-card');
+  if(card){
+    card.style.display=allowed?'block':'none';
+  }
+  document.querySelectorAll('.clock-btn').forEach(btn=>{
+    btn.disabled=!allowed;
+    btn.style.opacity=allowed?'1':'.45';
+    btn.style.pointerEvents=allowed?'auto':'none';
+  });
+}
+
 function clockPad(n){return String(n).padStart(2,'0');}
 function clockNowHHMM(){
   const d=new Date();
@@ -4014,8 +4034,10 @@ function refreshClockDisplays(){
   const outBtn=document.querySelector('.clock-out-btn');
   if(inBtn)inBtn.textContent=start?'↺ Re-Clock In':'⏰ Clock In';
   if(outBtn)outBtn.textContent=end?'↺ Re-Clock Out':'🏁 Clock Out';
+  if(typeof applyClockAccessPermission==='function')applyClockAccessPermission();
 }
 async function clockInEmployee(){
+  if(typeof clockAccessAllowed==='function' && !clockAccessAllowed()){alert('Clock In/Out access is disabled by admin.');return;}
   const p=clockPrefix();
   if(localStorage.getItem(p+'start') && !confirm('Replace the current clock in time?'))return;
 
@@ -4039,6 +4061,7 @@ async function clockInEmployee(){
   alert('Clocked in at '+display);
 }
 async function clockOutEmployee(){
+  if(typeof clockAccessAllowed==='function' && !clockAccessAllowed()){alert('Clock In/Out access is disabled by admin.');return;}
   const p=clockPrefix();
   if(!localStorage.getItem(p+'start') && !getClockHidden('start-time')){
     alert('Clock in first.');
@@ -4062,6 +4085,7 @@ async function clockOutEmployee(){
 document.addEventListener('DOMContentLoaded',function(){
   setTimeout(refreshClockDisplays,700);
   setTimeout(refreshClockDisplays,1800);
+  setTimeout(function(){if(typeof applyClockAccessPermission==='function')applyClockAccessPermission();},2200);
 });
 </script>
 
