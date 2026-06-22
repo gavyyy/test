@@ -1445,6 +1445,79 @@ body #user-app-elements #item-cards-container .item-total{
   }
 }
 
+
+/* ══════════════════════════════════════════════════════════════
+   EMPLOYEE CLOCK IN / CLOCK OUT — NO MANUAL TIME TYPING
+   ══════════════════════════════════════════════════════════════ */
+#employee-clock-card.clock-card{
+  grid-column:1/-1!important;
+  background:linear-gradient(180deg,#ffffff,#f3f9ff)!important;
+  border:1px solid #dce8f7!important;
+  border-radius:18px!important;
+  padding:12px!important;
+  box-shadow:0 10px 24px rgba(7,30,61,.08)!important;
+}
+.clock-card-title{
+  font-size:14px!important;
+  font-weight:950!important;
+  color:#075bbb!important;
+  margin-bottom:2px!important;
+}
+.clock-card-subtitle{
+  font-size:11px!important;
+  font-weight:700!important;
+  color:#6d7a8a!important;
+  margin-bottom:10px!important;
+}
+.clock-status-grid{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+  margin-bottom:10px!important;
+}
+.clock-status-box{
+  background:#f8fbff!important;
+  border:1px solid #dce8f7!important;
+  border-radius:14px!important;
+  padding:10px!important;
+}
+.clock-label{
+  font-size:10px!important;
+  text-transform:uppercase!important;
+  letter-spacing:.05em!important;
+  font-weight:950!important;
+  color:#63758c!important;
+  margin-bottom:4px!important;
+}
+.clock-value{
+  font-size:13px!important;
+  font-weight:900!important;
+  color:#102033!important;
+  line-height:1.25!important;
+  min-height:32px!important;
+}
+.clock-button-row{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+}
+.clock-btn{
+  min-height:54px!important;
+  border:none!important;
+  border-radius:16px!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:950!important;
+  cursor:pointer!important;
+}
+.clock-in-btn{background:linear-gradient(135deg,#20c463,#137d3f)!important}
+.clock-out-btn{background:linear-gradient(135deg,#ff7a1a,#d95b00)!important}
+.clock-btn:disabled{opacity:.45!important;pointer-events:none!important}
+@media(max-width:430px){
+  .clock-status-grid,.clock-button-row{grid-template-columns:1fr!important}
+  .clock-btn{min-height:50px!important}
+}
+
 </style>
 </head>
 <body>
@@ -1787,9 +1860,28 @@ body #user-app-elements #item-cards-container .item-total{
     <div class="crew-details">
       <div class="input-group"><label>Foreman Name</label><input type="text" id="foreman-name" class="text-input" placeholder="Foreman name" oninput="saveFields()"></div>
       <div class="input-group" id="crew-member-container"><label>Crew Member(s)</label><input type="text" id="crew-member-name" class="text-input" placeholder="Member name(s)" oninput="saveFields()"></div>
-      <div class="time-row">
-        <div class="input-group"><label>Start Time</label><input type="time" id="start-time" class="text-input" onchange="saveFields()"></div>
-        <div class="input-group"><label>End Time</label><input type="time" id="end-time" class="text-input" onchange="saveFields()"></div>
+      <div class="clock-card" id="employee-clock-card">
+        <input type="hidden" id="start-time">
+        <input type="hidden" id="end-time">
+
+        <div class="clock-card-title">Employee Time Clock</div>
+        <div class="clock-card-subtitle">Use Clock In and Clock Out instead of typing start/end time.</div>
+
+        <div class="clock-status-grid">
+          <div class="clock-status-box">
+            <div class="clock-label">Clock In</div>
+            <div class="clock-value" id="clock-in-display">Not clocked in</div>
+          </div>
+          <div class="clock-status-box">
+            <div class="clock-label">Clock Out</div>
+            <div class="clock-value" id="clock-out-display">Not clocked out</div>
+          </div>
+        </div>
+
+        <div class="clock-button-row">
+          <button type="button" class="clock-btn clock-in-btn" onclick="clockInEmployee()">⏰ Clock In</button>
+          <button type="button" class="clock-btn clock-out-btn" onclick="clockOutEmployee()">🏁 Clock Out</button>
+        </div>
       </div>
       <div class="input-group login-time-group"><label>Login Time</label><input type="text" id="login-time-display" class="text-input" readonly placeholder="Not logged yet"></div>
     </div>
@@ -2828,6 +2920,7 @@ function getCurrentCalculatorSnapshot(){
     crew:(document.querySelector('input[name="crew"]:checked')||{}).value||'1',
     foreman:(($('foreman-name')||{}).value)||'',member:(($('crew-member-name')||{}).value)||'',
     start:(($('start-time')||{}).value)||'',end:(($('end-time')||{}).value)||'',
+    clockInDisplay:localStorage.getItem(prefix()+'clock_in_display')||'',clockOutDisplay:localStorage.getItem(prefix()+'clock_out_display')||'',
     grandTotal:parseFloat((($('grand-total')||{}).textContent)||'0')||0,items:rows
   };
 }
@@ -2851,7 +2944,7 @@ function renderAdminLiveCalculatorView(){
   box.innerHTML=profiles.map(k=>{
     const s=live[k]||{};
     const rows=(s.items||[]).length?(s.items||[]).map(it=>`<tr><td>${it.name}</td><td style="text-align:center">${it.qty}</td><td style="text-align:right">${Number(it.total||0).toFixed(2)}</td></tr>`).join(''):'<tr><td colspan="3" style="color:#999;text-align:center">No quantities entered</td></tr>';
-    return `<div class="live-monitor-card"><div class="live-monitor-head"><span>${s.profileName||k}</span><span>${s.timestamp||''}</span></div><div><b>Crew:</b> ${s.crew||''} Man &nbsp; <b>Total:</b> ${Number(s.grandTotal||0).toFixed(2)}</div><div><b>Foreman:</b> ${s.foreman||''} ${s.member?`&nbsp; <b>Member:</b> ${s.member}`:''}</div><div><b>Time:</b> ${s.start||''} - ${s.end||''}</div><table class="live-monitor-table"><tbody><tr><td><b>Item</b></td><td style="text-align:center"><b>Qty</b></td><td style="text-align:right"><b>Units</b></td></tr>${rows}</tbody></table></div>`;
+    return `<div class="live-monitor-card"><div class="live-monitor-head"><span>${s.profileName||k}</span><span>${s.timestamp||''}</span></div><div><b>Crew:</b> ${s.crew||''} Man &nbsp; <b>Total:</b> ${Number(s.grandTotal||0).toFixed(2)}</div><div><b>Foreman:</b> ${s.foreman||''} ${s.member?`&nbsp; <b>Member:</b> ${s.member}`:''}</div><div><b>Clock:</b> ${s.clockInDisplay||s.start||''} - ${s.clockOutDisplay||s.end||''}</div><table class="live-monitor-table"><tbody><tr><td><b>Item</b></td><td style="text-align:center"><b>Qty</b></td><td style="text-align:right"><b>Units</b></td></tr>${rows}</tbody></table></div>`;
   }).join('');
 }
 
@@ -2914,6 +3007,9 @@ function saveFields(){
   localStorage.setItem(p+'member',member);
   localStorage.setItem(p+'start',start);
   localStorage.setItem(p+'end',end);
+  if(start && !localStorage.getItem(p+'clock_in_display'))localStorage.setItem(p+'clock_in_display',start);
+  if(end && !localStorage.getItem(p+'clock_out_display'))localStorage.setItem(p+'clock_out_display',end);
+  if(typeof refreshClockDisplays==='function')refreshClockDisplays();
 
   let loginTime=localStorage.getItem(p+'login_time');
   if(!loginTime){
@@ -2958,6 +3054,7 @@ function loadSavedData(){
   if(loginISO)localStorage.setItem(p+'login_time_iso',loginISO);
   const ltd=$('login-time-display');
   if(ltd)ltd.value=loginTime;
+  if(typeof refreshClockDisplays==='function')refreshClockDisplays();
 
   restoreQtyByName();
   calculateEverything();
@@ -2989,7 +3086,7 @@ function calculateEverything(){
   scheduleLiveCalculatorState();
 }
 function setRemain(id,v){const el=$(id);if(!el)return;if(v<=0){el.textContent="MET (+"+Math.abs(v).toFixed(2)+")";el.className="metric-value rem-pos";}else{el.textContent=v.toFixed(2)+" left";el.className="metric-value rem-neg";}}
-function clearForm(){const pv=localStorage.getItem('dom_sc_active_profile')||'default';if(typeof hpGetPerm==='function'&&!hpGetPerm(pv,'allow_clear')){alert('Clear is disabled by admin.');return;}if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+qtyNameKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
+function clearForm(){const pv=localStorage.getItem('dom_sc_active_profile')||'default';if(typeof hpGetPerm==='function'&&!hpGetPerm(pv,'allow_clear')){alert('Clear is disabled by admin.');return;}if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end','clock_in_display','clock_out_display','clock_in_iso','clock_out_iso'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((it,i)=>{localStorage.removeItem(p+'qty_'+i);localStorage.removeItem(p+qtyNameKey(it.name));const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
 
 // Save flow
 function showLunchModal(){
@@ -3540,6 +3637,11 @@ document.addEventListener("change", function(e){ if(e.target && e.target.closest
     setFieldValue("end-time", pickSaved("end", data.end));
     const pickedLogin = pickSaved("login_time", data.loginTime);
     const pickedLoginISO = pickSaved("login_time_iso", data.loginTimeISO);
+    pickSaved("clock_in_display", data.clockInDisplay);
+    pickSaved("clock_out_display", data.clockOutDisplay);
+    pickSaved("clock_in_iso", data.clockInISO);
+    pickSaved("clock_out_iso", data.clockOutISO);
+    if(typeof refreshClockDisplays === "function") refreshClockDisplays();
     const ltd = document.getElementById("login-time-display");
     if(ltd) ltd.value = pickedLogin || "";
     
@@ -3820,6 +3922,10 @@ function collectPersistentEmployeeSession(){
     end:end,
     loginTime:loginTime,
     loginTimeISO:loginTimeISO||'',
+    clockInDisplay:localStorage.getItem(p+'clock_in_display')||'',
+    clockOutDisplay:localStorage.getItem(p+'clock_out_display')||'',
+    clockInISO:localStorage.getItem(p+'clock_in_iso')||'',
+    clockOutISO:localStorage.getItem(p+'clock_out_iso')||'',
     sessionUpdatedAt:new Date().toLocaleString(),
     sessionUpdatedAtISO:new Date().toISOString()
   };
@@ -3865,6 +3971,97 @@ document.addEventListener('change',function(e){
 document.addEventListener('DOMContentLoaded',function(){
   setTimeout(function(){try{collectPersistentEmployeeSession();}catch(e){}},800);
   setTimeout(function(){try{collectPersistentEmployeeSession();schedulePersistentEmployeeSession();}catch(e){}},2200);
+});
+</script>
+
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  EMPLOYEE CLOCK IN / CLOCK OUT BUTTONS
+// ══════════════════════════════════════════════════════════════
+function clockPad(n){return String(n).padStart(2,'0');}
+function clockNowHHMM(){
+  const d=new Date();
+  return clockPad(d.getHours())+':'+clockPad(d.getMinutes());
+}
+function clockDisplayNow(){return new Date().toLocaleString();}
+function clockPrefix(){return 'dom_sc_'+(localStorage.getItem('dom_sc_active_profile')||'default')+'_';}
+function setClockHidden(which,hhmm){
+  const el=document.getElementById(which);
+  if(el)el.value=hhmm||'';
+}
+function getClockHidden(which){
+  const el=document.getElementById(which);
+  return el?el.value:'';
+}
+function refreshClockDisplays(){
+  const p=clockPrefix();
+  const start=getClockHidden('start-time')||localStorage.getItem(p+'start')||'';
+  const end=getClockHidden('end-time')||localStorage.getItem(p+'end')||'';
+
+  if(start)setClockHidden('start-time',start);
+  if(end)setClockHidden('end-time',end);
+
+  const clockInDisplay=localStorage.getItem(p+'clock_in_display') || (start ? start : 'Not clocked in');
+  const clockOutDisplay=localStorage.getItem(p+'clock_out_display') || (end ? end : 'Not clocked out');
+
+  const inBox=document.getElementById('clock-in-display');
+  const outBox=document.getElementById('clock-out-display');
+  if(inBox)inBox.textContent=clockInDisplay;
+  if(outBox)outBox.textContent=clockOutDisplay;
+
+  const inBtn=document.querySelector('.clock-in-btn');
+  const outBtn=document.querySelector('.clock-out-btn');
+  if(inBtn)inBtn.textContent=start?'↺ Re-Clock In':'⏰ Clock In';
+  if(outBtn)outBtn.textContent=end?'↺ Re-Clock Out':'🏁 Clock Out';
+}
+async function clockInEmployee(){
+  const p=clockPrefix();
+  if(localStorage.getItem(p+'start') && !confirm('Replace the current clock in time?'))return;
+
+  const hhmm=clockNowHHMM();
+  const display=clockDisplayNow();
+  setClockHidden('start-time',hhmm);
+  localStorage.setItem(p+'start',hhmm);
+  localStorage.setItem(p+'clock_in_display',display);
+  localStorage.setItem(p+'clock_in_iso',new Date().toISOString());
+
+  // Starting a new shift clears the old clock-out time.
+  localStorage.removeItem(p+'end');
+  localStorage.removeItem(p+'clock_out_display');
+  localStorage.removeItem(p+'clock_out_iso');
+  setClockHidden('end-time','');
+
+  if(typeof saveFields==='function')saveFields();
+  if(typeof calculateEverything==='function')calculateEverything();
+  refreshClockDisplays();
+  if(typeof schedulePersistentEmployeeSession==='function')schedulePersistentEmployeeSession();
+  alert('Clocked in at '+display);
+}
+async function clockOutEmployee(){
+  const p=clockPrefix();
+  if(!localStorage.getItem(p+'start') && !getClockHidden('start-time')){
+    alert('Clock in first.');
+    return;
+  }
+  if(localStorage.getItem(p+'end') && !confirm('Replace the current clock out time?'))return;
+
+  const hhmm=clockNowHHMM();
+  const display=clockDisplayNow();
+  setClockHidden('end-time',hhmm);
+  localStorage.setItem(p+'end',hhmm);
+  localStorage.setItem(p+'clock_out_display',display);
+  localStorage.setItem(p+'clock_out_iso',new Date().toISOString());
+
+  if(typeof saveFields==='function')saveFields();
+  if(typeof calculateEverything==='function')calculateEverything();
+  refreshClockDisplays();
+  if(typeof schedulePersistentEmployeeSession==='function')schedulePersistentEmployeeSession();
+  alert('Clocked out at '+display);
+}
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(refreshClockDisplays,700);
+  setTimeout(refreshClockDisplays,1800);
 });
 </script>
 
