@@ -669,10 +669,89 @@ async function pullCloud() {
     return true;
   }
 }
+async function fetchCloudRecordSafe(){
+  try{
+    const r=await fetch(SYNC_URL,{headers:HEADERS});
+    if(!r.ok)return null;
+    const j=await r.json();
+    return j.record||null;
+  }catch(e){return null;}
+}
+function mergeArrayByKey(a,b,keyFn){
+  const out=[], seen={};
+  [...(a||[]),...(b||[])].forEach(x=>{
+    const k=keyFn(x);
+    if(!seen[k]){seen[k]=true;out.push(x);}
+  });
+  return out;
+}
+function newerProfileData(remoteObj,localObj){
+  const out=Object.assign({},remoteObj||{});
+  Object.keys(localObj||{}).forEach(k=>{
+    const r=out[k]||{}, l=localObj[k]||{};
+    const rt=Date.parse(r.updatedAtISO||r.timestampISO||0)||0;
+    const lt=Date.parse(l.updatedAtISO||l.timestampISO||0)||0;
+    out[k]=(lt>=rt)?l:r;
+  });
+  return out;
+}
+function mergeCloudRecords(remote,local){
+  remote=remote||{}; local=local||{};
+  const merged=Object.assign({},remote,local);
+
+  merged.targets=Object.assign({},remote.targets||{},local.targets||{});
+  merged.settings=Object.assign({},remote.settings||{},local.settings||{});
+  merged.maintenance=Object.assign({},remote.maintenance||{},local.maintenance||{});
+  merged.variables=Object.assign({},remote.variables||{},local.variables||{});
+  merged.frozen_users=Object.assign({},remote.frozen_users||{},local.frozen_users||{});
+  merged.active_login_ips=Object.assign({},remote.active_login_ips||{},local.active_login_ips||{});
+  merged.passcodes=Object.assign({},remote.passcodes||{},local.passcodes||{});
+  merged.bio_flags=Object.assign({},remote.bio_flags||{},local.bio_flags||{});
+  merged.passcode_meta=Object.assign({},remote.passcode_meta||{},local.passcode_meta||{});
+  merged.profile_notes=Object.assign({},remote.profile_notes||{},local.profile_notes||{});
+  merged.profile_pictures=Object.assign({},remote.profile_pictures||{},local.profile_pictures||{});
+  merged.live_calculator=newerProfileData(remote.live_calculator,local.live_calculator);
+  merged.employee_calculator=newerProfileData(remote.employee_calculator,local.employee_calculator);
+
+  merged.daily_logs=Object.assign({},remote.daily_logs||{});
+  Object.keys(local.daily_logs||{}).forEach(p=>{
+    merged.daily_logs[p]=mergeArrayByKey(
+      (remote.daily_logs||{})[p]||[],
+      (local.daily_logs||{})[p]||[],
+      x=>(x.timestampISO||x.timestamp||JSON.stringify(x))
+    );
+  });
+
+  merged.profiles=mergeArrayByKey(remote.profiles||[],local.profiles||[],x=>x.val||x.name||JSON.stringify(x));
+  merged.drafts=mergeArrayByKey(remote.drafts||[],local.drafts||[],x=>x.timestampISO||x.timestamp||JSON.stringify(x));
+  merged.passcode_reset_requests=mergeArrayByKey(remote.passcode_reset_requests||[],local.passcode_reset_requests||[],x=>x.id||x.time||JSON.stringify(x));
+  merged.failed_admin_logins=mergeArrayByKey(remote.failed_admin_logins||[],local.failed_admin_logins||[],x=>x.time+'_'+x.profile+'_'+x.attempt);
+  merged.banned_ips=Array.from(new Set([...(remote.banned_ips||[]),...(local.banned_ips||[])]));
+  merged.deleted_vars=Array.from(new Set([...(remote.deleted_vars||[]),...(local.deleted_vars||[])]));
+
+  return merged;
+}
+let pushCloudTimer=null, pushCloudPromise=null, pushCloudResolve=null;
 async function pushCloud() {
-  try {
-    await fetch(SYNC_URL,{method:"PUT",headers:HEADERS,body:JSON.stringify(cloud)});
-  } catch(e) { console.error('pushCloud',e); }
+  if(pushCloudPromise)return pushCloudPromise;
+  pushCloudPromise=new Promise(resolve=>{pushCloudResolve=resolve;});
+  clearTimeout(pushCloudTimer);
+  pushCloudTimer=setTimeout(async()=>{
+    try{
+      const remote=await fetchCloudRecordSafe();
+      const merged=mergeCloudRecords(remote,cloud);
+      await fetch(SYNC_URL,{method:"PUT",headers:HEADERS,body:JSON.stringify(merged)});
+      cloud=merged;
+      const s=$('sync-status-badge'); if(s){s.textContent='Synced';s.style.color='#1e7e34';}
+    }catch(e){
+      console.error('pushCloud',e);
+      const s=$('sync-status-badge'); if(s){s.textContent='Sync pending';s.style.color='#856404';}
+    }
+    const resolve=pushCloudResolve;
+    pushCloudPromise=null; pushCloudResolve=null;
+    if(resolve)resolve();
+  },650);
+  return pushCloudPromise;
 }
 
 // ══════════════════════════════════════════════════════════════
