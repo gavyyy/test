@@ -613,7 +613,7 @@ async function pullCloud() {
       passcode_meta:          d.passcode_meta||{},
       profile_notes:          d.profile_notes||{},
       settings:               Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{}),
-      profiles:               d.profiles||cloud.profiles,
+      profiles:               (d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
       deleted_vars:           d.deleted_vars||[]
     };
     if (cloud.banned_ips.includes(localIP)) {
@@ -818,26 +818,36 @@ function resetAdminTimer() {
 ['mousemove','keypress','touchstart'].forEach(e=>document.addEventListener(e,resetAdminTimer));
 
 async function triggerAdminLogin(isBypass,isDedicated) {
-  // Pull fresh cloud data SILENTLY — do NOT call applyUI here
-  await pullCloudSilent();
+  // IMPORTANT: Do NOT await anything before prompt() or the numpad modal on mobile.
+  // iOS/Android kill the user-gesture context after any await, blocking prompt() silently.
+  // We use the already-loaded cloud data (fetched on startup) for the password check.
+  // A background sync runs after successful login to get the latest state.
+
   const hash=getPC(ADMIN_KEY), bioEnabled=bioOn(ADMIN_KEY), avail=await bioAvailable();
-  // Biometrics first
+
+  // Biometrics — this await is fine because it shows a native OS dialog (not prompt)
   if(bioEnabled&&avail&&hasBioCred("admin")) {
     const ok=await verifyBio("admin");
     if(ok){grantAdmin(isBypass,isDedicated);return;}
   }
-  // Numpad if passcode set
+
+  // Numpad modal — this is fine, it's a DOM modal not a browser dialog
   if(hash) {
     await openAuthModal("Admin Login","Enter your admin passcode",hash,false,()=>grantAdmin(isBypass,isDedicated),"admin",null);
     return;
   }
-  // Fallback text prompt
+
+  // Text password — must call prompt() immediately, no await before this line
   const pw=prompt("Enter Administrator Password:"); if(pw===null)return;
   const correct=cloud.admin_pass||"2026";
   const profKey=isDedicated?"System_Admin":(localStorage.getItem('dom_sc_active_profile')||"unknown");
   const attKey='failed_admin_'+profKey;
-  if(pw===correct){localStorage.setItem(attKey,0);grantAdmin(isBypass,isDedicated);}
-  else {
+  if(pw===correct){
+    localStorage.setItem(attKey,0);
+    grantAdmin(isBypass,isDedicated);
+    // Background sync after login — safe here, UI is already showing
+    pullCloudSilent().then(()=>applyUI());
+  } else {
     cloud.failed_admin_logins.push({profile:profKey,ip:localIP,time:new Date().toLocaleString(),attempt:pw});
     let att=(parseInt(localStorage.getItem(attKey))||0)+1;
     localStorage.setItem(attKey,att);
@@ -856,7 +866,8 @@ async function pullCloudSilent() {
       admin_pass:d.admin_pass||"2026", passcodes:d.passcodes||{}, bio_flags:d.bio_flags||{},
       banned_ips:d.banned_ips||[], is_locked:d.is_locked||false,
       frozen_users:d.frozen_users||{}, maintenance:Object.assign({active:false,message:"",eta:""},d.maintenance||{}),
-      profiles:d.profiles||cloud.profiles, settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{})
+      profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
+      settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{})
     });
     if(cloud.banned_ips.includes(localIP))document.getElementById('banned-screen').style.display='flex';
   } catch(e){}
@@ -896,15 +907,14 @@ async function triggerAdminRecovery() {
 //  PROFILE LOGIN
 // ══════════════════════════════════════════════════════════════
 async function processInstantProfileTap(profileVal) {
-  // Pull silently so we don't disrupt the login screen
-  await pullCloudSilent();
+  // Use already-loaded cloud data (no await before showing auth UI — preserves mobile gesture context)
   if(cloud.banned_ips.includes(localIP))return;
   const hash=getPC(profileVal), bioEnabled=bioOn(profileVal), avail=await bioAvailable();
   const bioCtx="profile_"+profileVal;
   if(hash||bioEnabled) {
     if(bioEnabled&&avail&&hasBioCred(bioCtx)){const ok=await verifyBio(bioCtx);if(ok){completeLogin(profileVal);return;}}
     if(hash){await openAuthModal("Profile Login","Enter your passcode",hash,true,()=>completeLogin(profileVal),bioCtx,profileVal);return;}
-    if(confirm("This profile requires biometrics, which aren't set up here.\nRequest a passcode reset from admin?"))requestPasscodeReset(profileVal);
+    if(confirm("This profile requires biometrics not set up on this device.\nRequest a passcode reset from admin?"))requestPasscodeReset(profileVal);
   } else completeLogin(profileVal);
 }
 async function completeLogin(profileVal) {
