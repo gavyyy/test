@@ -6432,6 +6432,717 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     DOM/SC ADMIN AWESOME FEATURES V1
+     Adds: Save Status Dashboard, Audit Log, Backup Center,
+     Admin Mobile Home, and Daily Report Generator.
+     Data-only patch. Does not rebuild or remove existing app features.
+     ══════════════════════════════════════════════════════════════ -->
+<style id="domsc-admin-awesome-features-v1">
+  #admin-panel .domsc-awesome-card{
+    background:linear-gradient(180deg,#ffffff,#f7fbff)!important;
+    border:1px solid #dce8f7!important;
+    border-radius:18px!important;
+    padding:12px!important;
+    margin:10px 0!important;
+    box-shadow:0 10px 24px rgba(7,30,61,.08)!important;
+  }
+  #admin-panel .domsc-awesome-title{
+    display:flex!important;
+    justify-content:space-between!important;
+    align-items:center!important;
+    gap:8px!important;
+    color:#075bbb!important;
+    font-size:14px!important;
+    font-weight:950!important;
+    margin-bottom:8px!important;
+  }
+  #admin-panel .domsc-awesome-sub{
+    color:#64748b!important;
+    font-size:11px!important;
+    font-weight:750!important;
+    line-height:1.45!important;
+    margin-bottom:8px!important;
+  }
+  #admin-panel .domsc-awesome-pill{
+    flex-shrink:0!important;
+    border-radius:999px!important;
+    padding:4px 9px!important;
+    font-size:10px!important;
+    font-weight:950!important;
+    border:1px solid #cfe4ff!important;
+    background:#e9f5fe!important;
+    color:#075bbb!important;
+  }
+  #admin-panel .domsc-awesome-pill.ok{background:#d4edda!important;color:#1e7e34!important;border-color:#bce6c9!important}
+  #admin-panel .domsc-awesome-pill.warn{background:#fff3cd!important;color:#856404!important;border-color:#ffe8a1!important}
+  #admin-panel .domsc-awesome-pill.bad{background:#f8d7da!important;color:#721c24!important;border-color:#f5c6cb!important}
+  #admin-panel .domsc-awesome-grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+  }
+  #admin-panel .domsc-awesome-stat{
+    background:#f8fbff!important;
+    border:1px solid #dce8f7!important;
+    border-radius:15px!important;
+    padding:10px!important;
+    min-height:68px!important;
+  }
+  #admin-panel .domsc-awesome-stat-label{
+    color:#64748b!important;
+    font-size:10px!important;
+    font-weight:950!important;
+    text-transform:uppercase!important;
+    letter-spacing:.04em!important;
+    margin-bottom:4px!important;
+  }
+  #admin-panel .domsc-awesome-stat-value{
+    color:#0f2f55!important;
+    font-size:18px!important;
+    font-weight:950!important;
+    line-height:1.1!important;
+  }
+  #admin-panel .domsc-awesome-actions{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px!important;
+    margin-top:8px!important;
+  }
+  #admin-panel .domsc-awesome-actions button,
+  #admin-panel .domsc-report-controls button,
+  #admin-panel .domsc-backup-controls button{
+    min-height:42px!important;
+    white-space:normal!important;
+    line-height:1.15!important;
+  }
+  #admin-panel .domsc-audit-list{
+    max-height:340px!important;
+    overflow:auto!important;
+    display:grid!important;
+    gap:8px!important;
+  }
+  #admin-panel .domsc-audit-item{
+    background:#fff!important;
+    border:1px solid #e7eef8!important;
+    border-left:5px solid #0b7cff!important;
+    border-radius:14px!important;
+    padding:10px!important;
+  }
+  #admin-panel .domsc-audit-item.warn{border-left-color:#ffc107!important}
+  #admin-panel .domsc-audit-item.bad{border-left-color:#dc3545!important}
+  #admin-panel .domsc-audit-item.ok{border-left-color:#20c463!important}
+  #admin-panel .domsc-audit-head{
+    display:flex!important;
+    justify-content:space-between!important;
+    gap:10px!important;
+    align-items:flex-start!important;
+    margin-bottom:4px!important;
+  }
+  #admin-panel .domsc-audit-action{
+    font-size:12px!important;
+    color:#0f2f55!important;
+    font-weight:950!important;
+    line-height:1.2!important;
+  }
+  #admin-panel .domsc-audit-time{
+    color:#64748b!important;
+    font-size:10px!important;
+    font-weight:800!important;
+    white-space:nowrap!important;
+  }
+  #admin-panel .domsc-audit-detail{
+    color:#475569!important;
+    font-size:11px!important;
+    font-weight:700!important;
+    line-height:1.4!important;
+  }
+  #admin-panel .domsc-report-output{
+    background:#0f172a!important;
+    color:#e2e8f0!important;
+    border-radius:14px!important;
+    padding:12px!important;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace!important;
+    font-size:11px!important;
+    line-height:1.45!important;
+    white-space:pre-wrap!important;
+    max-height:420px!important;
+    overflow:auto!important;
+  }
+  #admin-panel .domsc-backup-list{
+    display:grid!important;
+    gap:8px!important;
+    max-height:260px!important;
+    overflow:auto!important;
+  }
+  #admin-panel .domsc-backup-item{
+    background:#f8fbff!important;
+    border:1px solid #dce8f7!important;
+    border-radius:14px!important;
+    padding:10px!important;
+    font-size:12px!important;
+    color:#334155!important;
+    font-weight:750!important;
+  }
+  #admin-panel .domsc-report-controls,
+  #admin-panel .domsc-backup-controls{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    gap:8px!important;
+    margin:8px 0!important;
+  }
+  #admin-panel .domsc-date-input,
+  #admin-panel .domsc-file-input{
+    width:100%!important;
+    min-height:42px!important;
+    border-radius:12px!important;
+    border:1px solid #dce8f7!important;
+    padding:8px!important;
+    background:#fbfdff!important;
+    font-size:14px!important;
+  }
+  @media(max-width:760px){
+    #admin-panel .domsc-awesome-grid,
+    #admin-panel .domsc-awesome-actions,
+    #admin-panel .domsc-report-controls,
+    #admin-panel .domsc-backup-controls{
+      grid-template-columns:1fr!important;
+    }
+    #admin-panel .domsc-awesome-title{
+      align-items:flex-start!important;
+      flex-direction:column!important;
+    }
+    #admin-panel .domsc-awesome-pill{align-self:flex-start!important}
+    #admin-panel .domsc-audit-head{flex-direction:column!important;gap:2px!important}
+    #admin-panel .domsc-audit-time{white-space:normal!important}
+  }
+</style>
+<script id="domsc-admin-awesome-features-v1">
+(function(){
+  if(window.__DOMSC_ADMIN_AWESOME_FEATURES_V1__) return;
+  window.__DOMSC_ADMIN_AWESOME_FEATURES_V1__ = true;
+
+  const MAX_AUDIT = 500;
+  const MAX_SNAPSHOTS = 5;
+  const FEATURE_WRAPPED = '__domsc_awesome_wrapped__';
+  let renderTimer = null;
+  let auditMute = false;
+
+  function $(id){ return document.getElementById(id); }
+  function nowISO(){ return new Date().toISOString(); }
+  function nowLocal(){ return new Date().toLocaleString(); }
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function clone(v){ try{return JSON.parse(JSON.stringify(v));}catch(e){return v;} }
+  function cloudSafe(){ try{ if(typeof cloud !== 'undefined' && cloud) return cloud; }catch(e){} return null; }
+  function actor(){
+    try{
+      if(typeof isAdmin !== 'undefined' && isAdmin) return 'Admin';
+      const pv = localStorage.getItem('dom_sc_active_profile') || '';
+      return profileName(pv) || pv || 'Unknown';
+    }catch(e){ return 'Unknown'; }
+  }
+  function profileName(val){
+    const c=cloudSafe();
+    const p=(c && Array.isArray(c.profiles) ? c.profiles : []).find(function(x){return x && x.val===val;});
+    return (p && (p.name || p.val)) || val || '';
+  }
+  function ensureStores(c){
+    if(!c) return c;
+    c.audit_trail = Array.isArray(c.audit_trail) ? c.audit_trail : [];
+    c.backup_snapshots = Array.isArray(c.backup_snapshots) ? c.backup_snapshots : [];
+    c.report_history = Array.isArray(c.report_history) ? c.report_history : [];
+    c.sync_meta = c.sync_meta || {};
+    c.profiles = Array.isArray(c.profiles) ? c.profiles : [];
+    c.daily_logs = c.daily_logs || {};
+    c.employee_calculator = c.employee_calculator || {};
+    c.live_calculator = c.live_calculator || {};
+    c.employee_messages = Array.isArray(c.employee_messages) ? c.employee_messages : [];
+    return c;
+  }
+  function queueSave(reason, delay){
+    setTimeout(function(){
+      try{
+        if(typeof window.DOMSC_FORCE_JSONBIN_SAVE === 'function') window.DOMSC_FORCE_JSONBIN_SAVE();
+        else if(typeof window.DOMSC_SAVE_EVERYTHING_NOW === 'function') window.DOMSC_SAVE_EVERYTHING_NOW();
+        else if(typeof pushCloud === 'function') pushCloud();
+      }catch(e){}
+    }, delay == null ? 300 : delay);
+  }
+  function refreshSoon(){ clearTimeout(renderTimer); renderTimer=setTimeout(renderAll,150); }
+
+  function addAudit(action, detail, kind, saveIt){
+    const c=cloudSafe(); if(!c || auditMute) return;
+    ensureStores(c);
+    const entry={
+      id:'audit_'+Date.now()+'_'+Math.random().toString(16).slice(2,7),
+      time:nowLocal(),
+      timeISO:nowISO(),
+      actor:actor(),
+      action:String(action||'Change saved'),
+      detail:String(detail||''),
+      kind:kind||'ok'
+    };
+    c.audit_trail.unshift(entry);
+    c.audit_trail=c.audit_trail.slice(0,MAX_AUDIT);
+    refreshSoon();
+    if(saveIt!==false) queueSave('audit: '+entry.action,500);
+  }
+  window.DOMSC_ADD_AUDIT = addAudit;
+
+  function stats(){
+    const c=ensureStores(cloudSafe() || {});
+    let logCount=0,totalUnits=0,todayLogs=0,todayUnits=0;
+    const td=todayISO();
+    Object.keys(c.daily_logs||{}).forEach(function(p){
+      const arr=Array.isArray(c.daily_logs[p]) ? c.daily_logs[p] : [];
+      arr.forEach(function(x){
+        logCount++;
+        const u=Number(x.totalUnits||0)||0;
+        totalUnits+=u;
+        const d=entryDate(x);
+        if(d===td){ todayLogs++; todayUnits+=u; }
+      });
+    });
+    return {
+      profiles:(c.profiles||[]).length,
+      audit:(c.audit_trail||[]).length,
+      logs:logCount,
+      totalUnits:totalUnits,
+      todayLogs:todayLogs,
+      todayUnits:todayUnits,
+      snapshots:(c.backup_snapshots||[]).length,
+      lastSave:(c.sync_meta&& (c.sync_meta.lastUniversalSave || c.sync_meta.lastSync)) || 'Not saved yet',
+      failed:((c.sync_meta||{}).failedSyncs||0)
+    };
+  }
+  function entryDate(x){
+    if(!x) return '';
+    if(x.timestampISO) return String(x.timestampISO).slice(0,10);
+    const d=new Date(x.timestamp||x.date||'');
+    if(!isNaN(d.getTime())) return d.toISOString().slice(0,10);
+    return '';
+  }
+  function downloadText(filename, text, type){
+    const blob=new Blob([text],{type:type||'text/plain'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },250);
+  }
+  function makeTab(id,label,beforeId){
+    const panel=$('admin-panel'); if(!panel) return null;
+    let bar=panel.querySelector('.admin-tab-bar');
+    if(!bar){ bar=document.createElement('div'); bar.className='admin-tab-bar'; panel.insertBefore(bar,panel.firstChild); }
+    let btn=bar.querySelector('[data-tab="'+id+'"]');
+    if(!btn){
+      btn=document.createElement('button');
+      btn.type='button';
+      btn.className='admin-tab-btn';
+      btn.dataset.tab=id;
+      btn.innerHTML=label;
+      btn.onclick=function(){ if(typeof switchTab==='function') switchTab(id); };
+      const before=beforeId?bar.querySelector('[data-tab="'+beforeId+'"]'):null;
+      if(before) bar.insertBefore(btn,before); else bar.appendChild(btn);
+    }
+    let tab=$('admin-tab-'+id);
+    if(!tab){ tab=document.createElement('div'); tab.className='admin-tab-panel'; tab.id='admin-tab-'+id; panel.appendChild(tab); }
+    return tab;
+  }
+  function quickBtn(text, cls, onclick){
+    return '<button class="sm-btn '+(cls||'btn-blue')+'" type="button" onclick="'+onclick+'">'+text+'</button>';
+  }
+
+  function ensureUI(){
+    const panel=$('admin-panel'); if(!panel) return;
+    const dash=makeTab('dashboard','&#x1F3E0; Home','overview');
+    const history=makeTab('history','&#x1F4DC; History');
+    const backup=makeTab('backup','&#x1F4E6; Backups');
+    const reports=makeTab('reports','&#x1F4CB; Reports');
+
+    if(dash && !$('domsc-awesome-dashboard')){
+      dash.innerHTML =
+        '<div id="domsc-awesome-dashboard">'+
+          '<div class="domsc-awesome-card">'+
+            '<div class="domsc-awesome-title"><span>&#x1F3E0; Admin Mobile Home</span><span class="domsc-awesome-pill" id="domsc-home-save-pill">Watching</span></div>'+ 
+            '<div class="domsc-awesome-sub">Quick admin home screen for save status, reports, backups, people, supervisors, and history.</div>'+ 
+            '<div class="domsc-awesome-grid" id="domsc-home-stats"></div>'+ 
+            '<div class="domsc-awesome-actions">'+
+              quickBtn('&#x2601;&#xFE0F; Force Save Everything','btn-blue','DOMSC_FORCE_JSONBIN_SAVE&&DOMSC_FORCE_JSONBIN_SAVE()')+
+              quickBtn('&#x1F4CB; Generate Daily Report','btn-green','DOMSC_OPEN_REPORTS_AND_GENERATE()')+
+              quickBtn('&#x1F4E6; Download Backup','btn-dark','DOMSC_DOWNLOAD_FULL_BACKUP()')+
+              quickBtn('&#x1F4DC; View Change History','btn-yellow','switchTab&&switchTab(\'history\')')+
+              quickBtn('&#x1F465; People','btn-blue','switchTab&&switchTab(\'people\')')+
+              quickBtn('&#x1F9D1;&#x200D;&#x1F4BC; Supervisors','btn-blue','switchTab&&switchTab(\'supervisors\')')+
+            '</div>'+ 
+          '</div>'+ 
+          '<div class="domsc-awesome-card">'+
+            '<div class="domsc-awesome-title"><span>&#x2601;&#xFE0F; Save Status Dashboard</span><span class="domsc-awesome-pill" id="domsc-save-status-pill">Checking</span></div>'+ 
+            '<div id="domsc-save-status-body" class="domsc-awesome-sub">Loading save status...</div>'+ 
+          '</div>'+ 
+        '</div>';
+    }
+    if(history && !$('domsc-awesome-history')){
+      history.innerHTML =
+        '<div id="domsc-awesome-history" class="domsc-awesome-card">'+
+          '<div class="domsc-awesome-title"><span>&#x1F4DC; Change History / Audit Log</span><span class="domsc-awesome-pill" id="domsc-audit-count-pill">0</span></div>'+ 
+          '<div class="domsc-awesome-sub">Tracks important admin, supervisor, employee, passcode, backup, report, clock, and save changes.</div>'+ 
+          '<div class="domsc-awesome-actions">'+
+            quickBtn('Refresh History','btn-blue','DOMSC_RENDER_AUDIT_LOG()')+
+            quickBtn('Download Audit Log','btn-dark','DOMSC_DOWNLOAD_AUDIT_LOG()')+
+            quickBtn('Clear Audit Log','btn-red','DOMSC_CLEAR_AUDIT_LOG()')+
+            quickBtn('Force Save','btn-green','DOMSC_FORCE_JSONBIN_SAVE&&DOMSC_FORCE_JSONBIN_SAVE()')+
+          '</div>'+ 
+          '<div class="domsc-audit-list" id="domsc-audit-list"></div>'+ 
+        '</div>';
+    }
+    if(backup && !$('domsc-awesome-backup')){
+      backup.innerHTML =
+        '<div id="domsc-awesome-backup" class="domsc-awesome-card">'+
+          '<div class="domsc-awesome-title"><span>&#x1F4E6; Backup Center</span><span class="domsc-awesome-pill" id="domsc-backup-pill">Ready</span></div>'+ 
+          '<div class="domsc-awesome-sub">Download full JSON backups, create quick safety snapshots, and restore from a backup file when needed.</div>'+ 
+          '<div class="domsc-backup-controls">'+
+            quickBtn('Download Full JSON Backup','btn-dark','DOMSC_DOWNLOAD_FULL_BACKUP()')+
+            quickBtn('Create Safety Snapshot','btn-blue','DOMSC_CREATE_SAFETY_SNAPSHOT()')+
+            quickBtn('Download Latest Local Backup','btn-yellow','DOMSC_DOWNLOAD_LOCAL_BACKUP()')+
+            quickBtn('Force Save Everything','btn-green','DOMSC_FORCE_JSONBIN_SAVE&&DOMSC_FORCE_JSONBIN_SAVE()')+
+          '</div>'+ 
+          '<label style="font-size:11px;font-weight:900;color:#475569;display:block;margin-top:8px">Restore from backup JSON file</label>'+ 
+          '<input type="file" accept="application/json,.json" class="domsc-file-input" id="domsc-restore-file" onchange="DOMSC_RESTORE_BACKUP_FILE(this)">'+ 
+          '<div class="domsc-awesome-sub" style="margin-top:8px">Safety snapshots are smaller settings snapshots stored in JSONBin. Full backups download to your phone/computer.</div>'+ 
+          '<div class="domsc-backup-list" id="domsc-backup-list"></div>'+ 
+        '</div>';
+    }
+    if(reports && !$('domsc-awesome-reports')){
+      reports.innerHTML =
+        '<div id="domsc-awesome-reports" class="domsc-awesome-card">'+
+          '<div class="domsc-awesome-title"><span>&#x1F4CB; Daily Report Generator</span><span class="domsc-awesome-pill" id="domsc-report-pill">Ready</span></div>'+ 
+          '<div class="domsc-awesome-sub">Creates a daily admin report from saved logs, units, employee messages, and clock/session data.</div>'+ 
+          '<input type="date" class="domsc-date-input" id="domsc-report-date">'+
+          '<div class="domsc-report-controls">'+
+            quickBtn('Generate Report','btn-green','DOMSC_GENERATE_DAILY_REPORT()')+
+            quickBtn('Download Report','btn-dark','DOMSC_DOWNLOAD_DAILY_REPORT()')+
+            quickBtn('Force Save','btn-blue','DOMSC_FORCE_JSONBIN_SAVE&&DOMSC_FORCE_JSONBIN_SAVE()')+
+            quickBtn('Go to Backup Center','btn-yellow','switchTab&&switchTab(\'backup\')')+
+          '</div>'+ 
+          '<div class="domsc-report-output" id="domsc-report-output">Pick a date and tap Generate Report.</div>'+ 
+        '</div>';
+      const d=$('domsc-report-date'); if(d && !d.value) d.value=todayISO();
+    }
+  }
+
+  function renderDashboard(){
+    const st=stats();
+    const home=$('domsc-home-stats');
+    if(home){
+      home.innerHTML = [
+        ['Employees',st.profiles],['Today Logs',st.todayLogs],['Today Units',st.todayUnits.toFixed(2)],['All Logs',st.logs],['Audit Items',st.audit],['Backups',st.snapshots]
+      ].map(function(x){return '<div class="domsc-awesome-stat"><div class="domsc-awesome-stat-label">'+esc(x[0])+'</div><div class="domsc-awesome-stat-value">'+esc(x[1])+'</div></div>';}).join('');
+    }
+    const c=ensureStores(cloudSafe()||{});
+    const failed=Number(st.failed||0);
+    const statusPill=$('domsc-save-status-pill');
+    const homePill=$('domsc-home-save-pill');
+    const text= failed>0 ? 'Check Sync' : 'Saving OK';
+    const cls= failed>0 ? 'domsc-awesome-pill warn' : 'domsc-awesome-pill ok';
+    [statusPill,homePill].forEach(function(p){ if(p){p.textContent=text;p.className=cls;} });
+    const body=$('domsc-save-status-body');
+    if(body){
+      body.innerHTML =
+        '<b>Last JSONBin save:</b> '+esc(st.lastSave)+'<br>'+ 
+        '<b>Failed saves:</b> '+esc(failed)+'<br>'+ 
+        '<b>Last reason:</b> '+esc((c.sync_meta||{}).lastUniversalSaveReason || (c.sync_meta||{}).lastSyncReason || 'No reason saved yet')+'<br>'+ 
+        '<b>Local backup:</b> '+(localStorage.getItem('dom_sc_save_everything_backup')?'Available':'None found')+'<br>'+ 
+        '<b>Cloud watcher:</b> Active';
+    }
+  }
+
+  function renderAudit(){
+    const c=ensureStores(cloudSafe()||{});
+    const list=$('domsc-audit-list');
+    const pill=$('domsc-audit-count-pill');
+    if(pill) pill.textContent=(c.audit_trail||[]).length+' items';
+    if(!list) return;
+    const rows=(c.audit_trail||[]).slice(0,100);
+    if(!rows.length){ list.innerHTML='<div class="domsc-awesome-sub">No audit history yet. New important changes will appear here.</div>'; return; }
+    list.innerHTML=rows.map(function(a){
+      const k=a.kind==='bad'?'bad':(a.kind==='warn'?'warn':'ok');
+      return '<div class="domsc-audit-item '+k+'"><div class="domsc-audit-head"><div class="domsc-audit-action">'+esc(a.action)+'</div><div class="domsc-audit-time">'+esc(a.time||a.timeISO||'')+'</div></div><div class="domsc-audit-detail"><b>By:</b> '+esc(a.actor||'Unknown')+(a.detail?'<br><b>Details:</b> '+esc(a.detail):'')+'</div></div>';
+    }).join('');
+  }
+
+  function renderBackups(){
+    const c=ensureStores(cloudSafe()||{});
+    const list=$('domsc-backup-list');
+    const pill=$('domsc-backup-pill');
+    if(pill) pill.textContent=(c.backup_snapshots||[]).length+' snapshots';
+    if(!list) return;
+    const arr=c.backup_snapshots||[];
+    if(!arr.length){ list.innerHTML='<div class="domsc-awesome-sub">No safety snapshots yet. Tap Create Safety Snapshot before major changes.</div>'; return; }
+    list.innerHTML=arr.map(function(b){
+      return '<div class="domsc-backup-item"><b>'+esc(b.time||b.timeISO||'Snapshot')+'</b><br>By: '+esc(b.by||'Admin')+'<br>Employees: '+esc((b.summary||{}).profiles||0)+' | Logs: '+esc((b.summary||{}).logs||0)+' | Audit: '+esc((b.summary||{}).audit||0)+'</div>';
+    }).join('');
+  }
+
+  function renderAll(){ ensureUI(); renderDashboard(); renderAudit(); renderBackups(); }
+
+  window.DOMSC_RENDER_AUDIT_LOG = function(){ renderAudit(); };
+  window.DOMSC_DOWNLOAD_AUDIT_LOG = function(){
+    const c=ensureStores(cloudSafe()||{});
+    const lines=(c.audit_trail||[]).map(function(a){ return '['+(a.time||a.timeISO||'')+'] '+(a.actor||'Unknown')+' — '+a.action+(a.detail?' — '+a.detail:''); });
+    downloadText('DOMSC_audit_log_'+todayISO()+'.txt', lines.join('\n') || 'No audit items yet.');
+  };
+  window.DOMSC_CLEAR_AUDIT_LOG = function(){
+    const c=cloudSafe(); if(!c) return;
+    if(!confirm('Clear the visible audit log? A new audit item will record that it was cleared.')) return;
+    ensureStores(c);
+    auditMute=true;
+    c.audit_trail=[];
+    auditMute=false;
+    addAudit('Audit log cleared','Admin cleared the audit history.','warn');
+    renderAudit();
+  };
+
+  window.DOMSC_DOWNLOAD_FULL_BACKUP = function(){
+    const c=ensureStores(cloudSafe()||{});
+    const backup={backupType:'DOM/SC full JSON backup',createdAt:nowISO(),createdBy:actor(),record:clone(c)};
+    addAudit('Full backup downloaded','A full JSON backup was downloaded.','ok',false);
+    downloadText('DOMSC_full_backup_'+todayISO()+'.json', JSON.stringify(backup,null,2), 'application/json');
+  };
+  window.DOMSC_DOWNLOAD_LOCAL_BACKUP = function(){
+    const raw=localStorage.getItem('dom_sc_save_everything_backup') || localStorage.getItem('dom_sc_supervisor_roles_backup') || '';
+    if(!raw){ alert('No local backup was found on this device.'); return; }
+    addAudit('Local backup downloaded','A local browser backup was downloaded.','ok');
+    downloadText('DOMSC_local_backup_'+todayISO()+'.json', raw, 'application/json');
+  };
+  window.DOMSC_CREATE_SAFETY_SNAPSHOT = function(){
+    const c=cloudSafe(); if(!c) return;
+    ensureStores(c);
+    const st=stats();
+    const critical={
+      profiles:clone(c.profiles||[]),
+      permissions:clone(c.permissions||{}),
+      supervisor_settings:clone(c.supervisor_settings||{}),
+      supervisor_privileges:clone(c.supervisor_privileges||{}),
+      passcodes:clone(c.passcodes||{}),
+      bio_flags:clone(c.bio_flags||{}),
+      passcode_meta:clone(c.passcode_meta||{}),
+      frozen_users:clone(c.frozen_users||{}),
+      targets:clone(c.targets||{}),
+      variables:clone(c.variables||{}),
+      settings:clone(c.settings||{}),
+      maintenance:clone(c.maintenance||{}),
+      global_alert:c.global_alert||''
+    };
+    c.backup_snapshots.unshift({id:'snapshot_'+Date.now(),time:nowLocal(),timeISO:nowISO(),by:actor(),summary:st,critical:critical});
+    c.backup_snapshots=c.backup_snapshots.slice(0,MAX_SNAPSHOTS);
+    addAudit('Safety snapshot created','Critical settings snapshot saved inside JSONBin.','ok');
+    renderBackups();
+  };
+  window.DOMSC_RESTORE_BACKUP_FILE = function(input){
+    const f=input && input.files && input.files[0]; if(!f) return;
+    const reader=new FileReader();
+    reader.onload=function(){
+      try{
+        const parsed=JSON.parse(reader.result);
+        const rec=parsed.record || parsed;
+        if(!rec || typeof rec !== 'object') throw new Error('No JSON record found');
+        if(!confirm('Restore this backup into the app and save it to JSONBin? This can replace current data.')){ input.value=''; return; }
+        ensureStores(rec);
+        auditMute=true;
+        cloud=rec;
+        window.cloud=cloud;
+        auditMute=false;
+        addAudit('Backup restored','Backup file restored and queued for JSONBin save.','warn');
+        try{ if(typeof applyUI==='function') applyUI(); }catch(e){}
+        try{ if(typeof renderLoginButtons==='function') renderLoginButtons(); }catch(e){}
+        try{ if(typeof phase1RenderSupervisorSettings==='function') phase1RenderSupervisorSettings(); }catch(e){}
+        queueSave('backup restore',100);
+        renderAll();
+        alert('Backup restored. Keep the page open until JSONBin shows saved.');
+      }catch(err){ alert('Could not restore backup: '+(err.message||err)); }
+      input.value='';
+    };
+    reader.readAsText(f);
+  };
+
+  function dailyReportText(dateStr){
+    const c=ensureStores(cloudSafe()||{});
+    const byProfile={};
+    let totalLogs=0,totalUnits=0;
+    Object.keys(c.daily_logs||{}).forEach(function(p){
+      const arr=Array.isArray(c.daily_logs[p])?c.daily_logs[p]:[];
+      arr.forEach(function(x){
+        if(entryDate(x)!==dateStr) return;
+        const u=Number(x.totalUnits||0)||0;
+        totalLogs++; totalUnits+=u;
+        if(!byProfile[p]) byProfile[p]={name:profileName(p),logs:0,units:0,entries:[]};
+        byProfile[p].logs++; byProfile[p].units+=u; byProfile[p].entries.push(x);
+      });
+    });
+    const messages=(c.employee_messages||[]).filter(function(m){ return entryDate({timestampISO:m.timeISO||m.timestampISO,time:m.time||m.timestamp})===dateStr; });
+    const active=Object.keys(c.employee_calculator||{}).map(function(p){ return {profile:p,data:c.employee_calculator[p]||{}}; });
+    let lines=[];
+    lines.push('DOM/SC DAILY REPORT');
+    lines.push('Date: '+dateStr);
+    lines.push('Generated: '+nowLocal());
+    lines.push('Generated by: '+actor());
+    lines.push('');
+    lines.push('SUMMARY');
+    lines.push('- Saved logs: '+totalLogs);
+    lines.push('- Total units: '+totalUnits.toFixed(2));
+    lines.push('- Employees with logs: '+Object.keys(byProfile).length);
+    lines.push('- Employee messages today: '+messages.length);
+    lines.push('');
+    lines.push('EMPLOYEE TOTALS');
+    if(!Object.keys(byProfile).length) lines.push('- No saved logs for this date.');
+    Object.keys(byProfile).sort().forEach(function(p){
+      const s=byProfile[p];
+      lines.push('- '+(s.name||p)+': '+s.units.toFixed(2)+' units across '+s.logs+' saved log(s)');
+      s.entries.forEach(function(e){
+        const t=e.time||{};
+        lines.push('  • '+(e.timestamp||e.timestampISO||'')+' | Foreman: '+(e.foreman||'')+' | Crew: '+(e.crew||'')+' | Units: '+(Number(e.totalUnits||0)||0).toFixed(2)+' | Start: '+(t.start||'')+' | End: '+(t.end||''));
+      });
+    });
+    lines.push('');
+    lines.push('CLOCK / SESSION STATUS');
+    if(!active.length) lines.push('- No employee session data saved.');
+    active.forEach(function(x){
+      const d=x.data||{};
+      lines.push('- '+profileName(x.profile)+': login '+(d.loginTime||d.loginTimeISO||'not saved')+' | total '+(d.total||d.totalUnits||'0')+' | clock in '+(d.clockInDisplay||'')+' | clock out '+(d.clockOutDisplay||''));
+    });
+    lines.push('');
+    lines.push('MESSAGES');
+    if(!messages.length) lines.push('- No employee messages for this date.');
+    messages.forEach(function(m){ lines.push('- '+(m.time||m.timeISO||'')+' | '+profileName(m.profile||m.from||'')+': '+(m.message||m.text||'')); });
+    return lines.join('\n');
+  }
+  window.DOMSC_GENERATE_DAILY_REPORT = function(){
+    const d=$('domsc-report-date');
+    const date=(d&&d.value)||todayISO();
+    const text=dailyReportText(date);
+    window.__DOMSC_LAST_REPORT_TEXT=text;
+    const out=$('domsc-report-output'); if(out) out.textContent=text;
+    const pill=$('domsc-report-pill'); if(pill){pill.textContent='Generated';pill.className='domsc-awesome-pill ok';}
+    const c=cloudSafe(); if(c){ ensureStores(c); c.report_history.unshift({date:date,time:nowLocal(),timeISO:nowISO(),by:actor()}); c.report_history=c.report_history.slice(0,50); }
+    addAudit('Daily report generated','Report date: '+date,'ok');
+  };
+  window.DOMSC_DOWNLOAD_DAILY_REPORT = function(){
+    if(!window.__DOMSC_LAST_REPORT_TEXT) window.DOMSC_GENERATE_DAILY_REPORT();
+    const d=$('domsc-report-date');
+    const date=(d&&d.value)||todayISO();
+    downloadText('DOMSC_daily_report_'+date+'.txt', window.__DOMSC_LAST_REPORT_TEXT||'', 'text/plain');
+  };
+  window.DOMSC_OPEN_REPORTS_AND_GENERATE = function(){ if(typeof switchTab==='function') switchTab('reports'); setTimeout(window.DOMSC_GENERATE_DAILY_REPORT,100); };
+
+  function wrapFunction(name, build){
+    try{
+      const old=window[name];
+      if(typeof old!=='function' || old[FEATURE_WRAPPED]) return;
+      const wrapped=function(){
+        const args=Array.prototype.slice.call(arguments);
+        const after=function(ok,res){
+          if(ok){
+            try{ const msg=build?build(args):{action:name,detail:''}; addAudit(msg.action||name,msg.detail||'',msg.kind||'ok'); }catch(e){}
+          }
+          return res;
+        };
+        try{
+          const res=old.apply(this,args);
+          if(res && typeof res.then==='function') return res.then(function(r){return after(true,r);}).catch(function(err){ addAudit('Failed: '+name,String(err&&err.message||err),'bad'); throw err; });
+          return after(true,res);
+        }catch(err){ addAudit('Failed: '+name,String(err&&err.message||err),'bad'); throw err; }
+      };
+      wrapped[FEATURE_WRAPPED]=true;
+      wrapped.__old=old;
+      window[name]=wrapped;
+    }catch(e){}
+  }
+  function wrapKnown(){
+    const map={
+      adminToggleLock:function(){return {action:'Admin changed app lock',detail:'Lock/unlock was toggled.'};},
+      adminFactoryReset:function(){return {action:'Factory reset action used',detail:'Admin used factory reset controls.',kind:'warn'};},
+      adminSetMaintenance:function(a){return {action:'Maintenance mode changed',detail:'Maintenance active: '+!!a[0]};},
+      adminSetBroadcast:function(){return {action:'Global alert sent',detail:(($('broadcast-msg')||{}).value||'').slice(0,120)};},
+      adminClearBroadcast:function(){return {action:'Global alert cleared',detail:'Admin cleared the broadcast alert.'};},
+      adminSetAlertLevel:function(a){return {action:'Alert level changed',detail:'Level: '+a[0]};},
+      adminSaveTargets:function(){return {action:'Shift targets changed',detail:'Admin saved target metrics.'};},
+      adminChangePassword:function(){return {action:'Admin text password changed',detail:'Admin login password was updated.',kind:'warn'};},
+      adminSetOwnPasscode:function(){return {action:'Admin passcode changed',detail:'Admin set/changed their passcode.',kind:'warn'};},
+      adminRemoveOwnPasscode:function(){return {action:'Admin passcode removed',detail:'Admin passcode was removed.',kind:'warn'};},
+      adminSetupBiometric:function(){return {action:'Admin biometrics enabled',detail:'Admin enabled Face ID/Fingerprint.'};},
+      adminDisableBiometric:function(){return {action:'Admin biometrics disabled',detail:'Admin disabled Face ID/Fingerprint.',kind:'warn'};},
+      adminBanIP:function(){return {action:'IP banned',detail:'Admin added an IP to blacklist.',kind:'warn'};},
+      adminUnbanIP:function(){return {action:'IP unbanned',detail:'Admin removed an IP from blacklist.'};},
+      adminAddPerson:function(){return {action:'Employee profile added/updated',detail:'Admin used Add Person.'};},
+      adminDeletePerson:function(a){return {action:'Employee profile deleted',detail:'Profile: '+(a[0]||''),kind:'warn'};},
+      adminToggleFreeze:function(a){return {action:'Employee freeze changed',detail:'Profile: '+profileName(a[0]||'')};},
+      adminSetEmployeePasscode:function(a){return {action:'Employee passcode changed',detail:'Profile: '+profileName(a[0]||''),kind:'warn'};},
+      adminResetEmployeePasscode:function(a){return {action:'Employee passcode reset',detail:'Profile: '+profileName(a[0]||''),kind:'warn'};},
+      adminApproveReset:function(a){return {action:'Passcode reset request approved',detail:'Request/profile: '+(a[0]||'')};},
+      adminAddItem:function(){return {action:'Unit item added',detail:'Admin created a calculator item.'};},
+      adminUpdateItem:function(){return {action:'Unit item updated',detail:'Admin updated a calculator item.'};},
+      adminDeleteItem:function(){return {action:'Unit item deleted',detail:'Admin deleted a calculator item.',kind:'warn'};},
+      adminFreezeAll:function(){return {action:'All employees frozen',detail:'Admin used Freeze All.',kind:'warn'};},
+      adminThawAll:function(){return {action:'All employees unfrozen',detail:'Admin used Thaw All.'};},
+      adminSetSetting:function(a){return {action:'Admin setting changed',detail:String(a[0])+' = '+String(a[1])};},
+      performSave:function(){return {action:'Employee daily log saved',detail:'Profile: '+profileName(localStorage.getItem('dom_sc_active_profile')||'default')};},
+      clearForm:function(){return {action:'Employee form cleared',detail:'Profile: '+profileName(localStorage.getItem('dom_sc_active_profile')||'default'),kind:'warn'};},
+      clockInEmployee:function(){return {action:'Employee clocked in',detail:'Profile: '+profileName(localStorage.getItem('dom_sc_active_profile')||'default')};},
+      clockOutEmployee:function(){return {action:'Employee clocked out',detail:'Profile: '+profileName(localStorage.getItem('dom_sc_active_profile')||'default')};},
+      employeeSendAdminMessage:function(){return {action:'Employee sent admin message',detail:'Profile: '+profileName(localStorage.getItem('dom_sc_active_profile')||'default')};},
+      phase1SetSupervisor:function(a){return {action:'Supervisor role changed',detail:profileName(a[0])+' supervisor = '+!!a[1]};},
+      supervisorSetPrivilege:function(a){return {action:'Supervisor privilege changed',detail:profileName(a[0])+' / '+a[1]+' = '+!!a[2]};},
+      supervisorSetEmployeePasscode:function(a){return {action:'Supervisor changed employee passcode',detail:'Profile: '+profileName(a[0]||''),kind:'warn'};},
+      supervisorResetEmployeePasscode:function(a){return {action:'Supervisor cleared employee passcode',detail:'Profile: '+profileName(a[0]||''),kind:'warn'};},
+      setEmployeePasscodeFromSupervisor:function(a){return {action:'Supervisor changed employee passcode',detail:'Profile: '+profileName(a[0]||''),kind:'warn'};},
+      clearEmployeePasscodeFromSupervisor:function(a){return {action:'Supervisor cleared employee passcode',detail:'Profile: '+profileName(a[0]||''),kind:'warn'};}
+    };
+    Object.keys(map).forEach(function(k){wrapFunction(k,map[k]);});
+  }
+
+  function protectPullCloud(){
+    try{
+      if(typeof window.pullCloud==='function' && !window.pullCloud.__domscAwesomePull){
+        const old=window.pullCloud;
+        const wrapped=async function(){
+          const res=await old.apply(this,arguments);
+          try{
+            const rec=(typeof fetchCloudRecordSafe==='function')?await fetchCloudRecordSafe():null;
+            if(rec && typeof cloud!=='undefined'){
+              ensureStores(cloud);
+              if(Array.isArray(rec.audit_trail)) cloud.audit_trail=rec.audit_trail;
+              if(Array.isArray(rec.backup_snapshots)) cloud.backup_snapshots=rec.backup_snapshots;
+              if(Array.isArray(rec.report_history)) cloud.report_history=rec.report_history;
+            }
+          }catch(e){}
+          refreshSoon();
+          return res;
+        };
+        wrapped.__domscAwesomePull=true;
+        window.pullCloud=wrapped;
+        pullCloud=wrapped;
+      }
+    }catch(e){}
+  }
+
+  function boot(){
+    ensureStores(cloudSafe()||{});
+    ensureUI();
+    wrapKnown();
+    protectPullCloud();
+    renderAll();
+    setTimeout(function(){ensureStores(cloudSafe()||{}); ensureUI(); wrapKnown(); protectPullCloud(); renderAll();},700);
+    setInterval(function(){ensureStores(cloudSafe()||{}); ensureUI(); wrapKnown(); renderAll();},5000);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
+
 </body>
 </html>
 
