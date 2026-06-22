@@ -1,145 +1,184 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DOM/SC Norm 2026 Enterprise Pro</title>
+<title>DOM/SC Norm 2026 Enterprise V7</title>
 <style>
-body{margin:0;font-family:Arial;background:#0b1220;color:#fff}
-.header{padding:15px;background:#111827;position:sticky;top:0}
-.wrap{padding:15px}
-.card{background:#1b2435;border-radius:18px;padding:15px;margin:10px 0}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-input,button,select,textarea{width:100%;padding:10px;border-radius:10px;border:none;margin-top:5px}
-button{background:#2563eb;color:#fff;font-weight:bold}
+body{margin:0;font-family:system-ui;background:#0b1220;color:#fff}
+header{background:#111827;padding:20px;text-align:center}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;background:#172033;padding:15px;overflow:auto}
+.main{margin-left:260px;padding:20px}
+.card{background:#1e293b;border-radius:16px;padding:16px;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+input,select,textarea,button{width:100%;padding:10px;margin-top:6px;border-radius:10px;border:none}
+button{background:#2563eb;color:white}
+.hidden{display:none}
 .stat{font-size:28px;font-weight:bold}
 table{width:100%;border-collapse:collapse}
 td,th{border:1px solid #334155;padding:8px}
 </style>
 </head>
 <body>
-<div class="header"><h1>DOM/SC Norm 2026 Enterprise Pro</h1></div>
 
-<div class="wrap">
+<div id="loginScreen" class="main">
+<div class="card">
+<h1>DOM/SC Norm 2026 Enterprise V7</h1>
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
+</div>
+
+<div id="app" class="hidden">
+<div class="sidebar">
+<h2>DOM/SC</h2>
+<p>Company Portal</p>
+<hr>
+<p>Dashboard</p>
+<p>Units</p>
+<p>Crews</p>
+<p>Assignments</p>
+<p>Notifications</p>
+<p>History</p>
+<p>Reports</p>
+<p id="adminLink" class="hidden">Admin Center</p>
+</div>
+
+<div class="main">
+<header>
+<h1>DOM/SC Norm 2026</h1>
+<p>Admin: Gavin | Employees: Robert, Payton N</p>
+</header>
+
 <div class="grid">
-<div class="card"><h3>Total Units</h3><div class="stat" id="units">0</div></div>
-<div class="card"><h3>Remaining</h3><div class="stat" id="remain">31</div></div>
-<div class="card"><h3>Progress</h3><div class="stat" id="progress">0%</div></div>
-<div class="card"><h3>Employees</h3><div class="stat" id="empCount">0</div></div>
+<div class="card"><div class="stat" id="unitTotal">0.00</div><p>Total Units</p></div>
+<div class="card"><div class="stat" id="jobsTotal">0</div><p>Assignments</p></div>
+<div class="card"><div class="stat">3</div><p>Active Users</p></div>
+<div class="card"><div class="stat">Online</div><p>System Status</p></div>
 </div>
 
 <div class="card">
-<h2>Production Calculator</h2>
-<div class="grid">
-<input type="number" id="visual" placeholder="Visual">
-<input type="number" id="fume" placeholder="Fume">
-<input type="number" id="ground" placeholder="Ground Wire">
-<input type="number" id="guy" placeholder="Guy Marker">
-<input type="number" id="pole" placeholder="Pole Number">
-<input type="number" id="riser" placeholder="Riser Ground">
-<input type="number" id="uguard" placeholder="U Guard">
-<input type="number" id="pad" placeholder="Pad Mount">
-<input type="number" id="warn" placeholder="Warning Sticker">
-</div>
-<button onclick="calc()">Calculate</button>
-<button onclick="saveEntry()">Save Entry</button>
+<h2>Unit Calculator</h2>
+<select id="task">
+<option value="0.30">Visual</option>
+<option value="0.56">Fume</option>
+<option value="0.55">Ground Wire</option>
+<option value="0.17">Guy Marker</option>
+<option value="0.14">Pole Number</option>
+<option value="0.44">Riser Ground</option>
+<option value="0.46">U Guard</option>
+<option value="0.27">Pad Mount</option>
+<option value="0.02">Warning Sticker</option>
+</select>
+<input id="qty" type="number" value="1">
+<button onclick="addUnit()">Add Work</button>
+<div id="history"></div>
 </div>
 
 <div class="card">
-<h2>Employee Management</h2>
-<input id="empName" placeholder="Employee Name">
-<button onclick="addEmployee()">Add Employee</button>
+<h2>Crew Management</h2>
+<input id="crewName" placeholder="Crew Name">
+<button onclick="addCrew()">Create Crew</button>
+<ul id="crewList"></ul>
+</div>
+
+<div class="card">
+<h2>Assignments</h2>
+<input id="jobText" placeholder="New Assignment">
+<button onclick="addJob()">Assign Job</button>
+<ul id="jobList"></ul>
+</div>
+
+<div class="card">
+<h2>Notifications Center</h2>
+<textarea placeholder="Company announcements"></textarea>
+</div>
+
+<div class="card">
+<h2>Searchable History</h2>
+<input id="searchHistory" onkeyup="filterHistory()" placeholder="Search">
+<ul id="historyList"></ul>
+</div>
+
+<div id="adminPanel" class="card hidden">
+<h2>Admin Center (Gavin Only)</h2>
 <table>
-<thead><tr><th>Employee</th></tr></thead>
-<tbody id="employees"></tbody>
+<tr><th>Control</th><th>Status</th></tr>
+<tr><td>User Management</td><td>Enabled</td></tr>
+<tr><td>Company Branding</td><td>Enabled</td></tr>
+<tr><td>Settings Panel</td><td>Enabled</td></tr>
+<tr><td>Activity Logs</td><td>Enabled</td></tr>
+<tr><td>Crew Oversight</td><td>Enabled</td></tr>
+<tr><td>Reports</td><td>Enabled</td></tr>
+<tr><td>Analytics</td><td>Enabled</td></tr>
+<tr><td>Notifications Manager</td><td>Enabled</td></tr>
 </table>
 </div>
 
-<div class="card">
-<h2>Announcements</h2>
-<textarea id="announce"></textarea>
-<button onclick="saveAnnouncement()">Save Announcement</button>
-<div id="announcementView"></div>
-</div>
-
-<div class="card">
-<h2>History Log</h2>
-<table>
-<thead><tr><th>Date</th><th>Units</th></tr></thead>
-<tbody id="history"></tbody>
-</table>
-</div>
-
-<div class="card">
-<h2>Admin Controls</h2>
-<ul>
-<li>Attendance Tracking</li>
-<li>Crew Management</li>
-<li>Productivity Rankings</li>
-<li>Reports Center</li>
-<li>Permissions</li>
-<li>Backup & Restore</li>
-<li>Company Branding</li>
-<li>Audit Logs</li>
-</ul>
 </div>
 </div>
 
 <script>
-const rates={visual:.30,fume:.56,ground:.55,guy:.17,pole:.14,riser:.44,uguard:.46,pad:.27,warn:.02};
+const users={
+"Gavin":{password:"gavin123",role:"admin"},
+"Robert":{password:"robert123",role:"employee"},
+"Payton N":{password:"payton123",role:"employee"}
+};
 
-function calc(){
- let total=0;
- for(let k in rates){
-   total+=(+document.getElementById(k).value||0)*rates[k];
- }
- document.getElementById("units").innerText=total.toFixed(2);
- document.getElementById("remain").innerText=Math.max(0,31-total).toFixed(2);
- document.getElementById("progress").innerText=((total/31)*100).toFixed(1)+"%";
- return total;
+let totalUnits=0;
+let jobs=0;
+
+function login(){
+let u=user.value;
+let p=pass.value;
+if(users[u]&&users[u].password===p){
+loginScreen.classList.add('hidden');
+app.classList.remove('hidden');
+if(users[u].role==='admin'){
+adminPanel.classList.remove('hidden');
+adminLink.classList.remove('hidden');
+}
+}else{alert('Invalid Login');}
 }
 
-function saveEntry(){
- let total=calc();
- let data=JSON.parse(localStorage.getItem("history")||"[]");
- data.push({date:new Date().toLocaleString(),units:total.toFixed(2)});
- localStorage.setItem("history",JSON.stringify(data));
- loadHistory();
+function addUnit(){
+let value=parseFloat(task.value);
+let q=parseInt(qty.value)||1;
+let add=value*q;
+totalUnits+=add;
+unitTotal.innerText=totalUnits.toFixed(2);
+let li=document.createElement('div');
+li.innerText=`${task.options[task.selectedIndex].text} x ${q} = ${add.toFixed(2)} units`;
+history.appendChild(li);
+
+let h=document.createElement('li');
+h.innerText=li.innerText;
+historyList.appendChild(h);
 }
 
-function loadHistory(){
- let data=JSON.parse(localStorage.getItem("history")||"[]");
- document.getElementById("history").innerHTML=data.map(x=>`<tr><td>${x.date}</td><td>${x.units}</td></tr>`).join("");
+function addCrew(){
+let li=document.createElement('li');
+li.innerText=crewName.value;
+crewList.appendChild(li);
+crewName.value='';
 }
 
-function addEmployee(){
- let name=document.getElementById("empName").value;
- if(!name)return;
- let data=JSON.parse(localStorage.getItem("employees")||"[]");
- data.push(name);
- localStorage.setItem("employees",JSON.stringify(data));
- loadEmployees();
+function addJob(){
+let li=document.createElement('li');
+li.innerText=jobText.value;
+jobList.appendChild(li);
+jobs++;
+jobsTotal.innerText=jobs;
+jobText.value='';
 }
 
-function loadEmployees(){
- let data=JSON.parse(localStorage.getItem("employees")||"[]");
- document.getElementById("employees").innerHTML=data.map(x=>`<tr><td>${x}</td></tr>`).join("");
- document.getElementById("empCount").innerText=data.length;
+function filterHistory(){
+let f=searchHistory.value.toLowerCase();
+document.querySelectorAll('#historyList li').forEach(x=>{
+x.style.display=x.innerText.toLowerCase().includes(f)?'':'none';
+});
 }
-
-function saveAnnouncement(){
- localStorage.setItem("announcement",document.getElementById("announce").value);
- loadAnnouncement();
-}
-
-function loadAnnouncement(){
- document.getElementById("announcementView").innerText=localStorage.getItem("announcement")||"";
-}
-
-loadHistory();
-loadEmployees();
-loadAnnouncement();
 </script>
 </body>
 </html>
