@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026</title>
+    <title>DOM/SC Norm 2026 Enterprise V4 Full</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -292,8 +292,118 @@
         .sec-status-on  { font-size: 10px; color: #1e7e34; font-weight: 700; }
         .sec-status-off { font-size: 10px; color: #aaa; }
     </style>
+
+<style id="enterprise-v4-css">
+:root{
+  --ent-bg:#0f172a;
+  --ent-panel:#111827;
+  --ent-card:#ffffff;
+  --ent-muted:#64748b;
+  --ent-blue:#2563eb;
+  --ent-green:#16a34a;
+  --ent-red:#dc2626;
+  --ent-orange:#f59e0b;
+  --ent-purple:#7c3aed;
+  --ent-border:#e5e7eb;
+}
+body.ent-dark{
+  background:linear-gradient(135deg,#020617,#111827)!important;
+  color:#e5e7eb!important;
+}
+body.ent-dark .container,
+body.ent-dark .crew-details,
+body.ent-dark .item-card,
+body.ent-dark .metrics-panel,
+body.ent-dark .saved-files-section,
+body.ent-dark .admin-sub-section,
+body.ent-dark .security-panel{
+  background:#111827!important;
+  color:#f8fafc!important;
+  border-color:#334155!important;
+}
+body.ent-dark h2,
+body.ent-dark .item-name,
+body.ent-dark .modal-title,
+body.ent-dark .sec-row-label{
+  color:#f8fafc!important;
+}
+body.ent-dark .text-input,
+body.ent-dark .select-input,
+body.ent-dark input,
+body.ent-dark textarea,
+body.ent-dark select{
+  background:#0f172a!important;
+  color:#f8fafc!important;
+  border-color:#334155!important;
+}
+.enterprise-shell{margin:14px 0}
+.enterprise-hero{
+  background:linear-gradient(135deg,#0f172a,#1d4ed8);
+  color:#fff;border-radius:18px;padding:18px;margin-bottom:14px;
+  box-shadow:0 14px 35px rgba(15,23,42,.28);
+}
+.enterprise-hero h3{margin:0 0 4px;font-size:20px}
+.enterprise-hero p{margin:0;color:#dbeafe;font-size:12px;line-height:1.4}
+.enterprise-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.enterprise-stat{
+  background:#fff;border:1px solid var(--ent-border);border-radius:14px;padding:12px;
+  box-shadow:0 5px 14px rgba(15,23,42,.06);
+}
+.enterprise-stat .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;font-weight:800}
+.enterprise-stat .value{font-size:22px;font-weight:900;color:#0f172a;margin-top:4px}
+body.ent-dark .enterprise-stat{background:#1e293b;border-color:#334155}
+body.ent-dark .enterprise-stat .value{color:#f8fafc}
+.enterprise-card{
+  background:#fff;border:1px solid var(--ent-border);border-radius:14px;padding:12px;margin-top:10px;
+  box-shadow:0 5px 14px rgba(15,23,42,.05);
+}
+body.ent-dark .enterprise-card{background:#1e293b;border-color:#334155}
+.enterprise-card h4{margin:0 0 9px;font-size:14px;color:#0f172a}
+body.ent-dark .enterprise-card h4{color:#f8fafc}
+.enterprise-row{display:flex;gap:7px;align-items:center;margin:7px 0}
+.enterprise-row>*{flex:1}
+.enterprise-input{
+  width:100%;padding:9px;border-radius:9px;border:1px solid #cbd5e1;font-size:13px;background:#fff;
+}
+.enterprise-btn{
+  border:0;border-radius:9px;padding:9px 10px;font-size:12px;font-weight:800;cursor:pointer;color:#fff;background:#2563eb;
+}
+.enterprise-btn.green{background:#16a34a}.enterprise-btn.red{background:#dc2626}.enterprise-btn.orange{background:#f59e0b}.enterprise-btn.dark{background:#111827}.enterprise-btn.purple{background:#7c3aed}
+.enterprise-list{
+  max-height:190px;overflow:auto;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;padding:8px;font-size:12px;
+}
+body.ent-dark .enterprise-list{background:#0f172a;border-color:#334155;color:#e5e7eb}
+.enterprise-list-item{
+  border-bottom:1px solid #e5e7eb;padding:7px 0;line-height:1.35;
+}
+.enterprise-list-item:last-child{border-bottom:0}
+body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
+.enterprise-badge{
+  display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:900;background:#e0f2fe;color:#075985;margin-left:4px;
+}
+.enterprise-badge.green{background:#dcfce7;color:#166534}.enterprise-badge.red{background:#fee2e2;color:#991b1b}.enterprise-badge.orange{background:#ffedd5;color:#9a3412}.enterprise-badge.purple{background:#ede9fe;color:#5b21b6}
+.ent-section-title{font-size:12px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 4px}
+.enterprise-tabs-mini{display:flex;gap:6px;overflow:auto;margin:8px 0}
+.enterprise-mini-tab{white-space:nowrap;border:0;background:#e2e8f0;color:#0f172a;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:900;cursor:pointer}
+.enterprise-mini-tab.active{background:#2563eb;color:white}
+.ent-mini-panel{display:none}.ent-mini-panel.active{display:block}
+#enterprise-notification-bell{
+  position:fixed;right:14px;bottom:14px;z-index:4500;background:#2563eb;color:#fff;border:0;
+  border-radius:999px;width:52px;height:52px;font-size:22px;box-shadow:0 12px 30px rgba(37,99,235,.45);
+}
+#enterprise-notification-count{
+  position:absolute;right:-4px;top:-4px;background:#dc2626;border-radius:999px;font-size:10px;padding:3px 6px;font-weight:900;
+}
+.ent-hidden{display:none!important}
+@media(max-width:560px){
+  .enterprise-grid{grid-template-columns:1fr 1fr}
+  .enterprise-row{flex-direction:column;align-items:stretch}
+}
+</style>
+
 </head>
 <body>
+<!-- Enterprise V4 Full: original DOM/SC code preserved; new tools injected below. -->
 
 <div id="banned-screen">
     <h1 style="font-size: 40px; margin-bottom: 10px;">&#x26D4; ACCESS BLOCKED</h1>
@@ -875,7 +985,7 @@
     ];
 
     let profilesRegistry = [
-        { name: "Robert S", val: "robert_s" },
+        { name: "Robert", val: "robert" },
         { name: "Payton N", val: "payton_n" },
         { name: "Default / Custom", val: "default" }
     ];
@@ -2734,5 +2844,563 @@
         }
     }, 4000);
 </script>
+
+<script id="enterprise-v4-module">
+(function(){
+  const ENTERPRISE_VERSION = "Enterprise V4 Full";
+  const ENT_KEY = "domsc_enterprise_v4_data";
+
+  const defaultEnterprise = {
+    company:{name:"DOM/SC Norm 2026", subtitle:"Enterprise Workforce Platform", primary:"#2563eb", logo:""},
+    users:[
+      {name:"Gavin", val:"gavin", role:"admin", status:"Active", supervisor:true, notes:"Full administrator"},
+      {name:"Robert", val:"robert", role:"employee", status:"Active", supervisor:false, notes:""},
+      {name:"Payton N", val:"payton_n", role:"employee", status:"Active", supervisor:false, notes:""}
+    ],
+    crews:[],
+    assignments:[],
+    notifications:[],
+    activity:[],
+    attendance:[],
+    reviews:[],
+    discipline:[],
+    supervisorApprovals:[],
+    settings:{darkMode:false, supervisorApprovals:true, showEmployeeHub:true}
+  };
+
+  function loadEnt(){
+    try{
+      return Object.assign({}, defaultEnterprise, JSON.parse(localStorage.getItem(ENT_KEY)||"{}"));
+    }catch(e){ return JSON.parse(JSON.stringify(defaultEnterprise)); }
+  }
+  let ent = loadEnt();
+  function saveEnt(){
+    localStorage.setItem(ENT_KEY, JSON.stringify(ent));
+    renderEnterpriseAll();
+  }
+  function esc(s){
+    return String(s==null?"":s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+  }
+  function now(){return new Date().toLocaleString();}
+  function currentProfile(){
+    try { return localStorage.getItem("dom_sc_active_profile") || (document.getElementById("profile-select")||{}).value || "unknown"; }
+    catch(e){ return "unknown"; }
+  }
+  function profileName(val){
+    const u = ent.users.find(x=>x.val===val || x.name===val);
+    if(u) return u.name;
+    const p = (window.profilesRegistry||[]).find(x=>x.val===val);
+    return p ? p.name : val;
+  }
+  function isAdmin(){
+    return !!window.isAdminLoggedIn;
+  }
+  function addActivity(action, detail){
+    ent.activity.unshift({time:now(), profile:profileName(currentProfile()), action, detail});
+    ent.activity = ent.activity.slice(0,300);
+    localStorage.setItem(ENT_KEY, JSON.stringify(ent));
+    renderEnterpriseAll();
+  }
+
+  // Preserve original functions while adding behavior.
+  const originalCompleteLogin = window._completeProfileLogin;
+  if(typeof originalCompleteLogin === "function"){
+    window._completeProfileLogin = async function(profileVal){
+      const r = await originalCompleteLogin.apply(this, arguments);
+      addActivity("Profile Login", profileName(profileVal)+" logged in");
+      return r;
+    };
+  }
+  const originalGrantAdmin = window._grantAdminAccess;
+  if(typeof originalGrantAdmin === "function"){
+    window._grantAdminAccess = function(){
+      const r = originalGrantAdmin.apply(this, arguments);
+      addActivity("Admin Login", "Gavin/admin console opened");
+      setTimeout(renderEnterpriseAll, 150);
+      return r;
+    };
+  }
+  const originalSaveFields = window.saveFields;
+  if(typeof originalSaveFields === "function"){
+    window.saveFields = function(){
+      const r = originalSaveFields.apply(this, arguments);
+      return r;
+    };
+  }
+  const originalHandleLunch = window.handleLunchDecision;
+  if(typeof originalHandleLunch === "function"){
+    window.handleLunchDecision = function(tookBreak){
+      const before = (window.currentGrandTotal||0);
+      const r = originalHandleLunch.apply(this, arguments);
+      addActivity("Daily Log", "Saved/processed daily log — "+before.toFixed(2)+" units");
+      return r;
+    };
+  }
+
+  function ensureProfiles(){
+    // Keep original app profile system but set the requested users as defaults.
+    const wanted = [
+      {name:"Robert", val:"robert"},
+      {name:"Payton N", val:"payton_n"}
+    ];
+    if(window.profilesRegistry && Array.isArray(window.profilesRegistry)){
+      wanted.forEach(w=>{
+        if(!window.profilesRegistry.some(p=>p.val===w.val)){
+          window.profilesRegistry.push(w);
+        }
+      });
+      window.profilesRegistry = window.profilesRegistry.filter(p=>p.val!=="default" || window.profilesRegistry.length<=2);
+    }
+    if(window.globalCloudData){
+      if(!globalCloudData.profiles || !Array.isArray(globalCloudData.profiles)) globalCloudData.profiles = wanted.slice();
+      wanted.forEach(w=>{
+        if(!globalCloudData.profiles.some(p=>p.val===w.val)) globalCloudData.profiles.push(w);
+      });
+      if(!globalCloudData.enterprise) globalCloudData.enterprise = {};
+      globalCloudData.enterprise.owner = "Gavin";
+    }
+  }
+
+  function injectAdminTab(){
+    const bar = document.querySelector(".admin-tab-bar");
+    const adminPanel = document.getElementById("admin-panel");
+    if(!bar || !adminPanel || document.getElementById("admin-tab-enterprise")) return;
+
+    const btn = document.createElement("button");
+    btn.className = "admin-tab-btn";
+    btn.setAttribute("data-tab","enterprise");
+    btn.innerHTML = "🏢 Enterprise";
+    btn.onclick = function(){ if(typeof window.switchAdminTab==="function") switchAdminTab("enterprise"); };
+    bar.appendChild(btn);
+
+    const panel = document.createElement("div");
+    panel.className = "admin-tab-panel";
+    panel.id = "admin-tab-enterprise";
+    panel.innerHTML = `
+      <div class="enterprise-shell">
+        <div class="enterprise-hero">
+          <h3 id="ent-company-title">DOM/SC Enterprise</h3>
+          <p id="ent-company-subtitle">Gavin Admin Center • Robert and Payton N Employee Management • Supervisor tools under Admin</p>
+        </div>
+
+        <div class="enterprise-grid">
+          <div class="enterprise-stat"><div class="label">Employees</div><div class="value" id="ent-stat-employees">0</div></div>
+          <div class="enterprise-stat"><div class="label">Crews</div><div class="value" id="ent-stat-crews">0</div></div>
+          <div class="enterprise-stat"><div class="label">Assignments</div><div class="value" id="ent-stat-assignments">0</div></div>
+          <div class="enterprise-stat"><div class="label">Activity Logs</div><div class="value" id="ent-stat-activity">0</div></div>
+        </div>
+
+        <div class="enterprise-tabs-mini">
+          <button class="enterprise-mini-tab active" data-ent-mini="dashboard" onclick="enterpriseSwitchMini('dashboard')">Dashboard</button>
+          <button class="enterprise-mini-tab" data-ent-mini="crews" onclick="enterpriseSwitchMini('crews')">Crews</button>
+          <button class="enterprise-mini-tab" data-ent-mini="people" onclick="enterpriseSwitchMini('people')">Employees</button>
+          <button class="enterprise-mini-tab" data-ent-mini="notifications" onclick="enterpriseSwitchMini('notifications')">Notifications</button>
+          <button class="enterprise-mini-tab" data-ent-mini="history" onclick="enterpriseSwitchMini('history')">History</button>
+          <button class="enterprise-mini-tab" data-ent-mini="branding" onclick="enterpriseSwitchMini('branding')">Branding</button>
+          <button class="enterprise-mini-tab" data-ent-mini="supervisor" onclick="enterpriseSwitchMini('supervisor')">Supervisor</button>
+          <button class="enterprise-mini-tab" data-ent-mini="export" onclick="enterpriseSwitchMini('export')">Export</button>
+        </div>
+
+        <div class="ent-mini-panel active" id="ent-mini-dashboard">
+          <div class="enterprise-card">
+            <h4>Admin Dashboard</h4>
+            <div class="enterprise-row">
+              <button class="enterprise-btn" onclick="enterpriseAddAssignmentPrompt()">+ Assignment</button>
+              <button class="enterprise-btn green" onclick="enterpriseClockForCurrent('in')">Clock In</button>
+              <button class="enterprise-btn orange" onclick="enterpriseClockForCurrent('out')">Clock Out</button>
+            </div>
+            <div class="ent-section-title">Recent Activity</div>
+            <div class="enterprise-list" id="ent-recent-activity"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-crews">
+          <div class="enterprise-card">
+            <h4>Crew Management</h4>
+            <div class="enterprise-row">
+              <input class="enterprise-input" id="ent-crew-name" placeholder="Crew name">
+              <select class="enterprise-input" id="ent-crew-lead"></select>
+              <button class="enterprise-btn green" onclick="enterpriseAddCrew()">Create Crew</button>
+            </div>
+            <div class="enterprise-list" id="ent-crew-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-people">
+          <div class="enterprise-card">
+            <h4>Employee Status, Notes, Reviews & Discipline</h4>
+            <div class="enterprise-row">
+              <select class="enterprise-input" id="ent-person-select"></select>
+              <select class="enterprise-input" id="ent-person-status">
+                <option>Active</option><option>Suspended</option><option>Inactive</option><option>Terminated</option>
+              </select>
+              <button class="enterprise-btn" onclick="enterpriseUpdatePersonStatus()">Update Status</button>
+            </div>
+            <textarea class="enterprise-input" id="ent-person-note" rows="2" placeholder="Admin note / performance note"></textarea>
+            <div class="enterprise-row">
+              <button class="enterprise-btn purple" onclick="enterpriseSavePersonNote()">Save Note</button>
+              <button class="enterprise-btn orange" onclick="enterpriseAddReview()">Add Review</button>
+              <button class="enterprise-btn red" onclick="enterpriseAddDiscipline()">Add Discipline</button>
+            </div>
+            <div class="enterprise-list" id="ent-people-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-notifications">
+          <div class="enterprise-card">
+            <h4>Notification Center</h4>
+            <textarea class="enterprise-input" id="ent-notification-msg" rows="3" placeholder="Type announcement for employees..."></textarea>
+            <div class="enterprise-row">
+              <select class="enterprise-input" id="ent-notification-target">
+                <option value="all">All Employees</option>
+                <option value="robert">Robert</option>
+                <option value="payton_n">Payton N</option>
+              </select>
+              <button class="enterprise-btn green" onclick="enterpriseSendNotification()">Send Notification</button>
+            </div>
+            <div class="enterprise-list" id="ent-notification-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-history">
+          <div class="enterprise-card">
+            <h4>Searchable History & Activity Logs</h4>
+            <input class="enterprise-input" id="ent-history-search" placeholder="Search logs, employees, assignments..." oninput="enterpriseRenderHistory()">
+            <div class="enterprise-list" id="ent-history-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-branding">
+          <div class="enterprise-card">
+            <h4>Company Branding</h4>
+            <input class="enterprise-input" id="ent-brand-name" placeholder="Company/App Name">
+            <input class="enterprise-input" id="ent-brand-subtitle" placeholder="Subtitle">
+            <div class="enterprise-row">
+              <input class="enterprise-input" id="ent-brand-color" type="color">
+              <button class="enterprise-btn" onclick="enterpriseSaveBranding()">Save Branding</button>
+              <button class="enterprise-btn dark" onclick="enterpriseToggleDarkMode()">Toggle Dark Mode</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-supervisor">
+          <div class="enterprise-card">
+            <h4>Supervisor Controls Under Admin</h4>
+            <p style="font-size:12px;color:#64748b;margin-top:0">Gavin controls supervisor permissions and approvals.</p>
+            <div class="enterprise-row">
+              <select class="enterprise-input" id="ent-supervisor-user"></select>
+              <button class="enterprise-btn purple" onclick="enterpriseToggleSupervisor()">Toggle Supervisor</button>
+            </div>
+            <div class="enterprise-list" id="ent-supervisor-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-export">
+          <div class="enterprise-card">
+            <h4>Export / Backup / Restore</h4>
+            <div class="enterprise-row">
+              <button class="enterprise-btn green" onclick="enterpriseExportCSV()">Export CSV</button>
+              <button class="enterprise-btn" onclick="enterpriseDownloadBackup()">Download Backup</button>
+              <button class="enterprise-btn orange" onclick="enterprisePrintReport()">Print Report</button>
+            </div>
+            <textarea class="enterprise-input" id="ent-backup-box" rows="4" placeholder="Backup JSON appears here, or paste JSON to restore..."></textarea>
+            <button class="enterprise-btn red" onclick="enterpriseRestoreBackup()">Restore From Box</button>
+          </div>
+        </div>
+      </div>
+    `;
+    adminPanel.appendChild(panel);
+  }
+
+  function injectEmployeeHub(){
+    const userArea = document.getElementById("user-app-elements");
+    if(!userArea || document.getElementById("enterprise-employee-hub")) return;
+    const hub = document.createElement("div");
+    hub.id = "enterprise-employee-hub";
+    hub.className = "enterprise-card";
+    hub.innerHTML = `
+      <h4>Employee Hub</h4>
+      <div class="enterprise-grid">
+        <div class="enterprise-stat"><div class="label">My Units</div><div class="value" id="ent-my-units">0.00</div></div>
+        <div class="enterprise-stat"><div class="label">Notifications</div><div class="value" id="ent-my-notif-count">0</div></div>
+      </div>
+      <div class="enterprise-row">
+        <button class="enterprise-btn green" onclick="enterpriseClockForCurrent('in')">Clock In</button>
+        <button class="enterprise-btn orange" onclick="enterpriseClockForCurrent('out')">Clock Out</button>
+      </div>
+      <textarea class="enterprise-input" id="ent-work-note" rows="2" placeholder="Work note..."></textarea>
+      <div class="enterprise-row">
+        <button class="enterprise-btn" onclick="enterpriseSaveWorkNote()">Save Work Note</button>
+        <button class="enterprise-btn red" onclick="enterpriseSafetyReport()">Safety Report</button>
+      </div>
+      <div class="ent-section-title">My Notifications</div>
+      <div class="enterprise-list" id="ent-my-notifications"></div>
+    `;
+    userArea.appendChild(hub);
+  }
+
+  function injectNotificationBell(){
+    if(document.getElementById("enterprise-notification-bell")) return;
+    const bell = document.createElement("button");
+    bell.id = "enterprise-notification-bell";
+    bell.innerHTML = `🔔<span id="enterprise-notification-count">0</span>`;
+    bell.onclick = function(){
+      alert((ent.notifications.slice(0,5).map(n=>`${n.time}\n${n.message}`).join("\n\n")) || "No notifications yet.");
+    };
+    document.body.appendChild(bell);
+  }
+
+  window.enterpriseSwitchMini = function(name){
+    document.querySelectorAll(".enterprise-mini-tab").forEach(b=>b.classList.toggle("active", b.dataset.entMini===name));
+    document.querySelectorAll(".ent-mini-panel").forEach(p=>p.classList.toggle("active", p.id==="ent-mini-"+name));
+  };
+
+  window.enterpriseAddCrew = function(){
+    const name = (document.getElementById("ent-crew-name")||{}).value || "";
+    const lead = (document.getElementById("ent-crew-lead")||{}).value || "robert";
+    if(!name.trim()) return alert("Enter a crew name.");
+    ent.crews.unshift({id:Date.now(), name:name.trim(), lead, members:[lead], created:now(), status:"Active"});
+    addActivity("Crew Created", name.trim()+" led by "+profileName(lead));
+    saveEnt();
+  };
+
+  window.enterpriseAddAssignmentPrompt = function(){
+    const text = prompt("Assignment details:");
+    if(!text) return;
+    ent.assignments.unshift({id:Date.now(), text, assignedTo:"all", status:"Open", time:now()});
+    addActivity("Assignment Added", text);
+    saveEnt();
+  };
+
+  window.enterpriseSendNotification = function(){
+    const msg = (document.getElementById("ent-notification-msg")||{}).value || "";
+    const target = (document.getElementById("ent-notification-target")||{}).value || "all";
+    if(!msg.trim()) return alert("Type a notification first.");
+    ent.notifications.unshift({id:Date.now(), message:msg.trim(), target, time:now(), read:false});
+    document.getElementById("ent-notification-msg").value = "";
+    addActivity("Notification Sent", msg.trim());
+    saveEnt();
+  };
+
+  window.enterpriseClockForCurrent = function(type){
+    const prof = currentProfile();
+    ent.attendance.unshift({profile:prof, name:profileName(prof), type, time:now()});
+    addActivity(type==="in"?"Clock In":"Clock Out", profileName(prof));
+    saveEnt();
+  };
+
+  window.enterpriseSaveWorkNote = function(){
+    const note = (document.getElementById("ent-work-note")||{}).value || "";
+    if(!note.trim()) return alert("Type a work note first.");
+    ent.activity.unshift({time:now(), profile:profileName(currentProfile()), action:"Work Note", detail:note.trim()});
+    document.getElementById("ent-work-note").value = "";
+    saveEnt();
+  };
+
+  window.enterpriseSafetyReport = function(){
+    const msg = prompt("Enter safety report:");
+    if(!msg) return;
+    ent.activity.unshift({time:now(), profile:profileName(currentProfile()), action:"Safety Report", detail:msg});
+    saveEnt();
+  };
+
+  window.enterpriseUpdatePersonStatus = function(){
+    const val = document.getElementById("ent-person-select").value;
+    const status = document.getElementById("ent-person-status").value;
+    const u = ent.users.find(x=>x.val===val);
+    if(u){ u.status = status; addActivity("Employee Status", u.name+" set to "+status); saveEnt(); }
+  };
+
+  window.enterpriseSavePersonNote = function(){
+    const val = document.getElementById("ent-person-select").value;
+    const note = document.getElementById("ent-person-note").value;
+    const u = ent.users.find(x=>x.val===val);
+    if(u){ u.notes = note; addActivity("Employee Note", u.name+": "+note); saveEnt(); }
+  };
+
+  window.enterpriseAddReview = function(){
+    const val = document.getElementById("ent-person-select").value;
+    const msg = prompt("Performance review note:");
+    if(!msg) return;
+    ent.reviews.unshift({profile:val, name:profileName(val), note:msg, time:now()});
+    addActivity("Performance Review", profileName(val)+": "+msg);
+    saveEnt();
+  };
+
+  window.enterpriseAddDiscipline = function(){
+    const val = document.getElementById("ent-person-select").value;
+    const msg = prompt("Disciplinary record note:");
+    if(!msg) return;
+    ent.discipline.unshift({profile:val, name:profileName(val), note:msg, time:now()});
+    addActivity("Disciplinary Record", profileName(val)+": "+msg);
+    saveEnt();
+  };
+
+  window.enterpriseSaveBranding = function(){
+    ent.company.name = document.getElementById("ent-brand-name").value || ent.company.name;
+    ent.company.subtitle = document.getElementById("ent-brand-subtitle").value || ent.company.subtitle;
+    ent.company.primary = document.getElementById("ent-brand-color").value || ent.company.primary;
+    document.documentElement.style.setProperty("--ent-blue", ent.company.primary);
+    addActivity("Branding Updated", ent.company.name);
+    saveEnt();
+  };
+
+  window.enterpriseToggleDarkMode = function(){
+    ent.settings.darkMode = !ent.settings.darkMode;
+    document.body.classList.toggle("ent-dark", ent.settings.darkMode);
+    addActivity("Theme Changed", ent.settings.darkMode ? "Dark mode on" : "Dark mode off");
+    saveEnt();
+  };
+
+  window.enterpriseToggleSupervisor = function(){
+    const val = document.getElementById("ent-supervisor-user").value;
+    const u = ent.users.find(x=>x.val===val);
+    if(u){ u.supervisor = !u.supervisor; addActivity("Supervisor Permission", u.name+" supervisor: "+(u.supervisor?"ON":"OFF")); saveEnt(); }
+  };
+
+  window.enterpriseRenderHistory = function(){
+    const q = ((document.getElementById("ent-history-search")||{}).value || "").toLowerCase();
+    const rows = ent.activity.filter(a => JSON.stringify(a).toLowerCase().includes(q));
+    const el = document.getElementById("ent-history-list");
+    if(el) el.innerHTML = rows.map(a=>`<div class="enterprise-list-item"><b>${esc(a.action)}</b> <span class="enterprise-badge">${esc(a.profile)}</span><br><span style="color:#64748b">${esc(a.time)}</span><br>${esc(a.detail)}</div>`).join("") || "<i>No history found.</i>";
+  };
+
+  window.enterpriseExportCSV = function(){
+    const rows = [["Time","Profile","Action","Detail"]].concat(ent.activity.map(a=>[a.time,a.profile,a.action,a.detail]));
+    const csv = rows.map(r=>r.map(x=>`"${String(x||"").replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv],{type:"text/csv"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "dom_sc_enterprise_activity.csv";
+    a.click();
+  };
+
+  window.enterpriseDownloadBackup = function(){
+    const txt = JSON.stringify(ent,null,2);
+    const box = document.getElementById("ent-backup-box");
+    if(box) box.value = txt;
+    const blob = new Blob([txt],{type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "dom_sc_enterprise_backup.json";
+    a.click();
+  };
+
+  window.enterpriseRestoreBackup = function(){
+    const box = document.getElementById("ent-backup-box");
+    if(!box || !box.value.trim()) return alert("Paste backup JSON first.");
+    try{
+      ent = Object.assign({}, defaultEnterprise, JSON.parse(box.value));
+      addActivity("Backup Restored", "Enterprise backup restored");
+      saveEnt();
+    }catch(e){ alert("Invalid JSON backup."); }
+  };
+
+  window.enterprisePrintReport = function(){
+    const report = `
+      <h1>${esc(ent.company.name)} Report</h1>
+      <p>${esc(now())}</p>
+      <h2>Employees</h2>
+      <ul>${ent.users.map(u=>`<li>${esc(u.name)} — ${esc(u.role)} — ${esc(u.status)}</li>`).join("")}</ul>
+      <h2>Recent Activity</h2>
+      <ul>${ent.activity.slice(0,50).map(a=>`<li>${esc(a.time)} — ${esc(a.profile)} — ${esc(a.action)} — ${esc(a.detail)}</li>`).join("")}</ul>
+    `;
+    const w = window.open("", "_blank");
+    w.document.write("<html><body>"+report+"</body></html>");
+    w.document.close();
+    w.print();
+  };
+
+  function fillSelect(id, includeAll){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = (includeAll?`<option value="all">All</option>`:"") + ent.users.map(u=>`<option value="${esc(u.val)}">${esc(u.name)} (${esc(u.role)}${u.supervisor?", Supervisor":""})</option>`).join("");
+  }
+
+  function renderEnterpriseAll(){
+    ensureProfiles();
+
+    document.body.classList.toggle("ent-dark", !!ent.settings.darkMode);
+    const title = document.getElementById("ent-company-title");
+    const sub = document.getElementById("ent-company-subtitle");
+    if(title) title.textContent = ent.company.name || "DOM/SC Enterprise";
+    if(sub) sub.textContent = ent.company.subtitle || "Enterprise Workforce Platform";
+
+    const h2 = document.querySelector("#main-app-container > h2");
+    if(h2 && ent.company.name) h2.textContent = ent.company.name;
+
+    const brandName = document.getElementById("ent-brand-name");
+    const brandSub = document.getElementById("ent-brand-subtitle");
+    const brandColor = document.getElementById("ent-brand-color");
+    if(brandName) brandName.value = ent.company.name||"";
+    if(brandSub) brandSub.value = ent.company.subtitle||"";
+    if(brandColor) brandColor.value = ent.company.primary||"#2563eb";
+
+    const statMap = {
+      "ent-stat-employees": ent.users.length,
+      "ent-stat-crews": ent.crews.length,
+      "ent-stat-assignments": ent.assignments.length,
+      "ent-stat-activity": ent.activity.length
+    };
+    Object.keys(statMap).forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=statMap[id]; });
+
+    fillSelect("ent-crew-lead");
+    fillSelect("ent-person-select");
+    fillSelect("ent-supervisor-user");
+
+    const crewList = document.getElementById("ent-crew-list");
+    if(crewList) crewList.innerHTML = ent.crews.map(c=>`<div class="enterprise-list-item"><b>${esc(c.name)}</b><span class="enterprise-badge green">${esc(c.status)}</span><br>Lead: ${esc(profileName(c.lead))}<br><span style="color:#64748b">${esc(c.created)}</span></div>`).join("") || "<i>No crews created yet.</i>";
+
+    const peopleList = document.getElementById("ent-people-list");
+    if(peopleList) peopleList.innerHTML = ent.users.map(u=>`<div class="enterprise-list-item"><b>${esc(u.name)}</b><span class="enterprise-badge ${u.role==="admin"?"purple":"green"}">${esc(u.role)}</span><span class="enterprise-badge">${esc(u.status)}</span>${u.supervisor?'<span class="enterprise-badge orange">Supervisor</span>':''}<br>${esc(u.notes||"No notes")}</div>`).join("");
+
+    const notifList = document.getElementById("ent-notification-list");
+    if(notifList) notifList.innerHTML = ent.notifications.map(n=>`<div class="enterprise-list-item"><b>${esc(n.target==="all"?"All Employees":profileName(n.target))}</b><br>${esc(n.message)}<br><span style="color:#64748b">${esc(n.time)}</span></div>`).join("") || "<i>No notifications yet.</i>";
+
+    const recent = document.getElementById("ent-recent-activity");
+    if(recent) recent.innerHTML = ent.activity.slice(0,20).map(a=>`<div class="enterprise-list-item"><b>${esc(a.action)}</b> <span class="enterprise-badge">${esc(a.profile)}</span><br>${esc(a.detail)}<br><span style="color:#64748b">${esc(a.time)}</span></div>`).join("") || "<i>No recent activity.</i>";
+
+    const sup = document.getElementById("ent-supervisor-list");
+    if(sup) sup.innerHTML = ent.users.map(u=>`<div class="enterprise-list-item"><b>${esc(u.name)}</b> — Supervisor: <b>${u.supervisor?"YES":"NO"}</b></div>`).join("");
+
+    window.enterpriseRenderHistory();
+
+    const prof = currentProfile();
+    const myNotifications = ent.notifications.filter(n=>n.target==="all" || n.target===prof);
+    const myNotifCount = document.getElementById("ent-my-notif-count");
+    if(myNotifCount) myNotifCount.textContent = myNotifications.length;
+    const myUnits = document.getElementById("ent-my-units");
+    if(myUnits) myUnits.textContent = ((window.currentGrandTotal||0)).toFixed(2);
+    const myNotifs = document.getElementById("ent-my-notifications");
+    if(myNotifs) myNotifs.innerHTML = myNotifications.map(n=>`<div class="enterprise-list-item">${esc(n.message)}<br><span style="color:#64748b">${esc(n.time)}</span></div>`).join("") || "<i>No notifications.</i>";
+
+    const bellCount = document.getElementById("enterprise-notification-count");
+    if(bellCount) bellCount.textContent = myNotifications.length;
+  }
+
+  function bootEnterprise(){
+    ensureProfiles();
+    injectAdminTab();
+    injectEmployeeHub();
+    injectNotificationBell();
+    if(!ent.activity.length){
+      ent.activity.push({time:now(), profile:"System", action:"Enterprise V4 Installed", detail:"Added admin dashboard, employee hub, crews, notifications, branding, supervisor tools, searchable history and exports."});
+      localStorage.setItem(ENT_KEY, JSON.stringify(ent));
+    }
+    renderEnterpriseAll();
+  }
+
+  // Make available for debugging or future extension.
+  window.DOMSC_ENTERPRISE = {load:()=>ent, save:saveEnt, render:renderEnterpriseAll, activity:addActivity};
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bootEnterprise);
+  }else{
+    bootEnterprise();
+  }
+  setInterval(renderEnterpriseAll, 2500);
+})();
+</script>
+
 </body>
 </html>
