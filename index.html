@@ -1518,6 +1518,38 @@ body #user-app-elements #item-cards-container .item-total{
   .clock-btn{min-height:50px!important}
 }
 
+
+/* ══════════════════════════════════════════════════════════════
+   SUPERVISOR + APPROVAL + WARNINGS FEATURES
+   ══════════════════════════════════════════════════════════════ */
+.supervisor-console-panel,.missing-info-card{
+  background:linear-gradient(180deg,#ffffff,#f5faff)!important;
+  border:1px solid #dce8f7!important;
+  border-radius:18px!important;
+  padding:12px!important;
+  margin:10px 0!important;
+  box-shadow:0 10px 24px rgba(7,30,61,.08)!important;
+}
+.supervisor-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.supervisor-title{font-size:16px;font-weight:950;color:#075bbb}
+.supervisor-subtitle{font-size:11px;font-weight:700;color:#6d7a8a}
+.supervisor-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.supervisor-card{background:#fff;border:1px solid #e3edf9;border-radius:14px;padding:10px}
+.supervisor-card-title{font-size:13px;font-weight:900;color:#075bbb;margin-bottom:8px}
+.supervisor-row,.audit-row,.approval-row,.correction-row{
+  border-bottom:1px solid #eee;padding:7px 0;font-size:12px
+}
+.supervisor-row:last-child,.audit-row:last-child,.approval-row:last-child,.correction-row:last-child{border-bottom:none}
+.status-pill{display:inline-block;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:900}
+.status-ok{background:#d4edda;color:#1e7e34}
+.status-warn{background:#fff3cd;color:#856404}
+.status-bad{background:#f8d7da;color:#721c24}
+.status-info{background:#dbefff;color:#075bbb}
+.missing-info-card{font-size:12px}
+.missing-info-card ul{margin:6px 0 0 18px;padding:0}
+.missing-info-card li{margin:3px 0}
+@media(min-width:900px){.supervisor-grid{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -1650,6 +1682,19 @@ body #user-app-elements #item-cards-container .item-total{
           <div style="margin-top:10px;border-top:1px dashed #cfe4ff;padding-top:8px">
             <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F4E8; Employee Messages</div>
             <div id="admin-employee-messages" style="font-size:12px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px;max-height:180px;overflow:auto">No messages yet.</div>
+          
+          <div style="margin-top:10px;border-top:1px dashed #cfe4ff;padding-top:8px">
+            <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F9D1;&#x200D;&#x1F4BC; Supervisor Profiles</div>
+            <div style="font-size:11px;color:#666;margin-bottom:6px">Choose which existing employee profiles can open the Supervisor Console.</div>
+            <div id="admin-supervisor-manager" style="font-size:12px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px">Loading supervisors...</div>
+          </div>
+          <div style="margin-top:10px;border-top:1px dashed #cfe4ff;padding-top:8px">
+            <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x2705; Daily Log Approval</div>
+            <div id="admin-daily-approval-panel" style="font-size:12px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px;max-height:220px;overflow:auto">No logs yet.</div>
+          </div>
+          <div style="margin-top:10px;border-top:1px dashed #cfe4ff;padding-top:8px">
+            <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F4CB; Audit Trail</div>
+            <div id="admin-audit-trail" style="font-size:12px;background:#fff;border:1px solid #eee;border-radius:8px;padding:8px;max-height:180px;overflow:auto">No audit records yet.</div>
           </div>
         </div>
       </div>
@@ -1853,6 +1898,41 @@ body #user-app-elements #item-cards-container .item-total{
   <!-- ══ USER APP ══ -->
   <div id="user-app-elements">
     <select id="profile-select" style="display:none"><option value="default">Default / Custom</option></select>
+
+    <div class="supervisor-console-panel" id="supervisor-console-panel" style="display:none">
+      <div class="supervisor-head">
+        <div>
+          <div class="supervisor-title">&#x1F9D1;&#x200D;&#x1F4BC; Supervisor Console</div>
+          <div class="supervisor-subtitle">Attendance, daily log approvals, correction requests, and audit records.</div>
+        </div>
+        <button class="sm-btn btn-blue" onclick="renderSupervisorConsole()">Refresh</button>
+      </div>
+
+      <div class="supervisor-grid">
+        <div class="supervisor-card">
+          <div class="supervisor-card-title">&#x23F1;&#xFE0F; Attendance Dashboard</div>
+          <div id="supervisor-attendance-dashboard">Loading attendance...</div>
+        </div>
+        <div class="supervisor-card">
+          <div class="supervisor-card-title">&#x2705; Daily Log Approval</div>
+          <div id="supervisor-approval-dashboard">Loading daily logs...</div>
+        </div>
+        <div class="supervisor-card">
+          <div class="supervisor-card-title">&#x1F4E8; Send Correction Request</div>
+          <select id="supervisor-correction-profile" class="text-input" style="margin-bottom:6px"></select>
+          <textarea id="supervisor-correction-text" class="employee-msg-box" placeholder="Example: Please fix your clock out time or crew size."></textarea>
+          <button class="employee-small-btn" style="background:#0076d6;color:#fff;margin-top:8px" onclick="supervisorSendCorrection()">Send Request</button>
+        </div>
+        <div class="supervisor-card">
+          <div class="supervisor-card-title">&#x1F4CB; Audit Trail</div>
+          <div id="supervisor-audit-trail">No audit records yet.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="missing-info-card" id="missing-info-warnings" style="display:none"></div>
+    <div class="missing-info-card" id="employee-correction-requests" style="display:none"></div>
+
     <div class="crew-selection">
       <label class="crew-option"><input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything();saveFields()"> 1 Man</label>
       <label class="crew-option"><input type="radio" name="crew" value="2" id="crew-2" onchange="calculateEverything();saveFields()"> 2 Man</label>
@@ -1986,13 +2066,13 @@ const HEADERS = {"X-Master-Key": MASTER_KEY, "X-Access-Key": MASTER_KEY, "Conten
 const SYNC_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
 const ADMIN_KEY = "__admin__";
 const MASTER_RECOVERY_KEY = "DOMSC-RECOVERY-2026";
-const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions"];
+const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions","supervisor_roles","correction_requests","audit_trail"];
 
 // ══════════════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════════════
 let cloud = {
-  is_locked: false, drafts: [], live_calculator: {}, daily_logs: {}, profile_pictures: {}, employee_calculator: {}, permissions: {}, sync_meta: {}, admin_pass: "2026", frozen_users: {},
+  is_locked: false, drafts: [], live_calculator: {}, daily_logs: {}, profile_pictures: {}, employee_calculator: {}, permissions: {}, sync_meta: {}, supervisor_roles: {}, correction_requests: [], audit_trail: [], admin_pass: "2026", frozen_users: {},
   variables: {}, active_login_ips: {}, failed_admin_logins: [], banned_ips: [],
   global_alert: "", targets: {man1_8:26,man1_10:32.5,man2_8:32.5,man2_10:39},
   maintenance: {active:false,message:"",eta:""}, passcode_reset_requests: [],
@@ -2037,9 +2117,15 @@ async function pullCloud() {
       employee_messages:      d.employee_messages||[],
       permissions:            d.permissions||{},
       sync_meta:              d.sync_meta||{},
+      supervisor_roles:       d.supervisor_roles||{},
+      correction_requests:    d.correction_requests||[],
+      audit_trail:            d.audit_trail||[],
       employee_calculator:    d.employee_calculator||{},
       permissions:            d.permissions||{},
       sync_meta:              d.sync_meta||{},
+      supervisor_roles:       d.supervisor_roles||{},
+      correction_requests:    d.correction_requests||[],
+      audit_trail:            d.audit_trail||[],
       daily_logs:             d.daily_logs||{},
       profile_pictures:       d.profile_pictures||{},
       employee_calculator:    d.employee_calculator||{},
@@ -2115,6 +2201,7 @@ function mergeCloudRecords(remote,local){
   merged.passcode_meta=Object.assign({},remote.passcode_meta||{},local.passcode_meta||{});
   merged.profile_notes=Object.assign({},remote.profile_notes||{},local.profile_notes||{});
   merged.profile_pictures=Object.assign({},remote.profile_pictures||{},local.profile_pictures||{});
+  merged.supervisor_roles=Object.assign({},remote.supervisor_roles||{},local.supervisor_roles||{});
   merged.live_calculator=newerProfileData(remote.live_calculator,local.live_calculator);
   merged.employee_calculator=newerProfileData(remote.employee_calculator,local.employee_calculator);
 
@@ -2131,6 +2218,8 @@ function mergeCloudRecords(remote,local){
   merged.drafts=mergeArrayByKey(remote.drafts||[],local.drafts||[],x=>x.timestampISO||x.timestamp||JSON.stringify(x));
   merged.passcode_reset_requests=mergeArrayByKey(remote.passcode_reset_requests||[],local.passcode_reset_requests||[],x=>x.id||x.time||JSON.stringify(x));
   merged.employee_messages=mergeArrayByKey(remote.employee_messages||[],local.employee_messages||[],x=>x.id||x.timeISO||JSON.stringify(x));
+  merged.correction_requests=mergeArrayByKey(remote.correction_requests||[],local.correction_requests||[],x=>x.id||x.timeISO||JSON.stringify(x));
+  merged.audit_trail=mergeArrayByKey(remote.audit_trail||[],local.audit_trail||[],x=>x.id||x.timeISO||JSON.stringify(x));
   merged.failed_admin_logins=mergeArrayByKey(remote.failed_admin_logins||[],local.failed_admin_logins||[],x=>x.time+'_'+x.profile+'_'+x.attempt);
   merged.banned_ips=Array.from(new Set([...(remote.banned_ips||[]),...(local.banned_ips||[])]));
   merged.deleted_vars=Array.from(new Set([...(remote.deleted_vars||[]),...(local.deleted_vars||[])]));
@@ -2585,7 +2674,7 @@ function renderLoginButtons() {
   }
   bl.innerHTML=cloud.profiles.map(p=>
     `<button class="profile-tap-btn" onclick="processInstantProfileTap('${p.val}')">` +
-    `<span class="profile-main">${profilePicMarkup(p)}<span class="profile-name-wrap"><span>${p.name}</span><span class="profile-name-small">Employee profile</span></span></span>` +
+    `<span class="profile-main">${profilePicMarkup(p)}<span class="profile-name-wrap"><span>${p.name}</span><span class="profile-name-small">${(typeof supIsSupervisor==='function'&&supIsSupervisor(p.val))?'Supervisor profile':'Employee profile'}</span></span></span>` +
     `<span style="color:#0076d6;font-size:12px">Tap to enter &#x2192;</span></button>`
   ).join('');
 }
@@ -2630,7 +2719,7 @@ function applyUI() {
     if(mb){mb.textContent=m.active?"MAINTENANCE ACTIVE":"SITE LIVE";mb.className="maint-status-badge "+(m.active?"maint-on":"maint-off");}
     ['t-1-8','t-1-10','t-2-8','t-2-10'].forEach((id,i)=>{const el=$(id);if(el)el.value=[cloud.targets.man1_8,cloud.targets.man1_10,cloud.targets.man2_8,cloud.targets.man2_10][i];});
     updateAdminSecStatus(); updateAdminPeople(); updateAdminDrafts(); updateResetRequests(); updateBannedIPs(); updateSettingsUI();
-    updateAlertLevelBtns(); if(typeof hpRefresh==='function')hpRefresh(); if(typeof employeeRefreshFeatures==='function')employeeRefreshFeatures(); renderAdminLiveCalculatorView();
+    updateAlertLevelBtns(); if(typeof renderSupervisorConsole==='function')renderSupervisorConsole(); if(typeof renderEmployeeCorrectionRequests==='function')renderEmployeeCorrectionRequests(); if(typeof renderMissingInfoWarnings==='function')renderMissingInfoWarnings(); if(typeof hpRefresh==='function')hpRefresh(); if(typeof employeeRefreshFeatures==='function')employeeRefreshFeatures(); renderAdminLiveCalculatorView();
   }
   calculateEverything();
   // User security panel (async, fire and forget — won't break anything)
@@ -3061,6 +3150,9 @@ function loadSavedData(){
   saveFields();
   renderProfileFiles();
   updateSecurityPanel();
+  if(typeof renderEmployeeCorrectionRequests==='function')renderEmployeeCorrectionRequests();
+  if(typeof renderMissingInfoWarnings==='function')renderMissingInfoWarnings();
+  if(typeof renderSupervisorConsole==='function')renderSupervisorConsole();
 }
 function renderCards(){
   const c=$('item-cards-container'); if(!c)return;
@@ -3111,12 +3203,15 @@ async function performSave(took){
     totalUnits:parseFloat((($('grand-total')||{}).textContent)||'0')||0,
     lunch:took,
     time:timeSummary,
-    items:itemRows
+    items:itemRows,
+    approvalStatus:'pending'
   };
   const saves=getCloudProfileLogs(pv);
   saves.push(entry);
   await saveCloudProfileLogs(pv, saves);
   renderProfileFiles();
+  if(typeof renderSupervisorConsole==='function')renderSupervisorConsole();
+  if(typeof supAudit==='function')supAudit('Daily log saved',supProfileName(pv));
   alert('Daily log saved to JSONBin. Hours saved from start/end time. Lunch/break recorded from save question.');
 }
 function renderProfileFiles(){
@@ -3130,7 +3225,7 @@ function renderProfileFiles(){
     const items=(s.items||[]).map(it=>`${it.name}: ${it.quantity} = ${Number(it.units||0).toFixed(2)} units`).join('<br>');
     return `<div class="daily-log-item"><b>${s.timestamp}</b><br>
       Foreman: ${s.foreman||''}<br>
-      Total Units: <b>${Number(s.totalUnits||0).toFixed(2)}</b>
+      Total Units: <b>${Number(s.totalUnits||0).toFixed(2)}</b><br>Approval: <b>${s.approvalStatus||'pending'}</b>${s.correctionNote?'<br><span style="color:#856404">Correction: '+s.correctionNote+'</span>':''}
       <div class="daily-hours-box">
         Start: ${t.start||''} | End: ${t.end||''}<br>
         Full Hours: <b>${t.totalHours||'0.00'}</b><br>
@@ -3212,7 +3307,7 @@ async function aiApplyConfig(){
   if(!keys.length){cfgResult("No recognized keys.","err");return;}
   if(!confirm(`Apply ${keys.length} change(s)? Keys: ${keys.join(', ')}`))return;
   keys.forEach(k=>{
-    if(["targets","variables","maintenance","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
+    if(["targets","variables","maintenance","settings","profile_notes","live_calculator","daily_logs","profile_pictures","employee_calculator","permissions","supervisor_roles","correction_requests","audit_trail"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
     else cloud[k]=p[k];
   });
   await pushCloud();applyUI();cfgResult(`Applied: <b>${keys.join(', ')}</b>.`,"ok");$('ai-config-input').value="";
@@ -3539,9 +3634,15 @@ setInterval(async function(){
       bio_flags:d.bio_flags||{},
       passcode_meta:d.passcode_meta||{},
       profile_notes:d.profile_notes||{},
+      supervisor_roles:d.supervisor_roles||cloud.supervisor_roles||{},
+      correction_requests:d.correction_requests||cloud.correction_requests||[],
+      audit_trail:d.audit_trail||cloud.audit_trail||[],
       settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{}),
       profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
       employee_calculator:d.employee_calculator||cloud.employee_calculator||{},
+      supervisor_roles:d.supervisor_roles||cloud.supervisor_roles||{},
+      correction_requests:d.correction_requests||cloud.correction_requests||[],
+      audit_trail:d.audit_trail||cloud.audit_trail||[],
       deleted_vars:d.deleted_vars||[]
     });
     if(cloud.banned_ips.includes(localIP)){document.getElementById('banned-screen').style.display='flex';return;}
@@ -4089,4 +4190,260 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  SUPERVISOR PROFILES + APPROVAL + ATTENDANCE + AUDIT
+// ══════════════════════════════════════════════════════════════
+function supEnsureStores(){
+  if(!cloud.supervisor_roles)cloud.supervisor_roles={};
+  if(!cloud.correction_requests)cloud.correction_requests=[];
+  if(!cloud.audit_trail)cloud.audit_trail=[];
+  if(!cloud.daily_logs)cloud.daily_logs={};
+  if(!cloud.employee_calculator)cloud.employee_calculator={};
+}
+function supActiveProfile(){return localStorage.getItem('dom_sc_active_profile')||'default';}
+function supProfileName(profileVal){
+  const p=(cloud.profiles||[]).find(x=>x.val===profileVal);
+  return p?p.name:profileVal;
+}
+function supIsSupervisor(profileVal){
+  supEnsureStores();
+  return !!cloud.supervisor_roles[profileVal||supActiveProfile()] || !!isAdmin;
+}
+function supEsc(s){
+  return String(s||'').replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+}
+function supAudit(action,details){
+  supEnsureStores();
+  cloud.audit_trail.push({
+    id:'audit_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    action:action,
+    details:details||'',
+    actor:supActiveProfile(),
+    actorName:supProfileName(supActiveProfile()),
+    time:new Date().toLocaleString(),
+    timeISO:new Date().toISOString()
+  });
+  if(cloud.audit_trail.length>250)cloud.audit_trail=cloud.audit_trail.slice(-250);
+}
+async function adminSetSupervisorRole(profileVal,on){
+  supEnsureStores();
+  cloud.supervisor_roles[profileVal]=!!on;
+  supAudit(on?'Supervisor enabled':'Supervisor disabled',supProfileName(profileVal));
+  await pushCloud();
+  renderSupervisorManager();
+  renderLoginButtons();
+  renderSupervisorConsole();
+}
+function renderSupervisorManager(){
+  const box=document.getElementById('admin-supervisor-manager');
+  if(!box)return;
+  supEnsureStores();
+  box.innerHTML=(cloud.profiles||[]).map(p=>`
+    <label style="display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid #eee;padding:7px 0">
+      <span><b>${supEsc(p.name)}</b><br><span style="font-size:10px;color:#777">${supEsc(p.val)}</span></span>
+      <input type="checkbox" ${cloud.supervisor_roles[p.val]?'checked':''} onchange="adminSetSupervisorRole('${p.val}',this.checked)" style="width:20px;height:20px">
+    </label>`).join('') || '<div style="color:#888">No profiles found.</div>';
+}
+function supervisorStatusLabel(profileVal){
+  return supIsSupervisor(profileVal)?'<span class="status-pill status-info">Supervisor</span>':'<span class="status-pill status-ok">Employee</span>';
+}
+function renderAttendanceDashboard(targetId){
+  const box=document.getElementById(targetId||'supervisor-attendance-dashboard');
+  if(!box)return;
+  supEnsureStores();
+  const today=new Date().toISOString().slice(0,10);
+  const rows=(cloud.profiles||[]).map(p=>{
+    const calc=(cloud.employee_calculator||{})[p.val]||{};
+    const logs=(cloud.daily_logs||{})[p.val]||[];
+    const hasTodayLog=logs.some(l=>String(l.timestampISO||'').slice(0,10)===today);
+    const inTime=calc.clockInDisplay||calc.start||'';
+    const outTime=calc.clockOutDisplay||calc.end||'';
+    let status='<span class="status-pill status-bad">Not clocked in</span>';
+    if(inTime&&outTime)status='<span class="status-pill status-ok">Clocked out</span>';
+    else if(inTime&&!outTime)status='<span class="status-pill status-info">Clocked in</span>';
+    const warn=!outTime&&inTime?'<span class="status-pill status-warn">Needs clock out</span>':'';
+    return `<div class="supervisor-row">
+      <b>${supEsc(p.name)}</b> ${supervisorStatusLabel(p.val)} ${status} ${warn}<br>
+      Crew: ${supEsc(calc.crew||'')} | Foreman: ${supEsc(calc.foreman||'')} ${calc.member?'| Member: '+supEsc(calc.member):''}<br>
+      Clock: ${supEsc(inTime||'—')} - ${supEsc(outTime||'—')}<br>
+      Today Log: ${hasTodayLog?'<span class="status-pill status-ok">Saved</span>':'<span class="status-pill status-warn">Missing</span>'}
+    </div>`;
+  }).join('');
+  box.innerHTML=rows||'<div style="color:#888">No profiles found.</div>';
+}
+function allDailyLogsFlat(){
+  supEnsureStores();
+  const out=[];
+  Object.keys(cloud.daily_logs||{}).forEach(p=>{
+    (cloud.daily_logs[p]||[]).forEach((log,idx)=>out.push({profile:p,index:idx,log:log}));
+  });
+  return out.sort((a,b)=>String(b.log.timestampISO||b.log.timestamp||'').localeCompare(String(a.log.timestampISO||a.log.timestamp||'')));
+}
+async function setDailyLogApproval(profile,index,status,note){
+  supEnsureStores();
+  const logs=(cloud.daily_logs||{})[profile]||[];
+  if(!logs[index])return;
+  logs[index].approvalStatus=status;
+  logs[index].approvalBy=supActiveProfile();
+  logs[index].approvalByName=supProfileName(supActiveProfile());
+  logs[index].approvalAt=new Date().toLocaleString();
+  logs[index].approvalAtISO=new Date().toISOString();
+  if(note!==undefined)logs[index].correctionNote=note||'';
+  cloud.daily_logs[profile]=logs;
+  supAudit('Daily log '+status,supProfileName(profile)+' - '+(logs[index].timestamp||''));
+  await saveCloudProfileLogs(profile,logs);
+  renderSupervisorConsole();
+  renderProfileFiles();
+}
+function promptDailyCorrection(profile,index){
+  const note=prompt('Correction note for employee:','Please correct this daily log.');
+  if(note===null)return;
+  setDailyLogApproval(profile,index,'needs_correction',note);
+}
+function renderApprovalDashboard(targetId){
+  const box=document.getElementById(targetId||'supervisor-approval-dashboard');
+  if(!box)return;
+  const rows=allDailyLogsFlat().slice(0,30).map(x=>{
+    const l=x.log||{}, st=l.approvalStatus||'pending';
+    const statusClass=st==='approved'?'status-ok':st==='rejected'?'status-bad':st==='needs_correction'?'status-warn':'status-info';
+    return `<div class="approval-row">
+      <b>${supEsc(supProfileName(x.profile))}</b> <span class="status-pill ${statusClass}">${supEsc(st)}</span><br>
+      ${supEsc(l.timestamp||'')} | Units: <b>${Number(l.totalUnits||0).toFixed(2)}</b><br>
+      ${l.correctionNote?'<div style="color:#856404"><b>Note:</b> '+supEsc(l.correctionNote)+'</div>':''}
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+        <button class="sm-btn btn-green" onclick="setDailyLogApproval('${x.profile}',${x.index},'approved','')">Approve</button>
+        <button class="sm-btn btn-red" onclick="setDailyLogApproval('${x.profile}',${x.index},'rejected','')">Reject</button>
+        <button class="sm-btn btn-yellow" onclick="promptDailyCorrection('${x.profile}',${x.index})">Needs Fix</button>
+      </div>
+    </div>`;
+  }).join('');
+  box.innerHTML=rows||'<div style="color:#888">No daily logs yet.</div>';
+}
+async function supervisorSendCorrection(){
+  supEnsureStores();
+  if(!supIsSupervisor()){alert('Supervisor access required.');return;}
+  const profile=(document.getElementById('supervisor-correction-profile')||{}).value;
+  const text=((document.getElementById('supervisor-correction-text')||{}).value||'').trim();
+  if(!profile){alert('Pick an employee.');return;}
+  if(!text){alert('Type a correction request first.');return;}
+  cloud.correction_requests.push({
+    id:'corr_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    profile:profile,
+    profileName:supProfileName(profile),
+    message:text,
+    from:supActiveProfile(),
+    fromName:supProfileName(supActiveProfile()),
+    status:'open',
+    time:new Date().toLocaleString(),
+    timeISO:new Date().toISOString()
+  });
+  supAudit('Correction request sent',supProfileName(profile)+': '+text);
+  await pushCloud();
+  document.getElementById('supervisor-correction-text').value='';
+  renderSupervisorConsole();
+  renderEmployeeCorrectionRequests();
+}
+async function markCorrectionFixed(id){
+  supEnsureStores();
+  const r=(cloud.correction_requests||[]).find(x=>x.id===id);
+  if(!r)return;
+  r.status='fixed';
+  r.fixedAt=new Date().toLocaleString();
+  r.fixedAtISO=new Date().toISOString();
+  supAudit('Correction marked fixed',r.message||id);
+  await pushCloud();
+  renderEmployeeCorrectionRequests();
+  renderSupervisorConsole();
+}
+function renderEmployeeCorrectionRequests(){
+  const box=document.getElementById('employee-correction-requests');
+  if(!box)return;
+  supEnsureStores();
+  const pv=supActiveProfile();
+  const reqs=(cloud.correction_requests||[]).filter(r=>r.profile===pv&&r.status!=='fixed').sort((a,b)=>String(b.timeISO||'').localeCompare(String(a.timeISO||'')));
+  if(!reqs.length){box.style.display='none';box.innerHTML='';return;}
+  box.style.display='block';
+  box.innerHTML='<b>Supervisor Correction Requests</b>'+reqs.map(r=>`
+    <div class="correction-row">
+      <span class="status-pill status-warn">Needs Fix</span> ${supEsc(r.time||'')}<br>
+      From: <b>${supEsc(r.fromName||r.from||'Supervisor')}</b><br>
+      ${supEsc(r.message||'')}<br>
+      <button class="sm-btn btn-green" style="margin-top:6px" onclick="markCorrectionFixed('${r.id}')">Mark Fixed</button>
+    </div>`).join('');
+}
+function renderAuditTrail(targetId){
+  const box=document.getElementById(targetId||'supervisor-audit-trail');
+  if(!box)return;
+  supEnsureStores();
+  const rows=[...(cloud.audit_trail||[])].reverse().slice(0,40).map(a=>`
+    <div class="audit-row"><b>${supEsc(a.action)}</b><br>
+    ${supEsc(a.details||'')}<br><span style="font-size:10px;color:#777">${supEsc(a.actorName||a.actor||'')} — ${supEsc(a.time||'')}</span></div>`).join('');
+  box.innerHTML=rows||'<div style="color:#888">No audit records yet.</div>';
+}
+function renderMissingInfoWarnings(){
+  const box=document.getElementById('missing-info-warnings');
+  if(!box)return;
+  const pv=supActiveProfile();
+  const missing=[];
+  const crew=(document.querySelector('input[name="crew"]:checked')||{}).value||'';
+  const foreman=(document.getElementById('foreman-name')||{}).value||'';
+  const member=(document.getElementById('crew-member-name')||{}).value||'';
+  const start=(document.getElementById('start-time')||{}).value||'';
+  const end=(document.getElementById('end-time')||{}).value||'';
+  const total=Number((document.getElementById('grand-total')||{}).textContent||0)||0;
+  if(!crew)missing.push('Crew size is missing.');
+  if(!foreman)missing.push('Foreman name is missing.');
+  if(crew==='2'&&!member)missing.push('Crew member name is missing for a 2 man crew.');
+  if(!start)missing.push('You have not clocked in.');
+  if(start&&!end)missing.push('You have not clocked out yet.');
+  if(total<=0)missing.push('No quantities entered yet.');
+  if(!missing.length){box.style.display='none';box.innerHTML='';return;}
+  box.style.display='block';
+  box.innerHTML='<b>Missing Info Warnings</b><ul>'+missing.map(m=>'<li>'+supEsc(m)+'</li>').join('')+'</ul>';
+}
+function populateSupervisorCorrectionProfiles(){
+  const sel=document.getElementById('supervisor-correction-profile');
+  if(!sel)return;
+  sel.innerHTML=(cloud.profiles||[]).map(p=>`<option value="${p.val}">${supEsc(p.name)}</option>`).join('');
+}
+function renderSupervisorConsole(){
+  supEnsureStores();
+  const panel=document.getElementById('supervisor-console-panel');
+  const allowed=supIsSupervisor();
+  if(panel)panel.style.display=allowed?'block':'none';
+  if(!allowed)return;
+  populateSupervisorCorrectionProfiles();
+  renderAttendanceDashboard('supervisor-attendance-dashboard');
+  renderApprovalDashboard('supervisor-approval-dashboard');
+  renderAuditTrail('supervisor-audit-trail');
+  renderAttendanceDashboard('admin-attendance-dashboard');
+  renderApprovalDashboard('admin-daily-approval-panel');
+  renderAuditTrail('admin-audit-trail');
+  renderSupervisorManager();
+}
+document.addEventListener('input',function(e){
+  if(e.target&&e.target.closest&&e.target.closest('#user-app-elements'))setTimeout(renderMissingInfoWarnings,50);
+});
+document.addEventListener('change',function(e){
+  if(e.target&&e.target.closest&&e.target.closest('#user-app-elements'))setTimeout(renderMissingInfoWarnings,50);
+});
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){
+    renderSupervisorManager();
+    renderSupervisorConsole();
+    renderEmployeeCorrectionRequests();
+    renderMissingInfoWarnings();
+  },1200);
+  setTimeout(function(){
+    renderSupervisorManager();
+    renderSupervisorConsole();
+    renderEmployeeCorrectionRequests();
+    renderMissingInfoWarnings();
+  },3000);
+});
+</script>
+
 </body>
+</html>
