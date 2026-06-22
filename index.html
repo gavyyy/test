@@ -1282,6 +1282,169 @@ button,.sm-btn,.admin-ctrl-btn,.save-btn,.clear-btn,.qty-btn{
   }
 }
 
+
+/* ══════════════════════════════════════════════════════════════
+   FINAL LAYOUT FIX: TOP RESULTS + TRUE SIDE-BY-SIDE BOXES
+   ══════════════════════════════════════════════════════════════ */
+#user-app-elements .top-results-area{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:8px!important;
+  margin:8px 0 10px!important;
+}
+#user-app-elements .top-results-area .total-banner{
+  position:relative!important;
+  top:auto!important;
+  margin:0!important;
+  padding:10px 12px!important;
+  border-radius:16px!important;
+  font-size:14px!important;
+}
+#user-app-elements .top-results-area .total-banner span:last-child{
+  font-size:20px!important;
+}
+#user-app-elements .top-results-area .metrics-panel{
+  margin:0!important;
+  padding:10px!important;
+  border-radius:16px!important;
+}
+#user-app-elements .top-results-area .metrics-grid{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:8px!important;
+}
+.variables-grid-title{
+  margin:8px 2px 8px!important;
+  color:#31516f!important;
+  font-size:12px!important;
+  font-weight:950!important;
+  text-transform:uppercase!important;
+  letter-spacing:.04em!important;
+}
+body #user-app-elements #item-cards-container{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  width:100%!important;
+  align-items:stretch!important;
+}
+body #user-app-elements #item-cards-container .item-card{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  grid-template-rows:auto auto!important;
+  align-content:start!important;
+  align-items:stretch!important;
+  justify-content:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:8px!important;
+  margin:0!important;
+  gap:6px!important;
+  border-radius:14px!important;
+}
+body #user-app-elements #item-cards-container .item-info{
+  width:100%!important;
+  min-width:0!important;
+}
+body #user-app-elements #item-cards-container .item-name{
+  font-size:12px!important;
+  line-height:1.15!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+body #user-app-elements #item-cards-container .item-val{
+  font-size:10px!important;
+  line-height:1.1!important;
+}
+body #user-app-elements #item-cards-container .item-actions{
+  display:grid!important;
+  grid-template-columns:1fr auto!important;
+  width:100%!important;
+  min-width:0!important;
+  gap:4px!important;
+  align-items:center!important;
+}
+body #user-app-elements #item-cards-container .qty-control{
+  display:grid!important;
+  grid-template-columns:28px 1fr 28px!important;
+  width:100%!important;
+  gap:3px!important;
+  padding:2px!important;
+}
+body #user-app-elements #item-cards-container .qty-btn{
+  width:28px!important;
+  height:28px!important;
+  min-width:28px!important;
+  min-height:28px!important;
+  font-size:15px!important;
+  padding:0!important;
+}
+body #user-app-elements #item-cards-container .qty-input{
+  width:100%!important;
+  min-width:34px!important;
+  height:28px!important;
+  min-height:28px!important;
+  padding:2px!important;
+  font-size:13px!important;
+}
+body #user-app-elements #item-cards-container .item-total{
+  width:auto!important;
+  min-width:38px!important;
+  font-size:11px!important;
+  text-align:right!important;
+}
+@media(min-width:900px){
+  body #user-app-elements #item-cards-container{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  #user-app-elements .top-results-area{
+    grid-template-columns:.85fr 1.15fr!important;
+    align-items:stretch!important;
+  }
+}
+@media(max-width:420px){
+  body #user-app-elements #item-cards-container{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:6px!important;
+  }
+  body #user-app-elements #item-cards-container .item-card{
+    padding:7px!important;
+  }
+  body #user-app-elements #item-cards-container .qty-control{
+    grid-template-columns:26px 1fr 26px!important;
+  }
+  body #user-app-elements #item-cards-container .qty-btn{
+    width:26px!important;
+    height:26px!important;
+    min-width:26px!important;
+    min-height:26px!important;
+  }
+  body #user-app-elements #item-cards-container .qty-input{
+    height:26px!important;
+    min-height:26px!important;
+    font-size:12px!important;
+  }
+}
+
+
+/* Save/persist crew fields layout */
+.login-time-group{
+  grid-column:1/-1!important;
+}
+#login-time-display{
+  background:#f3f8ff!important;
+  color:#45627f!important;
+  font-size:13px!important;
+  font-weight:800!important;
+}
+@media(max-width:720px){
+  .login-time-group{
+    grid-column:auto!important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1618,8 +1781,8 @@ button,.sm-btn,.admin-ctrl-btn,.save-btn,.clear-btn,.qty-btn{
   <div id="user-app-elements">
     <select id="profile-select" style="display:none"><option value="default">Default / Custom</option></select>
     <div class="crew-selection">
-      <label class="crew-option"><input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything()"> 1 Man</label>
-      <label class="crew-option"><input type="radio" name="crew" value="2" id="crew-2" onchange="calculateEverything()"> 2 Man</label>
+      <label class="crew-option"><input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything();saveFields()"> 1 Man</label>
+      <label class="crew-option"><input type="radio" name="crew" value="2" id="crew-2" onchange="calculateEverything();saveFields()"> 2 Man</label>
     </div>
     <div class="crew-details">
       <div class="input-group"><label>Foreman Name</label><input type="text" id="foreman-name" class="text-input" placeholder="Foreman name" oninput="saveFields()"></div>
@@ -1628,16 +1791,20 @@ button,.sm-btn,.admin-ctrl-btn,.save-btn,.clear-btn,.qty-btn{
         <div class="input-group"><label>Start Time</label><input type="time" id="start-time" class="text-input" onchange="saveFields()"></div>
         <div class="input-group"><label>End Time</label><input type="time" id="end-time" class="text-input" onchange="saveFields()"></div>
       </div>
+      <div class="input-group login-time-group"><label>Login Time</label><input type="text" id="login-time-display" class="text-input" readonly placeholder="Not logged yet"></div>
     </div>
-    <div id="item-cards-container"></div>
-    <div class="total-banner"><span>Total Units:</span><span id="grand-total">0.00</span></div>
-    <div class="metrics-panel">
-      <span style="font-weight:700;color:#0056b3">Target Metrics</span>
-      <div class="metrics-grid">
-        <div class="metric-item"><div class="metric-label">8-Hr (<span id="target-8-val">26</span>)</div><div class="metric-value rem-neg" id="rem-8hr">26.00 left</div></div>
-        <div class="metric-item"><div class="metric-label">10-Hr (<span id="target-10-val">39</span>)</div><div class="metric-value rem-neg" id="rem-10hr">39.00 left</div></div>
+    <div class="top-results-area">
+      <div class="total-banner"><span>Total Units:</span><span id="grand-total">0.00</span></div>
+      <div class="metrics-panel">
+        <span style="font-weight:700;color:#0056b3">Target Metrics</span>
+        <div class="metrics-grid">
+          <div class="metric-item"><div class="metric-label">8-Hr (<span id="target-8-val">26</span>)</div><div class="metric-value rem-neg" id="rem-8hr">26.00 left</div></div>
+          <div class="metric-item"><div class="metric-label">10-Hr (<span id="target-10-val">39</span>)</div><div class="metric-value rem-neg" id="rem-10hr">39.00 left</div></div>
+        </div>
       </div>
     </div>
+    <div class="variables-grid-title">Variables / Units</div>
+    <div id="item-cards-container"></div>
     <div class="saved-files-section">
       <span style="font-weight:700;font-size:14px;color:#1e7e34">&#x1F4C1; My Saved Files</span>
       <div id="profile-saved-files-list" style="margin-top:8px;font-size:12px;background:#fff;border:1px solid #d0e6d6;padding:8px;border-radius:6px;max-height:180px;overflow-y:auto"><div style="color:#888;font-style:italic;text-align:center">No entries saved.</div></div>
@@ -2214,6 +2381,12 @@ async function completeLogin(profileVal) {
   const locStr=geo.error?`Location ${geo.error}`:`${geo.lat},${geo.lng} (±${geo.accuracy}m)`;
   try{emailjs.send("service_h1nnfhv","template_aienmjb",{profile_name:name,ip_address:localIP,location:locStr,time:new Date().toLocaleString()});}catch(e){}
   localStorage.setItem('dom_sc_active_profile',profileVal);
+  const __loginPrefix='dom_sc_'+profileVal+'_';
+  const __loginTime=new Date().toLocaleString();
+  localStorage.setItem(__loginPrefix+'login_time',__loginTime);
+  localStorage.setItem(__loginPrefix+'login_time_iso',new Date().toISOString());
+  if(!cloud.employee_calculator)cloud.employee_calculator={};
+  cloud.employee_calculator[profileVal]=Object.assign({},cloud.employee_calculator[profileVal]||{},{profile:profileVal,loginTime:__loginTime,loginTimeISO:new Date().toISOString()});
   hide('login-gateway-portal');
   show('main-app-container','block');
   show('user-app-elements','block'); // always show for regular profile login
@@ -2731,23 +2904,66 @@ function getDailyItemRows(){
 
 function saveFields(){
   const p=prefix();
-  localStorage.setItem(p+'foreman',$('foreman-name').value);
-  localStorage.setItem(p+'member',$('crew-member-name').value);
-  localStorage.setItem(p+'start',$('start-time').value);
-  localStorage.setItem(p+'end',$('end-time').value);
-  scheduleLiveCalculatorState();
+  const crew=(document.querySelector('input[name="crew"]:checked')||{}).value||"1";
+  const foreman=(($('foreman-name')||{}).value)||"";
+  const member=(($('crew-member-name')||{}).value)||"";
+  const start=(($('start-time')||{}).value)||"";
+  const end=(($('end-time')||{}).value)||"";
+  localStorage.setItem(p+'crew',crew);
+  localStorage.setItem(p+'foreman',foreman);
+  localStorage.setItem(p+'member',member);
+  localStorage.setItem(p+'start',start);
+  localStorage.setItem(p+'end',end);
+
+  let loginTime=localStorage.getItem(p+'login_time');
+  if(!loginTime){
+    loginTime=new Date().toLocaleString();
+    localStorage.setItem(p+'login_time',loginTime);
+    localStorage.setItem(p+'login_time_iso',new Date().toISOString());
+  }
+  const ltd=$('login-time-display');
+  if(ltd)ltd.value=loginTime;
+
+  if(typeof schedulePersistentEmployeeSession==='function')schedulePersistentEmployeeSession();
+  if(typeof scheduleLiveCalculatorState==='function')scheduleLiveCalculatorState();
 }
 function loadSavedData(){
   const pv=localStorage.getItem('dom_sc_active_profile')||'default';
   $('profile-select').value=pv;
-  const p=prefix(),crew=localStorage.getItem(p+'crew')||((cloud.settings||{}).default_crew)||"1";
+  const p=prefix();
+  const calc=(cloud.employee_calculator&&cloud.employee_calculator[pv])||{};
+
+  function localOrCloud(key,cloudVal,defVal){
+    const local=localStorage.getItem(p+key);
+    if(local!==null && local!=="")return local;
+    if(cloudVal!==undefined && cloudVal!==null && cloudVal!=="")return cloudVal;
+    return defVal||"";
+  }
+
+  const crew=localOrCloud('crew',calc.crew,((cloud.settings||{}).default_crew)||"1");
   $(crew==="2"?'crew-2':'crew-1').checked=true;
-  $('foreman-name').value=localStorage.getItem(p+'foreman')||(pv==='robert_s'?"Robert S":pv==='payton_n'?"Payton N":"");
-  $('crew-member-name').value=localStorage.getItem(p+'member')||"";
-  $('start-time').value=localStorage.getItem(p+'start')||"";
-  $('end-time').value=localStorage.getItem(p+'end')||"";
+
+  $('foreman-name').value=localOrCloud('foreman',calc.foreman,(pv==='robert_s'?"Robert S":pv==='payton_n'?"Payton N":""));
+  $('crew-member-name').value=localOrCloud('member',calc.member,"");
+  $('start-time').value=localOrCloud('start',calc.start,"");
+  $('end-time').value=localOrCloud('end',calc.end,"");
+
+  let loginTime=localStorage.getItem(p+'login_time')||calc.loginTime||"";
+  let loginISO=localStorage.getItem(p+'login_time_iso')||calc.loginTimeISO||"";
+  if(!loginTime){
+    loginTime=new Date().toLocaleString();
+    loginISO=new Date().toISOString();
+  }
+  localStorage.setItem(p+'login_time',loginTime);
+  if(loginISO)localStorage.setItem(p+'login_time_iso',loginISO);
+  const ltd=$('login-time-display');
+  if(ltd)ltd.value=loginTime;
+
   restoreQtyByName();
-  calculateEverything(); renderProfileFiles(); updateSecurityPanel();
+  calculateEverything();
+  saveFields();
+  renderProfileFiles();
+  updateSecurityPanel();
 }
 function renderCards(){
   const c=$('item-cards-container'); if(!c)return;
@@ -3227,6 +3443,7 @@ setInterval(async function(){
       profile_notes:d.profile_notes||{},
       settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{}),
       profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
+      employee_calculator:d.employee_calculator||cloud.employee_calculator||{},
       deleted_vars:d.deleted_vars||[]
     });
     if(cloud.banned_ips.includes(localIP)){document.getElementById('banned-screen').style.display='flex';return;}
@@ -3304,14 +3521,27 @@ document.addEventListener("change", function(e){ if(e.target && e.target.closest
     const data = cloud.employee_calculator && cloud.employee_calculator[profile || activeProfile()];
     if(!data) return;
 
-    if(data.crew){
-      const crewEl = document.getElementById(data.crew === "2" ? "crew-2" : "crew-1");
+    const pfx = "dom_sc_" + (profile || activeProfile()) + "_";
+    function pickSaved(key, cloudVal){
+      const local = localStorage.getItem(pfx + key);
+      const picked = (local !== null && local !== "") ? local : ((cloudVal !== undefined && cloudVal !== null) ? cloudVal : "");
+      if(picked !== "") localStorage.setItem(pfx + key, picked);
+      return picked;
+    }
+
+    const chosenCrew = pickSaved("crew", data.crew || "1");
+    if(chosenCrew){
+      const crewEl = document.getElementById(chosenCrew === "2" ? "crew-2" : "crew-1");
       if(crewEl) crewEl.checked = true;
     }
-    setFieldValue("foreman-name", data.foreman);
-    setFieldValue("crew-member-name", data.member);
-    setFieldValue("start-time", data.start);
-    setFieldValue("end-time", data.end);
+    setFieldValue("foreman-name", pickSaved("foreman", data.foreman));
+    setFieldValue("crew-member-name", pickSaved("member", data.member));
+    setFieldValue("start-time", pickSaved("start", data.start));
+    setFieldValue("end-time", pickSaved("end", data.end));
+    const pickedLogin = pickSaved("login_time", data.loginTime);
+    const pickedLoginISO = pickSaved("login_time_iso", data.loginTimeISO);
+    const ltd = document.getElementById("login-time-display");
+    if(ltd) ltd.value = pickedLogin || "";
     
     const q = data.quantities || {};
     if(window.items && Array.isArray(items)){
@@ -3547,5 +3777,95 @@ document.addEventListener("DOMContentLoaded",function(){
 });
 
 </script>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  PERSIST LOGIN TIME + CREW INFO ACROSS REFRESH
+// ══════════════════════════════════════════════════════════════
+let persistentEmployeeSessionTimer=null;
+let lastPersistentEmployeeSessionJSON="";
+function collectPersistentEmployeeSession(){
+  const profile=localStorage.getItem('dom_sc_active_profile')||'default';
+  const p='dom_sc_'+profile+'_';
+  const crew=(document.querySelector('input[name="crew"]:checked')||{}).value||localStorage.getItem(p+'crew')||'1';
+  const foreman=(document.getElementById('foreman-name')||{}).value||localStorage.getItem(p+'foreman')||'';
+  const member=(document.getElementById('crew-member-name')||{}).value||localStorage.getItem(p+'member')||'';
+  const start=(document.getElementById('start-time')||{}).value||localStorage.getItem(p+'start')||'';
+  const end=(document.getElementById('end-time')||{}).value||localStorage.getItem(p+'end')||'';
+
+  let loginTime=localStorage.getItem(p+'login_time');
+  let loginTimeISO=localStorage.getItem(p+'login_time_iso');
+  if(!loginTime){
+    loginTime=new Date().toLocaleString();
+    loginTimeISO=new Date().toISOString();
+    localStorage.setItem(p+'login_time',loginTime);
+    localStorage.setItem(p+'login_time_iso',loginTimeISO);
+  }
+
+  localStorage.setItem(p+'crew',crew);
+  localStorage.setItem(p+'foreman',foreman);
+  localStorage.setItem(p+'member',member);
+  localStorage.setItem(p+'start',start);
+  localStorage.setItem(p+'end',end);
+
+  const ltd=document.getElementById('login-time-display');
+  if(ltd)ltd.value=loginTime;
+
+  return {
+    profile:profile,
+    crew:crew,
+    foreman:foreman,
+    member:member,
+    start:start,
+    end:end,
+    loginTime:loginTime,
+    loginTimeISO:loginTimeISO||'',
+    sessionUpdatedAt:new Date().toLocaleString(),
+    sessionUpdatedAtISO:new Date().toISOString()
+  };
+}
+async function pushPersistentEmployeeSession(){
+  try{
+    const snap=collectPersistentEmployeeSession();
+    const check=JSON.stringify(snap);
+    if(check===lastPersistentEmployeeSessionJSON)return;
+    lastPersistentEmployeeSessionJSON=check;
+
+    if(!cloud.employee_calculator)cloud.employee_calculator={};
+    const existing=cloud.employee_calculator[snap.profile]||{};
+    cloud.employee_calculator[snap.profile]=Object.assign({},existing,snap);
+
+    if(!cloud.live_calculator)cloud.live_calculator={};
+    if(typeof getCurrentCalculatorSnapshot==='function'){
+      cloud.live_calculator[snap.profile]=Object.assign({},getCurrentCalculatorSnapshot(),{
+        loginTime:snap.loginTime,
+        loginTimeISO:snap.loginTimeISO
+      });
+    }
+
+    if(typeof pushCloud==='function')await pushCloud();
+  }catch(e){}
+}
+function schedulePersistentEmployeeSession(){
+  clearTimeout(persistentEmployeeSessionTimer);
+  persistentEmployeeSessionTimer=setTimeout(pushPersistentEmployeeSession,900);
+}
+document.addEventListener('input',function(e){
+  if(e.target&&['foreman-name','crew-member-name','start-time','end-time'].includes(e.target.id)){
+    collectPersistentEmployeeSession();
+    schedulePersistentEmployeeSession();
+  }
+});
+document.addEventListener('change',function(e){
+  if(e.target&&(e.target.name==='crew'||['foreman-name','crew-member-name','start-time','end-time'].includes(e.target.id))){
+    collectPersistentEmployeeSession();
+    schedulePersistentEmployeeSession();
+  }
+});
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){try{collectPersistentEmployeeSession();}catch(e){}},800);
+  setTimeout(function(){try{collectPersistentEmployeeSession();schedulePersistentEmployeeSession();}catch(e){}},2200);
+});
+</script>
+
 </body>
-</html>
