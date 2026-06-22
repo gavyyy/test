@@ -1,1047 +1,1466 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026</title>
-    
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function(){
-            emailjs.init("trknhfMBFg_ZjHKyH");
-        })();
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DOM/SC Norm 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>emailjs.init("trknhfMBFg_ZjHKyH");</script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f1f3f6;color:#222;margin:0;padding:12px}
+.container{max-width:500px;margin:0 auto;background:#fff;padding:16px;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
 
-    <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f1f3f6; color: #222; margin: 0; padding: 12px;
-        }
-        .container {
-            max-width: 500px; margin: 0 auto; background: #ffffff; padding: 16px;
-            border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        
-        #login-gateway-portal {
-            display: none; flex-direction: column; justify-content: center;
-            align-items: center; padding: 30px 16px; text-align: center;
-        }
-        .login-title { font-size: 24px; font-weight: bold; margin-bottom: 6px; color: #111; }
-        .login-subtitle { font-size: 13px; color: #666; margin-bottom: 24px; }
-        .profile-tap-btn {
-            width: 100%; background-color: #f8f9fa; border: 2px solid #e9ecef;
-            padding: 16px; margin-bottom: 10px; border-radius: 12px; font-size: 16px;
-            font-weight: bold; color: #333; cursor: pointer; text-align: left;
-            display: flex; justify-content: space-between; align-items: center; transition: all 0.15s ease;
-        }
-        .profile-tap-btn:active { background-color: #e9f5fe; border-color: #0076d6; color: #0076d6; }
-        
-        .admin-gateway-btn {
-            background-color: #fff4e5; border-color: #ff9800; color: #d97706; margin-top: 15px;
-        }
-        .admin-gateway-btn:active { background-color: #ffe0b2; }
+/* ── Overlays ── */
+.full-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:5000;flex-direction:column;justify-content:center;align-items:center;padding:24px;text-align:center}
+#banned-screen{background:#721c24;color:#fff;z-index:10000}
+#maintenance-overlay{background:linear-gradient(160deg,#1a1f2e,#0d1117);color:#fff}
+#lock-overlay{background:#11141a;color:#fff}
+#local-freeze-screen{background:rgba(255,255,255,.98);color:#dc3545;font-size:22px;font-weight:bold;z-index:9999}
+.bypass-btn{background:#0076d6;color:#fff;padding:14px 28px;font-size:16px;font-weight:700;border-radius:24px;border:none;margin-top:24px;cursor:pointer}
+.maint-icon{font-size:64px;margin-bottom:12px;display:inline-block;animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.maint-msg-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px 18px;max-width:340px;width:100%;font-size:14px;color:#d0d8e8;line-height:1.6;margin-bottom:16px;text-align:left}
+.maint-msg-box strong{color:#fff;display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:.5px;opacity:.6}
+.maint-eta-box{background:rgba(255,165,0,.12);border:1px solid rgba(255,165,0,.3);border-radius:10px;padding:10px 16px;font-size:13px;color:#ffc107;font-weight:700;margin-bottom:20px;max-width:340px;width:100%}
+.maint-admin-btn{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:10px 20px;border-radius:20px;font-size:12px;cursor:pointer;margin-top:8px}
+.forgot-link{background:none;border:none;color:#bbb;font-size:11px;cursor:pointer;text-decoration:underline;margin-top:12px;display:block}
 
-        #main-app-container { display: none; }
-        
-        h2 { margin: 4px 0 8px 0; font-size: 22px; color: #111; text-align: center; }
-        .admin-nav-bar {
-            text-align: center; margin-bottom: 16px; border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 12px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
-        }
-        .admin-toggle-btn {
-            display: inline-block; background-color: #e9f5fe; border: 1px solid #cfe4ff;
-            color: #0076d6; font-size: 13px; font-weight: bold; cursor: pointer; padding: 8px 16px;
-            border-radius: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-decoration: none;
-        }
-        .admin-toggle-btn:active { background-color: #cfe4ff; }
-        .btn-logout-profile { background-color: #fce8e6; border-color: #f5c6cb; color: #c5221f; }
-        
-        #global-alert-banner {
-            display: none; background: #ffeeba; color: #856404; padding: 12px;
-            border-radius: 8px; border: 1px solid #ffe8a1; font-weight: bold;
-            font-size: 13px; text-align: center; margin-bottom: 16px;
-        }
+/* ── Login Gateway ── */
+#login-gateway-portal{display:none;flex-direction:column;align-items:center;padding:30px 16px;text-align:center}
+.login-title{font-size:24px;font-weight:700;margin-bottom:6px;color:#111}
+.login-subtitle{font-size:13px;color:#666;margin-bottom:24px}
+.profile-tap-btn{width:100%;background:#f8f9fa;border:2px solid #e9ecef;padding:16px;margin-bottom:10px;border-radius:12px;font-size:16px;font-weight:700;color:#333;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;transition:all .15s}
+.profile-tap-btn:active{background:#e9f5fe;border-color:#0076d6;color:#0076d6}
+.admin-gateway-btn{background:#fff4e5;border-color:#ff9800;color:#d97706;margin-top:15px}
 
-        .crew-selection, .crew-details, .item-card, .total-banner, .metrics-panel, .saved-files-section, .action-buttons {
-            transition: opacity 0.2s;
-        }
-        
-        .crew-selection { display: flex; gap: 12px; margin-bottom: 12px; }
-        .crew-option {
-            flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-weight: bold; background: #f8f9fa; padding: 14px; border-radius: 10px;
-            border: 2px solid #e9ecef; cursor: pointer; font-size: 15px;
-        }
-        .crew-option input { width: 20px; height: 20px; margin: 0; }
-        .crew-option:has(input:checked) { background: #e9f5fe; border-color: #0076d6; color: #0076d6; }
-        
-        .crew-details {
-            background: #f8f9fa; border: 1px solid #eaeaea; padding: 12px; border-radius: 10px;
-            margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px;
-        }
-        .input-group { display: flex; flex-direction: column; gap: 4px; }
-        .input-group label { font-size: 11px; font-weight: 600; color: #555; text-transform: uppercase; }
-        .time-row { display: flex; gap: 10px; }
-        .time-row .input-group { flex: 1; }
-        .time-note { font-size: 12px; color: #666; font-style: italic; margin-top: 2px; }
-        .text-input, .select-input {
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; background: #fff;
-        }
-        
-        .item-card {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #f8f9fa; padding: 12px 14px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #eaeaea;
-        }
-        .item-info { flex: 1; }
-        .item-name { font-weight: 600; font-size: 15px; color: #1a1a1a; }
-        .item-val { font-size: 12px; color: #666; margin-top: 2px; }
-        .item-actions { display: flex; align-items: center; gap: 12px; }
-        .qty-control { display: flex; align-items: center; gap: 4px; }
-        .qty-btn {
-            width: 32px; height: 32px; background: #f8f9fa; border: 1px solid #ccc; border-radius: 8px;
-            font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
-        .qty-input { width: 55px; padding: 8px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; text-align: center; font-weight: bold; }
-        .item-total { width: 55px; text-align: right; font-weight: bold; font-size: 14px; color: #444; }
-        
-        .total-banner {
-            background: #222; color: #fff; padding: 16px; border-radius: 12px;
-            display: flex; justify-content: space-between; align-items: center; margin: 16px 0; font-size: 18px; font-weight: bold;
-        }
-        .total-banner span:last-child { font-size: 22px; color: #4dadff; }
-        
-        .metrics-panel { background: #f0f7ff; border: 1px solid #cfe4ff; padding: 14px; border-radius: 12px; margin-bottom: 16px; }
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
-        .metric-item { background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #e2eeff; text-align: center; }
-        .metric-label { font-size: 11px; color: #666; text-transform: uppercase; font-weight: 600; }
-        .metric-value { font-size: 14px; font-weight: bold; margin-top: 4px; }
-        .remaining-positive { color: #dc3545; }
-        .remaining-met { color: #28a745; }
-        
-        .action-buttons { display: flex; gap: 10px; }
-        .save-btn { flex: 2; background-color: #28a745; color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; }
-        .clear-btn { flex: 1; background-color: #6c757d; color: white; border: none; padding: 15px; font-size: 15px; font-weight: bold; border-radius: 10px; cursor: pointer; }
+/* ── Main App ── */
+#main-app-container{display:none}
+h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
+.admin-nav-bar{text-align:center;margin-bottom:16px;border-bottom:2px solid #f0f0f0;padding-bottom:12px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.admin-toggle-btn{display:inline-block;background:#e9f5fe;border:1px solid #cfe4ff;color:#0076d6;font-size:13px;font-weight:700;cursor:pointer;padding:8px 16px;border-radius:20px;text-decoration:none}
+.btn-logout{background:#fce8e6;border-color:#f5c6cb;color:#c5221f}
+#global-alert-banner{display:none;padding:12px;border-radius:8px;border:1px solid;font-weight:700;font-size:13px;text-align:center;margin-bottom:16px}
 
-        /* Admin Dashboard Styles */
-        .admin-dashboard-box {
-            display: none; background: #fff4e5; border: 2px dashed #ff9800; padding: 14px; border-radius: 12px; margin-bottom: 16px;
-        }
-        .admin-ctrl-btn {
-            background: #dc3545; color: white; border: none; padding: 10px 14px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 13px; margin: 4px 4px 4px 0;
-        }
-        .admin-ctrl-btn.lock-btn { background: #333; }
-        .admin-ctrl-btn.logout-btn { background: #6c757d; }
-        .drafts-view { margin-top: 10px; max-height: 200px; overflow-y: auto; text-align: left; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #ddd; }
-        .draft-item { font-size: 12px; border-bottom: 1px solid #eee; padding: 6px 0; color: #333; }
-        
-        #lock-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #11141a; color: #fff; z-index: 5000; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center;
-        }
-        .bypass-btn { background: #0076d6; border: 1px solid #cfe4ff; color: #fff; padding: 14px 28px; font-size: 16px; font-weight: bold; border-radius: 24px; margin-top: 24px; cursor: pointer; }
-        
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-box { background: #ffffff; padding: 24px; border-radius: 16px; max-width: 400px; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.2); text-align: center; }
-        .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 16px; color: #111; }
-        .modal-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 20px; }
-        .modal-btn { flex: 1; padding: 12px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; }
-        .modal-btn-yes { background-color: #0076d6; color: white; }
-        .modal-btn-no { background-color: #6c757d; color: white; }
+/* ── Crew & Items ── */
+.crew-selection{display:flex;gap:12px;margin-bottom:12px}
+.crew-option{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;background:#f8f9fa;padding:14px;border-radius:10px;border:2px solid #e9ecef;cursor:pointer;font-size:15px}
+.crew-option input{width:20px;height:20px;margin:0}
+.crew-option:has(input:checked){background:#e9f5fe;border-color:#0076d6;color:#0076d6}
+.crew-details{background:#f8f9fa;border:1px solid #eaeaea;padding:12px;border-radius:10px;margin-bottom:16px;display:flex;flex-direction:column;gap:8px}
+.input-group{display:flex;flex-direction:column;gap:4px}
+.input-group label{font-size:11px;font-weight:600;color:#555;text-transform:uppercase}
+.time-row{display:flex;gap:10px}
+.time-row .input-group{flex:1}
+.text-input,.select-input{width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:16px;background:#fff}
+.item-card{display:flex;align-items:center;justify-content:space-between;background:#f8f9fa;padding:12px 14px;border-radius:10px;margin-bottom:8px;border:1px solid #eaeaea}
+.item-info{flex:1}
+.item-name{font-weight:600;font-size:15px;color:#1a1a1a}
+.item-val{font-size:12px;color:#666;margin-top:2px}
+.item-actions{display:flex;align-items:center;gap:12px}
+.qty-control{display:flex;align-items:center;gap:4px}
+.qty-btn{width:32px;height:32px;background:#f8f9fa;border:1px solid #ccc;border-radius:8px;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qty-input{width:55px;padding:8px;border:1px solid #ccc;border-radius:8px;font-size:16px;text-align:center;font-weight:700}
+.item-total{width:55px;text-align:right;font-weight:700;font-size:14px;color:#444}
+.total-banner{background:#222;color:#fff;padding:16px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;margin:16px 0;font-size:18px;font-weight:700}
+.total-banner span:last-child{font-size:22px;color:#4dadff}
+.metrics-panel{background:#f0f7ff;border:1px solid #cfe4ff;padding:14px;border-radius:12px;margin-bottom:16px}
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.metric-item{background:#fff;padding:10px;border-radius:8px;border:1px solid #e2eeff;text-align:center}
+.metric-label{font-size:11px;color:#666;text-transform:uppercase;font-weight:600}
+.metric-value{font-size:14px;font-weight:700;margin-top:4px}
+.rem-neg{color:#dc3545}.rem-pos{color:#28a745}
+.action-buttons{display:flex;gap:10px}
+.save-btn{flex:2;background:#28a745;color:#fff;border:none;padding:15px;font-size:16px;font-weight:700;border-radius:10px;cursor:pointer}
+.clear-btn{flex:1;background:#6c757d;color:#fff;border:none;padding:15px;font-size:15px;font-weight:700;border-radius:10px;cursor:pointer}
+.saved-files-section{background:#f4fdf7;border:1px solid #bce6c9;border-radius:10px;padding:12px;margin-top:12px}
 
-        .admin-sub-section { background: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #e0d5c1; }
-        .admin-sub-title { font-size: 13px; font-weight: bold; color: #c27d0e; margin-bottom: 6px; }
-        .sm-btn { padding: 6px 10px; font-size: 11px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; }
-        .btn-green { background: #28a745; color: white; }
-        .btn-blue { background: #0076d6; color: white; }
-        .btn-yellow { background: #ffc107; color: black; }
-        .btn-red { background: #dc3545; color: white; }
-        .btn-dark { background: #343a40; color: white; }
-        
-        .frozen-screen-msg {
-            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(255,255,255,0.98); color: #dc3545; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; font-size: 22px; font-weight: bold; text-align: center; padding: 20px;
-        }
-        .saved-files-section { background: #f4fdf7; border: 1px solid #bce6c9; border-radius: 10px; padding: 12px; margin-top: 12px; }
+/* ── Security Panel (user) ── */
+.security-panel{background:#f0f4ff;border:1px solid #cfe4ff;border-radius:12px;padding:14px;margin-top:14px}
+.security-panel-title{font-size:14px;font-weight:700;color:#0056b3;margin-bottom:12px}
+.sec-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #dde8ff}
+.sec-row:last-child{border-bottom:none}
+.sec-row-label{font-size:13px;font-weight:600;color:#222}
+.sec-row-sub{font-size:11px;color:#666;margin-top:2px}
+.sec-btn{font-size:12px;font-weight:700;padding:7px 14px;border:none;border-radius:8px;cursor:pointer;margin-left:4px}
+.sec-btn-set{background:#0076d6;color:#fff}
+.sec-btn-change{background:#e9f5fe;color:#0076d6;border:1px solid #cfe4ff}
+.sec-btn-remove{background:#fce8e6;color:#c5221f;border:1px solid #f5c6cb}
+.sec-btn-request{background:#fff4e5;color:#d97706;border:1px solid #ffd0a0}
 
-        /* Blocked IP Screen */
-        #banned-screen {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #721c24; color: white;
-            z-index: 10000; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
-        }
-    </style>
+/* ── Auth Modal ── */
+#auth-modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);z-index:8000;justify-content:center;align-items:flex-end}
+.auth-sheet{background:#fff;border-radius:20px 20px 0 0;padding:28px 24px 36px;width:100%;max-width:500px;margin:0 auto;box-shadow:0 -8px 32px rgba(0,0,0,.18);text-align:center;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.auth-sheet-title{font-size:17px;font-weight:700;color:#111;margin-bottom:4px}
+.auth-sheet-sub{font-size:13px;color:#666;margin-bottom:20px}
+.auth-bio-btn{width:100%;background:#111;color:#fff;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+.auth-bio-btn:disabled{background:#ccc;color:#888;cursor:not-allowed}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:8px 0 14px}
+.auth-divider span{font-size:11px;color:#aaa;white-space:nowrap}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:#e0e0e0}
+.passcode-dots{display:flex;justify-content:center;gap:14px;margin-bottom:20px}
+.passcode-dot{width:16px;height:16px;border-radius:50%;background:#e0e0e0;transition:background .15s}
+.passcode-dot.filled{background:#111}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:260px;margin:0 auto}
+.numpad-key{background:#f4f4f4;border:none;border-radius:50%;width:72px;height:72px;font-size:22px;font-weight:600;cursor:pointer;margin:0 auto;display:flex;align-items:center;justify-content:center;transition:background .1s}
+.numpad-key:active{background:#d0d0d0}
+.numpad-del{font-size:17px;background:transparent}
+.numpad-empty{background:transparent;cursor:default}
+.auth-error{color:#dc3545;font-size:13px;min-height:18px;margin-bottom:8px}
+.auth-link-btn{background:none;border:none;color:#0076d6;font-size:13px;cursor:pointer;padding:4px;text-decoration:underline}
+.auth-cancel-btn{background:none;border:none;color:#888;font-size:14px;cursor:pointer;padding:8px 16px;margin-top:10px}
+
+/* ── Admin Panel ── */
+.admin-dashboard-box{display:none;background:#fff4e5;border:2px dashed #ff9800;padding:14px;border-radius:12px;margin-bottom:16px}
+.admin-ctrl-btn{background:#dc3545;color:#fff;border:none;padding:10px 14px;font-weight:700;border-radius:8px;cursor:pointer;font-size:13px;margin:4px 4px 4px 0}
+.admin-ctrl-btn.lock-btn{background:#333}
+.admin-ctrl-btn.logout-btn{background:#6c757d}
+.admin-tab-bar{display:flex;gap:4px;margin:10px 0 6px;flex-wrap:wrap;background:#fbe9cf;padding:5px;border-radius:10px}
+.admin-tab-btn{flex:1 1 auto;min-width:60px;text-align:center;background:transparent;border:none;color:#9a6a14;font-size:11px;font-weight:700;padding:9px 4px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.admin-tab-btn.active{background:#fff;color:#d97706;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.admin-tab-panel{display:none}
+.admin-tab-panel.active{display:block}
+.admin-sub{background:#fff;padding:10px;border-radius:8px;margin-top:10px;border:1px solid #e0d5c1}
+.admin-sub-title{font-size:13px;font-weight:700;color:#c27d0e;margin-bottom:6px}
+.sm-btn{padding:6px 10px;font-size:11px;font-weight:700;border-radius:6px;border:none;cursor:pointer}
+.btn-green{background:#28a745;color:#fff}.btn-blue{background:#0076d6;color:#fff}
+.btn-yellow{background:#ffc107;color:#000}.btn-red{background:#dc3545;color:#fff}
+.btn-dark{background:#343a40;color:#fff}
+.drafts-view{margin-top:10px;max-height:180px;overflow-y:auto;background:#fff;padding:8px;border-radius:6px;border:1px solid #ddd}
+.draft-item{font-size:12px;border-bottom:1px solid #eee;padding:6px 0;color:#333}
+
+/* ── Admin Settings Tab ── */
+.set-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #eee}
+.set-row:last-child{border-bottom:none}
+.set-label{font-size:13px;font-weight:600}
+.set-sub{font-size:10px;color:#777;margin-top:2px}
+.set-badge{font-size:11px;font-weight:700}
+
+/* ── Maint admin badge ── */
+.maint-status-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-bottom:8px}
+.maint-on{background:#fde8e8;color:#c0392b;border:1px solid #f5c6cb}
+.maint-off{background:#e8f5e9;color:#1e7e34;border:1px solid #bce6c9}
+
+/* ── Location badges ── */
+.loc-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:#1e7e34;background:#d4edda;border:1px solid #bce6c9;border-radius:4px;padding:2px 6px;margin-top:3px}
+.loc-denied{color:#721c24;background:#f8d7da;border-color:#f5c6cb}
+.loc-pending{color:#856404;background:#fff3cd;border-color:#ffe8a1}
+.map-link{color:#0056b3;text-decoration:none;font-weight:700;font-size:10px}
+
+/* ── Modals ── */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:1000;justify-content:center;align-items:center;padding:20px}
+.modal-box{background:#fff;padding:24px;border-radius:16px;max-width:400px;width:100%;box-shadow:0 8px 24px rgba(0,0,0,.2);text-align:center}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px;color:#111}
+.modal-buttons{display:flex;gap:12px;justify-content:center;margin-top:20px}
+.modal-btn{flex:1;padding:12px;font-size:16px;font-weight:700;border:none;border-radius:8px;cursor:pointer}
+.modal-btn-yes{background:#0076d6;color:#fff}
+.modal-btn-no{background:#6c757d;color:#fff}
+
+/* ── AI Assistant ── */
+#ai-cmd-result,#ai-config-result{margin-top:10px;font-size:12px}
+</style>
 </head>
 <body>
 
-<div id="banned-screen">
-    <h1 style="font-size: 40px; margin-bottom: 10px;">⛔ ACCESS BLOCKED</h1>
-    <p>Your network IP has been permanently blacklisted by the Administrator.</p>
+<!-- ══ OVERLAYS ══ -->
+<div id="banned-screen" class="full-overlay" style="background:#721c24;color:#fff;z-index:10000">
+  <h1 style="font-size:40px;margin-bottom:10px">&#x26D4; ACCESS BLOCKED</h1>
+  <p>Your IP has been permanently blacklisted by the Administrator.</p>
 </div>
 
-<div id="local-freeze-screen" class="frozen-screen-msg">
-    <span>❄️ Screen Lock</span>
-    <p style="font-size: 14px; color:#666; margin: 8px 0 24px 0; font-weight: normal; max-width: 300px;">
-        Contact admin to unfreeze account, due to failed login
-    </p>
-    <button class="admin-toggle-btn" style="background-color: #222; color: #fff; border: none;" onclick="triggerAdminLogin(false, false)">
-        🔑 Admin Emergency Login
-    </button>
+<div id="local-freeze-screen" class="full-overlay" style="z-index:9999;background:rgba(255,255,255,.98);color:#dc3545">
+  <span style="font-size:22px;font-weight:700">&#x2744;&#xFE0F; Account Frozen</span>
+  <p style="font-size:14px;color:#666;margin:8px 0 24px;font-weight:400;max-width:300px">Contact admin to unfreeze your account.</p>
+  <button class="admin-toggle-btn" style="background:#222;color:#fff;border:none" onclick="triggerAdminLogin(false,false)">&#x1F511; Admin Emergency Login</button>
 </div>
 
-<div id="lock-overlay">
-    <h1 style="font-size: 28px; margin-bottom: 8px;">🔒 App Locked</h1>
-    <p style="color: #aaa; max-width: 300px; margin: 0 auto;">This application platform has been locked down by an administrator.</p>
-    <button class="bypass-btn" onclick="triggerAdminLogin(true, false)">Admin Override Login</button>
+<div id="lock-overlay" class="full-overlay">
+  <h1 style="font-size:28px;margin-bottom:8px">&#x1F512; App Locked</h1>
+  <p style="color:#aaa;max-width:300px;margin:0 auto">This platform has been locked by an administrator.</p>
+  <button class="bypass-btn" onclick="triggerAdminLogin(true,false)">Admin Override Login</button>
+  <button class="forgot-link" onclick="triggerAdminRecovery()">Forgot admin password?</button>
 </div>
 
+<div id="maintenance-overlay" class="full-overlay">
+  <div class="maint-icon">&#x2699;&#xFE0F;</div>
+  <div style="font-size:26px;font-weight:800;margin:0 0 8px">Down for Maintenance</div>
+  <div style="font-size:14px;color:#8b9ab5;margin:0 0 20px;max-width:300px">We're making updates. Back shortly.</div>
+  <div class="maint-msg-box"><strong>Admin Message</strong><span id="maint-display-msg">No details provided.</span></div>
+  <div class="maint-eta-box" id="maint-eta-box" style="display:none">&#x23F0; Return: <span id="maint-display-eta"></span></div>
+  <button class="maint-admin-btn" onclick="triggerAdminLogin(true,false)">Admin Access</button>
+  <button class="forgot-link" onclick="triggerAdminRecovery()">Forgot admin password?</button>
+</div>
+
+<!-- ══ AUTH MODAL ══ -->
+<div id="auth-modal-overlay">
+  <div class="auth-sheet">
+    <div class="auth-sheet-title" id="auth-modal-title">Verify Identity</div>
+    <div class="auth-sheet-sub" id="auth-modal-sub">Authenticate to continue</div>
+    <button class="auth-bio-btn" id="auth-bio-btn" onclick="attemptBiometric()" style="display:none">&#x1F44D; Use Face ID / Fingerprint</button>
+    <div class="auth-divider" id="auth-divider" style="display:none"><span>or enter passcode</span></div>
+    <div class="passcode-dots">
+      <div class="passcode-dot" id="dot-0"></div><div class="passcode-dot" id="dot-1"></div>
+      <div class="passcode-dot" id="dot-2"></div><div class="passcode-dot" id="dot-3"></div>
+    </div>
+    <div class="auth-error" id="auth-error-msg"></div>
+    <div class="numpad">
+      <button class="numpad-key" onclick="numpadPress('1')">1</button>
+      <button class="numpad-key" onclick="numpadPress('2')">2</button>
+      <button class="numpad-key" onclick="numpadPress('3')">3</button>
+      <button class="numpad-key" onclick="numpadPress('4')">4</button>
+      <button class="numpad-key" onclick="numpadPress('5')">5</button>
+      <button class="numpad-key" onclick="numpadPress('6')">6</button>
+      <button class="numpad-key" onclick="numpadPress('7')">7</button>
+      <button class="numpad-key" onclick="numpadPress('8')">8</button>
+      <button class="numpad-key" onclick="numpadPress('9')">9</button>
+      <button class="numpad-key numpad-empty"></button>
+      <button class="numpad-key" onclick="numpadPress('0')">0</button>
+      <button class="numpad-key numpad-del" onclick="numpadDelete()">&#x232B;</button>
+    </div>
+    <div style="margin-top:16px">
+      <button class="auth-link-btn" id="auth-forgot-btn" onclick="authForgotPasscode()" style="display:none">Forgot passcode?</button>
+    </div>
+    <button class="auth-cancel-btn" onclick="closeAuthModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ══ LOGIN GATEWAY ══ -->
 <div class="container" id="login-gateway-portal">
-    <div class="login-title">DOM/SC Platform Gateway</div>
-    <div class="login-subtitle">Select your tracking node profile below to authenticate</div>
-    
-    <div id="login-profile-buttons-list" style="width: 100%; max-width: 400px;">
-        <p style="color:#777; font-style:italic;">Configuring network matrix routing streams...</p>
-    </div>
-
-    <div style="width: 100%; max-width: 400px; margin-top: 20px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
-        <button class="profile-tap-btn admin-gateway-btn" onclick="triggerAdminLogin(false, true)">
-            <span>⚙️ System Administrator</span>
-            <span style="font-size:12px;">Secure Login →</span>
-        </button>
-    </div>
-
-    <div style="margin-top:20px; font-size:11px; color:#888;">Your current public IP connection state is resolved securely on button tap.</div>
+  <div class="login-title">DOM/SC Platform</div>
+  <div class="login-subtitle">Select your profile to sign in</div>
+  <div id="login-profile-buttons-list" style="width:100%;max-width:400px"></div>
+  <div style="width:100%;max-width:400px;margin-top:20px;padding-top:15px;border-top:1px solid #e0e0e0">
+    <button class="profile-tap-btn admin-gateway-btn" onclick="triggerAdminLogin(false,true)">
+      <span>&#x2699;&#xFE0F; System Administrator</span>
+      <span style="font-size:12px">Secure Login &#x2192;</span>
+    </button>
+  </div>
+  <div style="margin-top:20px;padding-top:12px;border-top:1px dashed #ddd;text-align:center">
+    <button onclick="triggerAdminRecovery()" style="background:none;border:none;color:#bbb;font-size:11px;cursor:pointer;text-decoration:underline">Forgot admin password?</button>
+  </div>
 </div>
 
+<!-- ══ MAIN APP ══ -->
 <div class="container" id="main-app-container">
-    <h2>DOM/SC Norm 2026</h2>
-    <div id="global-alert-banner"></div>
+  <h2>DOM/SC Norm 2026</h2>
+  <div id="global-alert-banner"></div>
 
-    <div class="admin-nav-bar" id="top-nav-bar">
-        <button class="admin-toggle-btn" id="login-nav-link" onclick="triggerAdminLogin(false, false)">🔑 Admin Console</button>
-        <button class="admin-toggle-btn btn-logout-profile" onclick="logoutProfile()">🚪 Sign Out</button>
+  <div class="admin-nav-bar">
+    <button class="admin-toggle-btn" id="login-nav-link" onclick="triggerAdminLogin(false,false)">&#x1F511; Admin Console</button>
+    <button class="admin-toggle-btn btn-logout" onclick="logoutProfile()">&#x1F6AA; Sign Out</button>
+  </div>
+
+  <!-- ══ ADMIN PANEL ══ -->
+  <div class="admin-dashboard-box" id="admin-panel">
+    <span style="font-weight:700;color:#d97706;font-size:15px">&#x2699;&#xFE0F; Master Control Center</span>
+    <div style="margin:8px 0;padding-bottom:8px;border-bottom:1px dashed #ccc">
+      <button id="lock-toggle-btn" class="admin-ctrl-btn lock-btn" onclick="adminToggleLock()">&#x1F512; Lock All Screens</button>
+      <button class="admin-ctrl-btn" onclick="adminFactoryReset()" style="background:#850000">&#x26A0;&#xFE0F; Factory Reset</button>
+      <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Exit Admin</button>
     </div>
 
-    <div class="admin-dashboard-box" id="admin-panel">
-        <span style="font-weight: bold; color: #d97706; font-size: 15px;">⚙️ Master Control Center</span>
-        <div style="margin: 8px 0; padding-bottom: 8px; border-bottom: 1px dashed #ccc;">
-            <button id="lock-toggle-btn" class="admin-ctrl-btn lock-btn" onclick="adminToggleLock()">🔒 Lock All Screens</button>
-            <button class="admin-ctrl-btn" onclick="adminFactoryResetData()" style="background:#850000;">⚠️ Factory Reset Database</button>
-            <button class="admin-ctrl-btn logout-btn" onclick="adminLogout()">Exit Admin Panel</button>
-        </div>
-
-        <div class="admin-sub-section">
-            <div class="admin-sub-title">📡 Live Real-Time Activity Monitor</div>
-            <div id="live-activity-stream" style="font-family: monospace; font-size: 11px; background:#222; color:#0f0; padding: 6px; border-radius:4px; max-height:80px; overflow-y:auto;">
-                Awaiting client telemetry sync updates...
-            </div>
-        </div>
-
-        <section class="admin-sub-section" style="border: 1px solid #17a2b8; background-color: #f4fbff;">
-            <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #0c5460;">📢 Global Operations Broadcast</h4>
-            <div style="display: flex; gap: 4px; margin-bottom: 10px;">
-                <input type="text" id="admin-broadcast-msg" placeholder="Type global alert message..." style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc; border-radius:4px;">
-                <button class="sm-btn btn-blue" onclick="adminSetBroadcast()">Push Alert</button>
-                <button class="sm-btn btn-red" onclick="adminClearBroadcast()">Clear</button>
-            </div>
-
-            <h4 style="margin: 10px 0 8px 0; font-size: 13px; color: #0c5460; border-top: 1px dashed #bee5eb; padding-top: 8px;">🎯 Dynamic Shift Targets</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                <div>
-                    <label style="font-size:10px; color:#555;">1-Man (8 Hr)</label>
-                    <input type="number" id="t-1-8" step="0.1" style="width:100%; padding:4px; font-size:12px;">
-                </div>
-                <div>
-                    <label style="font-size:10px; color:#555;">1-Man (10 Hr)</label>
-                    <input type="number" id="t-1-10" step="0.1" style="width:100%; padding:4px; font-size:12px;">
-                </div>
-                <div>
-                    <label style="font-size:10px; color:#555;">2-Man (8 Hr)</label>
-                    <input type="number" id="t-2-8" step="0.1" style="width:100%; padding:4px; font-size:12px;">
-                </div>
-                <div>
-                    <label style="font-size:10px; color:#555;">2-Man (10 Hr)</label>
-                    <input type="number" id="t-2-10" step="0.1" style="width:100%; padding:4px; font-size:12px;">
-                </div>
-            </div>
-            <button class="sm-btn btn-green" style="margin-top:8px; width: 100%;" onclick="adminSaveTargets()">Save New Target Metrics</button>
-        </section>
-
-        <section id="admin-controls-section" class="admin-sub-section" style="border: 1px solid #333; padding: 12px; border-radius: 8px; background-color: #fff;">
-            <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #111;">Security & Profile Management</h4>
-            
-            <div style="margin-bottom: 12px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
-                <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 6px;">Change Admin Password</span>
-                <div style="display:flex; gap:4px;">
-                    <input type="password" id="admin-new-password" class="text-input" style="padding: 6px; font-size: 13px;" placeholder="New Secret String">
-                    <button class="sm-btn btn-blue" onclick="adminChangePassword()">Update</button>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 12px; padding: 10px; background-color: #fff0f0; border-radius: 5px; border: 1px solid #f8d7da;">
-                <span style="font-size: 12px; font-weight: bold; color: #721c24; display: block; margin-bottom: 4px;">🛡️ IP Blacklist Controls</span>
-                <div style="display:flex; gap:4px; margin-bottom: 6px;">
-                    <input type="text" id="ban-ip-input" placeholder="Enter IP Address to Block" style="flex:1; padding:6px; font-size:12px; border:1px solid #ccc;">
-                    <button class="sm-btn btn-dark" onclick="adminBanIP()">Ban IP</button>
-                </div>
-                <div id="banned-ips-list" style="font-size:11px; color:#dc3545; max-height:60px; overflow-y:auto;"></div>
-            </div>
-
-            <div style="padding: 10px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #eee;">
-                <span style="font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 4px;">Crew Profiles</span>
-                <div style="overflow-x: auto; max-height: 150px; overflow-y:auto;">
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                        <tbody id="admin-people-registry"></tbody>
-                    </table>
-                </div>
-                <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc;">
-                    <div style="display: flex; gap: 4px;">
-                        <input type="text" id="new-person-name" placeholder="Name" style="flex:1; padding:4px; font-size:12px;">
-                        <input type="text" id="new-person-value" placeholder="profile_id" style="flex:1; padding:4px; font-size:12px;">
-                        <button class="sm-btn btn-green" onclick="adminAddPerson()">Add Profile</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <div class="admin-sub-section">
-            <div class="admin-sub-title">📈 Component Unit Editor</div>
-            
-            <div style="display:flex; gap:4px; margin-bottom:8px;">
-                <select id="var-item-select" style="flex:1; font-size:12px;"></select>
-                <input type="number" id="var-item-val" step="0.01" style="width:60px; padding:4px; font-size:12px;" placeholder="0.00">
-                <button class="sm-btn btn-blue" onclick="adminUpdateVariable()">Save</button>
-                <button class="sm-btn btn-red" onclick="adminDeleteVariable()">Delete</button>
-            </div>
-            
-            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #ccc;">
-                <span style="font-size: 11px; font-weight: bold; color: #444; display: block; margin-bottom: 4px;">Create New Item Unit</span>
-                <div style="display: flex; gap: 4px;">
-                    <input type="text" id="new-var-name" placeholder="Variable Name" style="flex:1; padding:4px; font-size:12px;">
-                    <input type="number" id="new-var-val" step="0.01" placeholder="Val (e.g. 0.5)" style="width:80px; padding:4px; font-size:12px;">
-                    <button class="sm-btn btn-green" onclick="adminAddVariable()">Create</button>
-                </div>
-            </div>
-        </div>
-
-        <div style="font-size: 12px; font-weight: bold; margin-top: 12px; color: #444;">Cloud Synchronized Final Drafts:</div>
-        <div class="drafts-view" id="admin-drafts-list"></div>
+    <!-- Tab Bar -->
+    <div class="admin-tab-bar">
+      <button class="admin-tab-btn active" data-tab="overview" onclick="switchTab('overview')">&#x1F4CA; Overview</button>
+      <button class="admin-tab-btn" data-tab="broadcast" onclick="switchTab('broadcast')">&#x1F4E2; Broadcast</button>
+      <button class="admin-tab-btn" data-tab="security" onclick="switchTab('security')">&#x1F510; Security</button>
+      <button class="admin-tab-btn" data-tab="data" onclick="switchTab('data')">&#x1F4C8; Data</button>
+      <button class="admin-tab-btn" data-tab="settings" onclick="switchTab('settings')">&#x2699;&#xFE0F; Settings</button>
+      <button class="admin-tab-btn" data-tab="assistant" onclick="switchTab('assistant')">&#x1F916; AI</button>
     </div>
-    
-    <div id="user-app-elements">
-        <div class="crew-selection">
-            <label class="crew-option"><input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything()"> 1 Man</label>
-            <label class="crew-option"><input type="radio" name="crew" value="2" id="crew-2" onchange="changeCrewType()"> 2 Man</label>
-        </div>
 
-        <div class="crew-details" style="display: none;">
-            <div class="input-group">
-                <label for="profile-select">Active Profile</label>
-                <select id="profile-select" class="select-input" onchange="switchProfile()"></select>
-            </div>
+    <!-- OVERVIEW -->
+    <div class="admin-tab-panel active" id="admin-tab-overview">
+      <div class="admin-sub">
+        <div class="admin-sub-title">&#x1F4E1; Live Activity</div>
+        <div id="live-stream" style="font-family:monospace;font-size:11px;background:#222;color:#0f0;padding:6px;border-radius:4px;max-height:80px;overflow-y:auto">Waiting...</div>
+      </div>
+      <div class="admin-sub" style="background:#fff8f0;border-color:#ffd0a0;margin-top:10px">
+        <div class="admin-sub-title">&#x1F6A7; Maintenance Mode</div>
+        <div id="maint-badge" class="maint-status-badge maint-off">&#x2705; SITE LIVE</div>
+        <div style="margin-bottom:8px">
+          <label style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;display:block;margin-bottom:3px">Message</label>
+          <textarea id="maint-msg-input" rows="2" placeholder="Maintenance reason..." style="width:100%;padding:6px;font-size:12px;border:1px solid #ccc;border-radius:6px;resize:vertical"></textarea>
         </div>
-        
-        <div class="crew-details">
-            <div class="input-group">
-                <label for="foreman-name">Foreman Name</label>
-                <input type="text" id="foreman-name" class="text-input" placeholder="Enter foreman name" oninput="saveFields(); triggerRealtimeTelemetry();">
-            </div>
-            <div class="input-group" id="crew-member-container">
-                <label for="crew-member-name">Crew Member Name(s)</label>
-                <input type="text" id="crew-member-name" class="text-input" placeholder="Enter member name(s)" oninput="saveFields(); triggerRealtimeTelemetry();">
-            </div>
-            <div class="time-row">
-                <div class="input-group">
-                    <label for="start-time">Start Time</label>
-                    <input type="time" id="start-time" class="text-input" onchange="saveFields(); triggerRealtimeTelemetry();">
-                </div>
-                <div class="input-group">
-                    <label for="end-time">End Time</label>
-                    <input type="time" id="end-time" class="text-input" onchange="saveFields(); triggerRealtimeTelemetry();">
-                </div>
-            </div>
+        <div style="margin-bottom:10px">
+          <label style="font-size:11px;font-weight:600;color:#555;text-transform:uppercase;display:block;margin-bottom:3px">ETA (optional)</label>
+          <input type="text" id="maint-eta-input" placeholder="e.g. 2:00 PM, 30 minutes" style="width:100%;padding:6px;font-size:12px;border:1px solid #ccc;border-radius:6px">
         </div>
-
-        <div id="item-cards-container"></div>
-
-        <div class="total-banner">
-            <span>Total Units:</span>
-            <span id="grand-total">0.00</span>
+        <div style="display:flex;gap:6px">
+          <button class="sm-btn btn-red" style="flex:1;padding:8px" onclick="adminSetMaintenance(true)">&#x1F6A7; Enable</button>
+          <button class="sm-btn btn-green" style="flex:1;padding:8px" onclick="adminSetMaintenance(false)">&#x2705; Bring Back Up</button>
         </div>
-
-        <div class="metrics-panel">
-            <span style="font-weight: bold; color: #0056b3;">Target Metrics Status</span>
-            <div class="metrics-grid">
-                <div class="metric-item">
-                    <div class="metric-label">8-Hr Target (<span id="target-8-val">26</span>)</div>
-                    <div class="metric-value" id="rem-8hr">26.00 left</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-label">10-Hr Target (<span id="target-10-val">39</span>)</div>
-                    <div class="metric-value" id="rem-10hr">39.00 left</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="saved-files-section">
-            <span style="font-weight:bold; font-size:14px; color:#1e7e34;">📁 My Saved Files Repository</span>
-            <div id="profile-saved-files-list" style="margin-top:8px; font-size:12px; background:white; border:1px solid #d0e6d6; padding:8px; border-radius:6px; max-height:180px; overflow-y:auto;">
-                <div style="color:#888; font-style:italic; text-align:center;">No entries saved.</div>
-            </div>
-        </div>
-        <br>
-
-        <div class="action-buttons">
-            <button class="clear-btn" onclick="clearForm()">🧹 Clear</button>
-            <button class="save-btn" onclick="showLunchModal()">💾 Save Daily Log</button>
-        </div>
+      </div>
     </div>
-</div>
 
+    <!-- BROADCAST -->
+    <div class="admin-tab-panel" id="admin-tab-broadcast">
+      <div class="admin-sub" style="border:1px solid #17a2b8;background:#f4fbff">
+        <h4 style="margin:0 0 8px;font-size:13px;color:#0c5460">&#x1F4E2; Global Alert</h4>
+        <div style="display:flex;gap:4px;margin-bottom:10px">
+          <input type="text" id="broadcast-msg" placeholder="Global alert message..." style="flex:1;padding:6px;font-size:12px;border:1px solid #ccc;border-radius:4px">
+          <button class="sm-btn btn-blue" onclick="adminSetBroadcast()">Push</button>
+          <button class="sm-btn btn-red" onclick="adminClearBroadcast()">Clear</button>
+        </div>
+        <div style="margin-bottom:8px">
+          <label style="font-size:11px;color:#555;font-weight:600;display:block;margin-bottom:4px">Alert Style</label>
+          <div style="display:flex;gap:6px">
+            <button class="sm-btn" id="alert-info-btn" style="flex:1;background:#cfe4ff;color:#0056b3" onclick="adminSetAlertLevel('info')">Info</button>
+            <button class="sm-btn" id="alert-warning-btn" style="flex:1;background:#ffeeba;color:#856404;outline:3px solid #333" onclick="adminSetAlertLevel('warning')">Warning</button>
+            <button class="sm-btn" id="alert-urgent-btn" style="flex:1;background:#f8d7da;color:#721c24" onclick="adminSetAlertLevel('urgent')">Urgent</button>
+          </div>
+        </div>
+        <h4 style="margin:12px 0 8px;font-size:13px;color:#0c5460;border-top:1px dashed #bee5eb;padding-top:8px">&#x1F3AF; Shift Targets</h4>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><label style="font-size:10px;color:#555">1-Man 8Hr</label><input type="number" id="t-1-8" step="0.1" style="width:100%;padding:4px;font-size:12px"></div>
+          <div><label style="font-size:10px;color:#555">1-Man 10Hr</label><input type="number" id="t-1-10" step="0.1" style="width:100%;padding:4px;font-size:12px"></div>
+          <div><label style="font-size:10px;color:#555">2-Man 8Hr</label><input type="number" id="t-2-8" step="0.1" style="width:100%;padding:4px;font-size:12px"></div>
+          <div><label style="font-size:10px;color:#555">2-Man 10Hr</label><input type="number" id="t-2-10" step="0.1" style="width:100%;padding:4px;font-size:12px"></div>
+        </div>
+        <button class="sm-btn btn-green" style="margin-top:8px;width:100%" onclick="adminSaveTargets()">Save Targets</button>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="admin-tab-panel" id="admin-tab-security">
+      <div class="admin-sub" style="border:1px solid #333">
+        <h4 style="margin:0 0 10px;font-size:14px;color:#111">Admin Login Security</h4>
+        <div style="background:#eef4ff;border-radius:6px;padding:8px;font-size:11px;color:#0056b3;margin-bottom:10px" id="admin-sec-status">Loading...</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+          <button class="sm-btn btn-blue" onclick="adminSetOwnPasscode()">&#x1F522; Set/Change Passcode</button>
+          <button class="sm-btn btn-red" onclick="adminRemoveOwnPasscode()">Remove Passcode</button>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+          <button class="sm-btn btn-dark" onclick="adminSetupBiometric()">&#x1F44D; Enable Biometrics</button>
+          <button class="sm-btn btn-red" onclick="adminDisableBiometric()">Disable Biometrics</button>
+        </div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #ddd">
+          <label style="font-size:11px;font-weight:600;color:#555;display:block;margin-bottom:4px">Change Text Password</label>
+          <div style="display:flex;gap:4px">
+            <input type="password" id="admin-new-password" placeholder="New password" style="flex:1;padding:6px;font-size:13px;border:1px solid #ccc;border-radius:6px">
+            <button class="sm-btn btn-blue" onclick="adminChangePassword()">Update</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-sub" style="background:#fff0f0;border:1px solid #f8d7da;margin-top:10px">
+        <span style="font-size:12px;font-weight:700;color:#721c24;display:block;margin-bottom:6px">&#x1F6E1;&#xFE0F; IP Blacklist</span>
+        <div style="display:flex;gap:4px;margin-bottom:6px">
+          <input type="text" id="ban-ip-input" placeholder="IP address to block" style="flex:1;padding:6px;font-size:12px;border:1px solid #ccc;border-radius:4px">
+          <button class="sm-btn btn-dark" onclick="adminBanIP()">Ban</button>
+        </div>
+        <div id="banned-ips-list" style="font-size:11px;color:#dc3545;max-height:60px;overflow-y:auto"></div>
+      </div>
+
+      <div class="admin-sub" style="margin-top:10px">
+        <span style="font-size:12px;font-weight:700;color:#333;display:block;margin-bottom:6px">Crew Profiles</span>
+        <div style="overflow-y:auto;max-height:220px">
+          <table style="width:100%;border-collapse:collapse;font-size:12px"><tbody id="admin-people-registry"></tbody></table>
+        </div>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px dashed #ccc">
+          <div style="display:flex;gap:4px;margin-bottom:4px">
+            <input type="text" id="new-person-name" placeholder="Name" style="flex:1;padding:4px;font-size:12px;border:1px solid #ccc;border-radius:4px">
+            <input type="text" id="new-person-value" placeholder="profile_id" style="flex:1;padding:4px;font-size:12px;border:1px solid #ccc;border-radius:4px">
+          </div>
+          <div style="display:flex;gap:4px">
+            <input type="email" id="new-person-email" placeholder="Email (optional)" style="flex:1;padding:4px;font-size:12px;border:1px solid #ccc;border-radius:4px">
+            <button class="sm-btn btn-green" onclick="adminAddPerson()">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-sub" style="border:1px solid #bee5eb;background:#f4fbff;margin-top:10px">
+        <div class="admin-sub-title" style="color:#0c5460">&#x1F4E7; Passcode Reset Requests</div>
+        <div id="admin-reset-list" style="font-size:12px;max-height:120px;overflow-y:auto"><div style="color:#aaa;font-style:italic">No pending requests.</div></div>
+      </div>
+
+      <div class="admin-sub" style="border:1px solid #dc3545;background:#fff7f7;margin-top:10px">
+        <div class="admin-sub-title" style="color:#c5221f">&#x1F465; Bulk Actions</div>
+        <div style="display:flex;gap:6px">
+          <button class="sm-btn btn-red" style="flex:1" onclick="adminFreezeAll()">&#x2744;&#xFE0F; Freeze All</button>
+          <button class="sm-btn btn-green" style="flex:1" onclick="adminThawAll()">&#x2600;&#xFE0F; Thaw All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA -->
+    <div class="admin-tab-panel" id="admin-tab-data">
+      <div class="admin-sub">
+        <div class="admin-sub-title">&#x1F4C8; Item Editor</div>
+        <div style="display:flex;gap:4px;margin-bottom:8px">
+          <select id="var-item-select" style="flex:1;font-size:12px;padding:4px"></select>
+          <input type="number" id="var-item-val" step="0.01" placeholder="0.00" style="width:60px;padding:4px;font-size:12px;border:1px solid #ccc;border-radius:4px">
+          <button class="sm-btn btn-blue" onclick="adminUpdateItem()">Save</button>
+          <button class="sm-btn btn-red" onclick="adminDeleteItem()">Del</button>
+        </div>
+        <div style="padding-top:8px;border-top:1px dashed #ccc">
+          <span style="font-size:11px;font-weight:700;color:#444;display:block;margin-bottom:4px">New Item</span>
+          <div style="display:flex;gap:4px">
+            <input type="text" id="new-var-name" placeholder="Item name" style="flex:1;padding:4px;font-size:12px;border:1px solid #ccc;border-radius:4px">
+            <input type="number" id="new-var-val" step="0.01" placeholder="Value" style="width:70px;padding:4px;font-size:12px;border:1px solid #ccc;border-radius:4px">
+            <button class="sm-btn btn-green" onclick="adminAddItem()">Create</button>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;margin-top:12px;color:#444">Saved Drafts:</div>
+      <div class="drafts-view" id="admin-drafts-list"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="admin-tab-panel" id="admin-tab-settings">
+      <div class="admin-sub">
+        <div class="admin-sub-title">&#x2699;&#xFE0F; Site Behavior</div>
+        <div class="set-row">
+          <div><div class="set-label">&#x1F441; View-Only Mode</div><div class="set-sub">Employees can view but not save</div></div>
+          <div><span class="set-badge" id="readonly-badge">OFF</span></div>
+        </div>
+        <div style="display:flex;gap:6px;margin:6px 0 14px">
+          <button class="sm-btn btn-red" style="flex:1" onclick="adminSetSetting('readonly',true)">Turn On</button>
+          <button class="sm-btn btn-green" style="flex:1" onclick="adminSetSetting('readonly',false)">Turn Off</button>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label">&#x1F371; Require Lunch Question</div><div class="set-sub">Ask before each save</div></div>
+          <div><span class="set-badge" id="lunch-badge">ON</span></div>
+        </div>
+        <div style="display:flex;gap:6px;margin:6px 0 14px">
+          <button class="sm-btn btn-green" style="flex:1" onclick="adminSetSetting('require_lunch',true)">Required</button>
+          <button class="sm-btn" style="flex:1;background:#e9ecef;color:#333" onclick="adminSetSetting('require_lunch',false)">Skip</button>
+        </div>
+        <div class="set-row">
+          <div><div class="set-label">&#x1F465; Default Crew Size</div><div class="set-sub">Opening crew mode for new sessions</div></div>
+        </div>
+        <div style="display:flex;gap:6px;margin:6px 0">
+          <button class="sm-btn" id="crew1-btn" style="flex:1" onclick="adminSetSetting('default_crew','1')">1 Man</button>
+          <button class="sm-btn" id="crew2-btn" style="flex:1" onclick="adminSetSetting('default_crew','2')">2 Man</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI ASSISTANT -->
+    <div class="admin-tab-panel" id="admin-tab-assistant">
+      <div class="admin-sub" style="border:1px solid #6f42c1;background:#f6f2fd">
+        <div class="admin-sub-title" style="color:#6f42c1">&#x1F916; Command Assistant</div>
+        <div style="font-size:11px;color:#555;margin-bottom:8px">Type a change in plain English and it applies to the cloud.</div>
+        <textarea id="ai-cmd-input" rows="2" placeholder="e.g. add item Transformer worth 0.85" style="width:100%;padding:8px;font-size:13px;border:1px solid #c9b6e8;border-radius:8px;resize:vertical;margin-bottom:6px"></textarea>
+        <div style="display:flex;gap:6px">
+          <button class="sm-btn" style="flex:1;background:#6f42c1;color:#fff;padding:9px" onclick="aiRunCommand()">&#x2728; Apply</button>
+          <button class="sm-btn" style="background:#e9ecef;color:#333" onclick="aiShowExamples()">Examples</button>
+        </div>
+        <div id="ai-cmd-result"></div>
+      </div>
+      <div class="admin-sub" style="border:1px solid #17a2b8;background:#f4fbff;margin-top:10px">
+        <div class="admin-sub-title" style="color:#0c5460">&#x1F4E5; Import Config</div>
+        <div style="font-size:11px;color:#555;margin-bottom:8px">Paste a JSON config to apply many changes at once.</div>
+        <textarea id="ai-config-input" rows="5" placeholder='{"targets":{"man1_8":28},"global_alert":"Safety meeting 7am"}' style="width:100%;padding:8px;font-size:12px;font-family:monospace;border:1px solid #b8dde6;border-radius:8px;resize:vertical;margin-bottom:6px"></textarea>
+        <div style="display:flex;gap:6px">
+          <button class="sm-btn btn-blue" style="flex:1;padding:9px" onclick="aiPreviewConfig()">Preview</button>
+          <button class="sm-btn btn-green" style="flex:1;padding:9px" onclick="aiApplyConfig()">Apply</button>
+        </div>
+        <div style="margin-top:8px">
+          <button class="sm-btn" style="background:#e9ecef;color:#333;font-size:10px" onclick="aiExportConfig()">&#x1F4CB; Copy Current Config</button>
+        </div>
+        <div id="ai-config-result"></div>
+      </div>
+    </div>
+  </div><!-- /admin-panel -->
+
+  <!-- ══ USER APP ══ -->
+  <div id="user-app-elements">
+    <div class="crew-selection">
+      <label class="crew-option"><input type="radio" name="crew" value="1" id="crew-1" checked onchange="calculateEverything()"> 1 Man</label>
+      <label class="crew-option"><input type="radio" name="crew" value="2" id="crew-2" onchange="calculateEverything()"> 2 Man</label>
+    </div>
+    <div class="crew-details">
+      <div class="input-group"><label>Foreman Name</label><input type="text" id="foreman-name" class="text-input" placeholder="Foreman name" oninput="saveFields()"></div>
+      <div class="input-group" id="crew-member-container"><label>Crew Member(s)</label><input type="text" id="crew-member-name" class="text-input" placeholder="Member name(s)" oninput="saveFields()"></div>
+      <div class="time-row">
+        <div class="input-group"><label>Start Time</label><input type="time" id="start-time" class="text-input" onchange="saveFields()"></div>
+        <div class="input-group"><label>End Time</label><input type="time" id="end-time" class="text-input" onchange="saveFields()"></div>
+      </div>
+    </div>
+    <div id="item-cards-container"></div>
+    <div class="total-banner"><span>Total Units:</span><span id="grand-total">0.00</span></div>
+    <div class="metrics-panel">
+      <span style="font-weight:700;color:#0056b3">Target Metrics</span>
+      <div class="metrics-grid">
+        <div class="metric-item"><div class="metric-label">8-Hr (<span id="target-8-val">26</span>)</div><div class="metric-value rem-neg" id="rem-8hr">26.00 left</div></div>
+        <div class="metric-item"><div class="metric-label">10-Hr (<span id="target-10-val">39</span>)</div><div class="metric-value rem-neg" id="rem-10hr">39.00 left</div></div>
+      </div>
+    </div>
+    <div class="saved-files-section">
+      <span style="font-weight:700;font-size:14px;color:#1e7e34">&#x1F4C1; My Saved Files</span>
+      <div id="profile-saved-files-list" style="margin-top:8px;font-size:12px;background:#fff;border:1px solid #d0e6d6;padding:8px;border-radius:6px;max-height:180px;overflow-y:auto"><div style="color:#888;font-style:italic;text-align:center">No entries saved.</div></div>
+    </div>
+
+    <div class="security-panel">
+      <div class="security-panel-title">&#x1F510; Account Security</div>
+      <div class="sec-row">
+        <div><div class="sec-row-label">&#x1F522; Profile Passcode</div><div class="sec-row-sub" id="passcode-status-text">No passcode set</div></div>
+        <div>
+          <button class="sec-btn sec-btn-set" id="passcode-set-btn" onclick="openSetPasscode()">Set</button>
+          <button class="sec-btn sec-btn-change" id="passcode-change-btn" style="display:none" onclick="openChangePasscode()">Change</button>
+          <button class="sec-btn sec-btn-remove" id="passcode-remove-btn" style="display:none" onclick="removePasscode()">Remove</button>
+        </div>
+      </div>
+      <div class="sec-row">
+        <div><div class="sec-row-label">&#x1F44D; Face ID / Fingerprint</div><div class="sec-row-sub" id="bio-status-text">Not enabled</div></div>
+        <div>
+          <button class="sec-btn sec-btn-set" id="bio-enable-btn" onclick="enableBiometricForProfile()">Enable</button>
+          <button class="sec-btn sec-btn-remove" id="bio-disable-btn" style="display:none" onclick="disableBiometricForProfile()">Disable</button>
+        </div>
+      </div>
+      <div class="sec-row">
+        <div><div class="sec-row-label">&#x1F4E7; Forgot Passcode?</div><div class="sec-row-sub">Request admin to reset it</div></div>
+        <button class="sec-btn sec-btn-request" onclick="requestPasscodeReset(null)">Request Reset</button>
+      </div>
+    </div>
+    <br>
+    <div class="action-buttons">
+      <button class="clear-btn" onclick="clearForm()">&#x1F9F9; Clear</button>
+      <button class="save-btn" onclick="showLunchModal()">&#x1F4BE; Save Daily Log</button>
+    </div>
+  </div><!-- /user-app-elements -->
+</div><!-- /main-app-container -->
+
+<!-- ══ MODALS ══ -->
 <div class="modal-overlay" id="lunch-modal">
-    <div class="modal-box">
-        <div class="modal-title">Did you take a break/lunch today?</div>
-        <div class="modal-buttons">
-            <button class="modal-btn modal-btn-yes" onclick="handleLunchDecision(true)">Yes</button>
-            <button class="modal-btn modal-btn-no" onclick="handleLunchDecision(false)">No</button>
-        </div>
+  <div class="modal-box">
+    <div class="modal-title">Did you take a break/lunch today?</div>
+    <div class="modal-buttons">
+      <button class="modal-btn modal-btn-yes" onclick="handleLunchDecision(true)">Yes</button>
+      <button class="modal-btn modal-btn-no" onclick="handleLunchDecision(false)">No</button>
     </div>
-</div>
-
-<div class="modal-overlay" id="post-save-logout-modal">
-    <div class="modal-box">
-        <div class="modal-title">✅ File Saved Successfully!</div>
-        <p style="font-size: 14px; color: #555; margin-bottom: 16px;">Log downloaded and saved locally.</p>
-        <p style="font-size: 15px; font-weight: bold; margin-bottom: 16px;">Sign out now?</p>
-        <div class="modal-buttons">
-            <button class="modal-btn modal-btn-no" style="background-color: #dc3545;" onclick="logoutProfile()">Yes, Sign Out</button>
-            <button class="modal-btn modal-btn-yes" style="background-color: #6c757d;" onclick="closePostSaveLogoutModal()">No, Stay Here</button>
-        </div>
-    </div>
+  </div>
 </div>
 
 <div class="modal-overlay" id="view-file-modal">
-    <div class="modal-box" style="max-width: 90%; max-height: 90%; display: flex; flex-direction: column;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-            <div class="modal-title" style="margin: 0;">📄 Log Viewer</div>
-            <button class="sm-btn btn-blue" style="padding: 6px 12px;" onclick="printSavedLog()">🖨️ Print</button>
-        </div>
-        <textarea id="view-file-content" style="width: 100%; flex: 1; min-height: 350px; font-family: monospace; font-size: 11px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: none; background-color: #f8f9fa;" readonly></textarea>
-        <button class="modal-btn modal-btn-no" style="margin-top: 16px;" onclick="closeViewFileModal()">Close Viewer</button>
+  <div class="modal-box" style="max-width:90%;max-height:90%;display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="modal-title" style="margin:0">&#x1F4C4; Log Viewer</div>
+      <button class="sm-btn btn-blue" onclick="printSavedLog()">&#x1F5A8;&#xFE0F; Print</button>
     </div>
+    <textarea id="view-file-content" style="width:100%;flex:1;min-height:300px;font-family:monospace;font-size:11px;padding:10px;border:1px solid #ccc;border-radius:6px;resize:none;background:#f8f9fa" readonly></textarea>
+    <button class="modal-btn modal-btn-no" style="margin-top:16px" onclick="document.getElementById('view-file-modal').style.display='none'">Close</button>
+  </div>
 </div>
 
 <script>
-    const BIN_ID = "6a372915f5f4af5e29165e77";
-    const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
-    const SYNC_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
-    
-    // Core state
-    let globalCloudData = { 
-        is_locked: false, 
-        drafts: [], 
-        admin_pass: "2026", 
-        frozen_users: {}, 
-        variables: {}, 
-        active_login_ips: {},
-        failed_admin_logins: [],
-        banned_ips: [],
-        global_alert: "",
-        targets: { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 }
+'use strict';
+
+// ══════════════════════════════════════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════════════════════════════════════
+const BIN_ID = "6a38c61bf5f4af5e291b1384";
+const MASTER_KEY = "$2a$10$vb5X3Bga7UxTdwOQcRYPlOlAvbTdeXHq/WWLOhdCOCZtWZ48LmiGy";
+const HEADERS = {"X-Master-Key": MASTER_KEY, "X-Access-Key": MASTER_KEY, "Content-Type": "application/json"};
+const SYNC_URL = "https://api.jsonbin.io/v3/b/" + BIN_ID;
+const ADMIN_KEY = "__admin__";
+const MASTER_RECOVERY_KEY = "DOMSC-RECOVERY-2026";
+const AI_ALLOWED = ["targets","global_alert","maintenance","is_locked","variables","deleted_vars","profiles","admin_pass","settings","profile_notes"];
+
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+let cloud = {
+  is_locked: false, drafts: [], admin_pass: "2026", frozen_users: {},
+  variables: {}, active_login_ips: {}, failed_admin_logins: [], banned_ips: [],
+  global_alert: "", targets: {man1_8:26,man1_10:32.5,man2_8:32.5,man2_10:39},
+  maintenance: {active:false,message:"",eta:""}, passcode_reset_requests: [],
+  passcodes: {}, bio_flags: {}, passcode_meta: {}, profile_notes: {},
+  settings: {alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},
+  profiles: [{name:"Robert S",val:"robert_s"},{name:"Payton N",val:"payton_n"},{name:"Default / Custom",val:"default"}],
+  deleted_vars: []
+};
+let BASE_ITEMS = [
+  {name:"Visual",val:.30},{name:"3 Fume (Creosote Pole)",val:.54},
+  {name:"4 Fume (Creosote Pole)",val:.72},{name:"Ground wire",val:.55},
+  {name:"Guy marker",val:.17},{name:"Pole number",val:.14},
+  {name:"Riser ground",val:.44},{name:"U guard",val:.46},
+  {name:"Pad mount",val:.27},{name:"Warning sticker",val:.02},
+  {name:"Bonding",val:.44},{name:"Pad mount tag ID",val:.27}
+];
+let items = [...BASE_ITEMS];
+let isAdmin = false, isDedicatedAdmin = false;
+let localIP = "0.0.0.0";
+let adminTimer = null;
+let authCtx = null, pcBuffer = "", pcTarget = "", pcSetStep = 0, pcSetFirst = "";
+
+// ══════════════════════════════════════════════════════════════
+//  CLOUD
+// ══════════════════════════════════════════════════════════════
+async function pullCloud() {
+  renderLoginButtons();
+  try {
+  
+    // Use Promise.race instead of AbortController — works on all Safari versions
+    const fetchPromise = fetch(SYNC_URL,{headers:HEADERS});
+    const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
+    const r = await Promise.race([fetchPromise, timeoutPromise]);
+    if (!r.ok) return true;
+    const d = (await r.json()).record;
+    cloud = {
+      is_locked:              d.is_locked||false,
+      drafts:                 d.drafts||[],
+      admin_pass:             d.admin_pass||"2026",
+      frozen_users:           d.frozen_users||{},
+      variables:              d.variables||{},
+      active_login_ips:       d.active_login_ips||{},
+      failed_admin_logins:    d.failed_admin_logins||[],
+      banned_ips:             d.banned_ips||[],
+      global_alert:           d.global_alert||"",
+      targets:                Object.assign({man1_8:26,man1_10:32.5,man2_8:32.5,man2_10:39},d.targets||{}),
+      maintenance:            Object.assign({active:false,message:"",eta:""},d.maintenance||{}),
+      passcode_reset_requests:d.passcode_reset_requests||[],
+      passcodes:              d.passcodes||{},
+      bio_flags:              d.bio_flags||{},
+      passcode_meta:          d.passcode_meta||{},
+      profile_notes:          d.profile_notes||{},
+      settings:               Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{}),
+      profiles:               (d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
+      deleted_vars:           d.deleted_vars||[]
     };
-    
-    let isAdminLoggedIn = false;
-    let isDedicatedAdminMode = false;
-    let localClientIP = "0.0.0.0";
-    let adminSessionTimer;
-
-    let items = [
-        { name: "Visual", val: 0.30 },
-        { name: "3 Fume (Creosote Pole)", val: 0.54 },
-        { name: "4 Fume (Creosote Pole)", val: 0.72 },
-        { name: "Ground wire", val: 0.55 },
-        { name: "Guy marker", val: 0.17 },
-        { name: "Pole number", val: 0.14 },
-        { name: "Riser ground", val: 0.44 },
-        { name: "U guard", val: 0.46 },
-        { name: "Pad mount", val: 0.27 },
-        { name: "Warning sticker", val: 0.02 },
-        { name: "Bonding", val: 0.44 },
-        { name: "Pad mount tag ID", val: 0.27 }
-    ];
-
-    let profilesRegistry = [
-        { name: "Robert S", val: "robert_s" },
-        { name: "Payton N", val: "payton_n" },
-        { name: "Default / Custom", val: "default" }
-    ];
-
-    async function resolveClientPublicIP() {
-        try {
-            const response = await fetch('https://api.ipify.org?format=json');
-            if(response.ok) {
-                const data = await response.json();
-                localClientIP = data.ip || "0.0.0.0";
-            }
-        } catch(e) { console.error("IP API failed"); }
+    if (cloud.banned_ips.includes(localIP)) {
+      document.getElementById('banned-screen').style.display='flex';
+      return false;
     }
+    return true;
+  } catch(e) {
+    console.warn('Cloud sync unavailable:', e.message);
+    return true;
+  }
+}
+async function pushCloud() {
+  try {
+    await fetch(SYNC_URL,{method:"PUT",headers:HEADERS,body:JSON.stringify(cloud)});
+  } catch(e) { console.error('pushCloud',e); }
+}
 
-    // Admin Session Security
-    function resetAdminTimer() {
-        if (!isAdminLoggedIn) return;
-        clearTimeout(adminSessionTimer);
-        adminSessionTimer = setTimeout(() => {
-            alert("Admin session expired due to inactivity.");
-            adminLogout();
-        }, 10 * 60 * 1000); // 10 minutes timeout
+// ══════════════════════════════════════════════════════════════
+//  PASSCODE / BIO HELPERS (cloud-synced)
+// ══════════════════════════════════════════════════════════════
+function getPC(key) { return (cloud.passcodes&&cloud.passcodes[key])||null; }
+async function setPC(key,hash,by) {
+  cloud.passcodes[key]=hash;
+  if(!cloud.passcode_meta)cloud.passcode_meta={};
+  cloud.passcode_meta[key]={changedAt:new Date().toLocaleString(),changedBy:by||"user"};
+  await pushCloud();
+}
+async function clearPC(key) {
+  delete cloud.passcodes[key]; delete (cloud.bio_flags||{})[key]; delete (cloud.passcode_meta||{})[key];
+  await pushCloud();
+}
+function getMeta(key) { return cloud.passcode_meta&&cloud.passcode_meta[key]; }
+function bioOn(key) { return !!(cloud.bio_flags&&cloud.bio_flags[key]); }
+async function setBio(key,on) {
+  if(!cloud.bio_flags)cloud.bio_flags={};
+  if(on)cloud.bio_flags[key]=true; else delete cloud.bio_flags[key];
+  await pushCloud();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  WEBAUTHN / BIOMETRICS
+// ══════════════════════════════════════════════════════════════
+function getRpId() {
+  const h=window.location.hostname;
+  if(!h||window.location.protocol==='file:')return null;
+  return h;
+}
+async function bioAvailable() {
+  if(!window.PublicKeyCredential)return false;
+  if(!getRpId())return false;
+  try { return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); }
+  catch(e){return false;}
+}
+function bioCredKey(ctx) { return "dom_sc_bio_"+ctx; }
+function hasBioCred(ctx) { return !!localStorage.getItem(bioCredKey(ctx)); }
+async function registerBio(ctx,name) {
+  const rpId=getRpId(); if(!rpId)return false;
+  try {
+    const ch=new Uint8Array(32); crypto.getRandomValues(ch);
+    const uid=new Uint8Array(16); crypto.getRandomValues(uid);
+    const cred=await navigator.credentials.create({publicKey:{
+      challenge:ch, rp:{name:"DOM/SC Platform",id:rpId},
+      user:{id:uid,name:ctx,displayName:name},
+      pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"preferred"},
+      timeout:60000, attestation:"none"
+    }});
+    if(!cred)return false;
+    const b64=btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+    localStorage.setItem(bioCredKey(ctx),b64);
+    return true;
+  } catch(e){console.error('registerBio',e);return false;}
+}
+async function verifyBio(ctx) {
+  const rpId=getRpId(); if(!rpId)return false;
+  const b64=localStorage.getItem(bioCredKey(ctx)); if(!b64)return false;
+  try {
+    const bytes=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+    const ch=new Uint8Array(32); crypto.getRandomValues(ch);
+    const a=await navigator.credentials.get({publicKey:{
+      challenge:ch, timeout:60000, userVerification:"required", rpId,
+      allowCredentials:[{type:"public-key",id:bytes.buffer,transports:["internal"]}]
+    }});
+    return !!a;
+  } catch(e){console.error('verifyBio',e);return false;}
+}
+
+// ══════════════════════════════════════════════════════════════
+//  IP / GEO
+// ══════════════════════════════════════════════════════════════
+async function resolveIP() {
+  try { const r=await fetch('https://api.ipify.org?format=json'); if(r.ok)localIP=(await r.json()).ip||"0.0.0.0"; } catch(e){}
+}
+function getGeo() {
+  return new Promise(res=>{
+    if(!navigator.geolocation){res({error:"unavailable"});return;}
+    navigator.geolocation.getCurrentPosition(
+      p=>res({lat:p.coords.latitude.toFixed(6),lng:p.coords.longitude.toFixed(6),accuracy:Math.round(p.coords.accuracy),timestamp:new Date().toLocaleString()}),
+      e=>res({error:["denied","unavailable","timeout"][e.code-1]||"unavailable"}),
+      {enableHighAccuracy:true,timeout:10000,maximumAge:0}
+    );
+  });
+}
+function mapsLink(loc) { return loc&&!loc.error&&loc.lat?`https://www.google.com/maps?q=${loc.lat},${loc.lng}`:null; }
+
+// ══════════════════════════════════════════════════════════════
+//  HASH
+// ══════════════════════════════════════════════════════════════
+async function hashPin(pin) {
+  const enc=new TextEncoder().encode(pin+"_dom_sc_salt_2026");
+  const buf=await crypto.subtle.digest("SHA-256",enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+// ══════════════════════════════════════════════════════════════
+//  AUTH MODAL ENGINE
+// ══════════════════════════════════════════════════════════════
+async function openAuthModal(title,sub,hash,showForgot,onSuccess,bioCtx,pendingProfile) {
+  pcBuffer=""; pcTarget=hash||"";
+  authCtx={onSuccess,bioCtx:bioCtx||null,pendingProfile:pendingProfile||null};
+  $('auth-modal-title').textContent=title;
+  $('auth-modal-sub').textContent=sub;
+  $('auth-error-msg').textContent="";
+  $('auth-forgot-btn').style.display=showForgot?"inline-block":"none";
+  $('auth-modal-overlay').style.display="flex";
+  updateDots();
+  // Bio button
+  const bioBtn=$('auth-bio-btn'), bioDiv=$('auth-divider');
+  const avail=await bioAvailable();
+  const enrolled=bioCtx&&hasBioCred(bioCtx);
+  if(avail&&enrolled) {
+    bioBtn.style.display="flex"; bioBtn.disabled=false;
+    bioBtn.innerHTML="&#x1F44D; Use Face ID / Fingerprint";
+    bioDiv.style.display="flex";
+  } else {
+    bioBtn.style.display="none"; bioDiv.style.display="none";
+  }
+}
+function closeAuthModal() {
+  $('auth-modal-overlay').style.display="none";
+  pcBuffer=""; pcSetStep=0; pcSetFirst=""; authCtx=null;
+}
+function updateDots() {
+  for(let i=0;i<4;i++) {
+    const d=$('dot-'+i);
+    if(d) d.className="passcode-dot"+(i<pcBuffer.length?" filled":"");
+  }
+}
+function numpadPress(d) {
+  if(pcBuffer.length>=4)return;
+  pcBuffer+=d; updateDots(); $('auth-error-msg').textContent="";
+  if(pcBuffer.length===4)setTimeout(handlePC,120);
+}
+function numpadDelete() { if(pcBuffer.length>0){pcBuffer=pcBuffer.slice(0,-1);updateDots();} }
+async function handlePC() {
+  if(authCtx&&authCtx.mode==="set") {
+    if(pcSetStep===0){pcSetFirst=pcBuffer;pcBuffer="";updateDots();$('auth-modal-sub').textContent="Confirm your new passcode";pcSetStep=1;}
+    else {
+      if(pcBuffer===pcSetFirst){const h=await hashPin(pcBuffer);authCtx.onSuccess(h);closeAuthModal();}
+      else{$('auth-error-msg').textContent="Passcodes don't match. Try again.";pcBuffer=pcSetFirst="";pcSetStep=0;$('auth-modal-sub').textContent="Enter a new 4-digit passcode";updateDots();}
     }
-    document.addEventListener('mousemove', resetAdminTimer);
-    document.addEventListener('keypress', resetAdminTimer);
-    document.addEventListener('touchstart', resetAdminTimer);
+    return;
+  }
+  const h=await hashPin(pcBuffer);
+  if(h===pcTarget){if(authCtx&&authCtx.onSuccess)authCtx.onSuccess();closeAuthModal();}
+  else{$('auth-error-msg').textContent="Incorrect passcode. Try again.";pcBuffer="";updateDots();}
+}
+async function attemptBiometric() {
+  const ctx=authCtx&&authCtx.bioCtx; if(!ctx){$('auth-error-msg').textContent="Biometric context missing.";return;}
+  $('auth-error-msg').textContent="";
+  const btn=$('auth-bio-btn'); btn.innerHTML="&#x23F3; Verifying..."; btn.disabled=true;
+  const ok=await verifyBio(ctx);
+  btn.innerHTML="&#x1F44D; Use Face ID / Fingerprint"; btn.disabled=false;
+  if(ok){if(authCtx&&authCtx.onSuccess)authCtx.onSuccess();closeAuthModal();}
+  else $('auth-error-msg').textContent="Biometric failed — use your passcode.";
+}
+function authForgotPasscode() {
+  const p=authCtx&&authCtx.pendingProfile;
+  if(confirm("Request a passcode reset from the admin?")) { closeAuthModal(); requestPasscodeReset(p); }
+}
 
-    async function pullGlobalData() {
-        if (!BIN_ID || BIN_ID.includes("YOUR_")) return;
-        try {
-            const res = await fetch(SYNC_URL, { method: "GET", headers: { "X-Master-Key": MASTER_KEY } });
-            if (res.ok) {
-                const r = await res.json();
-                const d = r.record;
-                globalCloudData = {
-                    is_locked: d.is_locked || false,
-                    drafts: d.drafts || [],
-                    admin_pass: d.admin_pass || "2026",
-                    frozen_users: d.frozen_users || {},
-                    variables: d.variables || {},
-                    active_login_ips: d.active_login_ips || {},
-                    failed_admin_logins: d.failed_admin_logins || [],
-                    banned_ips: d.banned_ips || [],
-                    global_alert: d.global_alert || "",
-                    targets: d.targets || { man1_8: 26, man1_10: 32.5, man2_8: 32.5, man2_10: 39 },
-                    profiles: d.profiles || profilesRegistry
-                };
-                
-                // IP Security Check immediately after data load
-                if (globalCloudData.banned_ips.includes(localClientIP)) {
-                    document.getElementById('banned-screen').style.display = 'flex';
-                    throw new Error("Banned IP");
-                }
+// modal for setting a new passcode (no bio button)
+function openSetModal(title,sub,onHash) {
+  pcSetStep=0; pcSetFirst=""; pcBuffer="";
+  authCtx={mode:"set",onSuccess:onHash,bioCtx:null,pendingProfile:null};
+  $('auth-modal-title').textContent=title;
+  $('auth-modal-sub').textContent=sub;
+  $('auth-error-msg').textContent="";
+  $('auth-forgot-btn').style.display="none";
+  $('auth-bio-btn').style.display="none";
+  $('auth-divider').style.display="none";
+  $('auth-modal-overlay').style.display="flex";
+  updateDots();
+}
 
-                applyGlobalState();
-            }
-        } catch (e) { console.log(e); }
+// ══════════════════════════════════════════════════════════════
+//  ADMIN LOGIN + RECOVERY
+// ══════════════════════════════════════════════════════════════
+function resetAdminTimer() {
+  if(!isAdmin)return;
+  clearTimeout(adminTimer);
+  adminTimer=setTimeout(()=>{alert("Admin session expired.");adminLogout();},10*60*1000);
+}
+['mousemove','keypress','touchstart'].forEach(e=>document.addEventListener(e,resetAdminTimer));
+
+async function triggerAdminLogin(isBypass,isDedicated) {
+  // IMPORTANT: Do NOT await anything before prompt() or the numpad modal on mobile.
+  // iOS/Android kill the user-gesture context after any await, blocking prompt() silently.
+  // We use the already-loaded cloud data (fetched on startup) for the password check.
+  // A background sync runs after successful login to get the latest state.
+
+  const hash=getPC(ADMIN_KEY), bioEnabled=bioOn(ADMIN_KEY), avail=await bioAvailable();
+
+  // Biometrics — this await is fine because it shows a native OS dialog (not prompt)
+  if(bioEnabled&&avail&&hasBioCred("admin")) {
+    const ok=await verifyBio("admin");
+    if(ok){grantAdmin(isBypass,isDedicated);return;}
+  }
+
+  // Numpad modal — this is fine, it's a DOM modal not a browser dialog
+  if(hash) {
+    await openAuthModal("Admin Login","Enter your admin passcode",hash,false,()=>grantAdmin(isBypass,isDedicated),"admin",null);
+    return;
+  }
+
+  // Text password — must call prompt() immediately, no await before this line
+  const pw=prompt("Enter Administrator Password:"); if(pw===null)return;
+  const correct=cloud.admin_pass||"2026";
+  const profKey=isDedicated?"System_Admin":(localStorage.getItem('dom_sc_active_profile')||"unknown");
+  const attKey='failed_admin_'+profKey;
+  if(pw===correct){
+    localStorage.setItem(attKey,0);
+    grantAdmin(isBypass,isDedicated);
+    // Background sync after login — safe here, UI is already showing
+    pullCloudSilent().then(()=>applyUI());
+  } else {
+    cloud.failed_admin_logins.push({profile:profKey,ip:localIP,time:new Date().toLocaleString(),attempt:pw});
+    let att=(parseInt(localStorage.getItem(attKey))||0)+1;
+    localStorage.setItem(attKey,att);
+    if(!isDedicated&&att>=3){cloud.frozen_users[profKey]=true;await pushCloud();applyUI();alert("Profile locked.");}
+    else{await pushCloud();alert(`Wrong password. Attempt ${att} of 3.`);}
+  }
+}
+
+// Pull cloud without triggering UI refresh (used inside login flow)
+async function pullCloudSilent() {
+  try {
+    const fetchPromise = fetch(SYNC_URL,{headers:HEADERS});
+    const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
+    const r = await Promise.race([fetchPromise, timeoutPromise]);
+    if(!r.ok)return;
+    const d=(await r.json()).record;
+    cloud=Object.assign(cloud,{
+      admin_pass:d.admin_pass||"2026", passcodes:d.passcodes||{}, bio_flags:d.bio_flags||{},
+      banned_ips:d.banned_ips||[], is_locked:d.is_locked||false,
+      frozen_users:d.frozen_users||{}, maintenance:Object.assign({active:false,message:"",eta:""},d.maintenance||{}),
+      profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
+      settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{})
+    });
+    if(cloud.banned_ips.includes(localIP))document.getElementById('banned-screen').style.display='flex';
+  } catch(e){ console.warn('pullCloudSilent failed'); }
+}
+
+function grantAdmin(isBypass,isDedicated) {
+  isAdmin=true; isDedicatedAdmin=isDedicated; resetAdminTimer();
+  hide('lock-overlay'); hide('maintenance-overlay'); hide('login-gateway-portal');
+  show('main-app-container','block'); show('admin-panel','block'); hide('local-freeze-screen');
+  if(isDedicated){hide('user-app-elements');hide('login-nav-link');}
+  else hide('login-nav-link');
+  switchTab('overview');
+  applyUI();
+}
+function adminLogout() {
+  isAdmin=false; clearTimeout(adminTimer); isDedicatedAdmin=false;
+  if(isDedicatedAdmin){location.reload();return;}
+  hide('admin-panel'); show('login-nav-link','inline-block'); applyUI();
+}
+
+async function triggerAdminRecovery() {
+  const k=prompt("Enter Master Recovery Key:\n(Resets cloud password back to: 2026)");
+  if(!k)return;
+  if(k.trim()===MASTER_RECOVERY_KEY) {
+    await pullCloud();
+    cloud.admin_pass="2026";
+    if(cloud.passcodes)delete cloud.passcodes[ADMIN_KEY];
+    if(cloud.bio_flags)delete cloud.bio_flags[ADMIN_KEY];
+    localStorage.removeItem(bioCredKey("admin"));
+    await pushCloud();
+    alert("Access restored! Password reset to: 2026\nLogging you in now.");
+    grantAdmin(false,true);
+  } else if(k.trim()) alert("Incorrect recovery key.");
+}
+
+// ══════════════════════════════════════════════════════════════
+//  PROFILE LOGIN
+// ══════════════════════════════════════════════════════════════
+async function processInstantProfileTap(profileVal) {
+  // Use already-loaded cloud data (no await before showing auth UI — preserves mobile gesture context)
+  if(cloud.banned_ips.includes(localIP))return;
+  const hash=getPC(profileVal), bioEnabled=bioOn(profileVal), avail=await bioAvailable();
+  const bioCtx="profile_"+profileVal;
+  if(hash||bioEnabled) {
+    if(bioEnabled&&avail&&hasBioCred(bioCtx)){const ok=await verifyBio(bioCtx);if(ok){completeLogin(profileVal);return;}}
+    if(hash){await openAuthModal("Profile Login","Enter your passcode",hash,true,()=>completeLogin(profileVal),bioCtx,profileVal);return;}
+    if(confirm("This profile requires biometrics not set up on this device.\nRequest a passcode reset from admin?"))requestPasscodeReset(profileVal);
+  } else completeLogin(profileVal);
+}
+async function completeLogin(profileVal) {
+  const geo=await getGeo();
+  cloud.active_login_ips[profileVal]={ip:localIP,timestamp:new Date().toLocaleString(),location:geo};
+  await pushCloud();
+  const name=(cloud.profiles.find(p=>p.val===profileVal)||{}).name||profileVal;
+  const locStr=geo.error?`Location ${geo.error}`:`${geo.lat},${geo.lng} (±${geo.accuracy}m)`;
+  try{emailjs.send("service_h1nnfhv","template_aienmjb",{profile_name:name,ip_address:localIP,location:locStr,time:new Date().toLocaleString()});}catch(e){}
+  localStorage.setItem('dom_sc_active_profile',profileVal);
+  hide('login-gateway-portal');
+  show('main-app-container','block');
+  show('user-app-elements','block'); // always show for regular profile login
+  show('login-nav-link','inline-block'); // show admin console button
+  hide('admin-panel'); // hide admin panel if previously open
+  loadSavedData();
+}
+function logoutProfile(){localStorage.removeItem('dom_sc_active_profile');location.reload();}
+
+// ══════════════════════════════════════════════════════════════
+//  APPLY UI STATE
+// ══════════════════════════════════════════════════════════════
+
+// Renders profile buttons on the login gateway — called immediately on load
+// so the screen is never stuck on "Loading profiles..."
+function renderLoginButtons() {
+  const bl=$('login-profile-buttons-list');
+  if(!bl)return;
+  bl.innerHTML=cloud.profiles.map(p=>
+    `<button class="profile-tap-btn" onclick="processInstantProfileTap('${p.val}')">` +
+    `<span>&#x1F464; ${p.name}</span>` +
+    `<span style="color:#0076d6;font-size:12px">Tap to enter &#x2192;</span></button>`
+  ).join('');
+}
+function applyUI() {
+  const m=cloud.maintenance||{};
+  // Maintenance
+  if(m.active&&!isAdmin){
+    show('maintenance-overlay','flex');hide('lock-overlay');hide('main-app-container');hide('login-gateway-portal');
+    $('maint-display-msg').textContent=m.message||"No details provided.";
+    const eta=$('maint-eta-box'); if(m.eta){$('maint-display-eta').textContent=m.eta;eta.style.display='block';}else eta.style.display='none';
+    return;
+  } else hide('maintenance-overlay');
+  // Lock
+  if(cloud.is_locked&&!isAdmin){show('lock-overlay','flex');hide('main-app-container');hide('login-gateway-portal');return;}
+  else hide('lock-overlay');
+  // Freeze
+  const prof=$('profile-select').value;
+  if(cloud.frozen_users[prof]&&!isAdmin)show('local-freeze-screen','flex'); else hide('local-freeze-screen');
+  // Alert banner
+  const banner=$('global-alert-banner');
+  if(cloud.global_alert&&cloud.global_alert.trim()){
+    banner.style.display="block"; banner.textContent="ALERT: "+cloud.global_alert;
+    const lvl=(cloud.settings||{}).alert_level||"warning";
+    banner.style.background=lvl==="info"?"#cfe4ff":lvl==="urgent"?"#f8d7da":"#ffeeba";
+    banner.style.color=lvl==="info"?"#0056b3":lvl==="urgent"?"#721c24":"#856404";
+    banner.style.borderColor=lvl==="info"?"#9ec5ff":lvl==="urgent"?"#f1aeb5":"#ffe8a1";
+  } else banner.style.display="none";
+  // Items
+  rebuildItems();
+  // Profiles
+  const pSel=$('profile-select'), cur=pSel.value;
+  pSel.innerHTML=cloud.profiles.map(p=>`<option value="${p.val}">${p.name}</option>`).join('');
+  pSel.value=cur;
+  // Login buttons — always rebuild from current profiles
+  renderLoginButtons();
+  // Admin UI
+  if(isAdmin){
+    const lb=$('lock-toggle-btn'); if(lb)lb.textContent=cloud.is_locked?"Unlock All Screens":"Lock All Screens";
+    const bm=$('broadcast-msg'); if(bm)bm.value=cloud.global_alert||"";
+    const mi=$('maint-msg-input'),ei=$('maint-eta-input');
+    if(mi)mi.value=m.message||""; if(ei)ei.value=m.eta||"";
+    const mb=$('maint-badge');
+    if(mb){mb.textContent=m.active?"MAINTENANCE ACTIVE":"SITE LIVE";mb.className="maint-status-badge "+(m.active?"maint-on":"maint-off");}
+    ['t-1-8','t-1-10','t-2-8','t-2-10'].forEach((id,i)=>{const el=$(id);if(el)el.value=[cloud.targets.man1_8,cloud.targets.man1_10,cloud.targets.man2_8,cloud.targets.man2_10][i];});
+    updateAdminSecStatus(); updateAdminPeople(); updateAdminDrafts(); updateResetRequests(); updateBannedIPs(); updateSettingsUI();
+    updateAlertLevelBtns();
+  }
+  calculateEverything();
+  // User security panel (async, fire and forget — won't break anything)
+  updateSecurityPanel();
+}
+function rebuildItems() {
+  let base=[...BASE_ITEMS.map(i=>({...i}))];
+  Object.keys(cloud.variables||{}).forEach(k=>{const e=base.find(i=>i.name===k);if(e)e.val=parseFloat(cloud.variables[k]);else base.push({name:k,val:parseFloat(cloud.variables[k])});});
+  if(cloud.deleted_vars)base=base.filter(i=>!cloud.deleted_vars.includes(i.name));
+  items=base; renderCards();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  ADMIN CONTROLS
+// ══════════════════════════════════════════════════════════════
+function switchTab(t) {
+  document.querySelectorAll('.admin-tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  document.querySelectorAll('.admin-tab-panel').forEach(p=>p.classList.toggle('active',p.id==='admin-tab-'+t));
+}
+async function adminToggleLock(){cloud.is_locked=!cloud.is_locked;await pushCloud();applyUI();}
+async function adminFactoryReset(){
+  if(!confirm("Delete ALL drafts and activity records?"))return;
+  if(prompt("Type CONFIRM to wipe:")==="CONFIRM"){cloud.drafts=[];cloud.active_login_ips={};cloud.failed_admin_logins=[];await pushCloud();applyUI();}
+}
+async function adminSetMaintenance(on){
+  cloud.maintenance={active:on,message:on?($('maint-msg-input').value.trim()||""):"",eta:on?($('maint-eta-input').value.trim()||""):""};
+  await pushCloud();applyUI();
+}
+async function adminSetBroadcast(){cloud.global_alert=$('broadcast-msg').value;await pushCloud();applyUI();}
+async function adminClearBroadcast(){cloud.global_alert="";$('broadcast-msg').value="";await pushCloud();applyUI();}
+async function adminSetAlertLevel(lvl){cloud.settings.alert_level=lvl;await pushCloud();updateAlertLevelBtns();applyUI();}
+function updateAlertLevelBtns(){
+  const lvl=(cloud.settings||{}).alert_level||"warning";
+  ['info','warning','urgent'].forEach(l=>{const b=$('alert-'+l+'-btn');if(b)b.style.outline=l===lvl?"3px solid #333":"none";});
+}
+async function adminSaveTargets(){
+  cloud.targets={man1_8:parseFloat($('t-1-8').value)||26,man1_10:parseFloat($('t-1-10').value)||32.5,man2_8:parseFloat($('t-2-8').value)||32.5,man2_10:parseFloat($('t-2-10').value)||39};
+  await pushCloud();alert("Targets saved.");applyUI();
+}
+async function adminChangePassword(){
+  const p=$('admin-new-password').value; if(!p)return;
+  cloud.admin_pass=p;await pushCloud();alert("Password updated.");$('admin-new-password').value="";
+}
+
+// Admin own passcode
+function adminSetOwnPasscode(){
+  const existing=getPC(ADMIN_KEY);
+  const doSet=()=>openSetModal("Set Admin Passcode","Enter a new 4-digit admin passcode",async h=>{await setPC(ADMIN_KEY,h,"admin");alert("Admin passcode saved!");updateAdminSecStatus();});
+  if(existing)openAuthModal("Verify Admin Passcode","Enter current passcode",existing,false,()=>setTimeout(doSet,200),"admin",null);
+  else doSet();
+}
+async function adminRemoveOwnPasscode(){
+  const h=getPC(ADMIN_KEY); if(!h){alert("No passcode set.");return;}
+  if(!confirm("Remove admin passcode?"))return;
+  openAuthModal("Verify Passcode","Enter current passcode to remove",h,false,async()=>{delete cloud.passcodes[ADMIN_KEY];delete (cloud.bio_flags||{})[ADMIN_KEY];await pushCloud();localStorage.removeItem(bioCredKey("admin"));alert("Passcode removed.");updateAdminSecStatus();},"admin",null);
+}
+async function adminSetupBiometric(){
+  if(!await bioAvailable()){alert("Biometrics not supported on this device.");return;}
+  if(!getPC(ADMIN_KEY)){alert("Set an admin passcode first, then enable biometrics.");return;}
+  const ok=await registerBio("admin","Administrator");
+  if(ok){await setBio(ADMIN_KEY,true);alert("Admin biometrics enrolled!");}
+  else alert("Biometric enrollment failed. Ensure Face ID/Fingerprint is set up in device settings.");
+  updateAdminSecStatus();
+}
+async function adminDisableBiometric(){await setBio(ADMIN_KEY,false);localStorage.removeItem(bioCredKey("admin"));alert("Admin biometrics disabled.");updateAdminSecStatus();}
+function updateAdminSecStatus(){
+  const el=$('admin-sec-status'); if(!el)return;
+  const hasPc=!!getPC(ADMIN_KEY), bio=bioOn(ADMIN_KEY), cred=hasBioCred("admin");
+  el.textContent=(hasPc?"Passcode: ON":"Passcode: not set")+"  •  "+(bio&&cred?"Biometrics: ON (this device)":bio?"Biometrics: ON (enroll here)":"Biometrics: off");
+}
+
+// IP blacklist
+async function adminBanIP(){const ip=$('ban-ip-input').value.trim();if(!ip)return;if(!cloud.banned_ips.includes(ip))cloud.banned_ips.push(ip);await pushCloud();$('ban-ip-input').value="";updateBannedIPs();}
+async function adminUnbanIP(ip){cloud.banned_ips=cloud.banned_ips.filter(i=>i!==ip);await pushCloud();updateBannedIPs();}
+function updateBannedIPs(){const el=$('banned-ips-list');if(!el)return;const ips=cloud.banned_ips||[];el.innerHTML=ips.length?ips.map(ip=>`<div style="display:flex;justify-content:space-between"><span>${ip}</span><button class="sm-btn" style="background:#eee;color:#000" onclick="adminUnbanIP('${ip}')">Unban</button></div>`).join(''):"No blocked IPs.";}
+
+// Profiles
+async function adminAddPerson(){
+  const n=$('new-person-name').value,v=$('new-person-value').value,e=$('new-person-email').value.trim();
+  if(!n||!v)return;
+  const entry={name:n,val:v};if(e)entry.email=e;
+  cloud.profiles.push(entry);await pushCloud();
+  $('new-person-name').value=$('new-person-value').value=$('new-person-email').value="";
+  applyUI();
+}
+async function adminDeletePerson(val){if(!confirm("Delete profile?"))return;cloud.profiles=cloud.profiles.filter(p=>p.val!==val);await pushCloud();applyUI();}
+async function adminToggleFreeze(val){cloud.frozen_users[val]=!cloud.frozen_users[val];if(!cloud.frozen_users[val])localStorage.setItem('failed_admin_'+val,0);await pushCloud();applyUI();}
+
+// Employee passcode management
+function adminSetEmployeePasscode(val){
+  const name=(cloud.profiles.find(p=>p.val===val)||{}).name||val;
+  openSetModal(`Set Passcode for ${name}`,"Enter a 4-digit passcode for this employee",async h=>{
+    await setPC(val,h,"admin"); await setBio(val,false); localStorage.removeItem(bioCredKey("profile_"+val));
+    cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(r=>r.profile!==val);
+    await pushCloud(); notifyEmployee(val,name,"set"); alert(`Passcode set for ${name}.`); applyUI();
+  });
+}
+async function adminResetEmployeePasscode(val){
+  const name=(cloud.profiles.find(p=>p.val===val)||{}).name||val;
+  if(!confirm(`Clear passcode and biometrics for ${name}?`))return;
+  await clearPC(val); localStorage.removeItem(bioCredKey("profile_"+val));
+  cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(r=>r.profile!==val);
+  await pushCloud(); notifyEmployee(val,name,"cleared"); alert(`${name}'s passcode cleared.`); applyUI();
+}
+function notifyEmployee(val,name,action){
+  const prof=cloud.profiles.find(p=>p.val===val)||{};
+  try{emailjs.send("service_h1nnfhv","template_aienmjb",{profile_name:`${name} [PASSCODE ${action.toUpperCase()}]`,ip_address:localIP,location:`Admin ${action} passcode for ${name}`,time:new Date().toLocaleString()});}catch(e){}
+}
+async function adminApproveReset(val){
+  await clearPC(val); localStorage.removeItem(bioCredKey("profile_"+val));
+  cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(r=>r.profile!==val);
+  await pushCloud();
+  const name=(cloud.profiles.find(p=>p.val===val)||{}).name||val;
+  notifyEmployee(val,name,"cleared"); alert(`Passcode cleared for ${name}.`); applyUI();
+}
+function updateResetRequests(){
+  const el=$('admin-reset-list'); if(!el)return;
+  const reqs=cloud.passcode_reset_requests||[];
+  el.innerHTML=reqs.length?reqs.map(r=>{
+    const nm=r.profileName&&r.profileName!=="null"?r.profileName:r.profile;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #e0f0ff"><div><b style="font-size:12px">${nm}</b><br><span style="font-size:10px;color:#555">${r.timestamp} • IP: ${r.ip}</span></div><button class="sm-btn btn-green" onclick="adminApproveReset('${r.profile}')">Approve</button></div>`;
+  }).join(''):"<div style='color:#aaa;font-style:italic'>No pending requests.</div>";
+}
+function updateAdminPeople(){
+  const el=$('admin-people-registry'); if(!el)return;
+  el.innerHTML=(cloud.profiles||[]).map(p=>{
+    const frozen=cloud.frozen_users[p.val]===true;
+    const log=cloud.active_login_ips[p.val];
+    const ip=log?`<span style="font-size:10px;color:#28a745">IP: ${log.ip}</span>`:`<span style="font-size:10px;color:#aaa">Offline</span>`;
+    const hasPc=!!getPC(p.val),bio=bioOn(p.val),meta=getMeta(p.val);
+    const badge=hasPc?`<span style="font-size:10px;color:#1e7e34">&#x1F512; Passcode${bio?'+bio':''}</span>`:`<span style="font-size:10px;color:#aaa">&#x1F513; No passcode</span>`;
+    const metaLine=hasPc&&meta?`<span style="font-size:9px;color:#999;display:block">Changed ${meta.changedAt} by ${meta.changedBy==="admin"?"admin":"employee"}</span>`:'';
+    let locHTML='';
+    if(log){const loc=log.location;if(!loc)locHTML='<span class="loc-badge loc-pending">&#x1F4CD; No location</span>';
+    else if(loc.error){const lb={denied:'&#x1F6AB; Denied',unavailable:'&#x274C; Unavailable',timeout:'&#x23F1; Timeout'};locHTML=`<span class="loc-badge loc-denied">${lb[loc.error]||'&#x274C; Error'}</span>`;}
+    else{const ml=mapsLink(loc);locHTML=`<span class="loc-badge">&#x1F4CD; ${loc.lat},${loc.lng}${loc.accuracy?` ±${loc.accuracy}m`:''}${ml?` <a href="${ml}" target="_blank" class="map-link">&#x1F5FA;</a>`:''}</span><span style="font-size:9px;color:#888;display:block">${loc.timestamp||''}</span>`;}}
+    return `<tr><td style="padding:6px;border-bottom:1px solid #ddd"><b>${p.name}</b> <span style="font-size:10px;color:#666">(${p.val})</span><br>${ip}<br>${badge}${metaLine}${locHTML?'<br>'+locHTML:''}</td><td style="padding:6px;border-bottom:1px solid #ddd;vertical-align:top;white-space:nowrap"><button class="sm-btn ${frozen?'btn-red':'btn-yellow'}" onclick="adminToggleFreeze('${p.val}')">${frozen?'Thaw':'Freeze'}</button> <button class="sm-btn btn-red" onclick="adminDeletePerson('${p.val}')">X</button><br><button class="sm-btn btn-blue" style="margin-top:4px" onclick="adminSetEmployeePasscode('${p.val}')">Set PC</button>${hasPc?` <button class="sm-btn" style="margin-top:4px;background:#fff4e5;color:#d97706" onclick="adminResetEmployeePasscode('${p.val}')">Reset</button>`:''}</td></tr>`;
+  }).join('');
+}
+function updateAdminDrafts(){
+  const el=$('admin-drafts-list'); if(!el)return;
+  const d=cloud.drafts||[];
+  el.innerHTML=d.length?[...d].reverse().map(x=>`<div class="draft-item">&#x23F1;&#xFE0F; <b>${x.timestamp}</b> [${x.profile}] ${x.foreman} | <b>${x.totalUnits} units</b></div>`).join(''):"<div style='color:#777;font-style:italic'>No drafts.</div>";
+}
+
+// Items
+async function adminAddItem(){const n=$('new-var-name').value.trim(),v=parseFloat($('new-var-val').value);if(!n||isNaN(v))return;cloud.variables[n]=v;cloud.deleted_vars=(cloud.deleted_vars||[]).filter(x=>x!==n);await pushCloud();$('new-var-name').value=$('new-var-val').value="";applyUI();}
+async function adminUpdateItem(){const k=$('var-item-select').value,v=parseFloat($('var-item-val').value);if(isNaN(v))return;cloud.variables[k]=v;await pushCloud();applyUI();}
+async function adminDeleteItem(){const k=$('var-item-select').value;if(!confirm(`Remove "${k}"?`))return;delete cloud.variables[k];cloud.deleted_vars=[...(cloud.deleted_vars||[]),k];await pushCloud();applyUI();}
+
+// Bulk
+async function adminFreezeAll(){if(!confirm("Freeze ALL profiles?"))return;(cloud.profiles||[]).forEach(p=>cloud.frozen_users[p.val]=true);await pushCloud();applyUI();alert("All frozen.");}
+async function adminThawAll(){cloud.frozen_users={};(cloud.profiles||[]).forEach(p=>localStorage.setItem('failed_admin_'+p.val,0));await pushCloud();applyUI();alert("All thawed.");}
+
+// Settings
+async function adminSetSetting(key,val){if(!cloud.settings)cloud.settings={};cloud.settings[key]=val;await pushCloud();updateSettingsUI();}
+function updateSettingsUI(){
+  const s=cloud.settings||{};
+  const rb=$('readonly-badge');if(rb){rb.textContent=s.readonly?"ON":"OFF";rb.style.color=s.readonly?"#c5221f":"#1e7e34";}
+  const lb=$('lunch-badge');if(lb){lb.textContent=s.require_lunch!==false?"ON":"OFF";lb.style.color=s.require_lunch!==false?"#1e7e34":"#856404";}
+  const c1=$('crew1-btn'),c2=$('crew2-btn');
+  if(c1&&c2){const is2=s.default_crew==="2";c1.style.background=is2?"#e9ecef":"#0076d6";c1.style.color=is2?"#333":"#fff";c2.style.background=is2?"#0076d6":"#e9ecef";c2.style.color=is2?"#fff":"#333";}
+}
+
+// ══════════════════════════════════════════════════════════════
+//  USER PASSCODE / BIOMETRIC MANAGEMENT
+// ══════════════════════════════════════════════════════════════
+function openSetPasscode(){
+  const pv=localStorage.getItem('dom_sc_active_profile');
+  openSetModal("Set Passcode","Enter a new 4-digit passcode",async h=>{await setPC(pv,h,"user");alert("Passcode set!");updateSecurityPanel();});
+}
+function openChangePasscode(){
+  const pv=localStorage.getItem('dom_sc_active_profile'),h=getPC(pv),bCtx="profile_"+pv;
+  openAuthModal("Verify Passcode","Enter your current passcode",h,false,()=>setTimeout(openSetPasscode,200),bCtx,null);
+}
+function removePasscode(){
+  const pv=localStorage.getItem('dom_sc_active_profile'),h=getPC(pv),bCtx="profile_"+pv;
+  openAuthModal("Remove Passcode","Verify to remove",h,false,async()=>{await clearPC(pv);localStorage.removeItem(bioCredKey(bCtx));alert("Passcode removed.");updateSecurityPanel();},bCtx,null);
+}
+async function enableBiometricForProfile(){
+  if(!await bioAvailable()){alert("Platform biometrics not supported on this device.");return;}
+  const pv=localStorage.getItem('dom_sc_active_profile');
+  if(!getPC(pv)){alert("Set a passcode first, then enable biometrics.");return;}
+  const bCtx="profile_"+pv;
+  openAuthModal("Enable Biometrics","Confirm passcode to enroll Face ID/Fingerprint",getPC(pv),false,async()=>{
+    const ok=await registerBio(bCtx,pv);
+    if(ok){await setBio(pv,true);alert("Biometrics enrolled!");updateSecurityPanel();}
+    else alert("Enrollment failed. Make sure biometrics are configured in device settings.");
+  },null,null);
+}
+async function disableBiometricForProfile(){const pv=localStorage.getItem('dom_sc_active_profile');await setBio(pv,false);localStorage.removeItem(bioCredKey("profile_"+pv));alert("Biometrics disabled.");updateSecurityPanel();}
+async function requestPasscodeReset(explicitProfile){
+  const pv=explicitProfile||localStorage.getItem('dom_sc_active_profile');
+  if(!pv||pv==="null"){alert("Couldn't identify which profile to reset.");return;}
+  const name=(cloud.profiles.find(p=>p.val===pv)||{}).name||pv;
+  await pullCloud();
+  cloud.passcode_reset_requests=(cloud.passcode_reset_requests||[]).filter(r=>r.profile!==pv);
+  cloud.passcode_reset_requests.push({profile:pv,profileName:name,ip:localIP,timestamp:new Date().toLocaleString(),status:"pending"});
+  await pushCloud();
+  try{emailjs.send("service_h1nnfhv","template_aienmjb",{profile_name:`${name} [PASSCODE RESET REQUEST]`,ip_address:localIP,location:`Reset request: ${name}`,time:new Date().toLocaleString()});}catch(e){}
+  alert(`Reset request sent for ${name}.`);
+}
+async function updateSecurityPanel(){
+  const pv=localStorage.getItem('dom_sc_active_profile'); if(!pv)return;
+  const hasPc=!!getPC(pv),bioEnabled=bioOn(pv),avail=await bioAvailable(),enrolled=hasBioCred("profile_"+pv);
+  const st=$('passcode-status-text'),sb=$('passcode-set-btn'),cb=$('passcode-change-btn'),rb=$('passcode-remove-btn');
+  const bs=$('bio-status-text'),beb=$('bio-enable-btn'),bdb=$('bio-disable-btn');
+  if(st)st.textContent=hasPc?"Passcode enabled":"No passcode set";
+  if(sb)sb.style.display=hasPc?"none":"inline-block";
+  if(cb)cb.style.display=hasPc?"inline-block":"none";
+  if(rb)rb.style.display=hasPc?"inline-block":"none";
+  if(bs)bs.textContent=!avail?"Not supported on this device":bioEnabled&&enrolled?"Enabled on this device":bioEnabled?"On — re-enroll here":hasPc?"Available — tap Enable":"Set a passcode first";
+  if(beb){beb.style.display=bioEnabled&&enrolled?"none":"inline-block";beb.disabled=!avail||!hasPc;}
+  if(bdb)bdb.style.display=bioEnabled?"inline-block":"none";
+}
+
+// ══════════════════════════════════════════════════════════════
+//  STANDARD APP
+// ══════════════════════════════════════════════════════════════
+function prefix(){return 'dom_sc_'+(localStorage.getItem('dom_sc_active_profile')||'default')+'_';}
+function saveFields(){
+  const p=prefix();
+  localStorage.setItem(p+'foreman',$('foreman-name').value);
+  localStorage.setItem(p+'member',$('crew-member-name').value);
+  localStorage.setItem(p+'start',$('start-time').value);
+  localStorage.setItem(p+'end',$('end-time').value);
+}
+function loadSavedData(){
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  $('profile-select').value=pv;
+  const p=prefix(),crew=localStorage.getItem(p+'crew')||((cloud.settings||{}).default_crew)||"1";
+  $(crew==="2"?'crew-2':'crew-1').checked=true;
+  $('foreman-name').value=localStorage.getItem(p+'foreman')||(pv==='robert_s'?"Robert S":pv==='payton_n'?"Payton N":"");
+  $('crew-member-name').value=localStorage.getItem(p+'member')||"";
+  $('start-time').value=localStorage.getItem(p+'start')||"";
+  $('end-time').value=localStorage.getItem(p+'end')||"";
+  items.forEach((_,i)=>{const el=$('qty-'+i);if(el)el.value=localStorage.getItem(p+'qty_'+i)||"";});
+  calculateEverything(); renderProfileFiles(); updateSecurityPanel();
+}
+function renderCards(){
+  const c=$('item-cards-container'); if(!c)return;
+  c.innerHTML=items.map((item,i)=>`<div class="item-card"><div class="item-info"><div class="item-name">${item.name}</div><div class="item-val" id="val-${i}">Unit: ${item.val.toFixed(2)}</div></div><div class="item-actions"><div class="qty-control"><button class="qty-btn" onclick="adj(${i},-1)">-</button><input type="number" class="qty-input" id="qty-${i}" min="0" placeholder="0" oninput="calculateEverything()"><button class="qty-btn" onclick="adj(${i},1)">+</button></div><div class="item-total" id="tot-${i}">0.00</div></div></div>`).join('');
+  const vs=$('var-item-select'); if(vs)vs.innerHTML=items.map(it=>`<option value="${it.name}">${it.name}</option>`).join('');
+}
+function adj(i,d){const el=$('qty-'+i);if(!el)return;el.value=Math.max(0,(parseInt(el.value)||0)+d);calculateEverything();}
+function calculateEverything(){
+  let total=0;
+  const pv=prefix(),crew=(document.querySelector('input[name="crew"]:checked')||{}).value||"1";
+  localStorage.setItem(pv+'crew',crew);
+  items.forEach((it,i)=>{const el=$('qty-'+i);if(!el)return;localStorage.setItem(pv+'qty_'+i,el.value);const q=parseInt(el.value)||0;total+=q*it.val;const t=$('tot-'+i);if(t)t.textContent=(q*it.val).toFixed(2);});
+  const gt=$('grand-total'); if(gt)gt.textContent=total.toFixed(2);
+  const one=crew==="1";
+  const cm=$('crew-member-container'); if(cm)cm.style.display=one?'none':'flex';
+  const t=cloud.targets,t8=one?t.man1_8:t.man2_8,t10=one?t.man1_10:t.man2_10;
+  const tv8=$('target-8-val'),tv10=$('target-10-val');
+  if(tv8)tv8.textContent=t8.toFixed(2); if(tv10)tv10.textContent=t10.toFixed(2);
+  setRemain('rem-8hr',t8-total); setRemain('rem-10hr',t10-total);
+}
+function setRemain(id,v){const el=$(id);if(!el)return;if(v<=0){el.textContent="MET (+"+Math.abs(v).toFixed(2)+")";el.className="metric-value rem-pos";}else{el.textContent=v.toFixed(2)+" left";el.className="metric-value rem-neg";}}
+function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['foreman','member','start','end'].forEach(k=>localStorage.removeItem(p+k));['foreman-name','crew-member-name','start-time','end-time'].forEach(id=>{const e=$(id);if(e)e.value="";});items.forEach((_,i)=>{localStorage.removeItem(p+'qty_'+i);const e=$('qty-'+i);if(e)e.value="";});loadSavedData();}
+
+// Save flow
+function showLunchModal(){
+  if((cloud.settings||{}).readonly){alert("View-only mode — saving is disabled.");return;}
+  if((cloud.settings||{}).require_lunch===false){handleLunchDecision(null);return;}
+  show('lunch-modal','flex');
+}
+function handleLunchDecision(took){hide('lunch-modal');performSave(took);}
+function performSave(took){
+  // Simple local save (full save logic can be expanded)
+  const p=prefix(),pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  const entry={timestamp:new Date().toLocaleString(),profile:pv,foreman:$('foreman-name').value,totalUnits:parseFloat($('grand-total').textContent)||0,lunch:took};
+  const key='dom_sc_saves_'+pv; const saves=JSON.parse(localStorage.getItem(key)||'[]');
+  saves.push(entry); localStorage.setItem(key,JSON.stringify(saves));
+  renderProfileFiles(); alert("Saved!");
+}
+function renderProfileFiles(){
+  const el=$('profile-saved-files-list'); if(!el)return;
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  const saves=JSON.parse(localStorage.getItem('dom_sc_saves_'+pv)||'[]');
+  el.innerHTML=saves.length?[...saves].reverse().map((s,i)=>`<div style="padding:4px 0;border-bottom:1px solid #e0f0e0;font-size:12px;display:flex;justify-content:space-between"><span><b>${s.timestamp}</b> — ${s.totalUnits} units</span><button class="sm-btn" style="background:#e9f5fe;color:#0056b3" onclick="viewSave(${saves.length-1-i})">View</button></div>`).join(''):"<div style='color:#888;font-style:italic;text-align:center'>No entries saved.</div>";
+}
+function viewSave(i){
+  const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  const saves=JSON.parse(localStorage.getItem('dom_sc_saves_'+pv)||'[]');
+  const s=saves[i]; if(!s)return;
+  $('view-file-content').value=`Profile: ${s.profile}\nDate: ${s.timestamp}\nForeman: ${s.foreman}\nTotal Units: ${s.totalUnits}\nLunch: ${s.lunch===null?"Skipped":s.lunch?"Yes":"No"}`;
+  show('view-file-modal','flex');
+}
+function printSavedLog(){const c=$('view-file-content');if(!c)return;const w=window.open('','_blank');w.document.write('<pre>'+c.value+'</pre>');w.print();}
+
+// ══════════════════════════════════════════════════════════════
+//  AI ASSISTANT
+// ══════════════════════════════════════════════════════════════
+function aiResult(html,kind){const el=$('ai-cmd-result');if(!el)return;const bg=kind==="ok"?"#e8f5e9":kind==="err"?"#fde8e8":"#f1f3f6",co=kind==="ok"?"#1e7e34":kind==="err"?"#c5221f":"#555";el.innerHTML=`<div style="padding:8px 10px;border-radius:6px;background:${bg};color:${co}">${html}</div>`;}
+function cfgResult(html,kind){const el=$('ai-config-result');if(!el)return;const bg=kind==="ok"?"#e8f5e9":kind==="err"?"#fde8e8":"#f1f3f6",co=kind==="ok"?"#1e7e34":kind==="err"?"#c5221f":"#555";el.innerHTML=`<div style="padding:8px 10px;border-radius:6px;background:${bg};color:${co}">${html}</div>`;}
+function aiFindItem(q){q=q.trim().toLowerCase();return items.find(i=>i.name.toLowerCase()===q)||items.find(i=>i.name.toLowerCase().includes(q));}
+
+function aiShowExamples(){aiResult('<b>Items:</b><br>• add item Transformer worth 0.85<br>• change Visual to 0.35<br>• delete item Guy marker<br><br><b>Targets:</b><br>• set 1 man 8 hour target to 28<br>• set 2 man 10 hour target to 41<br><br><b>Alerts:</b><br>• broadcast Safety meeting at 7am<br>• clear broadcast<br><br><b>Maintenance:</b><br>• enable maintenance Updating values<br>• disable maintenance<br><br><b>Other:</b><br>• add profile John Doe / john_doe / john@email.com<br>• lock screens / unlock screens','info');}
+
+async function aiRunCommand(){
+  const raw=($('ai-cmd-input').value||"").trim(); if(!raw){aiResult("Type a command first.","err");return;}
+  try{
+    let m;
+    if(m=raw.match(/^add\s+(?:item|component)\s+(.+?)\s+(?:worth|=|at|for|:)?\s*\$?([0-9]*\.?[0-9]+)\s*$/i)){
+      cloud.variables[m[1].trim()]=parseFloat(m[2]);cloud.deleted_vars=(cloud.deleted_vars||[]).filter(v=>v!==m[1].trim());
+      await pushCloud();applyUI();aiResult(`Added <b>${m[1].trim()}</b> = <b>${m[2]}</b> and saved.`,"ok");$('ai-cmd-input').value="";return;
     }
-
-    async function pushGlobalData() {
-        if (!BIN_ID || BIN_ID.includes("YOUR_")) return;
-        try {
-            await fetch(SYNC_URL, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-                body: JSON.stringify(globalCloudData)
-            });
-        } catch (e) { console.error(e); }
+    if((m=raw.match(/^(?:change|set|update)\s+(.+?)\s+(?:to|=|worth)\s+\$?([0-9]*\.?[0-9]+)\s*$/i))&&!/\b(man|hour|hr|target)\b/i.test(m[1])){
+      const it=aiFindItem(m[1]);if(!it){aiResult(`No item matches "${m[1].trim()}".`,"err");return;}
+      cloud.variables[it.name]=parseFloat(m[2]);await pushCloud();applyUI();aiResult(`Changed <b>${it.name}</b> to <b>${m[2]}</b>.`,"ok");$('ai-cmd-input').value="";return;
     }
-
-    async function processInstantProfileTap(profileVal) {
-        await pullGlobalData();
-        if (globalCloudData.banned_ips.includes(localClientIP)) return; // blocked
-
-        globalCloudData.active_login_ips[profileVal] = { ip: localClientIP, timestamp: new Date().toLocaleString() };
-        await pushGlobalData();
-        
-        emailjs.send("service_h1nnfhv", "template_aienmjb", { profile_name: profileVal, ip_address: localClientIP, time: new Date().toLocaleString() });
-
-        document.getElementById('profile-select').value = profileVal;
-        localStorage.setItem('dom_sc_active_profile', profileVal);
-
-        document.getElementById('login-gateway-portal').style.display = "none";
-        document.getElementById('main-app-container').style.display = "block";
-        switchProfile();
+    if((m=raw.match(/^(?:delete|remove)\s+(?:item\s+)?(.+?)\s*$/i))&&!/\bprofile|broadcast\b/i.test(m[1])){
+      const it=aiFindItem(m[1]);if(!it){aiResult(`No item matches "${m[1].trim()}".`,"err");return;}
+      delete cloud.variables[it.name];cloud.deleted_vars=[...(cloud.deleted_vars||[]),it.name];await pushCloud();applyUI();aiResult(`Deleted <b>${it.name}</b>.`,"ok");$('ai-cmd-input').value="";return;
     }
-    
-    function logoutProfile() {
-        localStorage.removeItem('dom_sc_active_profile');
-        location.reload();
+    if(m=raw.toLowerCase().match(/([12])\s*[- ]?\s*man.*?([0-9]+)\s*(?:hour|hr).*?(?:to|=|:)?\s*([0-9]*\.?[0-9]+)\s*$/)){
+      const k="man"+m[1]+"_"+(m[2]==="8"?"8":"10"),v=parseFloat(m[3]);cloud.targets[k]=v;await pushCloud();applyUI();aiResult(`Set <b>${m[1]}-Man ${m[2]==="8"?"8":"10"}-Hour</b> target to <b>${v}</b>.`,"ok");$('ai-cmd-input').value="";return;
     }
-
-    function applyGlobalState() {
-        // Handle Screen Locks
-        if (globalCloudData.is_locked && !isAdminLoggedIn) {
-            document.getElementById('lock-overlay').style.display = 'flex';
-            document.getElementById('main-app-container').style.display = 'none';
-        } else if (!globalCloudData.is_locked) {
-            document.getElementById('lock-overlay').style.display = 'none';
-        }
-
-        const activeUserProf = document.getElementById('profile-select').value;
-        if(globalCloudData.frozen_users[activeUserProf] === true && !isAdminLoggedIn) {
-            document.getElementById('local-freeze-screen').style.display = "flex";
-        } else {
-            document.getElementById('local-freeze-screen').style.display = "none";
-        }
-
-        // Apply Broadcast
-        const alertBanner = document.getElementById('global-alert-banner');
-        if (globalCloudData.global_alert && globalCloudData.global_alert.trim() !== "") {
-            alertBanner.style.display = "block";
-            alertBanner.innerText = `📢 ALERT: ${globalCloudData.global_alert}`;
-        } else {
-            alertBanner.style.display = "none";
-        }
-
-        // Apply Variable Synchronization (Handles additions and deletions dynamically)
-        if (globalCloudData.variables) {
-            // Rebuild items array based on default + cloud additions - cloud deletions
-            let baseItems = [
-                { name: "Visual", val: 0.30 }, { name: "3 Fume (Creosote Pole)", val: 0.54 },
-                { name: "4 Fume (Creosote Pole)", val: 0.72 }, { name: "Ground wire", val: 0.55 },
-                { name: "Guy marker", val: 0.17 }, { name: "Pole number", val: 0.14 },
-                { name: "Riser ground", val: 0.44 }, { name: "U guard", val: 0.46 },
-                { name: "Pad mount", val: 0.27 }, { name: "Warning sticker", val: 0.02 },
-                { name: "Bonding", val: 0.44 }, { name: "Pad mount tag ID", val: 0.27 }
-            ];
-            
-            // Apply overrides/additions
-            Object.keys(globalCloudData.variables).forEach(k => {
-                let existing = baseItems.find(i => i.name === k);
-                if (existing) { existing.val = parseFloat(globalCloudData.variables[k]); } 
-                else { baseItems.push({ name: k, val: parseFloat(globalCloudData.variables[k]) }); }
-            });
-
-            // Handle deleted variables (if val is set to null or specific delete flag)
-            // Instead, we just trust globalCloudData.variables is master for custom, and filter base items if they were deleted.
-            // For true sync, we'll assign items. If a variable was deleted from cloud, we need a mechanism. 
-            // We use globalCloudData.deleted_vars = [] in future if needed, but for now we reconstruct.
-            if(globalCloudData.deleted_vars) {
-                baseItems = baseItems.filter(i => !globalCloudData.deleted_vars.includes(i.name));
-            }
-            
-            items = baseItems;
-            renderInitialItemCards(); 
-            updateItemCardsDisplayValues();
-        }
-
-        profilesRegistry = globalCloudData.profiles;
-        const pSelect = document.getElementById('profile-select');
-        const currentSel = pSelect.value;
-        pSelect.innerHTML = profilesRegistry.map(p => `<option value="${p.val}">${p.name}</option>`).join('');
-        pSelect.value = currentSel;
-
-        const buttonListEl = document.getElementById('login-profile-buttons-list');
-        if(buttonListEl) {
-            buttonListEl.innerHTML = profilesRegistry.map(p => {
-                return `<button class="profile-tap-btn" onclick="processInstantProfileTap('${p.val}')">
-                    <span>👤 ${p.name}</span> <span style="color:#0076d6; font-size:12px;">Tap to enter →</span>
-                </button>`;
-            }).join('');
-        }
-
-        const lockBtn = document.getElementById('lock-toggle-btn');
-        if (lockBtn) lockBtn.textContent = globalCloudData.is_locked ? "🔓 Unlock All Screens" : "🔒 Lock All Screens";
-        
-        // Admin UI updates
-        document.getElementById('admin-broadcast-msg').value = globalCloudData.global_alert;
-        document.getElementById('t-1-8').value = globalCloudData.targets.man1_8;
-        document.getElementById('t-1-10').value = globalCloudData.targets.man1_10;
-        document.getElementById('t-2-8').value = globalCloudData.targets.man2_8;
-        document.getElementById('t-2-10').value = globalCloudData.targets.man2_10;
-
-        updateAdminDraftsUI();
-        updateAdminPeopleRegistryUI();
-        updateAdminFailedLoginsUI();
-        updateBannedIPsUI();
-        calculateEverything(); // Re-calc targets
+    if(/^(clear|remove)\s+(broadcast|alert)/i.test(raw)){cloud.global_alert="";await pushCloud();applyUI();aiResult("Broadcast cleared.","ok");$('ai-cmd-input').value="";return;}
+    if(m=raw.match(/^(?:broadcast|alert|announce)\s*:?\s*(.+)$/i)){cloud.global_alert=m[1].trim();await pushCloud();applyUI();aiResult(`Broadcast set: <b>${m[1].trim()}</b>.`,"ok");$('ai-cmd-input').value="";return;}
+    if(m=raw.match(/^add\s+profile\s+(.+)$/i)){
+      const pts=m[1].split(/\s*[\/,]\s*/);const n=(pts[0]||"").trim(),v=(pts[1]||n.toLowerCase().replace(/\s+/g,"_")).trim(),e=(pts[2]||"").trim();
+      if(!n){aiResult("Need a name. Format: add profile Name / id / email","err");return;}
+      if(cloud.profiles.some(p=>p.val===v)){aiResult(`Profile "${v}" already exists.`,"err");return;}
+      const entry={name:n,val:v};if(e)entry.email=e;cloud.profiles.push(entry);await pushCloud();applyUI();aiResult(`Added profile <b>${n}</b>.`,"ok");$('ai-cmd-input').value="";return;
     }
+    if(m=raw.match(/^(?:enable|start)\s+maintenance\s*:?\s*(.*)$/i)){cloud.maintenance={active:true,message:m[1].trim(),eta:""};await pushCloud();applyUI();aiResult(`Maintenance <b>ON</b>${m[1].trim()?` — "${m[1].trim()}"`:""}.`,"ok");$('ai-cmd-input').value="";return;}
+    if(/^(disable|stop|end)\s+maintenance/i.test(raw)){cloud.maintenance={active:false,message:"",eta:""};await pushCloud();applyUI();aiResult("Maintenance <b>OFF</b>. Site live.","ok");$('ai-cmd-input').value="";return;}
+    if(/^lock(\s+screens?)?$/i.test(raw)){cloud.is_locked=true;await pushCloud();applyUI();aiResult("Screens <b>LOCKED</b>.","ok");$('ai-cmd-input').value="";return;}
+    if(/^unlock(\s+screens?)?$/i.test(raw)){cloud.is_locked=false;await pushCloud();applyUI();aiResult("Screens <b>UNLOCKED</b>.","ok");$('ai-cmd-input').value="";return;}
+    aiResult("Didn't recognise that. Tap <b>Examples</b> or use <b>Import Config</b>.","err");
+  }catch(e){aiResult("Error: "+e.message,"err");}
+}
+function aiParseConfig(){
+  const txt=($('ai-config-input').value||"").trim();if(!txt){cfgResult("Paste a JSON config first.","err");return null;}
+  try{const p=JSON.parse(txt);if(typeof p!=="object"||Array.isArray(p)||p===null){cfgResult("Must be a JSON object.","err");return null;}return p;}
+  catch(e){cfgResult("Invalid JSON: "+e.message,"err");return null;}
+}
+function aiPreviewConfig(){
+  const p=aiParseConfig();if(!p)return;
+  const allowed=Object.keys(p).filter(k=>AI_ALLOWED.includes(k)),blocked=Object.keys(p).filter(k=>!AI_ALLOWED.includes(k));
+  let html="<b>Will change:</b><br>"+allowed.map(k=>`• <b>${k}</b>`).join('<br>')||"Nothing recognized.";
+  if(blocked.length)html+=`<br><span style="color:#c5221f">Ignored: ${blocked.join(', ')}</span>`;
+  cfgResult(html,"info");
+}
+async function aiApplyConfig(){
+  const p=aiParseConfig();if(!p)return;
+  const keys=Object.keys(p).filter(k=>AI_ALLOWED.includes(k));
+  if(!keys.length){cfgResult("No recognized keys.","err");return;}
+  if(!confirm(`Apply ${keys.length} change(s)? Keys: ${keys.join(', ')}`))return;
+  keys.forEach(k=>{
+    if(["targets","variables","maintenance","settings","profile_notes"].includes(k)&&typeof p[k]==="object")cloud[k]=Object.assign({},cloud[k],p[k]);
+    else cloud[k]=p[k];
+  });
+  await pushCloud();applyUI();cfgResult(`Applied: <b>${keys.join(', ')}</b>.`,"ok");$('ai-config-input').value="";
+}
+function aiExportConfig(){
+  const snap={targets:cloud.targets,global_alert:cloud.global_alert,maintenance:cloud.maintenance,is_locked:cloud.is_locked,variables:cloud.variables,profiles:cloud.profiles,settings:cloud.settings,profile_notes:cloud.profile_notes};
+  const json=JSON.stringify(snap,null,2);$('ai-config-input').value=json;
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(json).then(()=>cfgResult("Copied to clipboard.","ok"),()=>cfgResult("Placed in box above.","info"));
+  else cfgResult("Placed in box above.","info");
+}
 
-    // -- ADMIN CONTROLS LOGIC -- 
+// ══════════════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════════════
+function $(id){return document.getElementById(id);}
+function show(id,d){const e=$(id);if(e)e.style.display=d||'block';}
+function hide(id){const e=$(id);if(e)e.style.display='none';}
 
-    async function triggerAdminLogin(isBypassOverride, isDedicatedMode) {
-        const passPrompt = prompt("Enter Administrator Password:");
-        if (passPrompt === null) return; 
-        
-        const correctPass = globalCloudData.admin_pass || "2026";
-        const currentProf = isDedicatedMode ? "System_Admin" : (localStorage.getItem('dom_sc_active_profile') || "unknown_profile");
-        const failedAttemptsKey = 'failed_admin_attempts_' + currentProf;
-        
-        if (passPrompt === correctPass) {
-            localStorage.setItem(failedAttemptsKey, 0); 
-            isAdminLoggedIn = true;
-            isDedicatedAdminMode = isDedicatedMode;
-            resetAdminTimer();
+// ══════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════
+(async function init(){
+  const saved=localStorage.getItem('dom_sc_active_profile');
+  if(saved&&!isDedicatedAdmin){
+    hide('login-gateway-portal');
+    show('main-app-container','block');
+    show('user-app-elements','block');
+    show('login-nav-link','inline-block');
+    hide('admin-panel');
+  } else {
+    renderLoginButtons();
+    show('login-gateway-portal','flex'); hide('main-app-container');
+  }
+  resolveIP();
+  renderCards();
+  const ok=await pullCloud();
+  if(ok===false)return;
+  rebuildItems();
+  if(saved&&!isDedicatedAdmin){
+    $('profile-select').value=saved;
+    loadSavedData();
+  }
+  applyUI();
+})();
 
-            document.getElementById('lock-overlay').style.display = 'none';
-            document.getElementById('login-gateway-portal').style.display = "none";
-            document.getElementById('main-app-container').style.display = 'block';
-            document.getElementById('admin-panel').style.display = 'block';
-            document.getElementById('local-freeze-screen').style.display = "none";
-            
-            if (isDedicatedAdminMode) {
-                document.getElementById('user-app-elements').style.display = 'none';
-                document.getElementById('login-nav-link').style.display = 'none';
-            } else {
-                document.getElementById('login-nav-link').style.display = 'none';
-            }
-            
-            applyGlobalState();
-        } else {
-            globalCloudData.failed_admin_logins.push({ profileAttempted: currentProf, ip: localClientIP, timestamp: new Date().toLocaleString(), inputSecretAttempted: passPrompt });
-            let attempts = parseInt(localStorage.getItem(failedAttemptsKey)) || 0;
-            attempts++;
-            localStorage.setItem(failedAttemptsKey, attempts);
-
-            if (!isDedicatedMode && attempts >= 3) {
-                globalCloudData.frozen_users[currentProf] = true;
-                await pushGlobalData();
-                applyGlobalState();
-                alert("SECURITY BREACH: Profile locked.");
-            } else {
-                await pushGlobalData();
-                alert(`Incorrect password. Attempt ${attempts} of 3.`);
-            }
-        }
+// Background sync — only runs when page is visible, every 30s to avoid CORS issues
+setInterval(async function(){
+  // Don't sync if page is hidden, auth modal is open, or user is mid-action
+  if(document.hidden)return;
+  if($('auth-modal-overlay').style.display==='flex')return;
+  try {
+    const fetchPromise = fetch(SYNC_URL,{headers:HEADERS});
+    const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('Timeout')),8000));
+    const r = await Promise.race([fetchPromise, timeoutPromise]);
+    if(!r.ok)return;
+    const d=(await r.json()).record;
+    // Only update cloud data — don't replace if fetch failed
+    cloud=Object.assign(cloud,{
+      is_locked:d.is_locked||false,
+      admin_pass:d.admin_pass||"2026",
+      frozen_users:d.frozen_users||{},
+      variables:d.variables||{},
+      active_login_ips:d.active_login_ips||{},
+      banned_ips:d.banned_ips||[],
+      global_alert:d.global_alert||"",
+      targets:Object.assign({man1_8:26,man1_10:32.5,man2_8:32.5,man2_10:39},d.targets||{}),
+      maintenance:Object.assign({active:false,message:"",eta:""},d.maintenance||{}),
+      passcode_reset_requests:d.passcode_reset_requests||[],
+      passcodes:d.passcodes||{},
+      bio_flags:d.bio_flags||{},
+      passcode_meta:d.passcode_meta||{},
+      profile_notes:d.profile_notes||{},
+      settings:Object.assign({alert_level:"warning",require_lunch:true,default_crew:"1",readonly:false},d.settings||{}),
+      profiles:(d.profiles&&d.profiles.length>0)?d.profiles:cloud.profiles,
+      deleted_vars:d.deleted_vars||[]
+    });
+    if(cloud.banned_ips.includes(localIP)){document.getElementById('banned-screen').style.display='flex';return;}
+    applyUI();
+    if(isAdmin){
+      const sm=localStorage.getItem("dom_sc_realtime_stream");
+      const sd=$('live-stream');
+      if(sm&&sd&&!sd.innerText.includes(sm))sd.innerHTML="[LIVE] "+sm;
     }
-
-    function adminLogout() {
-        isAdminLoggedIn = false;
-        clearTimeout(adminSessionTimer);
-        if (isDedicatedAdminMode) {
-            location.reload(); // Hard reload back to login gate
-        } else {
-            document.getElementById('admin-panel').style.display = 'none';
-            document.getElementById('login-nav-link').style.display = 'inline-block';
-            applyGlobalState();
-        }
-    }
-
-    async function adminToggleLock() {
-        globalCloudData.is_locked = !globalCloudData.is_locked;
-        await pushGlobalData();
-        applyGlobalState();
-    }
-
-    async function adminChangePassword() {
-        const newPass = document.getElementById('admin-new-password').value;
-        if(!newPass) return;
-        globalCloudData.admin_pass = newPass;
-        await pushGlobalData();
-        alert("Admin password updated.");
-        document.getElementById('admin-new-password').value = "";
-    }
-
-    // Dynamic Targets
-    async function adminSaveTargets() {
-        globalCloudData.targets = {
-            man1_8: parseFloat(document.getElementById('t-1-8').value) || 26,
-            man1_10: parseFloat(document.getElementById('t-1-10').value) || 32.5,
-            man2_8: parseFloat(document.getElementById('t-2-8').value) || 32.5,
-            man2_10: parseFloat(document.getElementById('t-2-10').value) || 39
-        };
-        await pushGlobalData();
-        alert("Shift targets updated globally.");
-        applyGlobalState();
-    }
-
-    // Global Alerts
-    async function adminSetBroadcast() {
-        const msg = document.getElementById('admin-broadcast-msg').value;
-        globalCloudData.global_alert = msg;
-        await pushGlobalData();
-        applyGlobalState();
-    }
-    async function adminClearBroadcast() {
-        globalCloudData.global_alert = "";
-        document.getElementById('admin-broadcast-msg').value = "";
-        await pushGlobalData();
-        applyGlobalState();
-    }
-
-    // IP Blacklisting
-    async function adminBanIP() {
-        const ip = document.getElementById('ban-ip-input').value.trim();
-        if (!ip) return;
-        if (!globalCloudData.banned_ips) globalCloudData.banned_ips = [];
-        if (!globalCloudData.banned_ips.includes(ip)) {
-            globalCloudData.banned_ips.push(ip);
-            await pushGlobalData();
-            document.getElementById('ban-ip-input').value = "";
-            applyGlobalState();
-        }
-    }
-    async function adminUnbanIP(ip) {
-        globalCloudData.banned_ips = globalCloudData.banned_ips.filter(i => i !== ip);
-        await pushGlobalData();
-        applyGlobalState();
-    }
-    function updateBannedIPsUI() {
-        const list = document.getElementById('banned-ips-list');
-        const ips = globalCloudData.banned_ips || [];
-        if(ips.length === 0) { list.innerHTML = "No blocked IPs."; return; }
-        list.innerHTML = ips.map(ip => `<div style="display:flex;justify-content:space-between;padding:2px 0;"><span>${ip}</span> <button class="sm-btn" style="background:#eee;color:#000;" onclick="adminUnbanIP('${ip}')">Unban</button></div>`).join('');
-    }
-
-    // Data Wipe
-    async function adminFactoryResetData() {
-        if(confirm("CRITICAL WARNING: This will permanently delete ALL saved drafts, logs, and user activity records from the cloud. Proceed?")) {
-            const doubleCheck = prompt("Type 'CONFIRM' to wipe database:");
-            if (doubleCheck === "CONFIRM") {
-                globalCloudData.drafts = [];
-                globalCloudData.active_login_ips = {};
-                globalCloudData.failed_admin_logins = [];
-                await pushGlobalData();
-                alert("Database wiped completely.");
-                applyGlobalState();
-            }
-        }
-    }
-
-    // Variable Edits (Add, Update, Delete)
-    async function adminAddVariable() {
-        const name = document.getElementById('new-var-name').value.trim();
-        const val = parseFloat(document.getElementById('new-var-val').value);
-        if (!name || isNaN(val)) return;
-        
-        globalCloudData.variables[name] = val;
-        // remove from deleted vars if it was there
-        if(globalCloudData.deleted_vars) {
-            globalCloudData.deleted_vars = globalCloudData.deleted_vars.filter(v => v !== name);
-        }
-        await pushGlobalData();
-        document.getElementById('new-var-name').value = ""; document.getElementById('new-var-val').value = "";
-        applyGlobalState();
-    }
-    async function adminUpdateVariable() {
-        const key = document.getElementById('var-item-select').value;
-        const val = parseFloat(document.getElementById('var-item-val').value);
-        if(isNaN(val)) return;
-        globalCloudData.variables[key] = val;
-        await pushGlobalData();
-        applyGlobalState();
-    }
-    async function adminDeleteVariable() {
-        const key = document.getElementById('var-item-select').value;
-        if(confirm(`Permanently remove the variable "${key}" from the system for all users?`)) {
-            delete globalCloudData.variables[key];
-            if(!globalCloudData.deleted_vars) globalCloudData.deleted_vars = [];
-            globalCloudData.deleted_vars.push(key); // Register deletion for sync
-            await pushGlobalData();
-            applyGlobalState();
-        }
-    }
-
-    // People
-    async function adminAddPerson() {
-        const name = document.getElementById('new-person-name').value;
-        const val = document.getElementById('new-person-value').value;
-        if(!name || !val) return;
-        globalCloudData.profiles.push({ name: name, val: val });
-        await pushGlobalData();
-        applyGlobalState();
-    }
-    async function adminDeletePerson(targetVal) {
-        if(confirm("Delete this user profile?")) {
-            globalCloudData.profiles = globalCloudData.profiles.filter(p => p.val !== targetVal);
-            await pushGlobalData();
-            applyGlobalState();
-        }
-    }
-    async function adminToggleFreezeUser(targetVal) {
-        globalCloudData.frozen_users[targetVal] = !globalCloudData.frozen_users[targetVal];
-        if(!globalCloudData.frozen_users[targetVal]) localStorage.setItem('failed_admin_attempts_' + targetVal, 0);
-        await pushGlobalData();
-        applyGlobalState();
-    }
-
-    function updateAdminPeopleRegistryUI() {
-        const regDiv = document.getElementById('admin-people-registry');
-        regDiv.innerHTML = profilesRegistry.map(function(p) {
-            const isFrozen = globalCloudData.frozen_users[p.val] === true;
-            const logInfo = globalCloudData.active_login_ips[p.val];
-            const ipDisplay = logInfo ? `<span style="font-size:10px; color:#28a745;">IP: ${logInfo.ip}</span>` : `<span style="font-size:10px; color:#aaa;">IP: Offline</span>`;
-            return `<tr>
-                <td style="padding: 6px; border-bottom: 1px solid #ddd;">
-                    <b>${p.name}</b> <span style="font-size:10px;color:#666;">(${p.val})</span><br>${ipDisplay}
-                </td>
-                <td style="padding: 6px; border-bottom: 1px solid #ddd;">
-                    <button class="sm-btn ${isFrozen ? 'btn-red' : 'btn-yellow'}" onclick="adminToggleFreezeUser('${p.val}')">${isFrozen ? 'Thaw' : 'Freeze'}</button>
-                    <button class="sm-btn btn-red" onclick="adminDeletePerson('${p.val}')">X</button>
-                </td>
-            </tr>`;
-        }).join('');
-    }
-
-    function updateAdminFailedLoginsUI() { /* omitted for brevity, uses identical previous logic */ }
-    function updateAdminDraftsUI() {
-        const listDiv = document.getElementById('admin-drafts-list');
-        const drafts = globalCloudData.drafts || [];
-        if (drafts.length === 0) { listDiv.innerHTML = "<div style='color:#777; font-style:italic;'>No drafts.</div>"; return; }
-        listDiv.innerHTML = drafts.map(d => `<div class='draft-item'>⏱️ <b>${d.timestamp}</b> - [${d.profile}] Foreman: ${d.foreman} | <b>${d.totalUnits} Units</b></div>`).reverse().join('');
-    }
-
-    // -- STANDARD APP LOGIC --
-    function adjustQty(index, change) {
-        const input = document.getElementById('qty-' + index);
-        if(!input) return;
-        let currentVal = parseInt(input.value) || 0;
-        let newVal = currentVal + change;
-        if (newVal < 0) newVal = 0; 
-        input.value = newVal;
-        calculateEverything(); triggerRealtimeTelemetry();
-    }
-
-    function renderInitialItemCards() {
-        const container = document.getElementById('item-cards-container');
-        container.innerHTML = "";
-        items.forEach(function(item, index) {
-            container.innerHTML += `
-            <div class="item-card">
-                <div class="item-info">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-val" id="val-display-${index}">Unit Value: ${item.val.toFixed(2)}</div>
-                </div>
-                <div class="item-actions">
-                    <div class="qty-control">
-                        <button class="qty-btn" onclick="adjustQty(${index}, -1)">-</button>
-                        <input type="number" class="qty-input" id="qty-${index}" min="0" placeholder="0" oninput="calculateEverything(); triggerRealtimeTelemetry();">
-                        <button class="qty-btn" onclick="adjustQty(${index}, 1)">+</button>
-                    </div>
-                    <div class="item-total" id="total-${index}">0.00</div>
-                </div>
-            </div>`;
-        });
-
-        const varSelect = document.getElementById('var-item-select');
-        if(varSelect) varSelect.innerHTML = items.map(item => `<option value="${item.name}">${item.name}</option>`).join('');
-    }
-
-    function updateItemCardsDisplayValues() {
-        items.forEach(function(item, index) {
-            const valDiv = document.getElementById('val-display-' + index);
-            if(valDiv) valDiv.textContent = "Unit Value: " + item.val.toFixed(2);
-        });
-    }
-
-    let currentGrandTotal = 0; let currentActiveCrew = "1 Man";
-
-    function getProfilePrefix() { return 'dom_sc_' + document.getElementById('profile-select').value + '_'; }
-
-    function saveFields() {
-        const prefix = getProfilePrefix();
-        localStorage.setItem(prefix + 'foreman', document.getElementById('foreman-name').value);
-        localStorage.setItem(prefix + 'member', document.getElementById('crew-member-name').value);
-        localStorage.setItem(prefix + 'start_time', document.getElementById('start-time').value);
-        localStorage.setItem(prefix + 'end_time', document.getElementById('end-time').value);
-    }
-
-    function switchProfile() {
-        const profile = document.getElementById('profile-select').value;
-        localStorage.setItem('dom_sc_active_profile', profile);
-        loadSavedData(); calculateEverything(); renderProfileSavedFilesUI();
-    }
-    function changeCrewType() { calculateEverything(); }
-
-    function loadSavedData() {
-        pullGlobalData();
-        const profile = localStorage.getItem('dom_sc_active_profile') || 'robert_s';
-        document.getElementById('profile-select').value = profile;
-        const prefix = getProfilePrefix();
-        const savedCrew = localStorage.getItem(prefix + 'crew');
-        document.getElementById(savedCrew === "2" ? 'crew-2' : 'crew-1').checked = true;
-
-        document.getElementById('foreman-name').value = localStorage.getItem(prefix + 'foreman') || (profile === 'robert_s' ? "Robert S" : profile === 'payton_n' ? "Payton N" : "");
-        document.getElementById('crew-member-name').value = localStorage.getItem(prefix + 'member') || "";
-        document.getElementById('start-time').value = localStorage.getItem(prefix + 'start_time') || "";
-        document.getElementById('end-time').value = localStorage.getItem(prefix + 'end_time') || "";
-
-        items.forEach(function(item, index) {
-            const el = document.getElementById('qty-' + index);
-            if (el) el.value = localStorage.getItem(prefix + 'qty_' + index) || "";
-        });
-        saveFields(); renderProfileSavedFilesUI();
-    }
-
-    function calculateEverything() {
-        currentGrandTotal = 0;
-        const crewValue = document.querySelector('input[name="crew"]:checked').value;
-        const prefix = getProfilePrefix();
-        localStorage.setItem(prefix + 'crew', crewValue);
-
-        items.forEach(function(item, index) {
-            const el = document.getElementById('qty-' + index);
-            if (!el) return;
-            localStorage.setItem(prefix + 'qty_' + index, el.value);
-            let qty = parseInt(el.value) || 0;
-            currentGrandTotal += qty * item.val;
-            document.getElementById('total-' + index).textContent = (qty * item.val).toFixed(2);
-        });
-
-        document.getElementById('grand-total').textContent = currentGrandTotal.toFixed(2);
-        const isOneMan = crewValue === "1";
-        currentActiveCrew = isOneMan ? "1 Man" : "2 Man";
-        document.getElementById('crew-member-container').style.display = isOneMan ? 'none' : 'flex';
-        
-        // Use Dynamic Targets from Cloud
-        const t = globalCloudData.targets;
-        let target8 = isOneMan ? t.man1_8 : t.man2_8;
-        let target10 = isOneMan ? t.man1_10 : t.man2_10;
-
-        document.getElementById('target-8-val').textContent = target8.toFixed(2);
-        document.getElementById('target-10-val').textContent = target10.toFixed(2);
-
-        updateRemainingDisplay('rem-8hr', target8 - currentGrandTotal);
-        updateRemainingDisplay('rem-10hr', target10 - currentGrandTotal);
-    }
-
-    function updateRemainingDisplay(elementId, value) {
-        const el = document.getElementById(elementId);
-        if (value <= 0) { el.textContent = '✅ MET (+' + Math.abs(value).toFixed(2) + ')'; el.className = "metric-value remaining-met"; } 
-        else { el.textContent = '⏳ ' + value.toFixed(2) + ' left'; el.className = "metric-value remaining-positive"; }
-    }
-
-    function clearForm() {
-        if (confirm("Clear current quantities for this profile?")) {
-            const prefix = getProfilePrefix();
-            ['foreman', 'member', 'start_time', 'end_time'].forEach(k => localStorage.removeItem(prefix + k));
-            ['foreman-name', 'crew-member-name', 'start-time', 'end-time'].forEach(id => document.getElementById(id).value = "");
-            items.forEach((_, index) => { localStorage.removeItem(prefix + 'qty_' + index); const el = document.getElementById('qty-' + index); if(el) el.value = ""; });
-            switchProfile();
-        }
-    }
-
-    function showLunchModal() { document.getElementById('lunch-modal').style.display = 'flex'; }
-    function handleLunchDecision(tookBreak) { /* (Logic remains same) */ document.getElementById('lunch-modal').style.display = 'none'; }
-    function renderProfileSavedFilesUI() { /* (Logic remains same) */ }
-    function viewSavedLog(index) { /* (Logic remains same) */ }
-    function closeViewFileModal() { document.getElementById('view-file-modal').style.display = 'none'; }
-    function printSavedLog() { /* (Logic remains same) */ }
-    function closePostSaveLogoutModal() { document.getElementById('post-save-logout-modal').style.display = 'none'; }
-    function triggerRealtimeTelemetry() {
-        localStorage.setItem("dom_sc_realtime_stream", `[TELEMETRY] ${document.getElementById('profile-select').value}: ${currentGrandTotal.toFixed(2)} units.`);
-    }
-
-    (async function initSystemLayout() {
-        await resolveClientPublicIP();
-        renderInitialItemCards();
-        await pullGlobalData();
-        
-        const savedProfile = localStorage.getItem('dom_sc_active_profile');
-        if (savedProfile && !isDedicatedAdminMode) {
-            document.getElementById('login-gateway-portal').style.display = "none";
-            document.getElementById('main-app-container').style.display = "block";
-            document.getElementById('profile-select').value = savedProfile;
-            switchProfile();
-        } else {
-            document.getElementById('login-gateway-portal').style.display = "flex";
-            document.getElementById('main-app-container').style.display = "none";
-        }
-    })();
-    
-    setInterval(function() {
-        pullGlobalData();
-        if(isAdminLoggedIn) {
-            const streamMsg = localStorage.getItem("dom_sc_realtime_stream");
-            const streamDiv = document.getElementById('live-activity-stream');
-            if(streamMsg && streamDiv && !streamDiv.innerText.includes(streamMsg)) streamDiv.innerHTML = `[LIVE STREAM] ${streamMsg}`;
-        }
-    }, 4000);
+  } catch(e){ /* silent fail on background sync — app still works */ }
+},30000); // 30 seconds instead of 5 — reduces CORS pressure
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    loadSavedData();
+  } catch(e) {
+    console.log('Auto-load skipped:', e);
+  }
+
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    el.addEventListener('input', () => {
+      if (typeof saveFields === 'function') saveFields();
+      if (typeof calculateEverything === 'function') calculateEverything();
+    });
+    el.addEventListener('change', () => {
+      if (typeof saveFields === 'function') saveFields();
+      if (typeof calculateEverything === 'function') calculateEverything();
+    });
+  });
+});
+</script>
+
 </body>
 </html>
