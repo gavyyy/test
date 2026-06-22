@@ -198,6 +198,12 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
 .permission-disabled{opacity:.55;pointer-events:none}
 .backup-box{width:100%;min-height:90px;font-family:monospace;font-size:10px;border:1px solid #ccc;border-radius:8px;padding:8px}
 
+
+.simple-perm-table{width:100%;border-collapse:collapse;font-size:11px;background:#fff}
+.simple-perm-table th,.simple-perm-table td{border-bottom:1px solid #eee;padding:5px;text-align:left}
+.simple-perm-table input{width:18px;height:18px}
+.health-row{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:5px 0}
+.health-pill{display:inline-block;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;background:#d4edda;color:#1e7e34}
 </style>
 </head>
 <body>
@@ -308,7 +314,6 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
       <button class="admin-tab-btn" data-tab="data" onclick="switchTab('data')">&#x1F4C8; Data</button>
       <button class="admin-tab-btn" data-tab="settings" onclick="switchTab('settings')">&#x2699;&#xFE0F; Settings</button>
       <button class="admin-tab-btn" data-tab="assistant" onclick="switchTab('assistant')">&#x1F916; AI</button>
-      <button class="admin-tab-btn" data-tab="controlcenter" onclick="switchTab('controlcenter')">&#x1F6E1;&#xFE0F; Control</button>
     </div>
 
     <!-- OVERVIEW -->
@@ -316,6 +321,21 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
       <div class="admin-sub">
         <div class="admin-sub-title">&#x1F4E1; Live Activity</div>
         <div id="live-stream" style="font-family:monospace;font-size:11px;background:#222;color:#0f0;padding:6px;border-radius:4px;max-height:80px;overflow-y:auto">Waiting...</div>
+        <div class="admin-sub" id="admin-tools-visible-panel" style="border:1px solid #0076d6;background:#f4fbff;margin-top:10px">
+          <div class="admin-sub-title" style="color:#0056b3">&#x1F6E1;&#xFE0F; Site Health & Employee Permissions</div>
+
+          <div style="background:#fff;border:1px solid #dbefff;border-radius:8px;padding:8px;margin-bottom:8px">
+            <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F4E1; Site Health</div>
+            <div id="simple-site-health" style="font-size:12px">Loading...</div>
+            <button class="sm-btn btn-blue" style="margin-top:8px" onclick="simpleForceSync()">Force Safe Sync</button>
+          </div>
+
+          <div style="background:#fff;border:1px solid #dbefff;border-radius:8px;padding:8px">
+            <div style="font-size:13px;font-weight:800;color:#0056b3;margin-bottom:6px">&#x1F511; Employee Permissions</div>
+            <div id="simple-employee-permissions" style="font-size:12px">Loading...</div>
+          </div>
+        </div>
+
         <div class="live-monitor-box">
           <div class="admin-sub-title" style="color:#0056b3">&#x1F441;&#xFE0F; Employee Live Calculator View</div>
           <div class="monitor-notice">This shows only what employees enter inside this DOM/SC calculator page: quantities, totals, crew, and time fields. It does not view other apps or secretly record their phone screen.</div>
@@ -507,38 +527,6 @@ h2{margin:4px 0 8px;font-size:22px;color:#111;text-align:center}
           <button class="sm-btn" style="background:#e9ecef;color:#333;font-size:10px" onclick="aiExportConfig()">&#x1F4CB; Copy Current Config</button>
         </div>
         <div id="ai-config-result"></div>
-      </div>
-    </div>
-
-    <!-- CONTROL CENTER -->
-    <div class="admin-tab-panel" id="admin-tab-controlcenter">
-      <div class="admin-sub" style="border:1px solid #0076d6;background:#f4fbff">
-        <div class="admin-sub-title" style="color:#0056b3">&#x1F6E1;&#xFE0F; Admin Control Center</div>
-        <div class="acc-grid">
-          <div class="acc-card">
-            <div class="acc-card-title">&#x1F4E1; Sync Health</div>
-            <div id="sync-health-dashboard">Loading sync health...</div>
-            <button class="sm-btn btn-blue" style="margin-top:8px" onclick="forceFullCloudSyncSafe()">Force Safe Sync</button>
-          </div>
-          <div class="acc-card">
-            <div class="acc-card-title">&#x1F511; Employee Permissions</div>
-            <div id="employee-permissions-table">Loading permissions...</div>
-          </div>
-          <div class="acc-card">
-            <div class="acc-card-title">&#x1F4BE; Backup / Restore</div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
-              <button class="sm-btn btn-green" onclick="createCloudBackup()">Create Backup</button>
-              <button class="sm-btn btn-blue" onclick="downloadCloudBackup()">Download Backup File</button>
-              <button class="sm-btn btn-yellow" onclick="copyCloudBackup()">Copy Backup JSON</button>
-            </div>
-            <textarea id="backup-output" class="backup-box" placeholder="Backup JSON appears here. Paste backup JSON here to restore."></textarea>
-            <div style="display:flex;gap:6px;margin-top:8px">
-              <button class="sm-btn btn-red" onclick="restoreCloudBackup()" style="flex:1">Restore From Box</button>
-              <button class="sm-btn btn-dark" onclick="clearBackupBox()" style="flex:1">Clear Box</button>
-            </div>
-            <div style="font-size:10px;color:#856404;margin-top:6px">Restore merges data safely. It does not wipe JSONBin first.</div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -1271,11 +1259,11 @@ function applyUI() {
     if(mb){mb.textContent=m.active?"MAINTENANCE ACTIVE":"SITE LIVE";mb.className="maint-status-badge "+(m.active?"maint-on":"maint-off");}
     ['t-1-8','t-1-10','t-2-8','t-2-10'].forEach((id,i)=>{const el=$(id);if(el)el.value=[cloud.targets.man1_8,cloud.targets.man1_10,cloud.targets.man2_8,cloud.targets.man2_10][i];});
     updateAdminSecStatus(); updateAdminPeople(); updateAdminDrafts(); updateResetRequests(); updateBannedIPs(); updateSettingsUI();
-    updateAlertLevelBtns(); renderAdminLiveCalculatorView();
+    updateAlertLevelBtns(); renderAdminLiveCalculatorView(); if(typeof simpleRefreshAdminTools==='function')simpleRefreshAdminTools(); if(typeof updateSyncHealthDashboard==='function')updateSyncHealthDashboard(); if(typeof updatePermissionsUI==='function')updatePermissionsUI();
   }
   calculateEverything();
   // User security panel (async, fire and forget — won't break anything)
-  updateSecurityPanel();
+  updateSecurityPanel(); if(typeof applyPermissions==='function')applyPermissions();
 }
 function rebuildItems() {
   saveQtyByName();
@@ -1293,6 +1281,11 @@ function rebuildItems() {
 function switchTab(t) {
   document.querySelectorAll('.admin-tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   document.querySelectorAll('.admin-tab-panel').forEach(p=>p.classList.toggle('active',p.id==='admin-tab-'+t));
+  if(t==='controlcenter'){
+    if(typeof ensureAdminControlStores==='function') ensureAdminControlStores();
+    if(typeof updateSyncHealthDashboard==='function') updateSyncHealthDashboard();
+    if(typeof updatePermissionsUI==='function') updatePermissionsUI();
+  }
 }
 async function adminToggleLock(){cloud.is_locked=!cloud.is_locked;await pushCloud();applyUI();}
 async function adminFactoryReset(){
@@ -1668,6 +1661,7 @@ function clearForm(){if(!confirm("Clear entries?"))return;const p=prefix();['for
 // Save flow
 function showLunchModal(){
   const pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  if(typeof simplePerm==='function' && !simplePerm(pv,'allow_save')){alert('Saving is disabled by admin.');return;}
   if(typeof getPerm==='function' && !getPerm(pv,'allow_save')){alert('Saving is disabled by admin.');return;}
   if((cloud.settings||{}).readonly){alert("View-only mode — saving is disabled.");return;}
   if((cloud.settings||{}).require_lunch===false){handleLunchDecision(null);return;}
@@ -1967,6 +1961,113 @@ async function restoreCloudBackup(){
   }catch(e){alert('Backup JSON is invalid.');}
 }
 function clearBackupBox(){const out=$('backup-output');if(out)out.value='';}
+
+
+// ══════════════════════════════════════════════════════════════
+//  SIMPLE ALWAYS-VISIBLE ADMIN TOOLS
+// ══════════════════════════════════════════════════════════════
+function simpleEnsureAdminStores(){
+  if(!cloud.permissions) cloud.permissions={};
+  if(!cloud.sync_meta) cloud.sync_meta={lastSync:"",failedSyncs:0,lastBackup:""};
+  (cloud.profiles||[]).forEach(function(p){
+    if(!cloud.permissions[p.val]){
+      cloud.permissions[p.val]={
+        allow_save:true,
+        allow_edit_quantities:true,
+        allow_profile_pic:true,
+        allow_passcode:true,
+        allow_biometrics:true,
+        allow_view_logs:true
+      };
+    }
+  });
+}
+function simplePerm(profileVal,key){
+  simpleEnsureAdminStores();
+  return (cloud.permissions[profileVal]||{})[key]!==false;
+}
+async function simpleSetPerm(profileVal,key,checked){
+  simpleEnsureAdminStores();
+  cloud.permissions[profileVal][key]=!!checked;
+  if(typeof pushCloud==='function') await pushCloud();
+  simpleRenderEmployeePermissions();
+  simpleApplyEmployeePermissions();
+}
+function simpleRenderSiteHealth(){
+  var box=document.getElementById('simple-site-health');
+  if(!box)return;
+  simpleEnsureAdminStores();
+  var logs=0;
+  try{Object.values(cloud.daily_logs||{}).forEach(function(a){logs+=Array.isArray(a)?a.length:0;});}catch(e){}
+  var deviceCount=Object.keys(cloud.active_login_ips||{}).length;
+  var pics=Object.keys(cloud.profile_pictures||{}).length;
+  var size=0;
+  try{size=Math.round((JSON.stringify(cloud).length/1024)*10)/10;}catch(e){}
+  var sm=cloud.sync_meta||{};
+  box.innerHTML=
+    '<div class="health-row"><span>Status</span><span class="health-pill">Loaded</span></div>'+
+    '<div class="health-row"><span>Last Sync</span><b>'+(sm.lastSync||'Not recorded')+'</b></div>'+
+    '<div class="health-row"><span>Failed Syncs</span><b>'+(sm.failedSyncs||0)+'</b></div>'+
+    '<div class="health-row"><span>Known Devices</span><b>'+deviceCount+'</b></div>'+
+    '<div class="health-row"><span>Daily Logs</span><b>'+logs+'</b></div>'+
+    '<div class="health-row"><span>Profile Pictures</span><b>'+pics+'</b></div>'+
+    '<div class="health-row"><span>Cloud Size</span><b>'+size+' KB</b></div>';
+}
+function simpleRenderEmployeePermissions(){
+  var box=document.getElementById('simple-employee-permissions');
+  if(!box)return;
+  simpleEnsureAdminStores();
+  var keys=[
+    ['allow_save','Save'],
+    ['allow_edit_quantities','Edit Qty'],
+    ['allow_profile_pic','Pic'],
+    ['allow_passcode','Passcode'],
+    ['allow_biometrics','Bio'],
+    ['allow_view_logs','Logs']
+  ];
+  var html='<table class="simple-perm-table"><thead><tr><th>Employee</th>';
+  keys.forEach(function(k){html+='<th>'+k[1]+'</th>';});
+  html+='</tr></thead><tbody>';
+  (cloud.profiles||[]).forEach(function(p){
+    html+='<tr><td><b>'+p.name+'</b><br><span style="font-size:10px;color:#777">'+p.val+'</span></td>';
+    keys.forEach(function(k){
+      html+='<td><input type="checkbox" '+(simplePerm(p.val,k[0])?'checked':'')+' onchange="simpleSetPerm(\''+p.val+'\',\''+k[0]+'\',this.checked)"></td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  box.innerHTML=html;
+}
+function simpleApplyEmployeePermissions(){
+  simpleEnsureAdminStores();
+  var pv=localStorage.getItem('dom_sc_active_profile')||'default';
+  var p=cloud.permissions[pv]||{};
+  var saveBtn=document.querySelector('.save-btn');
+  if(saveBtn){
+    saveBtn.disabled=p.allow_save===false;
+    saveBtn.style.opacity=p.allow_save===false?'.45':'1';
+  }
+  document.querySelectorAll('.qty-input,.qty-btn').forEach(function(el){
+    el.disabled=p.allow_edit_quantities===false;
+    el.style.opacity=p.allow_edit_quantities===false?'.45':'1';
+  });
+  var saved=document.getElementById('profile-saved-files-list');
+  if(saved)saved.style.display=p.allow_view_logs===false?'none':'block';
+}
+async function simpleForceSync(){
+  simpleEnsureAdminStores();
+  if(!cloud.sync_meta)cloud.sync_meta={};
+  cloud.sync_meta.lastSync=new Date().toLocaleString();
+  if(typeof pushCloud==='function') await pushCloud();
+  simpleRenderSiteHealth();
+  alert('Safe sync requested.');
+}
+function simpleRefreshAdminTools(){
+  simpleEnsureAdminStores();
+  simpleRenderSiteHealth();
+  simpleRenderEmployeePermissions();
+  simpleApplyEmployeePermissions();
+}
 
 // ══════════════════════════════════════════════════════════════
 //  INIT
@@ -2286,6 +2387,27 @@ document.addEventListener("change", function(e){ if(e.target && e.target.closest
     alert("Full JSONBin sync complete.");
   };
 })();
+</script>
+
+
+<script>
+/* Control Center fallback initializer */
+document.addEventListener("DOMContentLoaded", function(){
+  setTimeout(function(){
+    if(typeof ensureAdminControlStores==="function") ensureAdminControlStores();
+    if(typeof updateSyncHealthDashboard==="function") updateSyncHealthDashboard();
+    if(typeof updatePermissionsUI==="function") updatePermissionsUI();
+    if(typeof applyPermissions==="function") applyPermissions();
+  }, 1500);
+});
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded",function(){
+  setTimeout(function(){if(typeof simpleRefreshAdminTools==="function")simpleRefreshAdminTools();},1000);
+  setTimeout(function(){if(typeof simpleRefreshAdminTools==="function")simpleRefreshAdminTools();},2500);
+});
 </script>
 
 </body>
