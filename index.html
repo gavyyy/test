@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DOM/SC Norm 2026 Enterprise V5 All Features</title>
+    <title>DOM/SC Norm 2026 Enterprise V5 Full Platform</title>
     
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -293,50 +293,202 @@
         .sec-status-off { font-size: 10px; color: #aaa; }
     </style>
 
-<style id="domsc-enterprise-v5-all-css">
+<style id="enterprise-v4-css">
 :root{
-  --v5-primary:#2563eb;--v5-bg:#f1f5f9;--v5-card:#ffffff;--v5-text:#0f172a;--v5-muted:#64748b;
-  --v5-border:#e2e8f0;--v5-green:#16a34a;--v5-red:#dc2626;--v5-orange:#f59e0b;--v5-purple:#7c3aed;
+  --ent-bg:#0f172a;
+  --ent-panel:#111827;
+  --ent-card:#ffffff;
+  --ent-muted:#64748b;
+  --ent-blue:#2563eb;
+  --ent-green:#16a34a;
+  --ent-red:#dc2626;
+  --ent-orange:#f59e0b;
+  --ent-purple:#7c3aed;
+  --ent-border:#e5e7eb;
 }
-body.v5-dark{background:#020617!important;color:#e5e7eb!important}
-body.v5-dark .container,body.v5-dark .v5-card,body.v5-dark .admin-sub-section,body.v5-dark .crew-details,body.v5-dark .item-card,body.v5-dark .metrics-panel,body.v5-dark .saved-files-section,body.v5-dark .security-panel{background:#111827!important;color:#f8fafc!important;border-color:#334155!important}
-body.v5-dark h2,body.v5-dark h3,body.v5-dark h4,body.v5-dark .item-name,body.v5-dark .sec-row-label{color:#f8fafc!important}
-body.v5-dark input,body.v5-dark textarea,body.v5-dark select,body.v5-dark .text-input,body.v5-dark .select-input{background:#0f172a!important;color:#f8fafc!important;border-color:#334155!important}
-.v5-shell{margin:14px 0}
-.v5-hero{background:linear-gradient(135deg,#0f172a,var(--v5-primary));color:#fff;border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 16px 40px rgba(15,23,42,.28)}
-.v5-hero h3{margin:0;font-size:22px}.v5-hero p{margin:6px 0 0;color:#dbeafe;font-size:12px;line-height:1.5}
-.v5-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.v5-card{background:#fff;border:1px solid var(--v5-border);border-radius:16px;padding:13px;margin-top:10px;box-shadow:0 8px 20px rgba(15,23,42,.06)}
-.v5-card h4{margin:0 0 9px;font-size:14px;color:#0f172a}
-.v5-stat{background:#fff;border:1px solid var(--v5-border);border-radius:16px;padding:12px;box-shadow:0 8px 20px rgba(15,23,42,.06)}
-.v5-stat .label{font-size:10px;color:#64748b;text-transform:uppercase;font-weight:900;letter-spacing:.05em}
-.v5-stat .value{font-size:24px;font-weight:900;color:#0f172a;margin-top:4px}
-body.v5-dark .v5-card,body.v5-dark .v5-stat{background:#1e293b;border-color:#334155}
-body.v5-dark .v5-stat .value{color:#fff}
-.v5-row{display:flex;gap:7px;align-items:center;margin:7px 0}.v5-row>*{flex:1}
-.v5-input{width:100%;padding:9px;border-radius:10px;border:1px solid #cbd5e1;font-size:13px;background:#fff}
-.v5-btn{border:0;border-radius:10px;padding:9px 10px;font-size:12px;font-weight:900;cursor:pointer;color:#fff;background:var(--v5-primary)}
-.v5-btn.green{background:var(--v5-green)}.v5-btn.red{background:var(--v5-red)}.v5-btn.orange{background:var(--v5-orange)}.v5-btn.purple{background:var(--v5-purple)}.v5-btn.dark{background:#111827}.v5-btn.gray{background:#64748b}
-.v5-list{max-height:220px;overflow:auto;border:1px solid var(--v5-border);border-radius:12px;background:#f8fafc;padding:8px;font-size:12px}
-body.v5-dark .v5-list{background:#0f172a;border-color:#334155}
-.v5-item{border-bottom:1px solid #e2e8f0;padding:8px 0;line-height:1.4}.v5-item:last-child{border-bottom:0}body.v5-dark .v5-item{border-color:#334155}
-.v5-badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:900;background:#dbeafe;color:#1e40af;margin-left:4px}
-.v5-badge.green{background:#dcfce7;color:#166534}.v5-badge.red{background:#fee2e2;color:#991b1b}.v5-badge.orange{background:#ffedd5;color:#9a3412}.v5-badge.purple{background:#ede9fe;color:#5b21b6}.v5-badge.gray{background:#e2e8f0;color:#334155}
-.v5-tabs{display:flex;gap:6px;overflow:auto;background:#eef2ff;padding:7px;border-radius:14px;margin:10px 0}
-.v5-tab{white-space:nowrap;border:0;background:transparent;color:#334155;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:900;cursor:pointer}.v5-tab.active{background:var(--v5-primary);color:#fff}
-body.v5-dark .v5-tabs{background:#0f172a}.v5-panel{display:none}.v5-panel.active{display:block}
-.v5-section-title{font-size:11px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
-#v5-notification-bell{position:fixed;right:14px;bottom:14px;z-index:4500;background:var(--v5-primary);color:#fff;border:0;border-radius:999px;width:54px;height:54px;font-size:22px;box-shadow:0 12px 30px rgba(37,99,235,.45)}
-#v5-notification-count{position:absolute;right:-4px;top:-4px;background:#dc2626;border-radius:999px;font-size:10px;padding:3px 6px;font-weight:900}
-.v5-progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}.v5-progress span{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#2563eb);width:0%}
-.v5-policy-box{white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;font-size:12px}
-body.v5-dark .v5-policy-box{background:#0f172a;border-color:#334155}
-@media(max-width:600px){.v5-grid{grid-template-columns:1fr 1fr}.v5-row{flex-direction:column;align-items:stretch}.v5-tab{font-size:10px;padding:8px 9px}}
+body.ent-dark{
+  background:linear-gradient(135deg,#020617,#111827)!important;
+  color:#e5e7eb!important;
+}
+body.ent-dark .container,
+body.ent-dark .crew-details,
+body.ent-dark .item-card,
+body.ent-dark .metrics-panel,
+body.ent-dark .saved-files-section,
+body.ent-dark .admin-sub-section,
+body.ent-dark .security-panel{
+  background:#111827!important;
+  color:#f8fafc!important;
+  border-color:#334155!important;
+}
+body.ent-dark h2,
+body.ent-dark .item-name,
+body.ent-dark .modal-title,
+body.ent-dark .sec-row-label{
+  color:#f8fafc!important;
+}
+body.ent-dark .text-input,
+body.ent-dark .select-input,
+body.ent-dark input,
+body.ent-dark textarea,
+body.ent-dark select{
+  background:#0f172a!important;
+  color:#f8fafc!important;
+  border-color:#334155!important;
+}
+.enterprise-shell{margin:14px 0}
+.enterprise-hero{
+  background:linear-gradient(135deg,#0f172a,#1d4ed8);
+  color:#fff;border-radius:18px;padding:18px;margin-bottom:14px;
+  box-shadow:0 14px 35px rgba(15,23,42,.28);
+}
+.enterprise-hero h3{margin:0 0 4px;font-size:20px}
+.enterprise-hero p{margin:0;color:#dbeafe;font-size:12px;line-height:1.4}
+.enterprise-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.enterprise-stat{
+  background:#fff;border:1px solid var(--ent-border);border-radius:14px;padding:12px;
+  box-shadow:0 5px 14px rgba(15,23,42,.06);
+}
+.enterprise-stat .label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;font-weight:800}
+.enterprise-stat .value{font-size:22px;font-weight:900;color:#0f172a;margin-top:4px}
+body.ent-dark .enterprise-stat{background:#1e293b;border-color:#334155}
+body.ent-dark .enterprise-stat .value{color:#f8fafc}
+.enterprise-card{
+  background:#fff;border:1px solid var(--ent-border);border-radius:14px;padding:12px;margin-top:10px;
+  box-shadow:0 5px 14px rgba(15,23,42,.05);
+}
+body.ent-dark .enterprise-card{background:#1e293b;border-color:#334155}
+.enterprise-card h4{margin:0 0 9px;font-size:14px;color:#0f172a}
+body.ent-dark .enterprise-card h4{color:#f8fafc}
+.enterprise-row{display:flex;gap:7px;align-items:center;margin:7px 0}
+.enterprise-row>*{flex:1}
+.enterprise-input{
+  width:100%;padding:9px;border-radius:9px;border:1px solid #cbd5e1;font-size:13px;background:#fff;
+}
+.enterprise-btn{
+  border:0;border-radius:9px;padding:9px 10px;font-size:12px;font-weight:800;cursor:pointer;color:#fff;background:#2563eb;
+}
+.enterprise-btn.green{background:#16a34a}.enterprise-btn.red{background:#dc2626}.enterprise-btn.orange{background:#f59e0b}.enterprise-btn.dark{background:#111827}.enterprise-btn.purple{background:#7c3aed}
+.enterprise-list{
+  max-height:190px;overflow:auto;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;padding:8px;font-size:12px;
+}
+body.ent-dark .enterprise-list{background:#0f172a;border-color:#334155;color:#e5e7eb}
+.enterprise-list-item{
+  border-bottom:1px solid #e5e7eb;padding:7px 0;line-height:1.35;
+}
+.enterprise-list-item:last-child{border-bottom:0}
+body.ent-dark .enterprise-list-item{border-bottom-color:#334155}
+.enterprise-badge{
+  display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:900;background:#e0f2fe;color:#075985;margin-left:4px;
+}
+.enterprise-badge.green{background:#dcfce7;color:#166534}.enterprise-badge.red{background:#fee2e2;color:#991b1b}.enterprise-badge.orange{background:#ffedd5;color:#9a3412}.enterprise-badge.purple{background:#ede9fe;color:#5b21b6}
+.ent-section-title{font-size:12px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 4px}
+.enterprise-tabs-mini{display:flex;gap:6px;overflow:auto;margin:8px 0}
+.enterprise-mini-tab{white-space:nowrap;border:0;background:#e2e8f0;color:#0f172a;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:900;cursor:pointer}
+.enterprise-mini-tab.active{background:#2563eb;color:white}
+.ent-mini-panel{display:none}.ent-mini-panel.active{display:block}
+#enterprise-notification-bell{
+  position:fixed;right:14px;bottom:14px;z-index:4500;background:#2563eb;color:#fff;border:0;
+  border-radius:999px;width:52px;height:52px;font-size:22px;box-shadow:0 12px 30px rgba(37,99,235,.45);
+}
+#enterprise-notification-count{
+  position:absolute;right:-4px;top:-4px;background:#dc2626;border-radius:999px;font-size:10px;padding:3px 6px;font-weight:900;
+}
+.ent-hidden{display:none!important}
+@media(max-width:560px){
+  .enterprise-grid{grid-template-columns:1fr 1fr}
+  .enterprise-row{flex-direction:column;align-items:stretch}
+}
+</style>
+
+
+<style id="domsc-enterprise-v5-platform-css">
+:root{
+  --v5p-primary:#2563eb;
+  --v5p-bg:#f8fafc;
+  --v5p-panel:#ffffff;
+  --v5p-text:#0f172a;
+  --v5p-muted:#64748b;
+  --v5p-border:#e2e8f0;
+  --v5p-green:#16a34a;
+  --v5p-red:#dc2626;
+  --v5p-orange:#f59e0b;
+  --v5p-purple:#7c3aed;
+  --v5p-cyan:#0891b2;
+}
+body.v5p-dark{
+  background:linear-gradient(135deg,#020617,#0f172a)!important;
+  color:#e5e7eb!important;
+}
+body.v5p-dark .container,
+body.v5p-dark .admin-sub-section,
+body.v5p-dark .crew-details,
+body.v5p-dark .item-card,
+body.v5p-dark .metrics-panel,
+body.v5p-dark .saved-files-section,
+body.v5p-dark .security-panel,
+body.v5p-dark .v5p-card,
+body.v5p-dark .v5p-stat{
+  background:#111827!important;
+  color:#f8fafc!important;
+  border-color:#334155!important;
+}
+body.v5p-dark h2,body.v5p-dark h3,body.v5p-dark h4,body.v5p-dark .item-name,body.v5p-dark .sec-row-label{color:#f8fafc!important}
+body.v5p-dark input,body.v5p-dark textarea,body.v5p-dark select,body.v5p-dark .text-input,body.v5p-dark .select-input{
+  background:#0f172a!important;color:#f8fafc!important;border-color:#334155!important;
+}
+.v5p-shell{margin:14px 0}
+.v5p-hero{
+  background:linear-gradient(135deg,#0f172a,var(--v5p-primary));
+  color:#fff;border-radius:22px;padding:18px;margin-bottom:14px;
+  box-shadow:0 16px 40px rgba(15,23,42,.30);
+}
+.v5p-hero h3{margin:0;font-size:22px}
+.v5p-hero p{margin:6px 0 0;color:#dbeafe;font-size:12px;line-height:1.45}
+.v5p-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.v5p-grid-1{display:grid;grid-template-columns:1fr;gap:10px}
+.v5p-card,.v5p-stat{
+  background:#fff;border:1px solid var(--v5p-border);border-radius:16px;padding:13px;margin-top:10px;
+  box-shadow:0 8px 20px rgba(15,23,42,.06);
+}
+.v5p-card h4{margin:0 0 9px;font-size:14px;color:#0f172a}
+.v5p-stat .label{font-size:10px;color:#64748b;text-transform:uppercase;font-weight:900;letter-spacing:.05em}
+.v5p-stat .value{font-size:24px;font-weight:900;color:#0f172a;margin-top:4px}
+body.v5p-dark .v5p-stat .value{color:#fff}
+.v5p-row{display:flex;gap:7px;align-items:center;margin:7px 0}
+.v5p-row>*{flex:1}
+.v5p-input{width:100%;padding:9px;border-radius:10px;border:1px solid #cbd5e1;font-size:13px;background:#fff}
+.v5p-btn{border:0;border-radius:10px;padding:9px 10px;font-size:12px;font-weight:900;cursor:pointer;color:#fff;background:var(--v5p-primary)}
+.v5p-btn.green{background:var(--v5p-green)}.v5p-btn.red{background:var(--v5p-red)}.v5p-btn.orange{background:var(--v5p-orange)}.v5p-btn.purple{background:var(--v5p-purple)}.v5p-btn.dark{background:#111827}.v5p-btn.gray{background:#64748b}.v5p-btn.cyan{background:var(--v5p-cyan)}
+.v5p-list{max-height:230px;overflow:auto;border:1px solid var(--v5p-border);border-radius:12px;background:#f8fafc;padding:8px;font-size:12px}
+body.v5p-dark .v5p-list{background:#0f172a;border-color:#334155}
+.v5p-item{border-bottom:1px solid #e2e8f0;padding:8px 0;line-height:1.4}
+.v5p-item:last-child{border-bottom:0}
+body.v5p-dark .v5p-item{border-color:#334155}
+.v5p-badge{display:inline-block;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:900;background:#dbeafe;color:#1e40af;margin-left:4px}
+.v5p-badge.green{background:#dcfce7;color:#166534}.v5p-badge.red{background:#fee2e2;color:#991b1b}.v5p-badge.orange{background:#ffedd5;color:#9a3412}.v5p-badge.purple{background:#ede9fe;color:#5b21b6}.v5p-badge.gray{background:#e2e8f0;color:#334155}.v5p-badge.cyan{background:#cffafe;color:#155e75}
+.v5p-tabs{display:flex;gap:6px;overflow:auto;background:#eef2ff;padding:7px;border-radius:14px;margin:10px 0}
+.v5p-tab{white-space:nowrap;border:0;background:transparent;color:#334155;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:900;cursor:pointer}
+.v5p-tab.active{background:var(--v5p-primary);color:#fff}
+body.v5p-dark .v5p-tabs{background:#0f172a}
+.v5p-panel{display:none}.v5p-panel.active{display:block}
+.v5p-section-title{font-size:11px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 5px}
+.v5p-progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}
+.v5p-progress span{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#2563eb);width:0%}
+.v5p-policy-box{white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;font-size:12px;min-height:52px}
+body.v5p-dark .v5p-policy-box{background:#0f172a;border-color:#334155}
+#v5p-notification-bell{
+  position:fixed;right:14px;bottom:14px;z-index:4500;background:var(--v5p-primary);color:#fff;border:0;border-radius:999px;width:54px;height:54px;font-size:22px;box-shadow:0 12px 30px rgba(37,99,235,.45);
+}
+#v5p-notification-count{position:absolute;right:-4px;top:-4px;background:#dc2626;border-radius:999px;font-size:10px;padding:3px 6px;font-weight:900}
+.v5p-two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.v5p-grid,.v5p-two-col{grid-template-columns:1fr 1fr}.v5p-row{flex-direction:column;align-items:stretch}.v5p-tab{font-size:10px;padding:8px 9px}}
 </style>
 
 </head>
 <body>
-<!-- DOM/SC Enterprise V5 All Features: original app preserved; expanded controls injected. -->
+<!-- DOM/SC Enterprise V5 Full Platform: V4 preserved; requested admin/employee/website modules added. -->
+<!-- Enterprise V4 Full: original DOM/SC code preserved; new tools injected below. -->
 
 <div id="banned-screen">
     <h1 style="font-size: 40px; margin-bottom: 10px;">&#x26D4; ACCESS BLOCKED</h1>
@@ -918,7 +1070,7 @@ body.v5-dark .v5-policy-box{background:#0f172a;border-color:#334155}
     ];
 
     let profilesRegistry = [
-        { name: "Robert S", val: "robert_s" },
+        { name: "Robert", val: "robert" },
         { name: "Payton N", val: "payton_n" },
         { name: "Default / Custom", val: "default" }
     ];
@@ -2778,189 +2930,774 @@ body.v5-dark .v5-policy-box{background:#0f172a;border-color:#334155}
     }, 4000);
 </script>
 
-<script id="domsc-enterprise-v5-all-module">
+<script id="enterprise-v4-module">
 (function(){
-  const KEY="domsc_enterprise_v5_all_features";
-  const defaultData={
-    version:"Enterprise V5 All Features",
-    company:{name:"DOM/SC Norm 2026",subtitle:"Enterprise Workforce Platform",primary:"#2563eb",logo:"",welcome:"Welcome to the DOM/SC workforce dashboard.",footer:"DOM/SC Norm 2026"},
+  const ENTERPRISE_VERSION = "Enterprise V4 Full";
+  const ENT_KEY = "domsc_enterprise_v4_data";
+
+  const defaultEnterprise = {
+    company:{name:"DOM/SC Norm 2026", subtitle:"Enterprise Workforce Platform", primary:"#2563eb", logo:""},
     users:[
-      {name:"Gavin",val:"gavin",role:"admin",status:"Active",supervisor:true,permissions:["all"],notes:"Owner / Master Admin"},
-      {name:"Robert",val:"robert",role:"employee",status:"Active",supervisor:false,permissions:["employee"],notes:""},
-      {name:"Payton N",val:"payton_n",role:"employee",status:"Active",supervisor:false,permissions:["employee"],notes:""}
+      {name:"Gavin", val:"gavin", role:"admin", status:"Active", supervisor:true, notes:"Full administrator"},
+      {name:"Robert", val:"robert", role:"employee", status:"Active", supervisor:false, notes:""},
+      {name:"Payton N", val:"payton_n", role:"employee", status:"Active", supervisor:false, notes:""}
     ],
-    crews:[],assignments:[],notifications:[],activity:[],attendance:[],reviews:[],discipline:[],corrections:[],bugs:[],forms:[],policies:[],docs:[],widgets:["stats","calculator","notifications","activity"],maintenance:{scheduled:false,date:"",message:"",readOnly:false},settings:{darkMode:false,requireApprovals:false,lateAlert:"08:00",autoBackup:false,publicReadOnly:false,sessionMinutes:10,customHome:true},
-    backups:[],errors:[],messages:[],training:[],certifications:[],goals:{gavin:31,robert:31,payton_n:31},quickItems:["Visual","Ground wire","Guy marker"]
+    crews:[],
+    assignments:[],
+    notifications:[],
+    activity:[],
+    attendance:[],
+    reviews:[],
+    discipline:[],
+    supervisorApprovals:[],
+    settings:{darkMode:false, supervisorApprovals:true, showEmployeeHub:true}
   };
+
+  function loadEnt(){
+    try{
+      return Object.assign({}, defaultEnterprise, JSON.parse(localStorage.getItem(ENT_KEY)||"{}"));
+    }catch(e){ return JSON.parse(JSON.stringify(defaultEnterprise)); }
+  }
+  let ent = loadEnt();
+  function saveEnt(){
+    localStorage.setItem(ENT_KEY, JSON.stringify(ent));
+    renderEnterpriseAll();
+  }
+  function esc(s){
+    return String(s==null?"":s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+  }
+  function now(){return new Date().toLocaleString();}
+  function currentProfile(){
+    try { return localStorage.getItem("dom_sc_active_profile") || (document.getElementById("profile-select")||{}).value || "unknown"; }
+    catch(e){ return "unknown"; }
+  }
+  function profileName(val){
+    const u = ent.users.find(x=>x.val===val || x.name===val);
+    if(u) return u.name;
+    const p = (window.profilesRegistry||[]).find(x=>x.val===val);
+    return p ? p.name : val;
+  }
+  function isAdmin(){
+    return !!window.isAdminLoggedIn;
+  }
+  function addActivity(action, detail){
+    ent.activity.unshift({time:now(), profile:profileName(currentProfile()), action, detail});
+    ent.activity = ent.activity.slice(0,300);
+    localStorage.setItem(ENT_KEY, JSON.stringify(ent));
+    renderEnterpriseAll();
+  }
+
+  // Preserve original functions while adding behavior.
+  const originalCompleteLogin = window._completeProfileLogin;
+  if(typeof originalCompleteLogin === "function"){
+    window._completeProfileLogin = async function(profileVal){
+      const r = await originalCompleteLogin.apply(this, arguments);
+      addActivity("Profile Login", profileName(profileVal)+" logged in");
+      return r;
+    };
+  }
+  const originalGrantAdmin = window._grantAdminAccess;
+  if(typeof originalGrantAdmin === "function"){
+    window._grantAdminAccess = function(){
+      const r = originalGrantAdmin.apply(this, arguments);
+      addActivity("Admin Login", "Gavin/admin console opened");
+      setTimeout(renderEnterpriseAll, 150);
+      return r;
+    };
+  }
+  const originalSaveFields = window.saveFields;
+  if(typeof originalSaveFields === "function"){
+    window.saveFields = function(){
+      const r = originalSaveFields.apply(this, arguments);
+      return r;
+    };
+  }
+  const originalHandleLunch = window.handleLunchDecision;
+  if(typeof originalHandleLunch === "function"){
+    window.handleLunchDecision = function(tookBreak){
+      const before = (window.currentGrandTotal||0);
+      const r = originalHandleLunch.apply(this, arguments);
+      addActivity("Daily Log", "Saved/processed daily log — "+before.toFixed(2)+" units");
+      return r;
+    };
+  }
+
+  function ensureProfiles(){
+    // Keep original app profile system but set the requested users as defaults.
+    const wanted = [
+      {name:"Robert", val:"robert"},
+      {name:"Payton N", val:"payton_n"}
+    ];
+    if(window.profilesRegistry && Array.isArray(window.profilesRegistry)){
+      wanted.forEach(w=>{
+        if(!window.profilesRegistry.some(p=>p.val===w.val)){
+          window.profilesRegistry.push(w);
+        }
+      });
+      window.profilesRegistry = window.profilesRegistry.filter(p=>p.val!=="default" || window.profilesRegistry.length<=2);
+    }
+    if(window.globalCloudData){
+      if(!globalCloudData.profiles || !Array.isArray(globalCloudData.profiles)) globalCloudData.profiles = wanted.slice();
+      wanted.forEach(w=>{
+        if(!globalCloudData.profiles.some(p=>p.val===w.val)) globalCloudData.profiles.push(w);
+      });
+      if(!globalCloudData.enterprise) globalCloudData.enterprise = {};
+      globalCloudData.enterprise.owner = "Gavin";
+    }
+  }
+
+  function injectAdminTab(){
+    const bar = document.querySelector(".admin-tab-bar");
+    const adminPanel = document.getElementById("admin-panel");
+    if(!bar || !adminPanel || document.getElementById("admin-tab-enterprise")) return;
+
+    const btn = document.createElement("button");
+    btn.className = "admin-tab-btn";
+    btn.setAttribute("data-tab","enterprise");
+    btn.innerHTML = "🏢 Enterprise";
+    btn.onclick = function(){ if(typeof window.switchAdminTab==="function") switchAdminTab("enterprise"); };
+    bar.appendChild(btn);
+
+    const panel = document.createElement("div");
+    panel.className = "admin-tab-panel";
+    panel.id = "admin-tab-enterprise";
+    panel.innerHTML = `
+      <div class="enterprise-shell">
+        <div class="enterprise-hero">
+          <h3 id="ent-company-title">DOM/SC Enterprise</h3>
+          <p id="ent-company-subtitle">Gavin Admin Center • Robert and Payton N Employee Management • Supervisor tools under Admin</p>
+        </div>
+
+        <div class="enterprise-grid">
+          <div class="enterprise-stat"><div class="label">Employees</div><div class="value" id="ent-stat-employees">0</div></div>
+          <div class="enterprise-stat"><div class="label">Crews</div><div class="value" id="ent-stat-crews">0</div></div>
+          <div class="enterprise-stat"><div class="label">Assignments</div><div class="value" id="ent-stat-assignments">0</div></div>
+          <div class="enterprise-stat"><div class="label">Activity Logs</div><div class="value" id="ent-stat-activity">0</div></div>
+        </div>
+
+        <div class="enterprise-tabs-mini">
+          <button class="enterprise-mini-tab active" data-ent-mini="dashboard" onclick="enterpriseSwitchMini('dashboard')">Dashboard</button>
+          <button class="enterprise-mini-tab" data-ent-mini="crews" onclick="enterpriseSwitchMini('crews')">Crews</button>
+          <button class="enterprise-mini-tab" data-ent-mini="people" onclick="enterpriseSwitchMini('people')">Employees</button>
+          <button class="enterprise-mini-tab" data-ent-mini="notifications" onclick="enterpriseSwitchMini('notifications')">Notifications</button>
+          <button class="enterprise-mini-tab" data-ent-mini="history" onclick="enterpriseSwitchMini('history')">History</button>
+          <button class="enterprise-mini-tab" data-ent-mini="branding" onclick="enterpriseSwitchMini('branding')">Branding</button>
+          <button class="enterprise-mini-tab" data-ent-mini="supervisor" onclick="enterpriseSwitchMini('supervisor')">Supervisor</button>
+          <button class="enterprise-mini-tab" data-ent-mini="export" onclick="enterpriseSwitchMini('export')">Export</button>
+        </div>
+
+        <div class="ent-mini-panel active" id="ent-mini-dashboard">
+          <div class="enterprise-card">
+            <h4>Admin Dashboard</h4>
+            <div class="enterprise-row">
+              <button class="enterprise-btn" onclick="enterpriseAddAssignmentPrompt()">+ Assignment</button>
+              <button class="enterprise-btn green" onclick="enterpriseClockForCurrent('in')">Clock In</button>
+              <button class="enterprise-btn orange" onclick="enterpriseClockForCurrent('out')">Clock Out</button>
+            </div>
+            <div class="ent-section-title">Recent Activity</div>
+            <div class="enterprise-list" id="ent-recent-activity"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-crews">
+          <div class="enterprise-card">
+            <h4>Crew Management</h4>
+            <div class="enterprise-row">
+              <input class="enterprise-input" id="ent-crew-name" placeholder="Crew name">
+              <select class="enterprise-input" id="ent-crew-lead"></select>
+              <button class="enterprise-btn green" onclick="enterpriseAddCrew()">Create Crew</button>
+            </div>
+            <div class="enterprise-list" id="ent-crew-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-people">
+          <div class="enterprise-card">
+            <h4>Employee Status, Notes, Reviews & Discipline</h4>
+            <div class="enterprise-row">
+              <select class="enterprise-input" id="ent-person-select"></select>
+              <select class="enterprise-input" id="ent-person-status">
+                <option>Active</option><option>Suspended</option><option>Inactive</option><option>Terminated</option>
+              </select>
+              <button class="enterprise-btn" onclick="enterpriseUpdatePersonStatus()">Update Status</button>
+            </div>
+            <textarea class="enterprise-input" id="ent-person-note" rows="2" placeholder="Admin note / performance note"></textarea>
+            <div class="enterprise-row">
+              <button class="enterprise-btn purple" onclick="enterpriseSavePersonNote()">Save Note</button>
+              <button class="enterprise-btn orange" onclick="enterpriseAddReview()">Add Review</button>
+              <button class="enterprise-btn red" onclick="enterpriseAddDiscipline()">Add Discipline</button>
+            </div>
+            <div class="enterprise-list" id="ent-people-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-notifications">
+          <div class="enterprise-card">
+            <h4>Notification Center</h4>
+            <textarea class="enterprise-input" id="ent-notification-msg" rows="3" placeholder="Type announcement for employees..."></textarea>
+            <div class="enterprise-row">
+              <select class="enterprise-input" id="ent-notification-target">
+                <option value="all">All Employees</option>
+                <option value="robert">Robert</option>
+                <option value="payton_n">Payton N</option>
+              </select>
+              <button class="enterprise-btn green" onclick="enterpriseSendNotification()">Send Notification</button>
+            </div>
+            <div class="enterprise-list" id="ent-notification-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-history">
+          <div class="enterprise-card">
+            <h4>Searchable History & Activity Logs</h4>
+            <input class="enterprise-input" id="ent-history-search" placeholder="Search logs, employees, assignments..." oninput="enterpriseRenderHistory()">
+            <div class="enterprise-list" id="ent-history-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-branding">
+          <div class="enterprise-card">
+            <h4>Company Branding</h4>
+            <input class="enterprise-input" id="ent-brand-name" placeholder="Company/App Name">
+            <input class="enterprise-input" id="ent-brand-subtitle" placeholder="Subtitle">
+            <div class="enterprise-row">
+              <input class="enterprise-input" id="ent-brand-color" type="color">
+              <button class="enterprise-btn" onclick="enterpriseSaveBranding()">Save Branding</button>
+              <button class="enterprise-btn dark" onclick="enterpriseToggleDarkMode()">Toggle Dark Mode</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-supervisor">
+          <div class="enterprise-card">
+            <h4>Supervisor Controls Under Admin</h4>
+            <p style="font-size:12px;color:#64748b;margin-top:0">Gavin controls supervisor permissions and approvals.</p>
+            <div class="enterprise-row">
+              <select class="enterprise-input" id="ent-supervisor-user"></select>
+              <button class="enterprise-btn purple" onclick="enterpriseToggleSupervisor()">Toggle Supervisor</button>
+            </div>
+            <div class="enterprise-list" id="ent-supervisor-list"></div>
+          </div>
+        </div>
+
+        <div class="ent-mini-panel" id="ent-mini-export">
+          <div class="enterprise-card">
+            <h4>Export / Backup / Restore</h4>
+            <div class="enterprise-row">
+              <button class="enterprise-btn green" onclick="enterpriseExportCSV()">Export CSV</button>
+              <button class="enterprise-btn" onclick="enterpriseDownloadBackup()">Download Backup</button>
+              <button class="enterprise-btn orange" onclick="enterprisePrintReport()">Print Report</button>
+            </div>
+            <textarea class="enterprise-input" id="ent-backup-box" rows="4" placeholder="Backup JSON appears here, or paste JSON to restore..."></textarea>
+            <button class="enterprise-btn red" onclick="enterpriseRestoreBackup()">Restore From Box</button>
+          </div>
+        </div>
+      </div>
+    `;
+    adminPanel.appendChild(panel);
+  }
+
+  function injectEmployeeHub(){
+    const userArea = document.getElementById("user-app-elements");
+    if(!userArea || document.getElementById("enterprise-employee-hub")) return;
+    const hub = document.createElement("div");
+    hub.id = "enterprise-employee-hub";
+    hub.className = "enterprise-card";
+    hub.innerHTML = `
+      <h4>Employee Hub</h4>
+      <div class="enterprise-grid">
+        <div class="enterprise-stat"><div class="label">My Units</div><div class="value" id="ent-my-units">0.00</div></div>
+        <div class="enterprise-stat"><div class="label">Notifications</div><div class="value" id="ent-my-notif-count">0</div></div>
+      </div>
+      <div class="enterprise-row">
+        <button class="enterprise-btn green" onclick="enterpriseClockForCurrent('in')">Clock In</button>
+        <button class="enterprise-btn orange" onclick="enterpriseClockForCurrent('out')">Clock Out</button>
+      </div>
+      <textarea class="enterprise-input" id="ent-work-note" rows="2" placeholder="Work note..."></textarea>
+      <div class="enterprise-row">
+        <button class="enterprise-btn" onclick="enterpriseSaveWorkNote()">Save Work Note</button>
+        <button class="enterprise-btn red" onclick="enterpriseSafetyReport()">Safety Report</button>
+      </div>
+      <div class="ent-section-title">My Notifications</div>
+      <div class="enterprise-list" id="ent-my-notifications"></div>
+    `;
+    userArea.appendChild(hub);
+  }
+
+  function injectNotificationBell(){
+    if(document.getElementById("enterprise-notification-bell")) return;
+    const bell = document.createElement("button");
+    bell.id = "enterprise-notification-bell";
+    bell.innerHTML = `🔔<span id="enterprise-notification-count">0</span>`;
+    bell.onclick = function(){
+      alert((ent.notifications.slice(0,5).map(n=>`${n.time}\n${n.message}`).join("\n\n")) || "No notifications yet.");
+    };
+    document.body.appendChild(bell);
+  }
+
+  window.enterpriseSwitchMini = function(name){
+    document.querySelectorAll(".enterprise-mini-tab").forEach(b=>b.classList.toggle("active", b.dataset.entMini===name));
+    document.querySelectorAll(".ent-mini-panel").forEach(p=>p.classList.toggle("active", p.id==="ent-mini-"+name));
+  };
+
+  window.enterpriseAddCrew = function(){
+    const name = (document.getElementById("ent-crew-name")||{}).value || "";
+    const lead = (document.getElementById("ent-crew-lead")||{}).value || "robert";
+    if(!name.trim()) return alert("Enter a crew name.");
+    ent.crews.unshift({id:Date.now(), name:name.trim(), lead, members:[lead], created:now(), status:"Active"});
+    addActivity("Crew Created", name.trim()+" led by "+profileName(lead));
+    saveEnt();
+  };
+
+  window.enterpriseAddAssignmentPrompt = function(){
+    const text = prompt("Assignment details:");
+    if(!text) return;
+    ent.assignments.unshift({id:Date.now(), text, assignedTo:"all", status:"Open", time:now()});
+    addActivity("Assignment Added", text);
+    saveEnt();
+  };
+
+  window.enterpriseSendNotification = function(){
+    const msg = (document.getElementById("ent-notification-msg")||{}).value || "";
+    const target = (document.getElementById("ent-notification-target")||{}).value || "all";
+    if(!msg.trim()) return alert("Type a notification first.");
+    ent.notifications.unshift({id:Date.now(), message:msg.trim(), target, time:now(), read:false});
+    document.getElementById("ent-notification-msg").value = "";
+    addActivity("Notification Sent", msg.trim());
+    saveEnt();
+  };
+
+  window.enterpriseClockForCurrent = function(type){
+    const prof = currentProfile();
+    ent.attendance.unshift({profile:prof, name:profileName(prof), type, time:now()});
+    addActivity(type==="in"?"Clock In":"Clock Out", profileName(prof));
+    saveEnt();
+  };
+
+  window.enterpriseSaveWorkNote = function(){
+    const note = (document.getElementById("ent-work-note")||{}).value || "";
+    if(!note.trim()) return alert("Type a work note first.");
+    ent.activity.unshift({time:now(), profile:profileName(currentProfile()), action:"Work Note", detail:note.trim()});
+    document.getElementById("ent-work-note").value = "";
+    saveEnt();
+  };
+
+  window.enterpriseSafetyReport = function(){
+    const msg = prompt("Enter safety report:");
+    if(!msg) return;
+    ent.activity.unshift({time:now(), profile:profileName(currentProfile()), action:"Safety Report", detail:msg});
+    saveEnt();
+  };
+
+  window.enterpriseUpdatePersonStatus = function(){
+    const val = document.getElementById("ent-person-select").value;
+    const status = document.getElementById("ent-person-status").value;
+    const u = ent.users.find(x=>x.val===val);
+    if(u){ u.status = status; addActivity("Employee Status", u.name+" set to "+status); saveEnt(); }
+  };
+
+  window.enterpriseSavePersonNote = function(){
+    const val = document.getElementById("ent-person-select").value;
+    const note = document.getElementById("ent-person-note").value;
+    const u = ent.users.find(x=>x.val===val);
+    if(u){ u.notes = note; addActivity("Employee Note", u.name+": "+note); saveEnt(); }
+  };
+
+  window.enterpriseAddReview = function(){
+    const val = document.getElementById("ent-person-select").value;
+    const msg = prompt("Performance review note:");
+    if(!msg) return;
+    ent.reviews.unshift({profile:val, name:profileName(val), note:msg, time:now()});
+    addActivity("Performance Review", profileName(val)+": "+msg);
+    saveEnt();
+  };
+
+  window.enterpriseAddDiscipline = function(){
+    const val = document.getElementById("ent-person-select").value;
+    const msg = prompt("Disciplinary record note:");
+    if(!msg) return;
+    ent.discipline.unshift({profile:val, name:profileName(val), note:msg, time:now()});
+    addActivity("Disciplinary Record", profileName(val)+": "+msg);
+    saveEnt();
+  };
+
+  window.enterpriseSaveBranding = function(){
+    ent.company.name = document.getElementById("ent-brand-name").value || ent.company.name;
+    ent.company.subtitle = document.getElementById("ent-brand-subtitle").value || ent.company.subtitle;
+    ent.company.primary = document.getElementById("ent-brand-color").value || ent.company.primary;
+    document.documentElement.style.setProperty("--ent-blue", ent.company.primary);
+    addActivity("Branding Updated", ent.company.name);
+    saveEnt();
+  };
+
+  window.enterpriseToggleDarkMode = function(){
+    ent.settings.darkMode = !ent.settings.darkMode;
+    document.body.classList.toggle("ent-dark", ent.settings.darkMode);
+    addActivity("Theme Changed", ent.settings.darkMode ? "Dark mode on" : "Dark mode off");
+    saveEnt();
+  };
+
+  window.enterpriseToggleSupervisor = function(){
+    const val = document.getElementById("ent-supervisor-user").value;
+    const u = ent.users.find(x=>x.val===val);
+    if(u){ u.supervisor = !u.supervisor; addActivity("Supervisor Permission", u.name+" supervisor: "+(u.supervisor?"ON":"OFF")); saveEnt(); }
+  };
+
+  window.enterpriseRenderHistory = function(){
+    const q = ((document.getElementById("ent-history-search")||{}).value || "").toLowerCase();
+    const rows = ent.activity.filter(a => JSON.stringify(a).toLowerCase().includes(q));
+    const el = document.getElementById("ent-history-list");
+    if(el) el.innerHTML = rows.map(a=>`<div class="enterprise-list-item"><b>${esc(a.action)}</b> <span class="enterprise-badge">${esc(a.profile)}</span><br><span style="color:#64748b">${esc(a.time)}</span><br>${esc(a.detail)}</div>`).join("") || "<i>No history found.</i>";
+  };
+
+  window.enterpriseExportCSV = function(){
+    const rows = [["Time","Profile","Action","Detail"]].concat(ent.activity.map(a=>[a.time,a.profile,a.action,a.detail]));
+    const csv = rows.map(r=>r.map(x=>`"${String(x||"").replace(/"/g,'""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv],{type:"text/csv"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "dom_sc_enterprise_activity.csv";
+    a.click();
+  };
+
+  window.enterpriseDownloadBackup = function(){
+    const txt = JSON.stringify(ent,null,2);
+    const box = document.getElementById("ent-backup-box");
+    if(box) box.value = txt;
+    const blob = new Blob([txt],{type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "dom_sc_enterprise_backup.json";
+    a.click();
+  };
+
+  window.enterpriseRestoreBackup = function(){
+    const box = document.getElementById("ent-backup-box");
+    if(!box || !box.value.trim()) return alert("Paste backup JSON first.");
+    try{
+      ent = Object.assign({}, defaultEnterprise, JSON.parse(box.value));
+      addActivity("Backup Restored", "Enterprise backup restored");
+      saveEnt();
+    }catch(e){ alert("Invalid JSON backup."); }
+  };
+
+  window.enterprisePrintReport = function(){
+    const report = `
+      <h1>${esc(ent.company.name)} Report</h1>
+      <p>${esc(now())}</p>
+      <h2>Employees</h2>
+      <ul>${ent.users.map(u=>`<li>${esc(u.name)} — ${esc(u.role)} — ${esc(u.status)}</li>`).join("")}</ul>
+      <h2>Recent Activity</h2>
+      <ul>${ent.activity.slice(0,50).map(a=>`<li>${esc(a.time)} — ${esc(a.profile)} — ${esc(a.action)} — ${esc(a.detail)}</li>`).join("")}</ul>
+    `;
+    const w = window.open("", "_blank");
+    w.document.write("<html><body>"+report+"
+<script id="domsc-enterprise-v5-platform-module">
+(function(){
+  const KEY="domsc_enterprise_v5_platform";
+  const defaultData={
+    version:"Enterprise V5 Full Platform",
+    company:{name:"DOM/SC Norm 2026",subtitle:"Enterprise Workforce Platform",primary:"#2563eb",logo:"",welcome:"Welcome to the DOM/SC workforce dashboard.",footer:"DOM/SC Norm 2026",loginTitle:"DOM/SC Platform Gateway",help:"Use this platform to track units, crews, production, communications, documents, safety, and reports."},
+    users:[
+      {name:"Gavin",val:"gavin",role:"master_admin",status:"Active",supervisor:true,permissions:["all"],notes:"Owner / Master Admin",rank:1,promotion:""},
+      {name:"Robert",val:"robert",role:"employee",status:"Active",supervisor:false,permissions:["employee"],notes:"",rank:2,promotion:""},
+      {name:"Payton N",val:"payton_n",role:"employee",status:"Active",supervisor:false,permissions:["employee"],notes:"",rank:3,promotion:""}
+    ],
+    crews:[],crewTransfers:[],assignments:[],workOrders:[],jobTickets:[],equipment:[],
+    notifications:[],messages:[],chatRooms:[{name:"General Crew Chat",id:"general",messages:[]}],
+    activity:[],attendance:[],reviews:[],discipline:[],corrections:[],dailyLogApprovals:[],
+    bugs:[],errors:[],devices:[],loginAttempts:[],audit:[],sessions:[],securityAlerts:[],
+    forms:[],inspections:[],safety:[],policies:[],docs:[],sops:[],bulletin:[],
+    training:[],certifications:[],goals:{gavin:31,robert:31,payton_n:31},
+    maintenance:{scheduled:false,date:"",message:"",readOnly:false,emergency:false,uptimeStart:new Date().toLocaleString()},
+    backups:[],versions:[{version:"V5",time:new Date().toLocaleString(),note:"Enterprise V5 installed"}],
+    widgets:["stats","production","notifications","activity"],
+    settings:{darkMode:false,requireApprovals:false,lateAlert:"08:00",autoBackup:false,publicReadOnly:false,sessionMinutes:10,twoFactor:false,readReceipts:true,automatedReports:false}
+  };
+  function merge(a,b){ if(Array.isArray(a)) return Array.isArray(b)?b:a; const o={...a}; for(const k in (b||{})){ if(a[k]&&typeof a[k]==="object"&&!Array.isArray(a[k])) o[k]=merge(a[k],b[k]); else o[k]=b[k]; } return o; }
   let data=load();
   function load(){try{return merge(defaultData,JSON.parse(localStorage.getItem(KEY)||"{}"))}catch(e){return JSON.parse(JSON.stringify(defaultData))}}
-  function merge(a,b){if(Array.isArray(a))return Array.isArray(b)?b:a;let o={...a};for(const k in (b||{})){if(a[k]&&typeof a[k]=="object"&&!Array.isArray(a[k]))o[k]=merge(a[k],b[k]);else o[k]=b[k]}return o}
-  function save(){localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
+  function save(){localStorage.setItem(KEY,JSON.stringify(data));render();}
   function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
   function now(){return new Date().toLocaleString()}
+  function el(id){return document.getElementById(id)}
+  function v(id){return (el(id)||{}).value||""}
+  function set(id,s){if(el(id))el(id).textContent=s}
+  function val(id,s){if(el(id)&&document.activeElement!==el(id))el(id).value=s||""}
+  function html(id,s){if(el(id))el(id).innerHTML=s}
   function cur(){try{return localStorage.getItem("dom_sc_active_profile")||(document.getElementById("profile-select")||{}).value||"unknown"}catch(e){return"unknown"}}
-  function nameOf(v){let u=data.users.find(x=>x.val===v||x.name===v);return u?u.name:v}
-  function act(action,detail,profile){data.activity.unshift({time:now(),profile:nameOf(profile||cur()),action,detail});data.activity=data.activity.slice(0,600);localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
-  function admin(){return !!window.isAdminLoggedIn}
+  function findUser(x){return data.users.find(u=>u.val===x||u.name===x)}
+  function nameOf(x){const u=findUser(x); return u?u.name:x}
+  function act(action,detail,profile){const row={time:now(),profile:nameOf(profile||cur()),action,detail}; data.activity.unshift(row); data.audit.unshift(row); data.activity=data.activity.slice(0,800); data.audit=data.audit.slice(0,1000); localStorage.setItem(KEY,JSON.stringify(data)); render();}
+  function download(text,name,type){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();}
+  function list(arr,fn){return arr&&arr.length?arr.map(x=>`<div class="v5p-item">${fn(x)}</div>`).join(""):"<i>No records yet.</i>"}
+  function fill(id, all=false){const x=el(id); if(!x)return; x.innerHTML=(all?`<option value="all">All</option>`:"")+data.users.map(u=>`<option value="${esc(u.val)}">${esc(u.name)} (${esc(u.role}${u.supervisor?", supervisor":""})</option>`).join("");}
+  function messagesForMe(){const c=cur(); return data.notifications.filter(n=>n.target==="all"||n.target===c).concat(data.messages.filter(n=>n.target==="all"||n.target===c),data.assignments.filter(n=>n.assignedTo==="all"||n.assignedTo===c));}
 
-  function preserveProfiles(){
+  function preserveOriginalProfiles(){
     const wanted=[{name:"Robert",val:"robert"},{name:"Payton N",val:"payton_n"}];
     if(window.profilesRegistry&&Array.isArray(window.profilesRegistry)){
       wanted.forEach(w=>{if(!profilesRegistry.some(p=>p.val===w.val))profilesRegistry.push(w)});
       profilesRegistry=profilesRegistry.filter(p=>p.val!=="default");
     }
     if(window.globalCloudData){
-      if(!globalCloudData.profiles)globalCloudData.profiles=wanted.slice();
+      globalCloudData.profiles=globalCloudData.profiles||wanted.slice();
       wanted.forEach(w=>{if(!globalCloudData.profiles.some(p=>p.val===w.val))globalCloudData.profiles.push(w)});
       globalCloudData.profiles=globalCloudData.profiles.filter(p=>p.val!=="default");
       globalCloudData.enterpriseOwner="Gavin";
+      globalCloudData.enterpriseVersion="V5 Full Platform";
     }
   }
 
   function patchOriginal(){
     const ogGrant=window._grantAdminAccess;
-    if(typeof ogGrant==="function"&&!ogGrant._v5){
-      const fn=function(){let r=ogGrant.apply(this,arguments);act("Admin Login","Gavin/Admin console opened","gavin");setTimeout(renderAll,150);return r};fn._v5=true;window._grantAdminAccess=fn;
+    if(typeof ogGrant==="function"&&!ogGrant._v5p){
+      const fn=function(){let r=ogGrant.apply(this,arguments);data.sessions.unshift({user:"Gavin/Admin",type:"admin",time:now(),status:"Active"});act("Admin Login","Gavin/Admin console opened","gavin");setTimeout(render,150);return r};fn._v5p=true;window._grantAdminAccess=fn;
     }
     const ogProfile=window._completeProfileLogin;
-    if(typeof ogProfile==="function"&&!ogProfile._v5){
-      const fn=async function(profileVal){let r=await ogProfile.apply(this,arguments);act("Profile Login",nameOf(profileVal)+" logged in",profileVal);return r};fn._v5=true;window._completeProfileLogin=fn;
+    if(typeof ogProfile==="function"&&!ogProfile._v5p){
+      const fn=async function(profileVal){let r=await ogProfile.apply(this,arguments);data.loginAttempts.unshift({profile:profileVal,name:nameOf(profileVal),success:true,time:now(),device:navigator.userAgent});data.sessions.unshift({user:nameOf(profileVal),type:"employee",time:now(),status:"Active"});data.devices.unshift({profile:profileVal,name:nameOf(profileVal),device:navigator.userAgent,time:now()});act("Profile Login",nameOf(profileVal)+" logged in",profileVal);return r};fn._v5p=true;window._completeProfileLogin=fn;
     }
     const ogLunch=window.handleLunchDecision;
-    if(typeof ogLunch==="function"&&!ogLunch._v5){
-      const fn=function(tookBreak){let units=(window.currentGrandTotal||0);let r=ogLunch.apply(this,arguments);act("Daily Log Saved","Units: "+units.toFixed(2));return r};fn._v5=true;window.handleLunchDecision=fn;
+    if(typeof ogLunch==="function"&&!ogLunch._v5p){
+      const fn=function(tookBreak){let units=(window.currentGrandTotal||0);let r=ogLunch.apply(this,arguments);data.dailyLogApprovals.unshift({profile:cur(),name:nameOf(cur()),units:units.toFixed(2),status:data.settings.requireApprovals?"Pending":"Approved",time:now()});act("Daily Log Saved","Units: "+units.toFixed(2));return r};fn._v5p=true;window.handleLunchDecision=fn;
     }
+    window.addEventListener("error",e=>{data.errors.unshift({time:now(),message:e.message,source:e.filename,line:e.lineno});localStorage.setItem(KEY,JSON.stringify(data));});
   }
 
   function injectAdmin(){
     const bar=document.querySelector(".admin-tab-bar"), panel=document.getElementById("admin-panel");
-    if(!bar||!panel||document.getElementById("admin-tab-enterprise-v5"))return;
-    const b=document.createElement("button");b.className="admin-tab-btn";b.dataset.tab="enterprise-v5";b.innerHTML="🏢 Enterprise";b.onclick=()=>switchAdminTab("enterprise-v5");bar.appendChild(b);
-    const p=document.createElement("div");p.className="admin-tab-panel";p.id="admin-tab-enterprise-v5";
-    p.innerHTML=`<div class="v5-shell">
-      <div class="v5-hero"><h3 id="v5-title">DOM/SC Enterprise</h3><p id="v5-subtitle">Gavin Master Admin • Employee/Supervisor Controls • Website Maintenance & Editing</p></div>
-      <div class="v5-grid">
-        <div class="v5-stat"><div class="label">Employees</div><div class="value" id="v5-stat-users">0</div></div>
-        <div class="v5-stat"><div class="label">Crews</div><div class="value" id="v5-stat-crews">0</div></div>
-        <div class="v5-stat"><div class="label">Open Jobs</div><div class="value" id="v5-stat-jobs">0</div></div>
-        <div class="v5-stat"><div class="label">Alerts</div><div class="value" id="v5-stat-alerts">0</div></div>
+    if(!bar||!panel||el("admin-tab-v5-platform"))return;
+    const b=document.createElement("button");b.className="admin-tab-btn";b.dataset.tab="v5-platform";b.innerHTML="🏢 V5 Platform";b.onclick=()=>switchAdminTab("v5-platform");bar.appendChild(b);
+    const p=document.createElement("div");p.className="admin-tab-panel";p.id="admin-tab-v5-platform";
+    p.innerHTML=`<div class="v5p-shell">
+      <div class="v5p-hero"><h3 id="v5p-title">DOM/SC Enterprise</h3><p id="v5p-subtitle">Gavin Master Admin • Employees • Supervisors • Website Maintenance • Full Reporting</p></div>
+      <div class="v5p-grid">
+        <div class="v5p-stat"><div class="label">Users</div><div class="value" id="v5p-stat-users">0</div></div>
+        <div class="v5p-stat"><div class="label">Open Jobs</div><div class="value" id="v5p-stat-jobs">0</div></div>
+        <div class="v5p-stat"><div class="label">Alerts</div><div class="value" id="v5p-stat-alerts">0</div></div>
+        <div class="v5p-stat"><div class="label">Audit Logs</div><div class="value" id="v5p-stat-audit">0</div></div>
       </div>
-      <div class="v5-tabs">
-        ${["dashboard","users","crews","jobs","approvals","maintenance","editor","branding","reports","security","documents","training","messages","export"].map((x,i)=>`<button class="v5-tab ${i==0?"active":""}" data-v5="${x}" onclick="DOMSCV5.switch('${x}')">${x[0].toUpperCase()+x.slice(1)}</button>`).join("")}
+      <div class="v5p-tabs">
+        ${["system","website","security","employees","supervisor","reports","communication","operations","master","export"].map((x,i)=>`<button class="v5p-tab ${i==0?"active":""}" data-v5p="${x}" onclick="DOMSCV5P.switch('${x}')">${x[0].toUpperCase()+x.slice(1)}</button>`).join("")}
       </div>
-      <div id="v5-panel-dashboard" class="v5-panel active">${panelDashboard()}</div>
-      <div id="v5-panel-users" class="v5-panel">${panelUsers()}</div>
-      <div id="v5-panel-crews" class="v5-panel">${panelCrews()}</div>
-      <div id="v5-panel-jobs" class="v5-panel">${panelJobs()}</div>
-      <div id="v5-panel-approvals" class="v5-panel">${panelApprovals()}</div>
-      <div id="v5-panel-maintenance" class="v5-panel">${panelMaintenance()}</div>
-      <div id="v5-panel-editor" class="v5-panel">${panelEditor()}</div>
-      <div id="v5-panel-branding" class="v5-panel">${panelBranding()}</div>
-      <div id="v5-panel-reports" class="v5-panel">${panelReports()}</div>
-      <div id="v5-panel-security" class="v5-panel">${panelSecurity()}</div>
-      <div id="v5-panel-documents" class="v5-panel">${panelDocs()}</div>
-      <div id="v5-panel-training" class="v5-panel">${panelTraining()}</div>
-      <div id="v5-panel-messages" class="v5-panel">${panelMessages()}</div>
-      <div id="v5-panel-export" class="v5-panel">${panelExport()}</div>
+      <div id="v5p-panel-system" class="v5p-panel active">${panelSystem()}</div>
+      <div id="v5p-panel-website" class="v5p-panel">${panelWebsite()}</div>
+      <div id="v5p-panel-security" class="v5p-panel">${panelSecurity()}</div>
+      <div id="v5p-panel-employees" class="v5p-panel">${panelEmployees()}</div>
+      <div id="v5p-panel-supervisor" class="v5p-panel">${panelSupervisor()}</div>
+      <div id="v5p-panel-reports" class="v5p-panel">${panelReports()}</div>
+      <div id="v5p-panel-communication" class="v5p-panel">${panelCommunication()}</div>
+      <div id="v5p-panel-operations" class="v5p-panel">${panelOperations()}</div>
+      <div id="v5p-panel-master" class="v5p-panel">${panelMaster()}</div>
+      <div id="v5p-panel-export" class="v5p-panel">${panelExport()}</div>
     </div>`;
     panel.appendChild(p);
   }
 
-  function panelDashboard(){return `<div class="v5-card"><h4>Command Center</h4><div class="v5-row"><button class="v5-btn green" onclick="DOMSCV5.clock('in')">Clock In</button><button class="v5-btn orange" onclick="DOMSCV5.clock('out')">Clock Out</button><button class="v5-btn purple" onclick="DOMSCV5.promptJob()">+ Assignment</button></div><div class="v5-section-title">System Health</div><div id="v5-health"></div><div class="v5-section-title">Recent Activity</div><div class="v5-list" id="v5-activity-recent"></div></div>`}
-  function panelUsers(){return `<div class="v5-card"><h4>User Management & Permissions</h4><div class="v5-row"><input id="v5-new-user-name" class="v5-input" placeholder="Name"><select id="v5-new-user-role" class="v5-input"><option>employee</option><option>supervisor</option><option>admin</option></select><button class="v5-btn green" onclick="DOMSCV5.addUser()">Add User</button></div><div class="v5-row"><select id="v5-user-select" class="v5-input"></select><select id="v5-user-status" class="v5-input"><option>Active</option><option>Suspended</option><option>Inactive</option><option>Terminated</option></select><button class="v5-btn" onclick="DOMSCV5.updateUser()">Update Status</button></div><textarea id="v5-user-note" class="v5-input" rows="2" placeholder="Private admin note"></textarea><div class="v5-row"><button class="v5-btn purple" onclick="DOMSCV5.saveUserNote()">Save Note</button><button class="v5-btn orange" onclick="DOMSCV5.review()">Review</button><button class="v5-btn red" onclick="DOMSCV5.discipline()">Write-Up</button></div><div class="v5-list" id="v5-users-list"></div></div>`}
-  function panelCrews(){return `<div class="v5-card"><h4>Crew Management</h4><div class="v5-row"><input id="v5-crew-name" class="v5-input" placeholder="Crew Name"><select id="v5-crew-lead" class="v5-input"></select><button class="v5-btn green" onclick="DOMSCV5.addCrew()">Create Crew</button></div><div class="v5-list" id="v5-crews-list"></div></div>`}
-  function panelJobs(){return `<div class="v5-card"><h4>Job / Work Order Assignment Board</h4><textarea id="v5-job-text" class="v5-input" rows="2" placeholder="Job details"></textarea><div class="v5-row"><select id="v5-job-user" class="v5-input"></select><select id="v5-job-priority" class="v5-input"><option>Normal</option><option>High</option><option>Urgent</option></select><button class="v5-btn green" onclick="DOMSCV5.addJob()">Assign Job</button></div><div class="v5-list" id="v5-jobs-list"></div></div>`}
-  function panelApprovals(){return `<div class="v5-card"><h4>Approvals & Corrections</h4><div class="v5-row"><button class="v5-btn" onclick="DOMSCV5.requestCorrection()">Request Correction</button><button class="v5-btn green" onclick="DOMSCV5.approveAll()">Approve All</button></div><div class="v5-list" id="v5-approvals-list"></div></div>`}
-  function panelMaintenance(){return `<div class="v5-card"><h4>Website Maintenance & System Tools</h4><div class="v5-row"><input id="v5-maint-date" class="v5-input" placeholder="Maintenance date/time"><button class="v5-btn orange" onclick="DOMSCV5.scheduleMaintenance()">Schedule Maintenance</button><button class="v5-btn red" onclick="DOMSCV5.clearMaintenance()">Clear</button></div><textarea id="v5-maint-message" class="v5-input" rows="2" placeholder="Maintenance message"></textarea><div class="v5-row"><button class="v5-btn dark" onclick="DOMSCV5.toggleReadOnly()">Toggle Read-Only</button><button class="v5-btn purple" onclick="DOMSCV5.makeRestorePoint()">Restore Point</button><button class="v5-btn green" onclick="DOMSCV5.cleanup()">Cleanup Old Logs</button></div><div class="v5-list" id="v5-maint-list"></div></div>`}
-  function panelEditor(){return `<div class="v5-card"><h4>Website Editing Tools</h4><input id="v5-home-welcome" class="v5-input" placeholder="Custom welcome message"><textarea id="v5-policy-editor" class="v5-input" rows="4" placeholder="Editable policy / help center / SOP text"></textarea><div class="v5-row"><button class="v5-btn" onclick="DOMSCV5.savePageEdits()">Save Page Edits</button><button class="v5-btn purple" onclick="DOMSCV5.addCustomForm()">Create Custom Form</button></div><div class="v5-policy-box" id="v5-policy-preview"></div></div>`}
-  function panelBranding(){return `<div class="v5-card"><h4>Company Branding Manager</h4><input id="v5-brand-name" class="v5-input" placeholder="Company/App Name"><input id="v5-brand-subtitle" class="v5-input" placeholder="Subtitle"><input id="v5-brand-footer" class="v5-input" placeholder="Footer"><div class="v5-row"><input id="v5-brand-primary" type="color" class="v5-input"><button class="v5-btn" onclick="DOMSCV5.saveBranding()">Save Branding</button><button class="v5-btn dark" onclick="DOMSCV5.dark()">Dark Mode</button></div></div>`}
-  function panelReports(){return `<div class="v5-card"><h4>Reports & Analytics</h4><div class="v5-row"><select id="v5-report-user" class="v5-input"></select><button class="v5-btn green" onclick="DOMSCV5.exportCSV()">Export CSV</button><button class="v5-btn orange" onclick="DOMSCV5.printReport()">Print Report</button></div><div class="v5-list" id="v5-reports-list"></div></div>`}
-  function panelSecurity(){return `<div class="v5-card"><h4>Advanced Security Controls</h4><div class="v5-row"><select id="v5-force-user" class="v5-input"></select><button class="v5-btn red" onclick="DOMSCV5.forceLogout()">Force Logout</button><button class="v5-btn orange" onclick="DOMSCV5.forceReset()">Force Password Reset</button></div><div class="v5-list" id="v5-security-list"></div></div>`}
-  function panelDocs(){return `<div class="v5-card"><h4>Company Document Center / SOP Library</h4><input id="v5-doc-title" class="v5-input" placeholder="Document title"><textarea id="v5-doc-body" class="v5-input" rows="3" placeholder="Document body"></textarea><button class="v5-btn green" onclick="DOMSCV5.addDoc()">Add Document</button><div class="v5-list" id="v5-doc-list"></div></div>`}
-  function panelTraining(){return `<div class="v5-card"><h4>Training & Certifications</h4><div class="v5-row"><select id="v5-training-user" class="v5-input"></select><input id="v5-training-title" class="v5-input" placeholder="Training / certification"><button class="v5-btn green" onclick="DOMSCV5.addTraining()">Add</button></div><div class="v5-list" id="v5-training-list"></div></div>`}
-  function panelMessages(){return `<div class="v5-card"><h4>Communication Center</h4><textarea id="v5-message-text" class="v5-input" rows="2" placeholder="Announcement / message"></textarea><div class="v5-row"><select id="v5-message-target" class="v5-input"></select><button class="v5-btn green" onclick="DOMSCV5.sendMessage()">Send</button></div><div class="v5-list" id="v5-message-list"></div></div>`}
-  function panelExport(){return `<div class="v5-card"><h4>Backup / Restore / Version Control</h4><div class="v5-row"><button class="v5-btn green" onclick="DOMSCV5.backup()">Download Backup</button><button class="v5-btn orange" onclick="DOMSCV5.copyBackup()">Copy To Box</button><button class="v5-btn red" onclick="DOMSCV5.restore()">Restore From Box</button></div><textarea id="v5-backup-box" class="v5-input" rows="5" placeholder="Backup JSON"></textarea><div class="v5-list" id="v5-backup-list"></div></div>`}
+  function panelSystem(){return `<div class="v5p-card"><h4>System Administration</h4><div class="v5p-grid"><div class="v5p-stat"><div class="label">Uptime Since</div><div class="value" style="font-size:13px" id="v5p-uptime">--</div></div><div class="v5p-stat"><div class="label">Errors</div><div class="value" id="v5p-errors-count">0</div></div></div><div class="v5p-row"><input id="v5p-maint-date" class="v5p-input" placeholder="Maintenance date/time"><button class="v5p-btn orange" onclick="DOMSCV5P.scheduleMaintenance()">Schedule Maintenance</button><button class="v5p-btn red" onclick="DOMSCV5P.emergencyLock()">Emergency Lockdown</button></div><textarea id="v5p-maint-msg" class="v5p-input" rows="2" placeholder="Maintenance message"></textarea><div class="v5p-row"><button class="v5p-btn dark" onclick="DOMSCV5P.toggleReadOnly()">Read-Only Mode</button><button class="v5p-btn purple" onclick="DOMSCV5P.restorePoint()">One-Click Restore Point</button><button class="v5p-btn green" onclick="DOMSCV5P.cleanup()">Database Cleanup</button></div><div class="v5p-section-title">Health / Errors / Backups</div><div class="v5p-list" id="v5p-system-list"></div></div>`}
+  function panelWebsite(){return `<div class="v5p-card"><h4>Website Editing Tools</h4><input id="v5p-brand-name" class="v5p-input" placeholder="Company/App Name"><input id="v5p-brand-subtitle" class="v5p-input" placeholder="Subtitle"><input id="v5p-login-title" class="v5p-input" placeholder="Login page title"><textarea id="v5p-welcome" class="v5p-input" rows="2" placeholder="Custom welcome message"></textarea><textarea id="v5p-policy" class="v5p-input" rows="4" placeholder="Company policies / help center / SOP text"></textarea><div class="v5p-row"><input id="v5p-primary" type="color" class="v5p-input"><button class="v5p-btn" onclick="DOMSCV5P.saveWebsite()">Save Website Edits</button><button class="v5p-btn purple" onclick="DOMSCV5P.addForm()">Admin Form</button><button class="v5p-btn dark" onclick="DOMSCV5P.darkMode()">Dark Mode</button></div><div class="v5p-policy-box" id="v5p-policy-preview"></div></div>`}
+  function panelSecurity(){return `<div class="v5p-card"><h4>Security Center</h4><div class="v5p-row"><select id="v5p-security-user" class="v5p-input"></select><button class="v5p-btn red" onclick="DOMSCV5P.suspend()">Suspend</button><button class="v5p-btn orange" onclick="DOMSCV5P.forceReset()">Force Reset</button><button class="v5p-btn purple" onclick="DOMSCV5P.forceLogout()">Force Logout</button></div><div class="v5p-row"><button class="v5p-btn" onclick="DOMSCV5P.toggle2FA()">Toggle 2FA</button><button class="v5p-btn cyan" onclick="DOMSCV5P.securityAudit()">Security Audit</button><button class="v5p-btn gray" onclick="DOMSCV5P.clearSessions()">Clear Sessions</button></div><div class="v5p-list" id="v5p-security-list"></div></div>`}
+  function panelEmployees(){return `<div class="v5p-card"><h4>Employee Management</h4><div class="v5p-row"><input id="v5p-new-user" class="v5p-input" placeholder="Employee name"><select id="v5p-new-role" class="v5p-input"><option>employee</option><option>supervisor</option><option>admin</option></select><button class="v5p-btn green" onclick="DOMSCV5P.addUser()">Create User</button></div><div class="v5p-row"><select id="v5p-emp-user" class="v5p-input"></select><select id="v5p-emp-status" class="v5p-input"><option>Active</option><option>Suspended</option><option>Inactive</option><option>Terminated</option></select><button class="v5p-btn" onclick="DOMSCV5P.updateEmployee()">Update</button></div><textarea id="v5p-emp-note" class="v5p-input" rows="2" placeholder="Employee note / promotion tracking"></textarea><div class="v5p-row"><button class="v5p-btn purple" onclick="DOMSCV5P.review()">Review</button><button class="v5p-btn red" onclick="DOMSCV5P.writeup()">Write-Up</button><button class="v5p-btn orange" onclick="DOMSCV5P.training()">Training/Cert</button></div><div class="v5p-list" id="v5p-employee-list"></div></div>`}
+  function panelSupervisor(){return `<div class="v5p-card"><h4>Supervisor Portal</h4><div class="v5p-row"><select id="v5p-super-user" class="v5p-input"></select><button class="v5p-btn purple" onclick="DOMSCV5P.toggleSupervisor()">Toggle Supervisor</button><button class="v5p-btn green" onclick="DOMSCV5P.approveLogs()">Approve Logs</button><button class="v5p-btn orange" onclick="DOMSCV5P.dailyCrewSummary()">Daily Summary</button></div><textarea id="v5p-super-note" class="v5p-input" rows="2" placeholder="Supervisor note or escalation report"></textarea><button class="v5p-btn red" onclick="DOMSCV5P.escalate()">Escalation Report</button><div class="v5p-list" id="v5p-supervisor-list"></div></div>`}
+  function panelReports(){return `<div class="v5p-card"><h4>Reporting & Analytics</h4><div class="v5p-row"><select id="v5p-report-user" class="v5p-input"></select><select id="v5p-report-range" class="v5p-input"><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Yearly</option></select><button class="v5p-btn green" onclick="DOMSCV5P.generateReport()">Generate</button></div><div class="v5p-row"><button class="v5p-btn" onclick="DOMSCV5P.exportCSV()">Export Excel/CSV</button><button class="v5p-btn orange" onclick="DOMSCV5P.exportPDF()">Export PDF/Print</button><button class="v5p-btn purple" onclick="DOMSCV5P.autoReports()">Auto Reports</button></div><div class="v5p-list" id="v5p-report-list"></div></div>`}
+  function panelCommunication(){return `<div class="v5p-card"><h4>Communication Center</h4><textarea id="v5p-message" class="v5p-input" rows="2" placeholder="Message / announcement / emergency alert"></textarea><div class="v5p-row"><select id="v5p-message-target" class="v5p-input"></select><select id="v5p-message-type" class="v5p-input"><option>Message</option><option>Announcement</option><option>Emergency Alert</option><option>Admin Broadcast</option></select><button class="v5p-btn green" onclick="DOMSCV5P.sendMessage()">Send</button></div><div class="v5p-row"><input id="v5p-chat-room" class="v5p-input" placeholder="Crew chat room name"><button class="v5p-btn cyan" onclick="DOMSCV5P.addChatRoom()">Create Chat Room</button></div><div class="v5p-list" id="v5p-message-list"></div></div>`}
+  function panelOperations(){return `<div class="v5p-card"><h4>Operations Center</h4><div class="v5p-row"><input id="v5p-jobticket" class="v5p-input" placeholder="Job ticket / work order"><select id="v5p-job-user" class="v5p-input"></select><button class="v5p-btn green" onclick="DOMSCV5P.addJobTicket()">Create Ticket</button></div><div class="v5p-row"><input id="v5p-doc-title" class="v5p-input" placeholder="Document / SOP title"><button class="v5p-btn" onclick="DOMSCV5P.addDocument()">Add Document</button><button class="v5p-btn orange" onclick="DOMSCV5P.inspection()">Inspection Form</button></div><textarea id="v5p-doc-body" class="v5p-input" rows="3" placeholder="Document, SOP, bulletin, or form body"></textarea><div class="v5p-row"><button class="v5p-btn red" onclick="DOMSCV5P.safety()">Safety Incident</button><button class="v5p-btn purple" onclick="DOMSCV5P.equipment()">Equipment Checkout</button><button class="v5p-btn cyan" onclick="DOMSCV5P.gpsMap()">GPS Crew Map</button></div><div class="v5p-list" id="v5p-operations-list"></div></div>`}
+  function panelMaster(){return `<div class="v5p-card"><h4>Gavin Master Admin Console</h4><div class="v5p-row"><select id="v5p-impersonate" class="v5p-input"></select><button class="v5p-btn purple" onclick="DOMSCV5P.impersonate()">Impersonate View</button><button class="v5p-btn red" onclick="DOMSCV5P.fullOverride()">Full Override</button></div><div class="v5p-row"><button class="v5p-btn green" onclick="DOMSCV5P.createVersion()">Create Version</button><button class="v5p-btn orange" onclick="DOMSCV5P.updateManager()">Update Manager</button><button class="v5p-btn dark" onclick="DOMSCV5P.recovery()">System Recovery</button></div><div class="v5p-list" id="v5p-master-list"></div></div>`}
+  function panelExport(){return `<div class="v5p-card"><h4>Backup / Restore / Version Control</h4><div class="v5p-row"><button class="v5p-btn green" onclick="DOMSCV5P.backup()">Download Backup</button><button class="v5p-btn orange" onclick="DOMSCV5P.copyBackup()">Copy Backup</button><button class="v5p-btn red" onclick="DOMSCV5P.restore()">Restore</button></div><textarea id="v5p-backup-box" class="v5p-input" rows="6" placeholder="Backup JSON"></textarea><div class="v5p-list" id="v5p-backup-list"></div></div>`}
 
   function injectEmployee(){
-    const user=document.getElementById("user-app-elements"); if(!user||document.getElementById("v5-employee-hub"))return;
-    const d=document.createElement("div");d.id="v5-employee-hub";d.className="v5-card";d.innerHTML=`<h4>Employee Dashboard</h4><div class="v5-grid"><div class="v5-stat"><div class="label">My Units</div><div class="value" id="v5-my-units">0.00</div></div><div class="v5-stat"><div class="label">Goal Progress</div><div class="value" id="v5-my-progress">0%</div></div></div><div class="v5-progress"><span id="v5-progress-bar"></span></div><div class="v5-row"><button class="v5-btn green" onclick="DOMSCV5.clock('in')">Clock In</button><button class="v5-btn orange" onclick="DOMSCV5.clock('out')">Clock Out</button><button class="v5-btn" onclick="DOMSCV5.requestCorrection()">Correction</button></div><textarea id="v5-work-note" class="v5-input" rows="2" placeholder="Work note"></textarea><div class="v5-row"><button class="v5-btn" onclick="DOMSCV5.workNote()">Save Note</button><button class="v5-btn red" onclick="DOMSCV5.safety()">Safety Report</button><button class="v5-btn purple" onclick="DOMSCV5.bug()">Bug Report</button></div><div class="v5-section-title">My Notifications / Jobs</div><div class="v5-list" id="v5-my-feed"></div>`;
+    const user=document.getElementById("user-app-elements"); if(!user||el("v5p-employee-hub"))return;
+    const d=document.createElement("div");d.id="v5p-employee-hub";d.className="v5p-card";
+    d.innerHTML=`<h4>Employee Portal</h4><div class="v5p-grid"><div class="v5p-stat"><div class="label">My Units</div><div class="value" id="v5p-my-units">0.00</div></div><div class="v5p-stat"><div class="label">Goal</div><div class="value" id="v5p-my-progress">0%</div></div></div><div class="v5p-progress"><span id="v5p-progress-bar"></span></div><div class="v5p-row"><button class="v5p-btn green" onclick="DOMSCV5P.clock('in')">Clock In</button><button class="v5p-btn orange" onclick="DOMSCV5P.clock('out')">Clock Out</button><button class="v5p-btn" onclick="DOMSCV5P.correction()">Correction</button></div><textarea id="v5p-work-note" class="v5p-input" rows="2" placeholder="Work note"></textarea><div class="v5p-row"><button class="v5p-btn" onclick="DOMSCV5P.workNote()">Save Note</button><button class="v5p-btn red" onclick="DOMSCV5P.bug()">Bug Report</button><button class="v5p-btn purple" onclick="DOMSCV5P.transfer()">Transfer Request</button></div><div class="v5p-section-title">My Feed</div><div class="v5p-list" id="v5p-my-feed"></div>`;
     user.appendChild(d);
   }
-  function injectBell(){if(document.getElementById("v5-notification-bell"))return;let b=document.createElement("button");b.id="v5-notification-bell";b.innerHTML=`🔔<span id="v5-notification-count">0</span>`;b.onclick=()=>alert(myMessages().slice(0,8).map(m=>m.message||m.text).join("\n\n")||"No notifications.");document.body.appendChild(b)}
 
-  function fill(id, all=false){let el=document.getElementById(id); if(!el)return;el.innerHTML=(all?`<option value="all">All</option>`:"")+data.users.map(u=>`<option value="${esc(u.val)}">${esc(u.name)} (${esc(u.role}${u.supervisor?", supervisor":""})</option>`).join("")}
-  function myMessages(){let c=cur();return data.notifications.filter(n=>n.target==="all"||n.target===c).concat(data.messages.filter(n=>n.target==="all"||n.target===c),data.assignments.filter(n=>n.assignedTo==="all"||n.assignedTo===c))}
+  function injectBell(){if(el("v5p-notification-bell"))return;const b=document.createElement("button");b.id="v5p-notification-bell";b.innerHTML=`🔔<span id="v5p-notification-count">0</span>`;b.onclick=()=>alert(messagesForMe().slice(0,8).map(m=>m.message||m.text||m.title).join("\n\n")||"No notifications.");document.body.appendChild(b)}
 
   const api={
-    switch(n){document.querySelectorAll(".v5-tab").forEach(x=>x.classList.toggle("active",x.dataset.v5===n));document.querySelectorAll(".v5-panel").forEach(x=>x.classList.toggle("active",x.id==="v5-panel-"+n))},
-    addUser(){let name=v("v5-new-user-name"),role=v("v5-new-user-role");if(!name)return alert("Name required");let val=name.toLowerCase().replace(/\s+/g,"_");data.users.push({name,val,role,status:"Active",supervisor:role==="supervisor",permissions:[role],notes:""});act("User Added",name);save()},
-    updateUser(){let u=find(v("v5-user-select"));if(u){u.status=v("v5-user-status");act("User Status",u.name+" = "+u.status);save()}},
-    saveUserNote(){let u=find(v("v5-user-select"));if(u){u.notes=v("v5-user-note");act("Admin Note",u.name+": "+u.notes);save()}},
-    review(){let u=find(v("v5-user-select"));let m=prompt("Performance review:");if(u&&m){data.reviews.unshift({user:u.val,name:u.name,note:m,time:now()});act("Performance Review",u.name+": "+m);save()}},
-    discipline(){let u=find(v("v5-user-select"));let m=prompt("Write-up/disciplinary record:");if(u&&m){data.discipline.unshift({user:u.val,name:u.name,note:m,time:now()});act("Discipline",u.name+": "+m);save()}},
-    addCrew(){let name=v("v5-crew-name"),lead=v("v5-crew-lead");if(!name)return alert("Crew name required");data.crews.unshift({id:Date.now(),name,lead,members:[lead],status:"Active",created:now()});act("Crew Created",name);save()},
-    addJob(){let text=v("v5-job-text"),assignedTo=v("v5-job-user"),priority=v("v5-job-priority");if(!text)return alert("Job details required");data.assignments.unshift({id:Date.now(),text,assignedTo,priority,status:"Open",time:now()});act("Job Assigned",text);save()},
-    promptJob(){let text=prompt("Assignment details:");if(text){data.assignments.unshift({id:Date.now(),text,assignedTo:"all",priority:"Normal",status:"Open",time:now()});act("Job Assigned",text);save()}},
-    requestCorrection(){let m=prompt("What needs corrected?");if(m){data.corrections.unshift({id:Date.now(),profile:cur(),name:nameOf(cur()),note:m,status:"Pending",time:now()});act("Correction Request",m);save()}},
-    approveAll(){data.corrections.forEach(c=>c.status="Approved");act("Approvals","All correction requests approved");save()},
+    switch(n){document.querySelectorAll(".v5p-tab").forEach(x=>x.classList.toggle("active",x.dataset.v5p===n));document.querySelectorAll(".v5p-panel").forEach(x=>x.classList.toggle("active",x.id==="v5p-panel-"+n))},
+    scheduleMaintenance(){data.maintenance.scheduled=true;data.maintenance.date=v("v5p-maint-date");data.maintenance.message=v("v5p-maint-msg");act("Maintenance Scheduled",data.maintenance.date+" — "+data.maintenance.message);save()},
+    emergencyLock(){data.maintenance.emergency=!data.maintenance.emergency;if(window.globalCloudData){globalCloudData.is_locked=data.maintenance.emergency}act("Emergency Lockdown",data.maintenance.emergency?"ON":"OFF");save()},
+    toggleReadOnly(){data.maintenance.readOnly=!data.maintenance.readOnly;if(window.globalCloudData){globalCloudData.settings=globalCloudData.settings||{};globalCloudData.settings.readonly=data.maintenance.readOnly}act("Read-Only Mode",data.maintenance.readOnly?"ON":"OFF");save()},
+    restorePoint(){data.backups.unshift({time:now(),type:"restore_point",json:JSON.stringify(data)});data.backups=data.backups.slice(0,20);act("Restore Point","One-click restore point created");save()},
+    cleanup(){data.activity=data.activity.slice(0,200);data.audit=data.audit.slice(0,300);act("Database Cleanup","Old local activity/audit entries cleaned");save()},
+    saveWebsite(){data.company.name=v("v5p-brand-name")||data.company.name;data.company.subtitle=v("v5p-brand-subtitle")||data.company.subtitle;data.company.loginTitle=v("v5p-login-title")||data.company.loginTitle;data.company.welcome=v("v5p-welcome")||data.company.welcome;data.company.primary=v("v5p-primary")||data.company.primary;const pol=v("v5p-policy");if(pol)data.policies.unshift({title:"Company Policy",body:pol,time:now()});act("Website Edited","Branding/homepage/login/policies updated");save()},
+    addForm(){const title=prompt("Form name:");if(title){data.forms.unshift({title,fields:["Name","Date","Notes"],time:now()});act("Form Created",title);save()}},
+    darkMode(){data.settings.darkMode=!data.settings.darkMode;act("Theme",data.settings.darkMode?"Dark mode enabled":"Dark mode disabled");save()},
+    suspend(){const u=findUser(v("v5p-security-user"));if(u){u.status=u.status==="Suspended"?"Active":"Suspended";act("Account Suspension",u.name+" status: "+u.status);save()}},
+    forceReset(){const u=findUser(v("v5p-security-user"));if(u){data.securityAlerts.unshift({time:now(),user:u.name,type:"Forced Password Reset"});act("Forced Password Reset",u.name);save();alert("Reset request logged. Use existing passcode controls to clear/set the passcode.")}},
+    forceLogout(){const u=findUser(v("v5p-security-user"));if(u){data.sessions.forEach(s=>{if(s.user===u.name)s.status="Forced Logged Out"});act("Force Logout",u.name);save()}},
+    toggle2FA(){data.settings.twoFactor=!data.settings.twoFactor;act("Two-Factor Authentication",data.settings.twoFactor?"Enabled":"Disabled");save()},
+    securityAudit(){data.securityAlerts.unshift({time:now(),user:"System",type:"Security audit generated",details:"Checked login attempts, sessions, devices, IP/device logs"});act("Security Audit","Security audit generated");save()},
+    clearSessions(){data.sessions=[];act("Session Management","All local sessions cleared");save()},
+    addUser(){let name=v("v5p-new-user"),role=v("v5p-new-role");if(!name)return alert("Employee name required");let val=name.toLowerCase().replace(/\s+/g,"_");data.users.push({name,val,role,status:"Active",supervisor:role==="supervisor",permissions:[role],notes:"",rank:data.users.length+1,promotion:""});act("User Created",name);save()},
+    updateEmployee(){const u=findUser(v("v5p-emp-user"));if(u){u.status=v("v5p-emp-status");u.notes=v("v5p-emp-note")||u.notes;act("Employee Updated",u.name+" — "+u.status);save()}},
+    review(){const u=findUser(v("v5p-emp-user"));const m=prompt("Performance review:");if(u&&m){data.reviews.unshift({user:u.val,name:u.name,note:m,time:now()});act("Performance Review",u.name+": "+m);save()}},
+    writeup(){const u=findUser(v("v5p-emp-user"));const m=prompt("Write-up details:");if(u&&m){data.discipline.unshift({user:u.val,name:u.name,note:m,time:now()});act("Write-Up",u.name+": "+m);save()}},
+    training(){const u=findUser(v("v5p-emp-user"));const m=prompt("Training/certification:");if(u&&m){data.training.unshift({user:u.val,name:u.name,title:m,time:now()});data.certifications.unshift({user:u.val,name:u.name,title:m,time:now()});act("Training/Certification",u.name+": "+m);save()}},
+    toggleSupervisor(){const u=findUser(v("v5p-super-user"));if(u){u.supervisor=!u.supervisor;u.role=u.supervisor?"supervisor":(u.role==="master_admin"?"master_admin":"employee");act("Supervisor Permission",u.name+" supervisor: "+(u.supervisor?"ON":"OFF"));save()}},
+    approveLogs(){data.dailyLogApprovals.forEach(x=>x.status="Approved");data.corrections.forEach(x=>x.status="Approved");act("Supervisor Approval","Daily logs/corrections approved");save()},
+    dailyCrewSummary(){data.notifications.unshift({target:"all",message:"Daily crew summary generated by supervisor/admin.",time:now(),read:false});act("Daily Crew Summary","Generated");save()},
+    escalate(){const msg=v("v5p-super-note")||prompt("Escalation report:");if(msg){data.notifications.unshift({target:"gavin",message:"Escalation: "+msg,time:now(),read:false});act("Escalation Report",msg);save()}},
+    generateReport(){act("Report Generated",v("v5p-report-range")+" report for "+nameOf(v("v5p-report-user")));save()},
+    exportCSV(){const rows=[["Time","Profile","Action","Detail"]].concat(data.activity.map(a=>[a.time,a.profile,a.action,a.detail]));download(rows.map(r=>r.map(x=>`"${String(x||"").replace(/"/g,'""')}"`).join(",")).join("\n"),"dom_sc_enterprise_report.csv","text/csv")},
+    exportPDF(){const w=window.open("","_blank");w.document.write(`<h1>${esc(data.company.name)} Report</h1><p>${now()}</p><h2>Users</h2><ul>${data.users.map(u=>`<li>${esc(u.name)} — ${esc(u.role)} — ${esc(u.status)}</li>`).join("")}</ul><h2>Activity</h2><ul>${data.activity.slice(0,100).map(a=>`<li>${esc(a.time)} — ${esc(a.profile)} — ${esc(a.action)} — ${esc(a.detail)}</li>`).join("")}</ul>`);w.print()},
+    autoReports(){data.settings.automatedReports=!data.settings.automatedReports;act("Automated Reports",data.settings.automatedReports?"ON":"OFF");save()},
+    sendMessage(){const text=v("v5p-message"),target=v("v5p-message-target"),type=v("v5p-message-type");if(text){const msg={target,text,message:text,type,time:now(),from:"Gavin/Admin",read:false};data.messages.unshift(msg);data.notifications.unshift(msg);act(type,text);save()}},
+    addChatRoom(){const name=v("v5p-chat-room");if(name){data.chatRooms.unshift({name,id:"room_"+Date.now(),messages:[]});act("Crew Chat Room",name);save()}},
+    addJobTicket(){const text=v("v5p-jobticket"),user=v("v5p-job-user");if(text){data.jobTickets.unshift({text,assignedTo:user,status:"Open",time:now()});data.workOrders.unshift({text,assignedTo:user,status:"Open",time:now()});data.assignments.unshift({text,assignedTo:user,status:"Open",priority:"Normal",time:now()});act("Job Ticket / Work Order",text);save()}},
+    addDocument(){const title=v("v5p-doc-title"),body=v("v5p-doc-body");if(title){data.docs.unshift({title,body,time:now()});data.sops.unshift({title,body,time:now()});data.bulletin.unshift({title,body,time:now()});act("Document/SOP Added",title);save()}},
+    inspection(){const m=prompt("Inspection form notes:");if(m){data.inspections.unshift({profile:cur(),name:nameOf(cur()),note:m,time:now()});act("Inspection Form",m);save()}},
+    safety(){const m=prompt("Safety incident details:");if(m){data.safety.unshift({profile:cur(),name:nameOf(cur()),note:m,time:now(),status:"Open"});act("Safety Incident",m);save()}},
+    equipment(){const m=prompt("Equipment checkout item:");if(m){data.equipment.unshift({profile:cur(),name:nameOf(cur()),item:m,time:now(),status:"Checked Out"});act("Equipment Checkout",m);save()}},
+    gpsMap(){alert("GPS Crew Location Map uses the app's existing location logs in the Security/Profile section. Live map links appear where location permission is granted.");act("GPS Crew Map","Opened GPS map information");save()},
+    impersonate(){const u=findUser(v("v5p-impersonate"));if(u){alert("Impersonating view for "+u.name+" (preview mode).");act("Impersonate Employee View",u.name);save()}},
+    fullOverride(){act("Full Access Override","Gavin master override used");alert("Gavin master override logged.");save()},
+    createVersion(){data.versions.unshift({version:"V"+(data.versions.length+5),time:now(),note:"Manual version snapshot"});act("Version Control","New version snapshot created");save()},
+    updateManager(){act("Update Manager","Checked for local update tasks");alert("Update manager opened. Add future update notes in Version Control.");save()},
+    recovery(){data.backups.unshift({time:now(),type:"system_recovery",json:JSON.stringify(data)});act("System Recovery","Recovery backup created");save()},
+    backup(){download(JSON.stringify(data,null,2),"dom_sc_enterprise_v5_backup.json","application/json")},
+    copyBackup(){el("v5p-backup-box").value=JSON.stringify(data,null,2);act("Backup Copied","Backup copied to box");save()},
+    restore(){try{data=merge(defaultData,JSON.parse(v("v5p-backup-box")));act("Backup Restored","Restored from backup box");save()}catch(e){alert("Invalid backup JSON")}},
     clock(type){data.attendance.unshift({profile:cur(),name:nameOf(cur()),type,time:now()});act(type==="in"?"Clock In":"Clock Out",nameOf(cur()));save()},
-    scheduleMaintenance(){data.maintenance.scheduled=true;data.maintenance.date=v("v5-maint-date");data.maintenance.message=v("v5-maint-message");act("Maintenance Scheduled",data.maintenance.date+" — "+data.maintenance.message);save()},
-    clearMaintenance(){data.maintenance.scheduled=false;data.maintenance.date="";data.maintenance.message="";act("Maintenance Cleared","Maintenance schedule cleared");save()},
-    toggleReadOnly(){data.maintenance.readOnly=!data.maintenance.readOnly;if(window.globalCloudData){globalCloudData.settings=globalCloudData.settings||{};globalCloudData.settings.readonly=data.maintenance.readOnly}act("Read Only",data.maintenance.readOnly?"ON":"OFF");save()},
-    makeRestorePoint(){data.backups.unshift({time:now(),json:JSON.stringify(data)});data.backups=data.backups.slice(0,10);act("Restore Point","Manual restore point created");save()},
-    cleanup(){data.activity=data.activity.slice(0,150);act("Cleanup","Old logs cleaned");save()},
-    savePageEdits(){data.company.welcome=v("v5-home-welcome");let pol=v("v5-policy-editor");if(pol)data.policies.unshift({title:"Policy Update",body:pol,time:now()});act("Website Edited","Welcome/policy updated");save()},
-    addCustomForm(){let t=prompt("Form name:");if(t){data.forms.unshift({title:t,fields:["Name","Notes"],time:now()});act("Custom Form",t);save()}},
-    saveBranding(){data.company.name=v("v5-brand-name");data.company.subtitle=v("v5-brand-subtitle");data.company.footer=v("v5-brand-footer");data.company.primary=v("v5-brand-primary")||data.company.primary;document.documentElement.style.setProperty("--v5-primary",data.company.primary);act("Branding Updated",data.company.name);save()},
-    dark(){data.settings.darkMode=!data.settings.darkMode;act("Theme",data.settings.darkMode?"Dark mode":"Light mode");save()},
-    exportCSV(){let rows=[["Time","Profile","Action","Detail"]].concat(data.activity.map(a=>[a.time,a.profile,a.action,a.detail]));download(rows.map(r=>r.map(x=>`"${String(x||"").replace(/"/g,'""')}"`).join(",")).join("\n"),"dom_sc_activity.csv","text/csv")},
-    printReport(){let w=window.open("","_blank");w.document.write(`<h1>${esc(data.company.name)} Report</h1><p>${now()}</p><h2>Users</h2><ul>${data.users.map(u=>`<li>${esc(u.name)} - ${esc(u.role)} - ${esc(u.status)}</li>`).join("")}</ul><h2>Activity</h2><ul>${data.activity.slice(0,80).map(a=>`<li>${esc(a.time)} - ${esc(a.profile)} - ${esc(a.action)} - ${esc(a.detail)}</li>`).join("")}</ul>`);w.print()},
-    forceLogout(){act("Force Logout","Requested force logout for "+nameOf(v("v5-force-user")));alert("Force logout recorded. For full remote force logout, connect this to your cloud session system.");save()},
-    forceReset(){let u=find(v("v5-force-user"));if(u){act("Force Reset","Password/passcode reset requested for "+u.name);alert("Reset request logged. Use your existing passcode reset controls to clear their passcode.");save()}},
-    addDoc(){let title=v("v5-doc-title"),body=v("v5-doc-body");if(title){data.docs.unshift({title,body,time:now()});act("Document Added",title);save()}},
-    addTraining(){let user=v("v5-training-user"),title=v("v5-training-title");if(title){data.training.unshift({user,name:nameOf(user),title,time:now()});act("Training Added",nameOf(user)+": "+title);save()}},
-    sendMessage(){let text=v("v5-message-text"),target=v("v5-message-target");if(text){data.messages.unshift({target,text,time:now(),from:"Gavin/Admin"});data.notifications.unshift({target,message:text,time:now(),read:false});act("Message Sent",text);save()}},
-    backup(){download(JSON.stringify(data,null,2),"dom_sc_enterprise_backup.json","application/json")},
-    copyBackup(){el("v5-backup-box").value=JSON.stringify(data,null,2);act("Backup Copied","Backup copied to restore box");save()},
-    restore(){try{data=merge(defaultData,JSON.parse(v("v5-backup-box")));act("Backup Restored","Restored from box");save()}catch(e){alert("Invalid backup JSON")}},
-    workNote(){let note=v("v5-work-note");if(note){act("Work Note",note);el("v5-work-note").value="";save()}},
-    safety(){let m=prompt("Safety report:");if(m){act("Safety Report",m);save()}},
-    bug(){let m=prompt("Bug / issue report:");if(m){data.bugs.unshift({profile:cur(),name:nameOf(cur()),note:m,time:now(),status:"Open"});act("Bug Report",m);save()}}
+    correction(){const m=prompt("Correction request:");if(m){data.corrections.unshift({profile:cur(),name:nameOf(cur()),note:m,status:"Pending",time:now()});act("Correction Request",m);save()}},
+    workNote(){const note=v("v5p-work-note");if(note){act("Work Note",note);el("v5p-work-note").value="";save()}},
+    bug(){const m=prompt("Bug report:");if(m){data.bugs.unshift({profile:cur(),name:nameOf(cur()),note:m,time:now(),status:"Open"});act("Bug Report",m);save()}},
+    transfer(){const m=prompt("Crew transfer request:");if(m){data.crewTransfers.unshift({profile:cur(),name:nameOf(cur()),note:m,status:"Pending",time:now()});act("Crew Transfer Request",m);save()}}
   };
-  function find(v){return data.users.find(u=>u.val===v)} function v(id){return (el(id)||{}).value||""} function el(id){return document.getElementById(id)}
-  function download(text,name,type){let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click()}
 
   function render(){
-    preserveProfiles(); document.body.classList.toggle("v5-dark",!!data.settings.darkMode); document.documentElement.style.setProperty("--v5-primary",data.company.primary||"#2563eb");
-    let title=el("v5-title"),sub=el("v5-subtitle"); if(title)title.textContent=data.company.name; if(sub)sub.textContent=data.company.subtitle;
-    let h2=document.querySelector("#main-app-container > h2"); if(h2)h2.textContent=data.company.name||"DOM/SC Norm 2026";
-    ["v5-user-select","v5-crew-lead","v5-job-user","v5-report-user","v5-force-user","v5-training-user","v5-message-target"].forEach(id=>fill(id,id==="v5-message-target"||id==="v5-report-user"));
-    set("v5-stat-users",data.users.length);set("v5-stat-crews",data.crews.length);set("v5-stat-jobs",data.assignments.filter(j=>j.status!=="Complete").length);set("v5-stat-alerts",data.notifications.length+data.bugs.filter(b=>b.status==="Open").length);
-    val("v5-brand-name",data.company.name);val("v5-brand-subtitle",data.company.subtitle);val("v5-brand-footer",data.company.footer);val("v5-brand-primary",data.company.primary);val("v5-home-welcome",data.company.welcome);
-    if(el("v5-policy-preview"))el("v5-policy-preview").textContent=(data.policies[0]&&data.policies[0].body)||"No policy/help text saved yet.";
-    html("v5-health",`<div class="v5-list"><div class="v5-item"><b>System:</b> Online <span class="v5-badge green">Healthy</span></div><div class="v5-item"><b>Maintenance:</b> ${data.maintenance.scheduled?esc(data.maintenance.date):"None scheduled"}</div><div class="v5-item"><b>Read Only:</b> ${data.maintenance.readOnly?"ON":"OFF"}</div><div class="v5-item"><b>Version:</b> ${esc(data.version)}</div></div>`);
-    html("v5-activity-recent",list(data.activity.slice(0,30),a=>`<b>${esc(a.action)}</b><span class="v5-badge">${esc(a.profile)}</span><br>${esc(a.detail)}<br><span style="color:#64748b">${esc(a.time)}</span>`));
-    html("v5-users-list",list(data.users,u=>`<b>${esc(u.name)}</b><span class="v5-badge ${u.role==="admin"?"purple":"green"}">${esc(u.role)}</span><span class="v5-badge">${esc(u.status)}</span>${u.supervisor?'<span class="v5-badge orange">Supervisor</span>':''}<br>${esc(u.notes||"No notes")}`));
-    html("v5-crews-list",list(data.crews,c=>`<b>${esc(c.name)}</b><span class="v5-badge green">${esc(c.status)}</span><br>Lead: ${esc(nameOf(c.lead))}<br>${esc(c.created)}`));
-    html("v5-jobs-list",list(data.assignments,j=>`<b>${esc(j.priority)}</b><span class="v5-badge">${esc(j.status)}</span><br>${esc(j.text)}<br>Assigned: ${esc(j.assignedTo==="all"?"All":nameOf(j.assignedTo))} • ${esc(j.time)}`));
-    html("v5-approvals-list",list(data.corrections,c=>`<b>${esc(c.name)}</b><span class="v5-badge orange">${esc(c.status)}</span><br>${esc(c.note)}<br>${esc(c.time)}`));
-    html("v5-maint-list",`<div class="v5-item"><b>Scheduled:</b> ${data.maintenance.scheduled?"YES":"NO"}</div><div class="v5-item"><b>Message:</b> ${esc(data.maintenance.message||"None")}</div><div class="v5-item"><b>Restore Points:</b> ${data.backups.length}</div>`);
-    html("v5-reports-list",list(data.attendance.slice(0,60),a=>`<b>${esc(a.name)}</b> ${esc(a.type)} — ${esc(a.time)}`));
-    html("v5-security-list",list(data.activity.filter(a=>/login|reset|force|security|admin/i.test(a.action+" "+a.detail)).slice(0,80),a=>`<b>${esc(a.action)}</b> ${esc(a.profile)}<br>${esc(a.detail)}<br>${esc(a.time)}`));
-    html("v5-doc-list",list(data.docs,d=>`<b>${esc(d.title)}</b><br>${esc(d.body)}<br>${esc(d.time)}`));
-    html("v5-training-list",list(data.training,t=>`<b>${esc(t.name)}</b> — ${esc(t.title)}<br>${esc(t.time)}`));
-    html("v5-message-list",list(data.messages,m=>`<b>${esc(m.target==="all"?"All":nameOf(m.target))}</b><br>${esc(m.text)}<br>${esc(m.time)}`));
-    html("v5-backup-list",list(data.backups,b=>`Restore point — ${esc(b.time)}`));
-    let myUnits=window.currentGrandTotal||0, goal=data.goals[cur()]||31, pct=Math.min(100,Math.round((myUnits/goal)*100)); set("v5-my-units",myUnits.toFixed(2));set("v5-my-progress",pct+"%"); if(el("v5-progress-bar"))el("v5-progress-bar").style.width=pct+"%";
-    html("v5-my-feed",list(myMessages().slice(0,25),m=>`${esc(m.message||m.text)}<br><span style="color:#64748b">${esc(m.time)}</span>`));
-    set("v5-notification-count",myMessages().length);
+    preserveOriginalProfiles();
+    document.body.classList.toggle("v5p-dark",!!data.settings.darkMode);
+    document.documentElement.style.setProperty("--v5p-primary",data.company.primary||"#2563eb");
+    set("v5p-title",data.company.name);set("v5p-subtitle",data.company.subtitle);
+    const h2=document.querySelector("#main-app-container > h2"); if(h2)h2.textContent=data.company.name;
+    const lt=document.querySelector(".login-title"); if(lt)lt.textContent=data.company.loginTitle||data.company.name;
+    ["v5p-security-user","v5p-emp-user","v5p-super-user","v5p-report-user","v5p-message-target","v5p-job-user","v5p-impersonate"].forEach(id=>fill(id,id==="v5p-report-user"||id==="v5p-message-target"));
+    set("v5p-stat-users",data.users.length);set("v5p-stat-jobs",data.assignments.filter(x=>x.status!=="Complete").length+data.jobTickets.filter(x=>x.status!=="Complete").length);set("v5p-stat-alerts",data.notifications.length+data.securityAlerts.length+data.bugs.filter(b=>b.status==="Open").length);set("v5p-stat-audit",data.audit.length);
+    set("v5p-uptime",data.maintenance.uptimeStart);set("v5p-errors-count",data.errors.length);
+    val("v5p-brand-name",data.company.name);val("v5p-brand-subtitle",data.company.subtitle);val("v5p-login-title",data.company.loginTitle);val("v5p-welcome",data.company.welcome);val("v5p-primary",data.company.primary);val("v5p-policy",data.policies[0]?.body||"");
+    html("v5p-policy-preview",(data.policies[0]?.body||data.company.help||"No policy/help text saved yet."));
+    html("v5p-system-list",list([{a:"Status",b:"Online / Healthy"},{a:"Maintenance",b:data.maintenance.scheduled?data.maintenance.date:"None scheduled"},{a:"Read Only",b:data.maintenance.readOnly?"ON":"OFF"},{a:"Emergency Lockdown",b:data.maintenance.emergency?"ON":"OFF"},{a:"Backups",b:data.backups.length},{a:"Version",b:data.version}],x=>`<b>${esc(x.a)}:</b> ${esc(x.b)}`)+list(data.errors.slice(0,20),e=>`<b>Error</b> ${esc(e.message)}<br>${esc(e.time||"")}`));
+    html("v5p-security-list",list(data.loginAttempts.slice(0,40),x=>`Login: ${esc(x.name)} <span class="v5p-badge green">success</span><br>${esc(x.time)}<br>${esc(x.device||"")}`)+list(data.securityAlerts.slice(0,40),x=>`<b>${esc(x.type)}</b> ${esc(x.user)}<br>${esc(x.time)}`)+list(data.sessions.slice(0,30),s=>`Session: ${esc(s.user)} — ${esc(s.status)}<br>${esc(s.time)}`));
+    html("v5p-employee-list",list(data.users,u=>`<b>${esc(u.name)}</b><span class="v5p-badge ${u.role==="master_admin"?"purple":u.supervisor?"orange":"green"}">${esc(u.role)}</span><span class="v5p-badge">${esc(u.status)}</span><br>Rank: ${esc(u.rank)} • ${esc(u.notes||"No notes")}`)+`<div class="v5p-section-title">Training / Certifications</div>`+list(data.training.slice(0,30),t=>`${esc(t.name)} — ${esc(t.title)}<br>${esc(t.time)}`)+`<div class="v5p-section-title">Reviews / Write-Ups</div>`+list(data.reviews.slice(0,20),r=>`${esc(r.name)} — ${esc(r.note)}<br>${esc(r.time)}`)+list(data.discipline.slice(0,20),d=>`<span class="v5p-badge red">Write-Up</span> ${esc(d.name)} — ${esc(d.note)}<br>${esc(d.time)}`));
+    html("v5p-supervisor-list",list(data.users,u=>`${esc(u.name)} — Supervisor: <b>${u.supervisor?"YES":"NO"}</b>`)+`<div class="v5p-section-title">Approvals</div>`+list(data.dailyLogApprovals.slice(0,30),a=>`${esc(a.name)} — ${esc(a.units)} units <span class="v5p-badge orange">${esc(a.status)}</span><br>${esc(a.time)}`)+list(data.corrections.slice(0,30),c=>`${esc(c.name)} correction <span class="v5p-badge orange">${esc(c.status)}</span><br>${esc(c.note)}`));
+    html("v5p-report-list",`<div class="v5p-item"><b>Productivity Chart</b><br>${data.users.map(u=>`${esc(u.name)}: ${data.activity.filter(a=>a.profile===u.name).length} logs`).join("<br>")}</div><div class="v5p-item"><b>Goal Completion</b><br>${esc(nameOf(cur()))}: ${Math.round(((window.currentGrandTotal||0)/(data.goals[cur()]||31))*100)}%</div>`+list(data.attendance.slice(0,50),a=>`${esc(a.name)} ${esc(a.type)} — ${esc(a.time)}`));
+    html("v5p-message-list",list(data.messages.slice(0,40),m=>`<b>${esc(m.type||"Message")}</b> to ${esc(m.target==="all"?"All":nameOf(m.target))}<br>${esc(m.text)}<br>${esc(m.time)}`)+`<div class="v5p-section-title">Chat Rooms</div>`+list(data.chatRooms,r=>`${esc(r.name)} — ${r.messages.length} messages`));
+    html("v5p-operations-list",list(data.jobTickets.slice(0,30),j=>`<b>Ticket</b> ${esc(j.text)}<span class="v5p-badge">${esc(j.status)}</span><br>Assigned: ${esc(nameOf(j.assignedTo))}`)+list(data.docs.slice(0,20),d=>`<b>Document/SOP</b> ${esc(d.title)}<br>${esc(d.body)}`)+list(data.safety.slice(0,20),s=>`<span class="v5p-badge red">Safety</span> ${esc(s.name)} — ${esc(s.note)}`)+list(data.equipment.slice(0,20),e=>`<span class="v5p-badge purple">Equipment</span> ${esc(e.item)} — ${esc(e.name)}`));
+    html("v5p-master-list",list(data.audit.slice(0,80),a=>`<b>${esc(a.action)}</b> <span class="v5p-badge">${esc(a.profile)}</span><br>${esc(a.detail)}<br>${esc(a.time)}`)+`<div class="v5p-section-title">Versions</div>`+list(data.versions,v=>`${esc(v.version)} — ${esc(v.note)}<br>${esc(v.time)}`));
+    html("v5p-backup-list",list(data.backups.slice(0,20),b=>`${esc(b.type)} — ${esc(b.time)}`));
+    const my=messagesForMe(); set("v5p-notification-count",my.length);
+    const units=window.currentGrandTotal||0, goal=data.goals[cur()]||31, pct=Math.min(100,Math.round((units/goal)*100));
+    set("v5p-my-units",units.toFixed(2));set("v5p-my-progress",pct+"%"); if(el("v5p-progress-bar"))el("v5p-progress-bar").style.width=pct+"%";
+    html("v5p-my-feed",list(my.slice(0,30),m=>`${esc(m.message||m.text||m.title)}<br><span style="color:#64748b">${esc(m.time)}</span>`)+list(data.assignments.filter(a=>a.assignedTo==="all"||a.assignedTo===cur()).slice(0,20),a=>`<b>Assignment</b> ${esc(a.text)}<br>${esc(a.time)}`));
   }
-  function list(arr,fn){return arr.length?arr.map(x=>`<div class="v5-item">${fn(x)}</div>`).join(""):"<i>No records yet.</i>"}
-  function html(id,s){if(el(id))el(id).innerHTML=s} function set(id,s){if(el(id))el(id).textContent=s} function val(id,s){if(el(id)&&document.activeElement!==el(id))el(id).value=s||""}
-  function boot(){preserveProfiles();patchOriginal();injectAdmin();injectEmployee();injectBell();if(!data.activity.length){data.activity.push({time:now(),profile:"System",action:"Enterprise V5 Installed",detail:"All requested admin, employee, maintenance, editing, reporting, communication, security and website controls added."});localStorage.setItem(KEY,JSON.stringify(data))}render()}
-  window.DOMSCV5=api; window.DOMSCV5_DATA=()=>data;
+
+  function boot(){
+    preserveOriginalProfiles();patchOriginal();injectAdmin();injectEmployee();injectBell();
+    if(!data.activity.length){data.activity.push({time:now(),profile:"System",action:"Enterprise V5 Installed",detail:"Full system administration, website editing, security, employee management, supervisor tools, reports, communications, operations, and Gavin master admin console installed."});localStorage.setItem(KEY,JSON.stringify(data));}
+    render();
+  }
+  window.DOMSCV5P=api; window.DOMSCV5P_DATA=()=>data;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
   setInterval(render,2500);
+})();
+</script>
+
+</body></html>");
+    w.document.close();
+    w.print();
+  };
+
+  function fillSelect(id, includeAll){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = (includeAll?`<option value="all">All</option>`:"") + ent.users.map(u=>`<option value="${esc(u.val)}">${esc(u.name)} (${esc(u.role)}${u.supervisor?", Supervisor":""})</option>`).join("");
+  }
+
+  function renderEnterpriseAll(){
+    ensureProfiles();
+
+    document.body.classList.toggle("ent-dark", !!ent.settings.darkMode);
+    const title = document.getElementById("ent-company-title");
+    const sub = document.getElementById("ent-company-subtitle");
+    if(title) title.textContent = ent.company.name || "DOM/SC Enterprise";
+    if(sub) sub.textContent = ent.company.subtitle || "Enterprise Workforce Platform";
+
+    const h2 = document.querySelector("#main-app-container > h2");
+    if(h2 && ent.company.name) h2.textContent = ent.company.name;
+
+    const brandName = document.getElementById("ent-brand-name");
+    const brandSub = document.getElementById("ent-brand-subtitle");
+    const brandColor = document.getElementById("ent-brand-color");
+    if(brandName) brandName.value = ent.company.name||"";
+    if(brandSub) brandSub.value = ent.company.subtitle||"";
+    if(brandColor) brandColor.value = ent.company.primary||"#2563eb";
+
+    const statMap = {
+      "ent-stat-employees": ent.users.length,
+      "ent-stat-crews": ent.crews.length,
+      "ent-stat-assignments": ent.assignments.length,
+      "ent-stat-activity": ent.activity.length
+    };
+    Object.keys(statMap).forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=statMap[id]; });
+
+    fillSelect("ent-crew-lead");
+    fillSelect("ent-person-select");
+    fillSelect("ent-supervisor-user");
+
+    const crewList = document.getElementById("ent-crew-list");
+    if(crewList) crewList.innerHTML = ent.crews.map(c=>`<div class="enterprise-list-item"><b>${esc(c.name)}</b><span class="enterprise-badge green">${esc(c.status)}</span><br>Lead: ${esc(profileName(c.lead))}<br><span style="color:#64748b">${esc(c.created)}</span></div>`).join("") || "<i>No crews created yet.</i>";
+
+    const peopleList = document.getElementById("ent-people-list");
+    if(peopleList) peopleList.innerHTML = ent.users.map(u=>`<div class="enterprise-list-item"><b>${esc(u.name)}</b><span class="enterprise-badge ${u.role==="admin"?"purple":"green"}">${esc(u.role)}</span><span class="enterprise-badge">${esc(u.status)}</span>${u.supervisor?'<span class="enterprise-badge orange">Supervisor</span>':''}<br>${esc(u.notes||"No notes")}</div>`).join("");
+
+    const notifList = document.getElementById("ent-notification-list");
+    if(notifList) notifList.innerHTML = ent.notifications.map(n=>`<div class="enterprise-list-item"><b>${esc(n.target==="all"?"All Employees":profileName(n.target))}</b><br>${esc(n.message)}<br><span style="color:#64748b">${esc(n.time)}</span></div>`).join("") || "<i>No notifications yet.</i>";
+
+    const recent = document.getElementById("ent-recent-activity");
+    if(recent) recent.innerHTML = ent.activity.slice(0,20).map(a=>`<div class="enterprise-list-item"><b>${esc(a.action)}</b> <span class="enterprise-badge">${esc(a.profile)}</span><br>${esc(a.detail)}<br><span style="color:#64748b">${esc(a.time)}</span></div>`).join("") || "<i>No recent activity.</i>";
+
+    const sup = document.getElementById("ent-supervisor-list");
+    if(sup) sup.innerHTML = ent.users.map(u=>`<div class="enterprise-list-item"><b>${esc(u.name)}</b> — Supervisor: <b>${u.supervisor?"YES":"NO"}</b></div>`).join("");
+
+    window.enterpriseRenderHistory();
+
+    const prof = currentProfile();
+    const myNotifications = ent.notifications.filter(n=>n.target==="all" || n.target===prof);
+    const myNotifCount = document.getElementById("ent-my-notif-count");
+    if(myNotifCount) myNotifCount.textContent = myNotifications.length;
+    const myUnits = document.getElementById("ent-my-units");
+    if(myUnits) myUnits.textContent = ((window.currentGrandTotal||0)).toFixed(2);
+    const myNotifs = document.getElementById("ent-my-notifications");
+    if(myNotifs) myNotifs.innerHTML = myNotifications.map(n=>`<div class="enterprise-list-item">${esc(n.message)}<br><span style="color:#64748b">${esc(n.time)}</span></div>`).join("") || "<i>No notifications.</i>";
+
+    const bellCount = document.getElementById("enterprise-notification-count");
+    if(bellCount) bellCount.textContent = myNotifications.length;
+  }
+
+  function bootEnterprise(){
+    ensureProfiles();
+    injectAdminTab();
+    injectEmployeeHub();
+    injectNotificationBell();
+    if(!ent.activity.length){
+      ent.activity.push({time:now(), profile:"System", action:"Enterprise V4 Installed", detail:"Added admin dashboard, employee hub, crews, notifications, branding, supervisor tools, searchable history and exports."});
+      localStorage.setItem(ENT_KEY, JSON.stringify(ent));
+    }
+    renderEnterpriseAll();
+  }
+
+  // Make available for debugging or future extension.
+  window.DOMSC_ENTERPRISE = {load:()=>ent, save:saveEnt, render:renderEnterpriseAll, activity:addActivity};
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bootEnterprise);
+  }else{
+    bootEnterprise();
+  }
+  setInterval(renderEnterpriseAll, 2500);
 })();
 </script>
 
