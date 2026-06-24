@@ -4932,5 +4932,379 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
+
+<!-- DOM/SC Norm 2026 — Custom Variable Save Fix
+Fixes admin-added variables so they save to JSONBin, show on the calculator page immediately,
+and do not disappear after refresh. Safe add-on only. -->
+<style>
+.domsc-var-save-status{
+  margin-top:8px!important;
+  padding:9px 10px!important;
+  border-radius:10px!important;
+  border:1px solid #cfe4ff!important;
+  background:#f4fbff!important;
+  color:#075bbb!important;
+  font-size:11px!important;
+  font-weight:800!important;
+  line-height:1.35!important;
+}
+.domsc-var-save-status.ok{background:#e8f5e9!important;color:#1e7e34!important;border-color:#bce6c9!important}
+.domsc-var-save-status.warn{background:#fff3cd!important;color:#856404!important;border-color:#ffe8a1!important}
+.domsc-var-save-status.bad{background:#fde8e8!important;color:#c5221f!important;border-color:#f5c6cb!important}
+.domsc-var-tools{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:6px!important;
+  margin-top:8px!important;
+}
+@media(max-width:430px){
+  .domsc-var-tools{grid-template-columns:1fr!important}
+}
+</style>
+<script>
+(function(){
+  if(window.__DOMSC_VARIABLE_SAVE_FIX_V1__) return;
+  window.__DOMSC_VARIABLE_SAVE_FIX_V1__ = true;
+
+  const VAR_BACKUP_KEY = "dom_sc_variables_backup_v2";
+
+  function $(id){ return document.getElementById(id); }
+  function nowISO(){ return new Date().toISOString(); }
+  function nowLocal(){ return new Date().toLocaleString(); }
+  function normName(s){ return String(s||"").trim().replace(/\s+/g," "); }
+  function toNum(v){ const n=parseFloat(v); return Number.isFinite(n) ? n : NaN; }
+
+  function setVarStatus(msg, kind){
+    let box = $("domsc-var-save-status");
+    const editor = $("new-var-name") ? $("new-var-name").closest(".admin-sub") : null;
+    if(!box && editor){
+      box = document.createElement("div");
+      box.id = "domsc-var-save-status";
+      box.className = "domsc-var-save-status";
+      editor.appendChild(box);
+    }
+    if(box){
+      box.className = "domsc-var-save-status " + (kind||"");
+      box.textContent = msg;
+    }
+    const sync = $("sync-status-badge");
+    if(sync && kind){
+      sync.textContent = kind === "ok" ? "Variables synced" : kind === "bad" ? "Variable sync failed" : "Variable sync pending";
+      sync.style.color = kind === "ok" ? "#1e7e34" : kind === "bad" ? "#c5221f" : "#856404";
+    }
+  }
+
+  function audit(action, details, kind){
+    try{
+      if(typeof DOMSC_ADD_AUDIT === "function") DOMSC_ADD_AUDIT(action, details || "", kind || "ok");
+    }catch(e){}
+    try{
+      if(cloud && Array.isArray(cloud.audit_trail)){
+        cloud.audit_trail.unshift({
+          id:"audit_var_"+Date.now()+"_"+Math.random().toString(36).slice(2,6),
+          time:nowLocal(),
+          timeISO:nowISO(),
+          action:action,
+          details:details || "",
+          actorName:"Admin"
+        });
+        cloud.audit_trail = cloud.audit_trail.slice(0,300);
+      }
+    }catch(e){}
+  }
+
+  function ensureVarStores(record){
+    if(!record) record = {};
+    if(!record.variables || typeof record.variables !== "object" || Array.isArray(record.variables)) record.variables = {};
+    if(!Array.isArray(record.deleted_vars)) record.deleted_vars = [];
+    if(!record.variable_meta || typeof record.variable_meta !== "object" || Array.isArray(record.variable_meta)) record.variable_meta = {};
+    if(!record.sync_meta || typeof record.sync_meta !== "object" || Array.isArray(record.sync_meta)) record.sync_meta = {};
+    return record;
+  }
+
+  function currentCloud(){
+    try{
+      ensureVarStores(cloud);
+      return cloud;
+    }catch(e){
+      return ensureVarStores({});
+    }
+  }
+
+  function backupVariables(){
+    try{
+      const c = currentCloud();
+      localStorage.setItem(VAR_BACKUP_KEY, JSON.stringify({
+        savedAt: nowISO(),
+        variables: c.variables || {},
+        deleted_vars: c.deleted_vars || [],
+        variable_meta: c.variable_meta || {}
+      }));
+    }catch(e){}
+  }
+
+  function loadVariableBackup(){
+    try{
+      const raw = localStorage.getItem(VAR_BACKUP_KEY);
+      if(!raw) return false;
+      const b = JSON.parse(raw);
+      if(!b || !b.variables) return false;
+      const c = currentCloud();
+      c.variables = Object.assign({}, b.variables || {}, c.variables || {});
+      const deleted = new Set([...(b.deleted_vars || []), ...(c.deleted_vars || [])]);
+      // Any item that currently exists as a variable should not stay tombstoned.
+      Object.keys(c.variables || {}).forEach(k => deleted.delete(k));
+      c.deleted_vars = Array.from(deleted);
+      c.variable_meta = Object.assign({}, b.variable_meta || {}, c.variable_meta || {});
+      return true;
+    }catch(e){ return false; }
+  }
+
+  async function fetchRecord(){
+    try{
+      if(typeof fetchCloudRecordSafe === "function"){
+        const r = await fetchCloudRecordSafe();
+        return ensureVarStores(r || {});
+      }
+    }catch(e){}
+    try{
+      const r = await fetch(SYNC_URL,{headers:HEADERS});
+      if(!r.ok) return null;
+      const j = await r.json();
+      return ensureVarStores(j.record || {});
+    }catch(e){
+      return null;
+    }
+  }
+
+  async function putRecord(record){
+    const r = await fetch(SYNC_URL,{
+      method:"PUT",
+      headers:HEADERS,
+      body:JSON.stringify(record)
+    });
+    if(!r.ok) throw new Error("JSONBin save failed: " + r.status);
+    return true;
+  }
+
+  function mergeForVariableSave(remote){
+    const local = currentCloud();
+    let base;
+    try{
+      base = (typeof mergeCloudRecords === "function") ? mergeCloudRecords(remote || {}, local || {}) : Object.assign({}, remote || {}, local || {});
+    }catch(e){
+      base = Object.assign({}, remote || {}, local || {});
+    }
+    return ensureVarStores(base);
+  }
+
+  async function saveVariableExact(kind, name, value){
+    name = normName(name);
+    if(!name){ alert("Type the variable/item name first."); return false; }
+    if(kind !== "delete" && !Number.isFinite(value)){ alert("Type a valid unit value."); return false; }
+
+    setVarStatus("Saving variable to JSONBin...", "warn");
+
+    const local = currentCloud();
+    if(kind === "delete"){
+      delete local.variables[name];
+      local.deleted_vars = Array.from(new Set([...(local.deleted_vars || []), name]));
+      local.variable_meta[name] = {action:"deleted", updatedAt:nowLocal(), updatedAtISO:nowISO(), by:"Admin"};
+    }else{
+      local.variables[name] = value;
+      local.deleted_vars = (local.deleted_vars || []).filter(x => x !== name);
+      local.variable_meta[name] = {action:kind, value:value, updatedAt:nowLocal(), updatedAtISO:nowISO(), by:"Admin"};
+    }
+    backupVariables();
+
+    try{
+      const remote = await fetchRecord();
+      const base = mergeForVariableSave(remote);
+      if(kind === "delete"){
+        delete base.variables[name];
+        base.deleted_vars = Array.from(new Set([...(base.deleted_vars || []), name]));
+        base.variable_meta[name] = {action:"deleted", updatedAt:nowLocal(), updatedAtISO:nowISO(), by:"Admin"};
+      }else{
+        base.variables[name] = value;
+        base.deleted_vars = (base.deleted_vars || []).filter(x => x !== name);
+        base.variable_meta[name] = {action:kind, value:value, updatedAt:nowLocal(), updatedAtISO:nowISO(), by:"Admin"};
+      }
+      base.sync_meta.lastVariableSave = nowLocal();
+      base.sync_meta.lastVariableSaveISO = nowISO();
+
+      await putRecord(base);
+
+      const check = await fetchRecord();
+      const confirmed = kind === "delete"
+        ? !!(check && Array.isArray(check.deleted_vars) && check.deleted_vars.includes(name))
+        : !!(check && check.variables && Number(check.variables[name]) === Number(value) && !(check.deleted_vars || []).includes(name));
+
+      if(!confirmed) throw new Error("JSONBin did not confirm the variable save.");
+
+      // Update the live app state from the confirmed/base record.
+      try{ cloud = base; }catch(e){}
+      backupVariables();
+
+      if(typeof rebuildItems === "function") rebuildItems();
+      if(typeof renderCards === "function") renderCards();
+      if(typeof calculateEverything === "function") calculateEverything();
+      if(typeof applyUI === "function") applyUI();
+
+      const select = $("var-item-select");
+      if(select && kind !== "delete") select.value = name;
+      const valBox = $("var-item-val");
+      if(valBox && kind !== "delete") valBox.value = value;
+
+      audit(kind === "delete" ? "Variable deleted" : kind === "update" ? "Variable updated" : "Variable added",
+            name + (kind === "delete" ? "" : " = " + value), kind === "delete" ? "warn" : "ok");
+
+      setVarStatus((kind === "delete" ? "Deleted" : "Saved") + " “" + name + "” to JSONBin. It should stay after refresh.", "ok");
+      return true;
+    }catch(err){
+      console.error("Variable save failed:", err);
+      if(typeof rebuildItems === "function") rebuildItems();
+      if(typeof calculateEverything === "function") calculateEverything();
+      setVarStatus("Variable was added locally, but JSONBin did not confirm. Do not refresh yet. Check internet/JSONBin and tap Force Save Everything.", "bad");
+      alert("Variable save did not confirm. It is showing locally, but do not refresh until JSONBin saves.");
+      return false;
+    }
+  }
+
+  // Override the old admin variable controls with exact JSONBin saves.
+  window.adminAddItem = async function(){
+    const name = normName(($("new-var-name") || {}).value || "");
+    const value = toNum(($("new-var-val") || {}).value);
+    const ok = await saveVariableExact("add", name, value);
+    if(ok){
+      const n = $("new-var-name"), v = $("new-var-val");
+      if(n) n.value = "";
+      if(v) v.value = "";
+    }
+  };
+
+  window.adminUpdateItem = async function(){
+    const select = $("var-item-select");
+    const name = normName((select && select.value) || "");
+    const value = toNum(($("var-item-val") || {}).value);
+    await saveVariableExact("update", name, value);
+  };
+
+  window.adminDeleteItem = async function(){
+    const select = $("var-item-select");
+    const name = normName((select && select.value) || "");
+    if(!name){ alert("Choose a variable/item first."); return; }
+    if(!confirm('Remove "' + name + '" from the calculator?')) return;
+    await saveVariableExact("delete", name, null);
+  };
+
+  function fillSelectedVariableValue(){
+    try{
+      const select = $("var-item-select"), val = $("var-item-val");
+      if(!select || !val) return;
+      const item = (items || []).find(x => String(x.name) === String(select.value));
+      if(item) val.value = Number(item.val || 0).toFixed(2);
+    }catch(e){}
+  }
+
+  function addVariableTools(){
+    const select = $("var-item-select");
+    if(select && !select.__domscVarFixBound){
+      select.__domscVarFixBound = true;
+      select.addEventListener("change", fillSelectedVariableValue);
+      setTimeout(fillSelectedVariableValue, 100);
+    }
+
+    const editor = $("new-var-name") ? $("new-var-name").closest(".admin-sub") : null;
+    if(editor && !$("domsc-var-tools")){
+      const tools = document.createElement("div");
+      tools.id = "domsc-var-tools";
+      tools.className = "domsc-var-tools";
+      tools.innerHTML =
+        '<button type="button" class="sm-btn btn-blue" onclick="DOMSC_REFRESH_VARIABLES_FROM_JSONBIN()">Reload Variables</button>' +
+        '<button type="button" class="sm-btn btn-green" onclick="DOMSC_FORCE_VARIABLE_SAVE()">Force Save Variables</button>';
+      editor.appendChild(tools);
+    }
+  }
+
+  window.DOMSC_REFRESH_VARIABLES_FROM_JSONBIN = async function(){
+    setVarStatus("Reloading variables from JSONBin...", "warn");
+    const remote = await fetchRecord();
+    if(!remote){ setVarStatus("Could not load JSONBin variables.", "bad"); return; }
+    const c = currentCloud();
+    c.variables = Object.assign({}, remote.variables || {});
+    c.deleted_vars = Array.isArray(remote.deleted_vars) ? remote.deleted_vars.slice() : [];
+    c.variable_meta = Object.assign({}, remote.variable_meta || {});
+    backupVariables();
+    if(typeof rebuildItems === "function") rebuildItems();
+    if(typeof calculateEverything === "function") calculateEverything();
+    addVariableTools();
+    setVarStatus("Variables reloaded from JSONBin.", "ok");
+  };
+
+  window.DOMSC_FORCE_VARIABLE_SAVE = async function(){
+    setVarStatus("Force-saving variables to JSONBin...", "warn");
+    try{
+      const c = currentCloud();
+      const remote = await fetchRecord();
+      const base = mergeForVariableSave(remote);
+      // Current page wins for variable editor state.
+      base.variables = Object.assign({}, c.variables || {});
+      base.deleted_vars = Array.isArray(c.deleted_vars) ? c.deleted_vars.slice() : [];
+      base.variable_meta = Object.assign({}, base.variable_meta || {}, c.variable_meta || {});
+      base.sync_meta = Object.assign({}, base.sync_meta || {}, {lastVariableForceSave:nowLocal(), lastVariableForceSaveISO:nowISO()});
+      await putRecord(base);
+      try{ cloud = base; }catch(e){}
+      backupVariables();
+      setVarStatus("Variables force-saved to JSONBin.", "ok");
+      if(typeof rebuildItems === "function") rebuildItems();
+      if(typeof calculateEverything === "function") calculateEverything();
+    }catch(e){
+      console.error(e);
+      setVarStatus("Force-save failed. Check internet/JSONBin.", "bad");
+    }
+  };
+
+  // Make the existing merge safer for variables after this patch:
+  // if a variable exists in the current save, remove its old tombstone.
+  try{
+    if(typeof mergeCloudRecords === "function" && !mergeCloudRecords.__domscVarFixWrapped){
+      const oldMerge = mergeCloudRecords;
+      const wrapped = function(remote, local){
+        const merged = oldMerge(remote, local);
+        ensureVarStores(merged);
+        Object.keys(merged.variables || {}).forEach(k => {
+          const wasReaddedLocally = local && local.variables && Object.prototype.hasOwnProperty.call(local.variables, k) && !(local.deleted_vars || []).includes(k);
+          if(wasReaddedLocally){
+            merged.deleted_vars = (merged.deleted_vars || []).filter(x => x !== k);
+          }
+        });
+        return merged;
+      };
+      wrapped.__domscVarFixWrapped = true;
+      mergeCloudRecords = wrapped;
+    }
+  }catch(e){}
+
+  function boot(){
+    loadVariableBackup();
+    addVariableTools();
+    if(typeof rebuildItems === "function") rebuildItems();
+    if(typeof calculateEverything === "function") calculateEverything();
+    setTimeout(addVariableTools, 700);
+    setTimeout(addVariableTools, 1800);
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+
+  document.addEventListener("click", function(e){
+    if(e.target && e.target.closest && e.target.closest("#admin-panel")){
+      setTimeout(addVariableTools, 150);
+    }
+  }, true);
+})();
+</script>
+
 </body>
 </html>
+
