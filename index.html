@@ -5306,467 +5306,7 @@ and do not disappear after refresh. Safe add-on only. -->
 </script>
 
 
-<!-- DOM/SC Norm 2026 — Variable Force Save Hard Fix
-Fixes Force Save Variables by using direct JSONBin PUT with retry, fallback,
-local backup protection, and restore-after-refresh protection. -->
-<style>
-#domsc-var-hardfix-box{
-  background:#fff8e6!important;
-  border:1px solid #ffd58a!important;
-  border-radius:14px!important;
-  padding:10px!important;
-  margin-top:8px!important;
-  font-size:12px!important;
-  color:#5f4300!important;
-}
-#domsc-var-hardfix-box b{color:#9a5a00!important}
-#domsc-var-hardfix-box .hf-row{display:flex!important;gap:6px!important;flex-wrap:wrap!important;margin-top:8px!important}
-#domsc-var-hardfix-box .hf-row button{flex:1 1 145px!important;min-height:38px!important}
-</style>
-<script>
-(function(){
-  if(window.__DOMSC_VARIABLE_FORCE_SAVE_HARDFIX_V2__) return;
-  window.__DOMSC_VARIABLE_FORCE_SAVE_HARDFIX_V2__ = true;
-
-  const HARD_BACKUP_KEY = "dom_sc_variables_hard_backup_v3";
-  const HARD_PENDING_KEY = "dom_sc_variables_pending_save_v3";
-
-  function $(id){ return document.getElementById(id); }
-  function nowISO(){ return new Date().toISOString(); }
-  function nowLocal(){ return new Date().toLocaleString(); }
-  function cleanName(s){ return String(s || "").trim().replace(/\s+/g," "); }
-  function num(v){ const n = parseFloat(v); return Number.isFinite(n) ? n : NaN; }
-
-  function status(msg, kind){
-    try{
-      if(typeof setVarStatus === "function") setVarStatus(msg, kind);
-    }catch(e){}
-    let box = $("domsc-var-save-status");
-    const editor = $("new-var-name") ? $("new-var-name").closest(".admin-sub") : null;
-    if(!box && editor){
-      box = document.createElement("div");
-      box.id = "domsc-var-save-status";
-      box.className = "domsc-var-save-status";
-      editor.appendChild(box);
-    }
-    if(box){
-      box.className = "domsc-var-save-status " + (kind || "");
-      box.textContent = msg;
-    }
-    const sync = $("sync-status-badge");
-    if(sync){
-      sync.textContent = kind === "ok" ? "Variables synced" : kind === "bad" ? "Variable sync failed" : "Variable sync pending";
-      sync.style.color = kind === "ok" ? "#1e7e34" : kind === "bad" ? "#c5221f" : "#856404";
-    }
-  }
-
-  function ensureStores(obj){
-    obj = obj || {};
-    if(!obj.variables || typeof obj.variables !== "object" || Array.isArray(obj.variables)) obj.variables = {};
-    if(!Array.isArray(obj.deleted_vars)) obj.deleted_vars = [];
-    if(!obj.variable_meta || typeof obj.variable_meta !== "object" || Array.isArray(obj.variable_meta)) obj.variable_meta = {};
-    if(!obj.sync_meta || typeof obj.sync_meta !== "object" || Array.isArray(obj.sync_meta)) obj.sync_meta = {};
-    return obj;
-  }
-
-  function appCloud(){
-    try{ return ensureStores(cloud); }catch(e){ return ensureStores({}); }
-  }
-
-  function currentEditorVariable(){
-    const out = {};
-    const n = cleanName(($("new-var-name") || {}).value || "");
-    const v = num(($("new-var-val") || {}).value);
-    if(n && Number.isFinite(v)) out[n] = v;
-
-    const sel = $("var-item-select");
-    const upName = cleanName((sel && sel.value) || "");
-    const upVal = num(($("var-item-val") || {}).value);
-    if(upName && Number.isFinite(upVal)) out[upName] = upVal;
-    return out;
-  }
-
-  function collectVariables(){
-    const c = appCloud();
-    const collected = Object.assign({}, c.variables || {});
-
-    // Also collect anything currently visible in the calculator list.
-    try{
-      (items || []).forEach(function(it){
-        if(it && it.name && Number.isFinite(Number(it.val))){
-          const base = (BASE_ITEMS || []).some(function(b){return String(b.name) === String(it.name);});
-          if(!base || Object.prototype.hasOwnProperty.call(c.variables || {}, it.name)){
-            collected[it.name] = Number(it.val);
-          }
-        }
-      });
-    }catch(e){}
-
-    Object.assign(collected, currentEditorVariable());
-
-    // Remove anything explicitly deleted unless the editor is adding it right now.
-    const editorVars = currentEditorVariable();
-    (c.deleted_vars || []).forEach(function(name){
-      if(!Object.prototype.hasOwnProperty.call(editorVars, name)){
-        delete collected[name];
-      }
-    });
-
-    return collected;
-  }
-
-  function saveLocalHardBackup(reason){
-    const c = appCloud();
-    const vars = collectVariables();
-    Object.keys(vars).forEach(function(k){
-      c.variables[k] = Number(vars[k]);
-      c.deleted_vars = (c.deleted_vars || []).filter(function(x){return x !== k;});
-      c.variable_meta[k] = Object.assign({}, c.variable_meta[k] || {}, {
-        action:"saved",
-        value:Number(vars[k]),
-        updatedAt:nowLocal(),
-        updatedAtISO:nowISO(),
-        by:"Admin",
-        reason:reason || "hard backup"
-      });
-    });
-    const backup = {
-      savedAt: nowLocal(),
-      savedAtISO: nowISO(),
-      variables: vars,
-      deleted_vars: c.deleted_vars || [],
-      variable_meta: c.variable_meta || {}
-    };
-    try{ localStorage.setItem(HARD_BACKUP_KEY, JSON.stringify(backup)); }catch(e){}
-    try{ localStorage.setItem(HARD_PENDING_KEY, JSON.stringify(backup)); }catch(e){}
-    return backup;
-  }
-
-  function restoreHardBackupIntoCloud(){
-    try{
-      const raw = localStorage.getItem(HARD_BACKUP_KEY) || localStorage.getItem(HARD_PENDING_KEY);
-      if(!raw) return false;
-      const b = JSON.parse(raw);
-      if(!b || !b.variables) return false;
-      const c = appCloud();
-      c.variables = Object.assign({}, c.variables || {}, b.variables || {});
-      c.deleted_vars = Array.isArray(c.deleted_vars) ? c.deleted_vars : [];
-      Object.keys(b.variables || {}).forEach(function(k){
-        c.deleted_vars = c.deleted_vars.filter(function(x){return x !== k;});
-      });
-      c.variable_meta = Object.assign({}, c.variable_meta || {}, b.variable_meta || {});
-      return true;
-    }catch(e){ return false; }
-  }
-
-  async function fetchJSONBin(){
-    const r = await fetch(SYNC_URL + "?_=" + Date.now(), {headers: HEADERS, cache:"no-store"});
-    if(!r.ok) throw new Error("GET " + r.status + " — " + (await r.text()).slice(0,180));
-    const j = await r.json();
-    return ensureStores(j.record || {});
-  }
-
-  async function putJSONBin(record){
-    const r = await fetch(SYNC_URL, {
-      method:"PUT",
-      headers: Object.assign({}, HEADERS, {
-        "Content-Type":"application/json",
-        "X-Bin-Versioning":"false"
-      }),
-      body: JSON.stringify(record)
-    });
-    if(!r.ok) throw new Error("PUT " + r.status + " — " + (await r.text()).slice(0,220));
-    return true;
-  }
-
-  function mergeSafe(remote, local){
-    let base;
-    try{
-      base = (typeof mergeCloudRecords === "function") ? mergeCloudRecords(remote || {}, local || {}) : Object.assign({}, remote || {}, local || {});
-    }catch(e){
-      base = Object.assign({}, remote || {}, local || {});
-    }
-    return ensureStores(base);
-  }
-
-  async function directSaveVariables(reason){
-    const backup = saveLocalHardBackup(reason || "direct save");
-    const c = appCloud();
-    let lastErr = null;
-
-    for(let attempt=1; attempt<=3; attempt++){
-      try{
-        status("Saving variables to JSONBin... attempt " + attempt + "/3", "warn");
-        const remote = await fetchJSONBin();
-        const base = mergeSafe(remote, c);
-
-        base.variables = Object.assign({}, base.variables || {}, backup.variables || {});
-        base.variable_meta = Object.assign({}, base.variable_meta || {}, backup.variable_meta || {});
-        base.deleted_vars = Array.isArray(base.deleted_vars) ? base.deleted_vars : [];
-
-        Object.keys(backup.variables || {}).forEach(function(k){
-          base.variables[k] = Number(backup.variables[k]);
-          base.deleted_vars = base.deleted_vars.filter(function(x){return x !== k;});
-          base.variable_meta[k] = Object.assign({}, base.variable_meta[k] || {}, {
-            action:"force_saved",
-            value:Number(backup.variables[k]),
-            updatedAt:nowLocal(),
-            updatedAtISO:nowISO(),
-            by:"Admin"
-          });
-        });
-
-        base.sync_meta = Object.assign({}, base.sync_meta || {}, {
-          lastVariableHardForceSave: nowLocal(),
-          lastVariableHardForceSaveISO: nowISO()
-        });
-
-        await putJSONBin(base);
-
-        const check = await fetchJSONBin();
-        const keys = Object.keys(backup.variables || {});
-        const confirmed = keys.every(function(k){
-          return check.variables && Number(check.variables[k]) === Number(backup.variables[k]) && !(check.deleted_vars || []).includes(k);
-        });
-        if(!confirmed) throw new Error("JSONBin saved, but the variable was not confirmed after reload.");
-
-        try{ cloud = check; }catch(e){}
-        try{ localStorage.removeItem(HARD_PENDING_KEY); }catch(e){}
-        restoreHardBackupIntoCloud();
-
-        if(typeof rebuildItems === "function") rebuildItems();
-        if(typeof renderCards === "function") renderCards();
-        if(typeof calculateEverything === "function") calculateEverything();
-        if(typeof applyUI === "function") applyUI();
-
-        status("Variables saved to JSONBin and confirmed. Safe to refresh.", "ok");
-        return true;
-      }catch(e){
-        lastErr = e;
-        await new Promise(function(resolve){ setTimeout(resolve, 700 * attempt); });
-      }
-    }
-
-    // Fallback to the app's normal save queue, but keep variables protected locally.
-    try{
-      restoreHardBackupIntoCloud();
-      if(typeof pushCloud === "function"){
-        status("Direct force-save failed. Trying normal JSONBin save queue...", "warn");
-        await pushCloud();
-        await new Promise(function(resolve){ setTimeout(resolve, 1000); });
-        const check2 = await fetchJSONBin();
-        const b = JSON.parse(localStorage.getItem(HARD_BACKUP_KEY) || "{}");
-        const keys2 = Object.keys((b && b.variables) || {});
-        const ok2 = keys2.every(function(k){
-          return check2.variables && Number(check2.variables[k]) === Number(b.variables[k]) && !(check2.deleted_vars || []).includes(k);
-        });
-        if(ok2){
-          try{ cloud = check2; }catch(e){}
-          try{ localStorage.removeItem(HARD_PENDING_KEY); }catch(e){}
-          status("Variables saved through normal JSONBin queue and confirmed.", "ok");
-          return true;
-        }
-      }
-    }catch(e2){
-      lastErr = e2;
-    }
-
-    restoreHardBackupIntoCloud();
-    if(typeof rebuildItems === "function") rebuildItems();
-    if(typeof renderCards === "function") renderCards();
-    if(typeof calculateEverything === "function") calculateEverything();
-
-    const msg = (lastErr && lastErr.message) ? lastErr.message : "Unknown JSONBin error";
-    status("JSONBin did not confirm. Variable is protected on this device, but not cloud-saved yet. Error: " + msg, "bad");
-    alert("Force Save Variables did not confirm.\n\nI protected the variable on this device so it should not disappear here, but JSONBin still rejected/did not confirm it.\n\nError: " + msg);
-    return false;
-  }
-
-  window.DOMSC_FORCE_VARIABLE_SAVE = async function(){
-    return directSaveVariables("force save button");
-  };
-
-  // Make Add/Update use the hard force-save path too.
-  window.adminAddItem = async function(){
-    const name = cleanName(($("new-var-name") || {}).value || "");
-    const value = num(($("new-var-val") || {}).value);
-    if(!name){ alert("Type the variable/item name first."); return; }
-    if(!Number.isFinite(value)){ alert("Type a valid unit value."); return; }
-
-    const c = appCloud();
-    c.variables[name] = value;
-    c.deleted_vars = (c.deleted_vars || []).filter(function(x){return x !== name;});
-    c.variable_meta[name] = {action:"add", value:value, updatedAt:nowLocal(), updatedAtISO:nowISO(), by:"Admin"};
-    saveLocalHardBackup("admin add variable");
-
-    if(typeof rebuildItems === "function") rebuildItems();
-    if(typeof renderCards === "function") renderCards();
-    if(typeof calculateEverything === "function") calculateEverything();
-
-    const ok = await directSaveVariables("admin add variable");
-    if(ok){
-      const n = $("new-var-name"), v = $("new-var-val");
-      if(n) n.value = "";
-      if(v) v.value = "";
-    }
-  };
-
-  window.adminUpdateItem = async function(){
-    const sel = $("var-item-select");
-    const name = cleanName((sel && sel.value) || "");
-    const value = num(($("var-item-val") || {}).value);
-    if(!name){ alert("Choose a variable/item first."); return; }
-    if(!Number.isFinite(value)){ alert("Type a valid unit value."); return; }
-
-    const c = appCloud();
-    c.variables[name] = value;
-    c.deleted_vars = (c.deleted_vars || []).filter(function(x){return x !== name;});
-    c.variable_meta[name] = {action:"update", value:value, updatedAt:nowLocal(), updatedAtISO:nowISO(), by:"Admin"};
-    saveLocalHardBackup("admin update variable");
-
-    if(typeof rebuildItems === "function") rebuildItems();
-    if(typeof renderCards === "function") renderCards();
-    if(typeof calculateEverything === "function") calculateEverything();
-
-    await directSaveVariables("admin update variable");
-  };
-
-  window.adminDeleteItem = async function(){
-    const sel = $("var-item-select");
-    const name = cleanName((sel && sel.value) || "");
-    if(!name){ alert("Choose a variable/item first."); return; }
-    if(!confirm('Remove "' + name + '" from the calculator?')) return;
-
-    const c = appCloud();
-    delete c.variables[name];
-    c.deleted_vars = Array.from(new Set([...(c.deleted_vars || []), name]));
-    c.variable_meta[name] = {action:"deleted", updatedAt:nowLocal(), updatedAtISO:nowISO(), by:"Admin"};
-    try{
-      localStorage.setItem(HARD_BACKUP_KEY, JSON.stringify({
-        savedAt:nowLocal(),
-        savedAtISO:nowISO(),
-        variables:c.variables || {},
-        deleted_vars:c.deleted_vars || [],
-        variable_meta:c.variable_meta || {}
-      }));
-    }catch(e){}
-
-    try{
-      const remote = await fetchJSONBin();
-      const base = mergeSafe(remote, c);
-      delete base.variables[name];
-      base.deleted_vars = Array.from(new Set([...(base.deleted_vars || []), name]));
-      base.variable_meta[name] = c.variable_meta[name];
-      base.sync_meta = Object.assign({}, base.sync_meta || {}, {lastVariableDelete:nowLocal(), lastVariableDeleteISO:nowISO()});
-      await putJSONBin(base);
-      cloud = base;
-      status("Variable deleted from JSONBin.", "ok");
-    }catch(e){
-      status("Delete did not confirm in JSONBin. It is deleted locally. Error: " + e.message, "bad");
-    }
-
-    if(typeof rebuildItems === "function") rebuildItems();
-    if(typeof renderCards === "function") renderCards();
-    if(typeof calculateEverything === "function") calculateEverything();
-    if(typeof applyUI === "function") applyUI();
-  };
-
-  function addHardFixBox(){
-    const editor = $("new-var-name") ? $("new-var-name").closest(".admin-sub") : null;
-    if(!editor || $("domsc-var-hardfix-box")) return;
-    const box = document.createElement("div");
-    box.id = "domsc-var-hardfix-box";
-    box.innerHTML =
-      '<b>Variable Save Fix Active</b><br>' +
-      'New variables are protected locally first, then saved to JSONBin with confirmation.' +
-      '<div class="hf-row">' +
-      '<button type="button" class="sm-btn btn-green" onclick="DOMSC_FORCE_VARIABLE_SAVE()">Hard Force Save Variables</button>' +
-      '<button type="button" class="sm-btn btn-blue" onclick="DOMSC_RESTORE_VARIABLE_BACKUP()">Restore Variable Backup</button>' +
-      '</div>';
-    editor.appendChild(box);
-  }
-
-  window.DOMSC_RESTORE_VARIABLE_BACKUP = function(){
-    const ok = restoreHardBackupIntoCloud();
-    if(typeof rebuildItems === "function") rebuildItems();
-    if(typeof renderCards === "function") renderCards();
-    if(typeof calculateEverything === "function") calculateEverything();
-    status(ok ? "Variable backup restored on this page." : "No variable backup found.", ok ? "ok" : "warn");
-  };
-
-  // Protect variables after normal cloud pulls so a fresh pull cannot erase a newly added local variable.
-  try{
-    if(typeof pullCloud === "function" && !pullCloud.__domscVarHardWrapped){
-      const oldPull = pullCloud;
-      const wrappedPull = async function(){
-        const result = await oldPull.apply(this, arguments);
-        restoreHardBackupIntoCloud();
-        if(typeof rebuildItems === "function") rebuildItems();
-        if(typeof calculateEverything === "function") calculateEverything();
-        return result;
-      };
-      wrappedPull.__domscVarHardWrapped = true;
-      window.pullCloud = wrappedPull;
-      pullCloud = wrappedPull;
-    }
-  }catch(e){}
-
-  // Protect the merge function too.
-  try{
-    if(typeof mergeCloudRecords === "function" && !mergeCloudRecords.__domscVarHardWrapped){
-      const oldMerge = mergeCloudRecords;
-      const wrappedMerge = function(remote, local){
-        const merged = ensureStores(oldMerge(remote, local));
-        const bRaw = localStorage.getItem(HARD_BACKUP_KEY) || localStorage.getItem(HARD_PENDING_KEY);
-        if(bRaw){
-          try{
-            const b = JSON.parse(bRaw);
-            if(b && b.variables){
-              merged.variables = Object.assign({}, merged.variables || {}, b.variables || {});
-              merged.deleted_vars = Array.isArray(merged.deleted_vars) ? merged.deleted_vars : [];
-              Object.keys(b.variables || {}).forEach(function(k){
-                merged.deleted_vars = merged.deleted_vars.filter(function(x){return x !== k;});
-              });
-              merged.variable_meta = Object.assign({}, merged.variable_meta || {}, b.variable_meta || {});
-            }
-          }catch(e){}
-        }
-        return merged;
-      };
-      wrappedMerge.__domscVarHardWrapped = true;
-      window.mergeCloudRecords = wrappedMerge;
-      mergeCloudRecords = wrappedMerge;
-    }
-  }catch(e){}
-
-  // Small retry only when there is a pending variable save.
-  let retrying = false;
-  async function retryPending(){
-    if(retrying || document.hidden) return;
-    const pending = localStorage.getItem(HARD_PENDING_KEY);
-    if(!pending) return;
-    retrying = true;
-    try{
-      restoreHardBackupIntoCloud();
-      await directSaveVariables("automatic pending retry");
-    }catch(e){}
-    retrying = false;
-  }
-
-  function boot(){
-    restoreHardBackupIntoCloud();
-    addHardFixBox();
-    if(typeof rebuildItems === "function") rebuildItems();
-    if(typeof calculateEverything === "function") calculateEverything();
-    setTimeout(addHardFixBox, 700);
-    setTimeout(addHardFixBox, 1800);
-    setInterval(retryPending, 20000);
-  }
-  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
-})();
-</script>
-
-
+<!-- Hard Force Save Variables removed by request. Normal JSONBin save remains active. -->
 <!-- DOM/SC Norm 2026 — Manual Time + PDF Daily Log + 20 Minute Break Rule
 Safe add-on patch only:
 1) Replaces clock-in/clock-out buttons with manual start/end time inputs.
@@ -6362,6 +5902,55 @@ Safe add-on patch only:
     try{ if(typeof renderProfileFiles==="function") renderProfileFiles(); }catch(e){}
   }
   if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+</script>
+
+
+<script>
+(function(){
+  if(window.__DOMSC_REMOVE_HARD_FORCE_SAVE_SHIM__) return;
+  window.__DOMSC_REMOVE_HARD_FORCE_SAVE_SHIM__ = true;
+
+  function safeSave(){
+    try{
+      if(typeof DOMSC_FORCE_JSONBIN_SAVE === "function") return DOMSC_FORCE_JSONBIN_SAVE();
+      if(typeof pushCloud === "function") return pushCloud();
+      alert("No normal JSONBin save function was found.");
+    }catch(e){
+      alert("Normal JSONBin save did not run: " + (e && e.message ? e.message : e));
+    }
+  }
+
+  window.DOMSC_FORCE_VARIABLE_SAVE = function(){
+    return safeSave();
+  };
+
+  window.DOMSC_RESTORE_VARIABLE_BACKUP = function(){
+    alert("Hard variable backup was removed. Use Reload JSONBin Data or normal Save Everything instead.");
+  };
+
+  function removeHardForceBox(){
+    var box = document.getElementById("domsc-var-hardfix-box");
+    if(box) box.remove();
+    document.querySelectorAll("button").forEach(function(btn){
+      var text = (btn.textContent || "").toLowerCase();
+      if(text.includes("hard force save")){
+        btn.textContent = "Force Save Variables";
+        btn.onclick = function(){ return safeSave(); };
+      }
+      if(text.includes("restore variable backup")){
+        btn.style.display = "none";
+      }
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", removeHardForceBox);
+  }else{
+    removeHardForceBox();
+  }
+  setTimeout(removeHardForceBox, 700);
+  setTimeout(removeHardForceBox, 2000);
 })();
 </script>
 
