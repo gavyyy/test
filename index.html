@@ -6111,5 +6111,210 @@ Adds admin-only backup/export and import-to-AWS tools. No secret keys are shown 
 })();
 </script>
 
+
+<!-- DOM/SC Norm 2026 — Backup File AWS Import Fix
+Adds a direct backup-file importer so migration does not fail if JSONBin load fails. -->
+<style>
+#domsc-backup-file-import-card{
+  background:linear-gradient(180deg,#ffffff,#f6fbff)!important;
+  border:1px solid #dce8f7!important;
+  border-radius:16px!important;
+  padding:12px!important;
+  margin:10px 0!important;
+  box-shadow:0 8px 22px rgba(7,30,61,.08)!important;
+}
+#domsc-backup-file-import-card label{
+  display:block!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  color:#075bbb!important;
+  margin-top:8px!important;
+}
+#domsc-backup-file-import-card input{
+  width:100%!important;
+  padding:9px!important;
+  border:1px solid #dce8f7!important;
+  border-radius:12px!important;
+  background:#fbfdff!important;
+  font-size:13px!important;
+}
+#domsc-backup-file-import-card .mig-sub{
+  font-size:11px!important;
+  color:#687586!important;
+  font-weight:700!important;
+  line-height:1.35!important;
+}
+#domsc-backup-file-import-card .mig-actions{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+  margin-top:10px!important;
+}
+#domsc-backup-file-import-card .mig-actions button{
+  flex:1 1 150px!important;
+  min-height:40px!important;
+}
+#domsc-backup-import-status{
+  margin-top:8px!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  white-space:pre-wrap!important;
+}
+@media(max-width:720px){
+  #domsc-backup-file-import-card .mig-actions{display:grid!important;grid-template-columns:1fr!important}
+}
+</style>
+
+<script>
+(function(){
+  if(window.__DOMSC_BACKUP_FILE_AWS_IMPORT_FIX__) return;
+  window.__DOMSC_BACKUP_FILE_AWS_IMPORT_FIX__ = true;
+
+  function $(id){return document.getElementById(id);}
+  function status(msg, bad){
+    var el = $("domsc-backup-import-status");
+    if(el){
+      el.textContent = msg;
+      el.style.color = bad ? "#c5221f" : "#1e7e34";
+    }
+  }
+  function cleanApiUrl(url){
+    url = String(url || "").trim();
+    url = url.replace(/\/+$/,"");
+    return url;
+  }
+  function pickStateFromBackup(obj){
+    if(!obj || typeof obj !== "object") return null;
+
+    // Common backup wrappers from prior versions.
+    if(obj.record && typeof obj.record === "object") return obj.record;
+    if(obj.state && typeof obj.state === "object") return obj.state;
+    if(obj.cloud && typeof obj.cloud === "object") return obj.cloud;
+    if(obj.data && typeof obj.data === "object" && (obj.data.profiles || obj.data.variables || obj.data.daily_logs)) return obj.data;
+
+    // If the backup itself looks like the app data, use it directly.
+    return obj;
+  }
+  async function postState(apiUrl, state){
+    var url = cleanApiUrl(apiUrl) + "/state/import";
+    var res = await fetch(url, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({state:state, importedAt:new Date().toISOString(), source:"downloaded-json-backup"})
+    });
+    var text = await res.text();
+    var body = {};
+    try{ body = JSON.parse(text); }catch(e){ body = {raw:text}; }
+    if(!res.ok || body.ok === false){
+      throw new Error("AWS import failed: " + (body.error || text || res.status));
+    }
+    return body;
+  }
+  async function testLoad(apiUrl){
+    var url = cleanApiUrl(apiUrl) + "/state";
+    var res = await fetch(url, {method:"GET", headers:{"Content-Type":"application/json"}});
+    var text = await res.text();
+    var body = {};
+    try{ body = JSON.parse(text); }catch(e){ body = {raw:text}; }
+    if(!res.ok || body.ok === false){
+      throw new Error("AWS load failed: " + (body.error || text || res.status));
+    }
+    return body;
+  }
+  function findMigrationPanel(){
+    return $("admin-tab-migration") ||
+           $("admin-tab-aiupdates") ||
+           document.querySelector(".admin-tab-panel.active") ||
+           document.querySelector(".admin-dashboard-box") ||
+           $("admin-panel");
+  }
+  function addCard(){
+    var host = findMigrationPanel();
+    if(!host || $("domsc-backup-file-import-card")) return;
+
+    var card = document.createElement("div");
+    card.id = "domsc-backup-file-import-card";
+    card.innerHTML =
+      '<div style="font-size:15px;font-weight:950;color:#075bbb;margin-bottom:4px">📦 Import Downloaded Backup to AWS</div>' +
+      '<div class="mig-sub">Use this if “load failed.” Choose the JSON backup file you already downloaded, paste your API Gateway URL, then import it straight to DynamoDB.</div>' +
+      '<label>AWS API Gateway URL</label>' +
+      '<input id="domsc-backup-api-url" placeholder="https://abc123xyz.execute-api.us-east-1.amazonaws.com">' +
+      '<label>Downloaded JSON backup file</label>' +
+      '<input id="domsc-backup-json-file" type="file" accept=".json,application/json">' +
+      '<div class="mig-actions">' +
+        '<button type="button" class="sm-btn btn-green" onclick="DOMSC_IMPORT_BACKUP_FILE_TO_AWS()">Import Backup File to AWS</button>' +
+        '<button type="button" class="sm-btn btn-blue" onclick="DOMSC_TEST_AWS_STATE_LOAD()">Test AWS Load</button>' +
+      '</div>' +
+      '<div id="domsc-backup-import-status">Ready.</div>';
+    host.appendChild(card);
+  }
+
+  window.DOMSC_IMPORT_BACKUP_FILE_TO_AWS = async function(){
+    try{
+      var api = cleanApiUrl(($("domsc-backup-api-url") || {}).value || "");
+      var file = (($("domsc-backup-json-file") || {}).files || [])[0];
+
+      if(!api || !/^https:\/\//i.test(api)){
+        alert("Paste your API Gateway URL first. It must start with https://");
+        return;
+      }
+      if(!file){
+        alert("Choose the JSON backup file you downloaded first.");
+        return;
+      }
+
+      status("Reading backup file...");
+      var text = await file.text();
+      var parsed = JSON.parse(text);
+      var state = pickStateFromBackup(parsed);
+      if(!state || typeof state !== "object"){
+        throw new Error("The selected file does not look like a JSON backup.");
+      }
+
+      var keys = Object.keys(state);
+      if(!keys.length){
+        throw new Error("Backup file is empty.");
+      }
+
+      status("Importing " + keys.length + " data sections to AWS DynamoDB...");
+      var result = await postState(api, state);
+
+      status("Import worked.\nSaved to AWS DynamoDB.\nNow click Test AWS Load.");
+      alert("Import to AWS worked. Now click Test AWS Load.");
+    }catch(e){
+      status("Import failed:\n" + (e && e.message ? e.message : e), true);
+      alert("Import failed: " + (e && e.message ? e.message : e));
+    }
+  };
+
+  window.DOMSC_TEST_AWS_STATE_LOAD = async function(){
+    try{
+      var api = cleanApiUrl(($("domsc-backup-api-url") || {}).value || "");
+      if(!api || !/^https:\/\//i.test(api)){
+        alert("Paste your API Gateway URL first.");
+        return;
+      }
+      status("Testing AWS /state load...");
+      var body = await testLoad(api);
+      var state = body.state || {};
+      var keys = Object.keys(state);
+      status("AWS load worked.\nLoaded " + keys.length + " sections:\n" + keys.slice(0,20).join(", "));
+      alert("AWS load worked. Loaded " + keys.length + " sections.");
+    }catch(e){
+      status("Load test failed:\n" + (e && e.message ? e.message : e), true);
+      alert("Load test failed: " + (e && e.message ? e.message : e));
+    }
+  };
+
+  function boot(){
+    addCard();
+    setTimeout(addCard,700);
+    setTimeout(addCard,1800);
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+
 </body>
 </html>
