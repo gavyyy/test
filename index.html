@@ -6001,5 +6001,115 @@ It saves requests now and can send them to a future AWS API Gateway/Lambda endpo
 })();
 </script>
 
+
+<!-- DOM/SC Norm 2026 — JSONBin to AWS Migration Helper
+Adds admin-only backup/export and import-to-AWS tools. No secret keys are shown in the UI. -->
+<style>
+#domsc-migration-center,.domsc-migration-card{background:linear-gradient(180deg,#ffffff,#f6fbff)!important;border:1px solid #dce8f7!important;border-radius:18px!important;padding:12px!important;margin:10px 0!important;box-shadow:0 10px 26px rgba(7,30,61,.08)!important}
+.domsc-mig-title{font-size:15px!important;font-weight:950!important;color:#075bbb!important;margin-bottom:4px!important}.domsc-mig-sub{font-size:11px!important;color:#687586!important;font-weight:700!important;line-height:1.35!important;margin-bottom:10px!important}.domsc-mig-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}.domsc-mig-card input,.domsc-migration-card input,#domsc-migration-center input{width:100%!important;border:1px solid #dce8f7!important;border-radius:12px!important;padding:9px!important;background:#fbfdff!important;font-size:13px!important}.domsc-mig-actions{display:flex!important;flex-wrap:wrap!important;gap:8px!important;margin-top:8px!important}.domsc-mig-actions button{flex:1 1 150px!important;min-height:42px!important}.domsc-mig-pill{display:inline-block!important;border-radius:999px!important;padding:3px 8px!important;font-size:10px!important;font-weight:900!important;background:#e9f5fe!important;color:#075bbb!important;border:1px solid #cfe4ff!important}.domsc-mig-pill.warn{background:#fff3cd!important;color:#856404!important;border-color:#ffe8a1!important}.domsc-mig-pill.ok{background:#e8f5e9!important;color:#1e7e34!important;border-color:#bce6c9!important}.domsc-mig-pill.bad{background:#fde8e8!important;color:#c5221f!important;border-color:#f5c6cb!important}.domsc-mig-status{background:#fff!important;border:1px solid #e8eef7!important;border-radius:12px!important;padding:9px!important;margin-top:8px!important;font-size:12px!important;white-space:pre-wrap!important}
+@media(max-width:720px){.domsc-mig-grid{grid-template-columns:1fr!important}.domsc-mig-actions{display:grid!important;grid-template-columns:1fr!important}.domsc-mig-actions button{width:100%!important}}
+</style>
+<script>
+(function(){
+  if(window.__DOMSC_JSONBIN_AWS_MIGRATION_HELPER_V1__) return;
+  window.__DOMSC_JSONBIN_AWS_MIGRATION_HELPER_V1__ = true;
+  const CFG_KEY = 'domsc_aws_migration_config_v1';
+  function $(id){return document.getElementById(id)}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function nowISO(){return new Date().toISOString()}
+  function nowLocal(){return new Date().toLocaleString()}
+  function admin(){try{return !!isAdmin}catch(e){return false}}
+  function setStatus(msg,kind){var s=$('domsc-migration-status'); if(s){s.innerHTML='<span class="domsc-mig-pill '+(kind||'warn')+'">'+esc(kind==='ok'?'OK':kind==='bad'?'Problem':'Working')+'</span> '+esc(msg)}}
+  function cfg(){try{return JSON.parse(localStorage.getItem(CFG_KEY)||'{}')||{}}catch(e){return {}}}
+  function saveCfg(v){try{localStorage.setItem(CFG_KEY,JSON.stringify(v||{}))}catch(e){}}
+  function cleanApiUrl(v){v=String(v||'').trim().replace(/\/+$/,''); return v}
+  function getApiUrl(){var inp=$('domsc-migration-api-url'); var v=cleanApiUrl(inp&&inp.value||cfg().apiUrl||''); if(v) saveCfg({apiUrl:v,updatedAtISO:nowISO()}); return v}
+  function downloadJSON(name,obj){var blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}); var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},900)}
+  async function fetchJsonBinRecord(){
+    if(typeof SYNC_URL==='undefined' || typeof HEADERS==='undefined') throw new Error('This page cannot find the JSONBin save settings.');
+    var r=await fetch(SYNC_URL+'?_='+Date.now(),{headers:HEADERS,cache:'no-store'});
+    if(!r.ok) throw new Error('JSONBin GET failed: '+r.status+' '+(await r.text()).slice(0,180));
+    var j=await r.json();
+    return j.record || j;
+  }
+  function countSummary(record){
+    record=record||{};
+    var logs=0; Object.values(record.daily_logs||{}).forEach(function(v){if(Array.isArray(v)) logs+=v.length});
+    return 'profiles='+(record.profiles||[]).length+', variables='+Object.keys(record.variables||{}).length+', daily logs='+logs+', settings='+(record.settings?'yes':'no');
+  }
+  async function saveApp(reason){try{if(typeof DOMSC_FORCE_JSONBIN_SAVE==='function') return await DOMSC_FORCE_JSONBIN_SAVE(); if(typeof pushCloud==='function') return await pushCloud()}catch(e){}}
+  window.DOMSC_DOWNLOAD_JSONBIN_BACKUP = async function(){
+    if(!admin()){alert('Admin only.');return}
+    try{
+      setStatus('Reading current JSONBin data...','warn');
+      var record=await fetchJsonBinRecord();
+      var payload={backupType:'DOM_SC_JSONBIN_FULL_BACKUP',exportedAt:nowLocal(),exportedAtISO:nowISO(),summary:countSummary(record),record:record};
+      downloadJSON('domsc-jsonbin-backup-'+new Date().toISOString().slice(0,10)+'.json',payload);
+      setStatus('JSONBin backup downloaded. '+countSummary(record),'ok');
+    }catch(e){setStatus(e.message||String(e),'bad'); alert('Backup failed: '+(e.message||e));}
+  };
+  window.DOMSC_DOWNLOAD_PAGE_BACKUP = function(){
+    if(!admin()){alert('Admin only.');return}
+    try{
+      var record=(typeof cloud==='object' && cloud)?cloud:{};
+      downloadJSON('domsc-current-page-backup-'+new Date().toISOString().slice(0,10)+'.json',{backupType:'DOM_SC_CURRENT_PAGE_BACKUP',exportedAt:nowLocal(),exportedAtISO:nowISO(),summary:countSummary(record),record:record});
+      setStatus('Current page backup downloaded. '+countSummary(record),'ok');
+    }catch(e){setStatus(e.message||String(e),'bad')}
+  };
+  window.DOMSC_IMPORT_JSONBIN_TO_AWS = async function(){
+    if(!admin()){alert('Admin only.');return}
+    var api=getApiUrl();
+    if(!api || !/^https:\/\//i.test(api)){alert('Paste your API Gateway Invoke URL first.');return}
+    if(!confirm('This will copy current JSONBin data into AWS DynamoDB. Keep JSONBin as backup until testing is done. Continue?')) return;
+    try{
+      setStatus('Reading JSONBin data...','warn');
+      var record=await fetchJsonBinRecord();
+      setStatus('Sending backup to AWS /state/import... '+countSummary(record),'warn');
+      var r=await fetch(api+'/state/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:record,source:'jsonbin-migration-helper',importedAtISO:nowISO()})});
+      var text=await r.text();
+      if(!r.ok) throw new Error('AWS import failed: '+r.status+' '+text.slice(0,220));
+      setStatus('Imported to AWS DynamoDB. Now test GET /state and check DynamoDB items.','ok');
+      alert('Import to AWS worked. Next, check DynamoDB items and test /state.');
+    }catch(e){setStatus(e.message||String(e),'bad'); alert('AWS import failed: '+(e.message||e));}
+  };
+  window.DOMSC_IMPORT_BACKUP_FILE_TO_AWS = async function(){
+    if(!admin()){alert('Admin only.');return}
+    var api=getApiUrl();
+    if(!api || !/^https:\/\//i.test(api)){alert('Paste your API Gateway Invoke URL first.');return}
+    var input=$('domsc-migration-file');
+    if(!input || !input.files || !input.files[0]){alert('Choose your JSON backup file first.');return}
+    try{
+      var text=await input.files[0].text();
+      var parsed=JSON.parse(text);
+      var record=parsed.record || parsed.state || parsed;
+      if(!record || typeof record!=='object') throw new Error('Backup file did not contain a valid record.');
+      setStatus('Sending backup file to AWS... '+countSummary(record),'warn');
+      var r=await fetch(api+'/state/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:record,source:'backup-file-migration-helper',importedAtISO:nowISO()})});
+      var body=await r.text();
+      if(!r.ok) throw new Error('AWS import failed: '+r.status+' '+body.slice(0,220));
+      setStatus('Backup file imported to AWS DynamoDB.','ok');
+      alert('Backup file imported to AWS.');
+    }catch(e){setStatus(e.message||String(e),'bad'); alert('Import failed: '+(e.message||e));}
+  };
+  window.DOMSC_TEST_AWS_STATE = async function(){
+    var api=getApiUrl(); if(!api){alert('Paste API Gateway URL first.');return}
+    try{setStatus('Testing AWS /state...','warn'); var r=await fetch(api+'/state',{method:'GET'}); var j=await r.json(); if(!r.ok||!j.ok) throw new Error(JSON.stringify(j).slice(0,220)); setStatus('AWS /state loaded. Keys: '+Object.keys(j.state||{}).join(', '),'ok')}catch(e){setStatus(e.message||String(e),'bad')}
+  };
+  function render(){
+    if(!admin()) return;
+    var panel=$('admin-panel'); if(!panel) return;
+    var bar=panel.querySelector('.admin-tab-bar');
+    if(bar && !bar.querySelector('[data-tab="migration"]')){var b=document.createElement('button'); b.className='admin-tab-btn'; b.dataset.tab='migration'; b.type='button'; b.innerHTML='☁️ Migration'; b.onclick=function(){if(typeof switchTab==='function')switchTab('migration')}; bar.appendChild(b)}
+    var tab=$('admin-tab-migration');
+    if(!tab){tab=document.createElement('div'); tab.className='admin-tab-panel'; tab.id='admin-tab-migration'; tab.innerHTML='<div id="domsc-migration-center"><div class="domsc-mig-title">☁️ JSONBin → AWS Migration</div><div class="domsc-mig-sub">Use this before switching the website save system. First download a backup, then import that same data to AWS DynamoDB through your API Gateway URL.</div><div class="domsc-mig-grid"><div><label style="font-size:11px;font-weight:900">API Gateway Invoke URL</label><input id="domsc-migration-api-url" placeholder="https://abc123.execute-api.us-east-1.amazonaws.com"></div><div><label style="font-size:11px;font-weight:900">Backup File Optional</label><input id="domsc-migration-file" type="file" accept="application/json,.json"></div></div><div class="domsc-mig-actions"><button type="button" class="sm-btn btn-green" onclick="DOMSC_DOWNLOAD_JSONBIN_BACKUP()">1. Download JSONBin Backup</button><button type="button" class="sm-btn btn-blue" onclick="DOMSC_IMPORT_JSONBIN_TO_AWS()">2. Import JSONBin to AWS</button><button type="button" class="sm-btn btn-yellow" onclick="DOMSC_IMPORT_BACKUP_FILE_TO_AWS()">Import Backup File to AWS</button><button type="button" class="sm-btn btn-dark" onclick="DOMSC_TEST_AWS_STATE()">Test AWS /state</button><button type="button" class="sm-btn btn-blue" onclick="DOMSC_DOWNLOAD_PAGE_BACKUP()">Download Current Page Backup</button></div><div id="domsc-migration-status" class="domsc-mig-status"><span class="domsc-mig-pill warn">Ready</span> Download a backup first.</div></div>';
+      if(bar&&bar.parentNode) bar.parentNode.insertBefore(tab,bar.nextSibling); else panel.appendChild(tab)}
+    var inp=$('domsc-migration-api-url'); if(inp && !inp.value && cfg().apiUrl) inp.value=cfg().apiUrl;
+  }
+  function boot(){render(); setTimeout(render,700); setTimeout(render,1800)}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+  try{if(typeof switchTab==='function' && !switchTab.__domscMigWrapped){var old=switchTab; var wrapped=function(){var r=old.apply(this,arguments); setTimeout(render,80); return r}; wrapped.__domscMigWrapped=true; window.switchTab=wrapped; switchTab=wrapped}}catch(e){}
+})();
+</script>
+
 </body>
 </html>
