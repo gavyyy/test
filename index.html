@@ -6316,5 +6316,252 @@ Adds a direct backup-file importer so migration does not fail if JSONBin load fa
 })();
 </script>
 
+
+<!-- DOM/SC Norm 2026 — LARGE JSON Backup Chunked Import
+Use this when regular import fails because the JSONBin backup is too large. -->
+<style>
+#domsc-large-backup-import-card{
+  background:linear-gradient(180deg,#fff,#f6fbff)!important;
+  border:2px solid #9ed1ff!important;
+  border-radius:18px!important;
+  padding:12px!important;
+  margin:10px 0!important;
+  box-shadow:0 10px 26px rgba(7,30,61,.08)!important;
+}
+#domsc-large-backup-import-card label{
+  display:block!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  color:#075bbb!important;
+  margin-top:8px!important;
+}
+#domsc-large-backup-import-card input{
+  width:100%!important;
+  padding:9px!important;
+  border:1px solid #dce8f7!important;
+  border-radius:12px!important;
+  background:#fbfdff!important;
+  font-size:13px!important;
+}
+#domsc-large-backup-import-card .large-sub{
+  font-size:11px!important;
+  color:#687586!important;
+  font-weight:700!important;
+  line-height:1.35!important;
+}
+#domsc-large-import-status{
+  margin-top:8px!important;
+  font-size:12px!important;
+  font-weight:800!important;
+  white-space:pre-wrap!important;
+  background:#f8fbff!important;
+  border:1px solid #dce8f7!important;
+  border-radius:12px!important;
+  padding:9px!important;
+  max-height:170px!important;
+  overflow:auto!important;
+}
+#domsc-large-progress-wrap{
+  height:14px!important;
+  background:#e6eef8!important;
+  border-radius:999px!important;
+  overflow:hidden!important;
+  margin-top:10px!important;
+}
+#domsc-large-progress-bar{
+  height:100%!important;
+  width:0%!important;
+  background:linear-gradient(90deg,#20c463,#0b7cff)!important;
+  border-radius:999px!important;
+}
+</style>
+<script>
+(function(){
+  if(window.__DOMSC_LARGE_JSON_CHUNKED_IMPORT__) return;
+  window.__DOMSC_LARGE_JSON_CHUNKED_IMPORT__ = true;
+
+  const CHUNK_SIZE = 180000; // keeps every DynamoDB item below 400 KB after overhead
+
+  function $(id){return document.getElementById(id);}
+  function cleanApiUrl(url){return String(url || "").trim().replace(/\/+$/,"");}
+  function log(msg, bad){
+    const el = $("domsc-large-import-status");
+    if(!el) return;
+    const line = (bad ? "❌ " : "• ") + msg;
+    el.textContent += (el.textContent ? "\n" : "") + line;
+    el.scrollTop = el.scrollHeight;
+    el.style.color = bad ? "#c5221f" : "#123";
+  }
+  function setProgress(done,total){
+    const bar = $("domsc-large-progress-bar");
+    if(!bar) return;
+    const pct = total ? Math.round((done/total)*100) : 0;
+    bar.style.width = Math.max(0, Math.min(100, pct)) + "%";
+  }
+  function pickStateFromBackup(obj){
+    if(!obj || typeof obj !== "object") return null;
+    if(obj.record && typeof obj.record === "object") return obj.record;
+    if(obj.state && typeof obj.state === "object") return obj.state;
+    if(obj.cloud && typeof obj.cloud === "object") return obj.cloud;
+    if(obj.data && typeof obj.data === "object" && (obj.data.profiles || obj.data.variables || obj.data.daily_logs)) return obj.data;
+    return obj;
+  }
+  function findMigrationPanel(){
+    return document.getElementById("admin-tab-migration") ||
+      document.querySelector(".admin-tab-panel.active") ||
+      document.querySelector(".admin-dashboard-box") ||
+      document.getElementById("admin-panel");
+  }
+  function splitString(str){
+    const arr = [];
+    for(let i=0;i<str.length;i+=CHUNK_SIZE) arr.push(str.slice(i,i+CHUNK_SIZE));
+    return arr.length ? arr : [""];
+  }
+  async function postJSON(url, body){
+    const res = await fetch(url, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    });
+    const text = await res.text();
+    let parsed = {};
+    try{parsed = JSON.parse(text);}catch(e){parsed = {raw:text};}
+    if(!res.ok || parsed.ok === false){
+      throw new Error(parsed.error || text || ("HTTP " + res.status));
+    }
+    return parsed;
+  }
+  async function getJSON(url){
+    const res = await fetch(url, {method:"GET"});
+    const text = await res.text();
+    let parsed = {};
+    try{parsed = JSON.parse(text);}catch(e){parsed = {raw:text};}
+    if(!res.ok || parsed.ok === false){
+      throw new Error(parsed.error || text || ("HTTP " + res.status));
+    }
+    return parsed;
+  }
+  function addCard(){
+    const host = findMigrationPanel();
+    if(!host || $("domsc-large-backup-import-card")) return;
+
+    const card = document.createElement("div");
+    card.id = "domsc-large-backup-import-card";
+    card.innerHTML =
+      '<div style="font-size:15px;font-weight:950;color:#075bbb;margin-bottom:4px">🧩 Large Backup Chunk Import</div>' +
+      '<div class="large-sub">Use this if the normal import failed because your JSONBin backup is too full. This sends the backup to AWS in smaller pieces.</div>' +
+      '<label>AWS API Gateway URL</label>' +
+      '<input id="domsc-large-api-url" placeholder="https://abc123xyz.execute-api.us-east-1.amazonaws.com">' +
+      '<label>Downloaded JSON backup file</label>' +
+      '<input id="domsc-large-json-file" type="file" accept=".json,application/json">' +
+      '<button type="button" class="sm-btn btn-green" style="width:100%;min-height:42px;margin-top:10px" onclick="DOMSC_LARGE_CHUNK_IMPORT()">Import Large Backup in Chunks</button>' +
+      '<button type="button" class="sm-btn btn-blue" style="width:100%;min-height:42px;margin-top:7px" onclick="DOMSC_TEST_CHUNKED_AWS_LOAD()">Test Chunked AWS Load</button>' +
+      '<div id="domsc-large-progress-wrap"><div id="domsc-large-progress-bar"></div></div>' +
+      '<div id="domsc-large-import-status">Ready.</div>';
+    host.appendChild(card);
+  }
+
+  window.DOMSC_LARGE_CHUNK_IMPORT = async function(){
+    const status = $("domsc-large-import-status");
+    if(status) status.textContent = "";
+    setProgress(0,1);
+
+    try{
+      const api = cleanApiUrl(($("domsc-large-api-url") || {}).value || "");
+      const file = (($("domsc-large-json-file") || {}).files || [])[0];
+
+      if(!api || !/^https:\/\//i.test(api)){
+        alert("Paste your API Gateway URL first.");
+        return;
+      }
+      if(!file){
+        alert("Choose your downloaded JSON backup file first.");
+        return;
+      }
+
+      log("Reading backup file...");
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const state = pickStateFromBackup(parsed);
+      if(!state || typeof state !== "object") throw new Error("Backup file does not look like app data.");
+
+      const importId = "import_" + Date.now();
+      const keys = Object.keys(state);
+      const manifest = {};
+      const jobs = [];
+
+      for(const key of keys){
+        const json = JSON.stringify(state[key] ?? null);
+        const parts = splitString(json);
+        manifest[key] = {
+          total: parts.length,
+          chars: json.length,
+          importedAt: new Date().toISOString()
+        };
+        parts.forEach((chunk, part) => {
+          jobs.push({section:key, part, total:parts.length, chunk});
+        });
+      }
+
+      log("Prepared " + jobs.length + " chunks from " + keys.length + " data sections.");
+      log("Sending chunks to AWS DynamoDB... keep this page open.");
+
+      for(let i=0;i<jobs.length;i++){
+        const job = jobs[i];
+        await postJSON(api + "/state/chunk", {
+          importId,
+          section: job.section,
+          part: job.part,
+          total: job.total,
+          chunk: job.chunk
+        });
+        setProgress(i+1, jobs.length+1);
+        if((i+1) % 5 === 0 || i === jobs.length - 1){
+          log("Saved " + (i+1) + " / " + jobs.length + " chunks...");
+        }
+      }
+
+      log("Saving manifest...");
+      await postJSON(api + "/state/manifest", {importId, manifest});
+      setProgress(jobs.length+1, jobs.length+1);
+
+      log("Chunked import worked. Now click Test Chunked AWS Load.");
+      alert("Chunked import worked. Now click Test Chunked AWS Load.");
+    }catch(e){
+      log((e && e.message ? e.message : e), true);
+      alert("Chunked import failed: " + (e && e.message ? e.message : e));
+    }
+  };
+
+  window.DOMSC_TEST_CHUNKED_AWS_LOAD = async function(){
+    try{
+      const api = cleanApiUrl(($("domsc-large-api-url") || {}).value || "");
+      if(!api || !/^https:\/\//i.test(api)){
+        alert("Paste your API Gateway URL first.");
+        return;
+      }
+      log("Testing AWS /state load...");
+      const body = await getJSON(api + "/state");
+      const state = body.state || {};
+      const keys = Object.keys(state);
+      log("AWS load worked. Loaded " + keys.length + " sections.");
+      log("First sections: " + keys.slice(0,20).join(", "));
+      alert("AWS load worked. Loaded " + keys.length + " sections.");
+    }catch(e){
+      log((e && e.message ? e.message : e), true);
+      alert("AWS load failed: " + (e && e.message ? e.message : e));
+    }
+  };
+
+  function boot(){
+    addCard();
+    setTimeout(addCard,700);
+    setTimeout(addCard,1800);
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+
 </body>
 </html>
