@@ -1,4 +1,4 @@
-"""<!DOCTYPE html>
+  """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -121,7 +121,7 @@
     margin-top:20px; font-size:0.85rem; color:#6b6f6d;
   }
 
-  /* Table visual - signature element */
+  /* Table visual with interactive member seats */
   .table-visual{
     position:relative;
     width:100%;
@@ -134,47 +134,49 @@
     border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #2E5555, var(--teal-deep) 70%);
     box-shadow:0 20px 50px rgba(27,58,58,0.28), inset 0 0 0 1px rgba(255,255,255,0.06);
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    color:rgba(253,251,246,0.7);
+    font-size:0.82rem;
+    font-family:'JetBrains Mono', monospace;
+    padding:20px;
   }
   .table-top::after{
     content:"";
     position:absolute; inset:14%;
     border-radius:50%;
     border:1px dashed rgba(253,251,246,0.25);
+    pointer-events:none;
   }
   .seat{
     position:absolute;
-    width:64px; height:64px;
+    width:68px; height:68px;
     border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size:1.1rem;
-    color:var(--teal-deep);
-    box-shadow:0 8px 20px rgba(27,58,58,0.18);
-    opacity:0;
-    animation:seat-in 0.6s ease forwards;
-  }
-  .seat.filled{background:var(--amber); color:var(--teal-deep);}
-  .seat.empty{
+    box-shadow:0 8px 20px rgba(27,58,58,0.22);
+    cursor:pointer;
+    transition:transform .2s ease, box-shadow .2s ease;
     background:var(--paper);
+    border:2px solid var(--amber);
+    overflow:hidden;
+  }
+  .seat:hover{transform:scale(1.1); box-shadow:0 12px 28px rgba(27,58,58,0.3); z-index:10;}
+  .seat img{
+    width:100%; height:100%; object-fit:cover;
+  }
+  .seat.empty{
     border:1.5px dashed rgba(27,58,58,0.35);
-    color:rgba(27,58,58,0.35);
+    color:rgba(27,58,58,0.5);
     font-size:1.4rem;
     font-weight:400;
+    background:var(--paper);
   }
-  .seat:nth-child(1){top:-2%; left:50%; transform:translateX(-50%); animation-delay:0.1s;}
-  .seat:nth-child(2){top:16%; right:-4%; animation-delay:0.25s;}
-  .seat:nth-child(3){bottom:16%; right:-4%; animation-delay:0.4s;}
-  .seat:nth-child(4){bottom:-2%; left:50%; transform:translateX(-50%); animation-delay:0.55s;}
-  .seat:nth-child(5){bottom:16%; left:-4%; animation-delay:0.7s;}
-  .seat:nth-child(6){top:16%; left:-4%; animation-delay:0.85s;}
-  @keyframes seat-in{
-    from{opacity:0; transform:scale(0.6) translateX(var(--tx,0));}
-    to{opacity:1; transform:scale(1) translateX(var(--tx,0));}
-  }
-  @media (prefers-reduced-motion: reduce){
-    .seat{animation:none; opacity:1;}
-  }
+  .seat:nth-child(2){top:-2%; left:50%; transform:translateX(-50%);}
+  .seat:nth-child(3){top:16%; right:-4%;}
+  .seat:nth-child(4){bottom:16%; right:-4%;}
+  .seat:nth-child(5){bottom:-2%; left:50%; transform:translateX(-50%);}
+  .seat:nth-child(6){bottom:16%; left:-4%;}
+  .seat:nth-child(7){top:16%; left:-4%;}
 
   /* Section shared */
   section{padding:88px 32px;}
@@ -284,36 +286,13 @@
     min-height:1.2em;
   }
 
-  /* Chat Widget Styles with Real Photo Avatars */
+  /* Chat Widget Styles */
   #human-chat-container {
     position: fixed;
     bottom: 24px;
     right: 24px;
     z-index: 1000;
     font-family: 'Inter', sans-serif;
-  }
-  #chat-toggle-btn {
-    background: var(--amber);
-    color: var(--teal-deep);
-    border: none;
-    border-radius: 30px;
-    padding: 12px 20px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: transform 0.2s;
-  }
-  #chat-toggle-btn:hover { transform: scale(1.03); }
-  .chat-badge {
-    background: #e53e3e;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 10px;
   }
   #chat-box {
     display: none;
@@ -325,9 +304,6 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     flex-direction: column;
     overflow: hidden;
-    position: absolute;
-    bottom: 60px;
-    right: 0;
   }
   .chat-header {
     background: var(--teal-deep);
@@ -486,14 +462,24 @@
       </div>
       <p class="hero-note">Ages 16-22 only · completely safe & verified hangouts</p>
     </div>
+    
+    <!-- Table visual with interactive member seats -->
     <div class="table-visual" aria-hidden="true">
-      <div class="table-top"></div>
-      <div class="seat filled">ZX</div>
-      <div class="seat filled">KY</div>
-      <div class="seat filled">AX</div>
-      <div class="seat filled">MJ</div>
-      <div class="seat empty">+</div>
-      <div class="seat empty">+</div>
+      <div class="table-top">Tap a peer to text & chat</div>
+      <div class="seat" title="Lexi (Thrift Circle)" onclick="openChatWith(0)">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Lexi">
+      </div>
+      <div class="seat" title="Zack (Dev Circle)" onclick="openChatWith(1)">
+        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80" alt="Zack">
+      </div>
+      <div class="seat" title="Mia (Study Circle)" onclick="openChatWith(2)">
+        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80" alt="Mia">
+      </div>
+      <div class="seat" title="Jayden (Gaming)" onclick="openChatWith(3)">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" alt="Jayden">
+      </div>
+      <div class="seat empty" title="Open seat">+</div>
+      <div class="seat empty" title="Open seat">+</div>
     </div>
   </div>
 </section>
@@ -602,26 +588,22 @@
   </div>
 </div>
 
-<!-- Teen Slang Interactive Chat Widget with Realistic Photos -->
+<!-- Interactive Chat Widget (Opened only when clicking table members) -->
 <div id="human-chat-container">
-  <button id="chat-toggle-btn" onclick="toggleChat()">
-    💬 DM from a local <span class="chat-badge">1</span>
-  </button>
-  
   <div id="chat-box">
     <div class="chat-header">
       <div class="chat-user-info">
-        <img id="active-avatar" class="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Avatar">
+        <img id="active-avatar" class="user-avatar" src="" alt="Avatar">
         <div class="user-details">
           <h4 id="active-name">Lexi</h4>
           <span class="user-status"><span class="status-dot"></span><span id="active-meta">Active · 0.4 miles away</span></span>
         </div>
       </div>
-      <button class="close-chat" onclick="toggleChat()">&times;</button>
+      <button class="close-chat" onclick="closeChat()">&times;</button>
     </div>
     
     <div class="chat-messages" id="chat-messages">
-      <div class="message incoming" id="initial-msg">yo! saw you checking out the tables. are you trying to pull up to one nearby or what? fr fr</div>
+      <!-- Chat history populated dynamically -->
     </div>
     
     <div class="typing-indicator" id="typing-indicator">
@@ -648,22 +630,21 @@
 let userLocation = null;
 window.addEventListener('load', () => { 
   findNearbyTables(); 
-  initRandomChatProfile();
 });
 
-// Community pool with realistic teen portrait photo URLs (Unsplash)
+// Community pool with realistic portraits and custom greeting lines
 const communityMembers = [
   { 
     name: "Lexi", 
     avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80", 
     table: "Thrift & Flip Fashion", 
-    greeting: "yo! saw you looking at the tables. tryna join one nearby or what? fr fr" 
+    greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr" 
   },
   { 
     name: "Zack", 
     avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80", 
     table: "Indie Dev & Code", 
-    greeting: "sup bro! u working on any projects rn? lowkey need a coding duo" 
+    greeting: "sup bro! u working on any web apps or coding projects rn? lowkey need a build partner" 
   },
   { 
     name: "Mia", 
@@ -676,25 +657,122 @@ const communityMembers = [
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80", 
     table: "Late Night Gaming", 
     greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl" 
-  },
-  { 
-    name: "Chloe", 
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80", 
-    table: "Lo-Fi & Beatmaking", 
-    greeting: "hiii! are u into music production or just vibing? 🎧" 
   }
 ];
 
 let currentMember = null;
+let chatOpen = false;
 
-function initRandomChatProfile() {
-  currentMember = communityMembers[Math.floor(Math.random() * communityMembers.length)];
-  const randomMiles = (Math.random() * 1.8 + 0.2).toFixed(1);
+function openChatWith(index) {
+  currentMember = communityMembers[index];
+  chatOpen = true;
   
+  const box = document.getElementById('chat-box');
+  box.style.display = 'flex';
+  
+  const randomMiles = (Math.random() * 1.5 + 0.1).toFixed(1);
   document.getElementById('active-avatar').src = currentMember.avatar;
   document.getElementById('active-name').textContent = currentMember.name;
   document.getElementById('active-meta').textContent = `Active · ${randomMiles} miles away`;
-  document.getElementById('initial-msg').textContent = currentMember.greeting;
+  
+  const messages = document.getElementById('chat-messages');
+  messages.innerHTML = `<div class="message incoming">${currentMember.greeting}</div>`;
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function closeChat() {
+  chatOpen = false;
+  document.getElementById('chat-box').style.display = 'none';
+}
+
+function handleKeyPress(e) {
+  if (e.key === 'Enter') sendMessage();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  appendMessage(text, 'outgoing');
+  input.value = '';
+
+  showTyping(true);
+  
+  // Realistic longer delay (2.2 to 3.8 seconds) to mimic typing out text
+  const responseDelay = Math.floor(Math.random() * 1600) + 2200;
+  setTimeout(() => {
+    showTyping(false);
+    const reply = generateContextualReply(text, currentMember.name);
+    appendMessage(reply, 'incoming');
+  }, responseDelay);
+}
+
+function appendMessage(text, sender) {
+  const messages = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `message ${sender}`;
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function showTyping(show) {
+  const indicator = document.getElementById('typing-indicator');
+  const messages = document.getElementById('chat-messages');
+  indicator.style.display = show ? 'block' : 'none';
+  if (show) messages.scrollTop = messages.scrollHeight;
+}
+
+function generateContextualReply(userText, memberName) {
+  const lower = userText.toLowerCase();
+  
+  // Specific replies depending on who is talking and what the user typed
+  if (lower.includes('code') || lower.includes('html') || lower.includes('app') || lower.includes('dev') || lower.includes('website')) {
+    if (memberName === 'Zack') {
+      return "nah deadass? I'm working with JavaScript and responsive layouts rn too. lowkey building full stack apps with Supabase and JSONBin for syncing. u using any specific stack?";
+    }
+    return "that's sick! Zack at the dev table would totally vibe with that topic tbh";
+  } 
+  
+  if (lower.includes('game') || lower.includes('valorant') || lower.includes('lobby') || lower.includes('play')) {
+    if (memberName === 'Jayden') {
+      return "bet! we're running lobbies later tonight. drop your tag and I'll add u to the Discord call fr fr";
+    }
+    return "oh u gotta talk to Jayden about gaming, he's always online";
+  }
+
+  if (lower.includes('boba') || lower.includes('study') || lower.includes('coffee')) {
+    if (memberName === 'Mia') {
+      return "omg yes!! we meet up at the local spot downtown every Thursday. u should totally pull up with us no cap";
+    }
+    return "boba sessions are elite ngl. Mia organizes the best ones";
+  }
+
+  if (lower.includes('thrift') || lower.includes('clothes') || lower.includes('fashion') || lower.includes('fit')) {
+    if (memberName === 'Lexi') {
+      return "bro fr!! vintage jackets and denim flipping is my entire personality rn. my table is always swapping fits";
+    }
+    return "lexi is obsessed with thrifting lol u should ask her about her latest jacket find";
+  }
+
+  if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey') || lower.includes('yo')) {
+    return `yooo! how's your day going so far? u checking out the table spots around here?`;
+  } else if (lower.includes('where') || lower.includes('spot') || lower.includes('place') || lower.includes('location')) {
+    return "they pick super aesthetic local spots near us. you get the drop on the exact address once your group fills up completely ong";
+  } else if (lower.includes('cost') || lower.includes('price') || lower.includes('pay') || lower.includes('free')) {
+    return "it's literally free to match up lol. you just pay for whatever drinks or snacks u get at the venue";
+  } else if (lower.includes('fake') || lower.includes('bot') || lower.includes('ai') || lower.includes('real')) {
+    return "bro what 💀💀 why are u calling me a bot rn I'm literally just hanging out in my room listening to music haha";
+  } else {
+    const replies = [
+      "nah fr though! that's exactly why I joined this site, everyone's actually down to earth ngl",
+      "no deadass, you should totally lock in a spot for this week. lowkey life changing bestie",
+      "W take ngl. let me know if u end up pulling up!",
+      "real. honestly best decision I made this month fr"
+    ];
+    return replies[Math.floor(Math.random() * replies.length)];
+  }
 }
 
 async function findNearbyTables() {
@@ -762,87 +840,11 @@ async function findNearbyTables() {
   if (btn) btn.disabled = false;
  }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
 }
-
-// Interactive Slang Chat Logic
-let chatOpen = false;
-function toggleChat() {
-  chatOpen = !chatOpen;
-  const box = document.getElementById('chat-box');
-  const badge = document.querySelector('.chat-badge');
-  box.style.display = chatOpen ? 'flex' : 'none';
-  if (chatOpen && badge) badge.style.display = 'none';
-  if (chatOpen) {
-    const messages = document.getElementById('chat-messages');
-    messages.scrollTop = messages.scrollHeight;
-  }
-}
-
-function handleKeyPress(e) {
-  if (e.key === 'Enter') sendMessage();
-}
-
-function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  appendMessage(text, 'outgoing');
-  input.value = '';
-
-  showTyping(true);
-  
-  const responseDelay = Math.floor(Math.random() * 1200) + 1000;
-  setTimeout(() => {
-    showTyping(false);
-    const reply = generateTeenReply(text);
-    appendMessage(reply, 'incoming');
-  }, responseDelay);
-}
-
-function appendMessage(text, sender) {
-  const messages = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = `message ${sender}`;
-  div.textContent = text;
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
-
-function showTyping(show) {
-  const indicator = document.getElementById('typing-indicator');
-  const messages = document.getElementById('chat-messages');
-  indicator.style.display = show ? 'block' : 'none';
-  if (show) messages.scrollTop = messages.scrollHeight;
-}
-
-function generateTeenReply(userText) {
-  const lower = userText.toLowerCase();
-  
-  if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey') || lower.includes('yo')) {
-    return `yooo what's good! honestly super glad u texted, u checking out the ${currentMember.table} circle?`;
-  } else if (lower.includes('table') || lower.includes('join') || lower.includes('sign up') || lower.includes('meet')) {
-    return "bet! joining is literally so easy no cap. everyone at my table is super chill and main character energy fr";
-  } else if (lower.includes('where') || lower.includes('spot') || lower.includes('place') || lower.includes('location')) {
-    return "they pick super aesthetic local spots near us. you get the drop on the exact address once your group fills up completely ong";
-  } else if (lower.includes('cost') || lower.includes('price') || lower.includes('pay') || lower.includes('free')) {
-    return "it's literally free to match up lol. you just pay for whatever boba or snacks u get at the spot";
-  } else if (lower.includes('fake') || lower.includes('bot') || lower.includes('ai') || lower.includes('real')) {
-    return "bro what 💀💀 why are u calling me a bot rn I'm literally drinking iced matcha rn haha";
-  } else {
-    const replies = [
-      "nah fr though! that's exactly why I joined, everyone's actually down to earth ngl",
-      "no deadass, you should totally pull up to a table. lowkey life changing bestie",
-      "W take ngl. let me know if u end up securing a spot for this week!",
-      "real. honestly best decision I made this month fr"
-    ];
-    return replies[Math.floor(Math.random() * replies.length)];
-  }
-}
 </script>
 </body>
 </html>
 """
 
-with open("roundtable_updated-teen-photos.html", "w", encoding="utf-8") as f:
-    f.write(chat_avatars_html)
+with open("roundtable_table_chat.html", "w", encoding="utf-8") as f:
+    f.write(updated_code)
     
