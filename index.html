@@ -621,7 +621,6 @@
 <div id="maintenance-overlay">
   <h1>Under Maintenance</h1>
   <p>We are currently updating our platform vibes and tuning tables. Please check back shortly!</p>
-  <button class="btn btn-ghost-amber" onclick="emergencyLocalUnlock()" style="margin-top: 24px;">Emergency Bypass Unlock</button>
 </div>
 
 <!-- Broadcast Banner Notification -->
@@ -772,7 +771,6 @@
         <p id="admin-login-error" style="color: #e53e3e; font-size: 0.82rem; margin-top: 10px; min-height: 1.2em;"></p>
         
         <div style="margin-top: 20px; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-          <button class="btn btn-ghost" onclick="emergencyLocalUnlock()" style="font-size: 0.8rem; padding: 6px 12px;">Force Lift Maintenance</button>
           <button class="btn btn-danger" onclick="clearLocalCacheAndReset()" style="font-size: 0.8rem; padding: 6px 12px;">Reset Local Cache</button>
         </div>
       </div>
@@ -1003,15 +1001,8 @@ let communityMembers = [
 let userLocation = null;
 let sessionTimer = null;
 
-// Emergency URL parameter override check on load
+// Initialize on load
 window.addEventListener('load', async () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('emergency_override') === 'true') {
-    siteConfig.maintenanceMode = false;
-    localStorage.removeItem('roundtableMaintenanceOverride');
-    alert("Emergency Override Triggered: Maintenance mode forcefully disabled via URL parameter.");
-  }
-
   // Increment visit counter locally & sync
   let storedVisits = parseInt(localStorage.getItem('roundtableVisits') || '0') + 1;
   localStorage.setItem('roundtableVisits', storedVisits);
@@ -1023,21 +1014,6 @@ window.addEventListener('load', async () => {
   renderTableSeats();
   findNearbyTables(); 
 });
-
-// Keyboard shortcut for emergency unlock (Ctrl + Shift + U)
-window.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.shiftKey && e.code === 'KeyU') {
-    emergencyLocalUnlock();
-    alert("Emergency Hotkey Triggered (Ctrl + Shift + U): Maintenance lifted and chat widgets restored locally.");
-  }
-});
-
-function emergencyLocalUnlock() {
-  siteConfig.maintenanceMode = false;
-  siteConfig.chatEnabled = true;
-  applySiteConfig();
-  logAudit("Emergency override executed: Lifted site freeze locally.");
-}
 
 function clearLocalCacheAndReset() {
   if (confirm("Clear local cache and restore default administrative states?")) {
@@ -1339,14 +1315,14 @@ function handleAdminImageUpload(event, index) {
 async function saveAllAdminChanges() {
   const count = parseInt(siteConfig.seatCount) || 8;
   for (let i = 0; i < count; i++) {
-    const nameVal = document.getElementById(`admin-name-${i}`).value;
-    const tableVal = document.getElementById(`admin-table-${i}`).value;
-    const greetingVal = document.getElementById(`admin-greeting-${i}`).value;
+    const nameInput = document.getElementById(`admin-name-${i}`);
+    const tableInput = document.getElementById(`admin-table-${i}`);
+    const greetingInput = document.getElementById(`admin-greeting-${i}`);
     
     if (!communityMembers[i]) communityMembers[i] = {};
-    if (nameVal) communityMembers[i].name = nameVal;
-    if (tableVal) communityMembers[i].table = tableVal;
-    if (greetingVal) communityMembers[i].greeting = greetingVal;
+    if (nameInput) communityMembers[i].name = nameInput.value;
+    if (tableInput) communityMembers[i].table = tableInput.value;
+    if (greetingInput) communityMembers[i].greeting = greetingInput.value;
   }
 
   siteConfig.title = document.getElementById('setting-title').value;
