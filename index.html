@@ -1174,13 +1174,11 @@ function renderAvatars() {
   }
 }
 
-// Load data and pictures from JSONBin via CORS proxy with correct V3 record parsing
+// Load data and pictures from JSONBin via direct endpoint with master key
 async function loadDataFromJSONBin() {
   try {
-    const targetUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`;
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
-
-    const response = await fetch(proxyUrl, {
+    const url = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`;
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Master-Key': JSONBIN_KEY }
     });
@@ -1204,21 +1202,19 @@ async function loadDataFromJSONBin() {
   }
 }
 
-// Save data and pictures to JSONBin via CORS proxy
+// Save data and pictures to JSONBin via direct endpoint
 async function saveDataToJSONBin() {
   const statusMsg = document.getElementById('sync-status-msg');
   if (statusMsg) statusMsg.textContent = "Status: Saving to JSONBin...";
   
   try {
-    const targetUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
-
+    const url = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
     const payload = {
       members: communityMembers,
       config: siteConfig
     };
 
-    const response = await fetch(proxyUrl, {
+    const response = await fetch(url, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
