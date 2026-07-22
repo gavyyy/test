@@ -1151,28 +1151,37 @@ function renderAvatars() {
   }
 }
 
-// Load data and pictures from JSONBin via CORS proxy (GitHub Pages compatible)
+// Load data and pictures from JSONBin via CORS proxy with correct V3 record parsing
 async function loadDataFromJSONBin() {
   try {
     const targetUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`;
     const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
 
     const response = await fetch(proxyUrl, {
+      method: 'GET',
       headers: { 'X-Master-Key': JSONBIN_KEY }
     });
-    const data = await response.json();
-    if (data && data.record) {
-      if (data.record.members) communityMembers = data.record.members;
-      if (data.record.config) siteConfig = { ...siteConfig, ...data.record.config };
-    } else {
-      await saveDataToJSONBin();
+    
+    if (!response.ok) throw new Error("Failed to fetch from JSONBin");
+    
+    const json = await response.json();
+    const actualData = json.record ? json.record : json;
+
+    if (actualData) {
+      if (actualData.members && Array.isArray(actualData.members)) {
+        communityMembers = actualData.members;
+      }
+      if (actualData.config) {
+        siteConfig = { ...siteConfig, ...actualData.config };
+      }
     }
   } catch (error) {
     console.error("Error loading from JSONBin:", error);
+    await saveDataToJSONBin();
   }
 }
 
-// Save data and pictures to JSONBin via CORS proxy (GitHub Pages compatible)
+// Save data and pictures to JSONBin via CORS proxy
 async function saveDataToJSONBin() {
   const statusMsg = document.getElementById('sync-status-msg');
   if (statusMsg) statusMsg.textContent = "Status: Saving to JSONBin...";
@@ -1181,14 +1190,22 @@ async function saveDataToJSONBin() {
     const targetUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
     const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
 
-    await fetch(proxyUrl, {
+    const payload = {
+      members: communityMembers,
+      config: siteConfig
+    };
+
+    const response = await fetch(proxyUrl, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'X-Master-Key': JSONBIN_KEY
       },
-      body: JSON.stringify({ members: communityMembers, config: siteConfig })
+      body: JSON.stringify(payload)
     });
+
+    if (!response.ok) throw new Error("Failed to update JSONBin");
+
     if (statusMsg) statusMsg.textContent = "Status: Successfully Synced!";
     logAudit("Settings & character data saved to JSONBin.");
   } catch (error) {
@@ -1534,7 +1551,8 @@ async function findNearbyTables() {
 
   let address = "Address lookup failed";
   try {
-    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+    const reqUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+    const geoRes = await fetch(reqUrl);
     const geoData = await geoRes.json();
     if (geoData && geoData.display_name) { address = geoData.display_name; }
   } catch (e) {
