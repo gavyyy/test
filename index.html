@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roundtable — Pull up a chair</title>
+<title id="html-page-title">Roundtable — Pull up a chair</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link id="google-font-link" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   :root{
     --teal-deep:#1B3A3A;
@@ -82,6 +82,15 @@
   .btn-primary{background:var(--teal-deep); color:var(--paper);}
   .btn-primary:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(27,58,58,0.25);}
   .btn:focus-visible{outline:3px solid var(--amber); outline-offset:2px;}
+
+  /* Maintenance overlay */
+  #maintenance-overlay {
+    display: none;
+    position: fixed; inset: 0; background: var(--teal-deep); color: var(--paper);
+    z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 32px;
+  }
+  #maintenance-overlay h1 { font-size: 2.5rem; margin-bottom: 16px; color: var(--amber); }
+  #maintenance-overlay p { font-size: 1.1rem; opacity: 0.85; max-width: 500px; }
 
   /* Hero */
   .hero{
@@ -164,7 +173,6 @@
   .seat img{
     width:100%; height:100%; object-fit:cover;
   }
-  /* Positioning 8 seats evenly around the circular table */
   .seat:nth-child(2){top:-2%; left:50%; transform:translateX(-50%);}
   .seat:nth-child(3){top:12%; right:4%;}
   .seat:nth-child(4){top:50%; right:-2%; transform:translateY(-50%);}
@@ -322,6 +330,7 @@
     border-bottom: 1px solid var(--line);
     padding-bottom: 16px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
   }
   .tab-btn {
     background: transparent;
@@ -380,8 +389,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
   }
-  .settings-group input[type="text"] {
+  .settings-group input[type="text"], .settings-group input[type="password"] {
     width: 100%;
     padding: 10px 14px;
     border: 1px solid var(--line);
@@ -392,6 +402,7 @@
     position: relative;
     display: inline-block;
     width: 48px; height: 24px;
+    flex-shrink: 0;
   }
   .toggle-switch input { opacity: 0; width: 0; height: 0; }
   .slider {
@@ -409,6 +420,18 @@
   }
   input:checked + .slider { background-color: var(--teal-deep); }
   input:checked + .slider:before { transform: translateX(24px); }
+
+  .audit-log-box {
+    background: #1a1e1d;
+    color: #e2e8f0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    padding: 14px;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+  }
 
   .admin-controls-bar {
     display: flex;
@@ -578,6 +601,12 @@
 </head>
 <body>
 
+<!-- Maintenance Mode Overlay -->
+<div id="maintenance-overlay">
+  <h1>Under Maintenance</h1>
+  <p>We are currently updating our platform vibes and tuning tables. Please check back shortly!</p>
+</div>
+
 <header id="main-header">
   <div class="nav">
     <div class="logo"><span class="dot"></span><span id="site-title-display">Roundtable</span></div>
@@ -722,7 +751,7 @@
     <div class="admin-panel-card">
       <!-- Login Box -->
       <div id="admin-login-box" class="admin-login-box">
-        <p style="margin-bottom: 16px; color: #5a5e5c; font-size: 0.95rem;">Enter password to manage characters, security features, and website controls.</p>
+        <p style="margin-bottom: 16px; color: #5a5e5c; font-size: 0.95rem;">Enter password to manage characters, security features, and overall website controls.</p>
         <input type="password" id="admin-pass-input" placeholder="Enter password (Dunaway2025!)..." onkeypress="handleAdminLoginKey(event)">
         <button class="btn btn-primary" onclick="attemptAdminLogin()" style="width: 100%;">Unlock Dashboard</button>
         <p id="admin-login-error" style="color: #e53e3e; font-size: 0.82rem; margin-top: 10px; min-height: 1.2em;"></p>
@@ -734,6 +763,7 @@
           <button class="tab-btn active" onclick="switchAdminTab('characters')">Character Seats (8)</button>
           <button class="tab-btn" onclick="switchAdminTab('website')">Website Controls</button>
           <button class="tab-btn" onclick="switchAdminTab('security')">Security & Access</button>
+          <button class="tab-btn" onclick="switchAdminTab('audit')">Audit Logs</button>
         </div>
 
         <!-- Tab 1: Characters -->
@@ -745,13 +775,27 @@
 
         <!-- Tab 2: Website Controls -->
         <div id="tab-website" class="tab-content">
-          <h3 style="font-size: 1.2rem;">Overall Website Text & Settings</h3>
+          <h3 style="font-size: 1.2rem;">Overall Website Text & Toggles</h3>
           <div class="settings-group">
             <label>Website Title / Logo Text: <input type="text" id="setting-title" value="Roundtable"></label>
             <label>Hero Eyebrow Banner: <input type="text" id="setting-eyebrow" value="Teen & youth hangouts, no cap"></label>
             <label>Hero Main Heading: <input type="text" id="setting-hero-title" value="Finding your actual circle is lowkey everything."></label>
             <label>Hero Subtitle Lead: <input type="text" id="setting-hero-lead" value="Roundtable links you up with people your age who share your exact vibe."></label>
             <label>Footer Note / Age Range: <input type="text" id="setting-note" value="Ages 16-22 only · completely safe & verified hangouts"></label>
+            <label>
+              <span>Enable Maintenance Mode (Splash Screen)</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-maintenance">
+                <span class="slider"></span>
+              </label>
+            </label>
+            <label>
+              <span>Enable Interactive Chat Widget</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-chatenabled" checked>
+                <span class="slider"></span>
+              </label>
+            </label>
           </div>
         </div>
 
@@ -767,7 +811,7 @@
               </label>
             </label>
             <label>
-              <span>Require Admin Authentication Timeout (mins)</span>
+              <span>Session Auto-Lock Timeout (Minutes)</span>
               <input type="text" id="setting-timeout" value="30" style="max-width: 140px;">
             </label>
             <label>
@@ -775,6 +819,16 @@
               <input type="password" id="setting-new-pass" placeholder="Leave blank to keep current (Dunaway2025!)">
             </label>
           </div>
+        </div>
+
+        <!-- Tab 4: Audit Logs -->
+        <div id="tab-audit" class="tab-content">
+          <h3 style="font-size: 1.2rem;">Admin Activity & Security Audit Logs</h3>
+          <p style="font-size: 0.88rem; color: #6b6f6d;">Real-time event tracking of logins, configuration updates, and edits.</p>
+          <div id="audit-log-container" class="audit-log-box">
+            [System initialized] Waiting for actions...
+          </div>
+          <button class="btn btn-ghost" onclick="clearAuditLogs()" style="align-self: flex-start; font-size: 0.8rem; padding: 6px 14px;">Clear Logs</button>
         </div>
 
         <div class="admin-controls-bar">
@@ -840,10 +894,9 @@
 const JSONBIN_BIN_ID = "6a601775f5f4af5e29aed669";
 const JSONBIN_API_KEY = "$2a$10$rhgHAtWG3VvafQAdqWRcLOaYR72b2SZ7RVeEN0sg6w8mxkkhNOgIG";
 
-// Base64 helper placeholder for avatars
 const defaultAvatar = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=";
 
-// 8 Community members populating all table seats
+// Site config & Audit logs container
 let siteConfig = {
   title: "Roundtable",
   eyebrow: "Teen & youth hangouts, no cap",
@@ -851,7 +904,11 @@ let siteConfig = {
   heroLead: "Roundtable links you up with people your age who share your exact vibe. Real hangouts, zero awkward swiping, total main character energy.",
   heroNote: "Ages 16-22 only · completely safe & verified hangouts",
   geoLoggingEnabled: true,
-  adminPassword: "Dunaway2025!"
+  maintenanceMode: false,
+  chatEnabled: true,
+  sessionTimeoutMins: 30,
+  adminPassword: "Dunaway2025!",
+  auditLogs: ["[System initialized] Ready."]
 };
 
 let communityMembers = [
@@ -866,6 +923,7 @@ let communityMembers = [
 ];
 
 let userLocation = null;
+let sessionTimer = null;
 
 // Load data on startup from JSONBin
 window.addEventListener('load', async () => { 
@@ -875,6 +933,26 @@ window.addEventListener('load', async () => {
   findNearbyTables(); 
 });
 
+function logAudit(action) {
+  const timestamp = new Date().toLocaleTimeString();
+  const entry = `[${timestamp}] ${action}`;
+  siteConfig.auditLogs.unshift(entry);
+  if (siteConfig.auditLogs.length > 30) siteConfig.auditLogs.pop();
+  updateAuditDisplay();
+}
+
+function updateAuditDisplay() {
+  const box = document.getElementById('audit-log-container');
+  if (box) {
+    box.innerHTML = siteConfig.auditLogs.join('<br>');
+  }
+}
+
+function clearAuditLogs() {
+  siteConfig.auditLogs = [`[${new Date().toLocaleTimeString()}] Logs cleared by admin.`];
+  updateAuditDisplay();
+}
+
 function applySiteConfig() {
   document.getElementById('site-title-display').textContent = siteConfig.title;
   document.getElementById('footer-title-display').textContent = siteConfig.title;
@@ -882,6 +960,20 @@ function applySiteConfig() {
   document.getElementById('hero-title-display').innerHTML = siteConfig.heroTitle;
   document.getElementById('hero-lead-display').textContent = siteConfig.heroLead;
   document.getElementById('hero-note-display').textContent = siteConfig.heroNote;
+
+  const overlay = document.getElementById('maintenance-overlay');
+  if (siteConfig.maintenanceMode) {
+    overlay.style.display = 'flex';
+  } else {
+    overlay.style.display = 'none';
+  }
+
+  const chatWidget = document.getElementById('human-chat-container');
+  if (!siteConfig.chatEnabled) {
+    chatWidget.style.display = 'none';
+  } else {
+    chatWidget.style.display = 'block';
+  }
 }
 
 function renderAvatars() {
@@ -925,6 +1017,7 @@ async function saveDataToJSONBin() {
       body: JSON.stringify({ members: communityMembers, config: siteConfig })
     });
     if (statusMsg) statusMsg.textContent = "Status: Successfully Synced!";
+    logAudit("Settings & character data saved to JSONBin.");
   } catch (error) {
     console.error("Error saving to JSONBin:", error);
     if (statusMsg) statusMsg.textContent = "Status: Sync Error!";
@@ -945,9 +1038,25 @@ function attemptAdminLogin() {
     document.getElementById('admin-dashboard').style.display = 'flex';
     buildAdminEditorRows();
     loadSettingsIntoForm();
+    updateAuditDisplay();
+    logAudit("Admin successfully logged into dashboard.");
+    startSessionTimer();
   } else {
     errorMsg.textContent = "Incorrect password. Try again.";
+    logAudit("Failed admin login attempt.");
   }
+}
+
+function startSessionTimer() {
+  if (sessionTimer) clearTimeout(sessionTimer);
+  const timeoutMins = parseInt(siteConfig.sessionTimeoutMins) || 30;
+  sessionTimer = setTimeout(() => {
+    document.getElementById('admin-dashboard').style.display = 'none';
+    document.getElementById('admin-login-box').style.display = 'block';
+    document.getElementById('admin-pass-input').value = "";
+    alert("Admin session timed out due to inactivity.");
+    logAudit("Admin session automatically locked due to timeout.");
+  }, timeoutMins * 60 * 1000);
 }
 
 function switchAdminTab(tabName) {
@@ -963,6 +1072,9 @@ function switchAdminTab(tabName) {
   } else if (tabName === 'security') {
     document.querySelectorAll('.tab-btn')[2].classList.add('active');
     document.getElementById('tab-security').classList.add('active');
+  } else if (tabName === 'audit') {
+    document.querySelectorAll('.tab-btn')[3].classList.add('active');
+    document.getElementById('tab-audit').classList.add('active');
   }
 }
 
@@ -999,7 +1111,10 @@ function loadSettingsIntoForm() {
   document.getElementById('setting-hero-title').value = siteConfig.heroTitle;
   document.getElementById('setting-hero-lead').value = siteConfig.heroLead;
   document.getElementById('setting-note').value = siteConfig.heroNote;
+  document.getElementById('setting-maintenance').checked = siteConfig.maintenanceMode;
+  document.getElementById('setting-chatenabled').checked = siteConfig.chatEnabled;
   document.getElementById('setting-geologging').checked = siteConfig.geoLoggingEnabled;
+  document.getElementById('setting-timeout').value = siteConfig.sessionTimeoutMins || 30;
 }
 
 function handleAdminImageUpload(event, index) {
@@ -1011,6 +1126,7 @@ function handleAdminImageUpload(event, index) {
     const base64Str = e.target.result;
     communityMembers[index].avatar = base64Str;
     document.getElementById(`admin-preview-${index}`).src = base64Str;
+    logAudit(`Updated profile image for seat ${index + 1} (${communityMembers[index].name}).`);
   };
   reader.readAsDataURL(file);
 }
@@ -1031,16 +1147,21 @@ async function saveAllAdminChanges() {
   siteConfig.heroTitle = document.getElementById('setting-hero-title').value;
   siteConfig.heroLead = document.getElementById('setting-hero-lead').value;
   siteConfig.heroNote = document.getElementById('setting-note').value;
+  siteConfig.maintenanceMode = document.getElementById('setting-maintenance').checked;
+  siteConfig.chatEnabled = document.getElementById('setting-chatenabled').checked;
   siteConfig.geoLoggingEnabled = document.getElementById('setting-geologging').checked;
+  siteConfig.sessionTimeoutMins = parseInt(document.getElementById('setting-timeout').value) || 30;
 
   const newPass = document.getElementById('setting-new-pass').value;
   if (newPass.trim() !== "") {
     siteConfig.adminPassword = newPass.trim();
     alert("Admin password updated successfully!");
+    logAudit("Admin password was modified.");
   }
 
   applySiteConfig();
   renderAvatars();
+  logAudit("Saved and synchronized all website configuration and character data.");
   await saveDataToJSONBin();
   alert("All changes saved and synchronized to JSONBin successfully!");
 }
@@ -1052,6 +1173,7 @@ async function resetToDefaultData() {
     loadSettingsIntoForm();
     applySiteConfig();
     renderAvatars();
+    logAudit("Reset data to JSONBin baseline.");
     alert("Reset complete.");
   }
 }
@@ -1061,6 +1183,7 @@ let currentMember = null;
 let chatOpen = false;
 
 function openChatWith(index) {
+  if (!siteConfig.chatEnabled) return;
   currentMember = communityMembers[index];
   chatOpen = true;
   
