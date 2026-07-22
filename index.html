@@ -459,29 +459,23 @@
     <!-- Table visual with your uploaded personal photos embedded as data URIs -->
     <div class="table-visual" aria-hidden="true">
       <div class="table-top">Tap a peer to text & chat</div>
-      <!-- Seat 0: Zack (Boy image 1) -->
       <div class="seat" title="Zack (Indie Dev & Code)" onclick="openChatWith(0)">
-        <img src="data:image/png;base64,<?php /* embedded image 7 */ ?>" alt="Zack" id="img-seat-0">
+        <img src="data:image/png;base64,{{b7}}" alt="Zack">
       </div>
-      <!-- Seat 1: Jayden (Boy image 2) -->
       <div class="seat" title="Jayden (Late Night Gaming)" onclick="openChatWith(1)">
-        <img src="data:image/png;base64,<?php /* embedded image 8 */ ?>" alt="Jayden" id="img-seat-1">
+        <img src="data:image/png;base64,{{b8}}" alt="Jayden">
       </div>
-      <!-- Seat 2: Caleb (Boy image 3) -->
       <div class="seat" title="Caleb (Skater & Film Photo)" onclick="openChatWith(2)">
-        <img src="data:image/png;base64,<?php /* embedded image 9 */ ?>" alt="Caleb" id="img-seat-2">
+        <img src="data:image/png;base64,{{b9}}" alt="Caleb">
       </div>
-      <!-- Seat 3: Leo (Boy image 4) -->
       <div class="seat" title="Leo (Lo-Fi & Beatmaking)" onclick="openChatWith(3)">
-        <img src="data:image/png;base64,<?php /* embedded image 10 */ ?>" alt="Leo" id="img-seat-3">
+        <img src="data:image/png;base64,{{b10}}" alt="Leo">
       </div>
-      <!-- Seat 4: Nia (Girl image 1) -->
       <div class="seat" title="Nia (Boba & Study Session)" onclick="openChatWith(4)">
-        <img src="data:image/png;base64,<?php /* embedded image 11 */ ?>" alt="Nia" id="img-seat-4">
+        <img src="data:image/png;base64,{{b11}}" alt="Nia">
       </div>
-      <!-- Seat 5: Lexi (Girl image 2) -->
       <div class="seat" title="Lexi (Thrift & Flip Fashion)" onclick="openChatWith(5)">
-        <img src="data:image/png;base64,<?php /* embedded image 12 */ ?>" alt="Lexi" id="img-seat-5">
+        <img src="data:image/png;base64,{{b12}}" alt="Lexi">
       </div>
     </div>
   </div>
@@ -628,11 +622,6 @@
 </footer>
 
 <script>
-// Load base64 user uploaded images dynamically into image tags so they work immediately
-const userUploadedImages = [
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA", // Populated with actual uploaded images
-];
-
 let userLocation = null;
 window.addEventListener('load', () => { 
   findNearbyTables(); 
@@ -670,15 +659,6 @@ const communityMembers = [
     greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr" 
   }
 ];
-
-// Assign actual img elements from the DOM
-document.addEventListener("DOMContentLoaded", () => {
-  const seatImgs = document.querySelectorAll('.seat img');
-  // We attach the 6 uploaded images directly to the seats
-  const base64List = [
-    // We'll populate via direct base64 strings from python
-  ];
-});
 
 let currentMember = null;
 let chatOpen = false;
@@ -787,7 +767,7 @@ function generateContextualReply(userText, memberName) {
     const replies = [
       "nah fr though! that's exactly why I joined this site, everyone's actually down to earth ngl",
       "no deadass, you should totally lock in a spot for this week. lowkey life changing bestie",
-      "W take ngl. let me know if u end up pulling up!",
+      "W take ngl. let me node if u end up pulling up!",
       "real. honestly best decision I made this month fr"
     ];
     return replies[Math.floor(Math.random() * replies.length)];
