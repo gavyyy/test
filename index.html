@@ -460,22 +460,22 @@
     <div class="table-visual" aria-hidden="true">
       <div class="table-top">Tap a peer to text & chat</div>
       <div class="seat" title="Zack (Indie Dev & Code)" onclick="openChatWith(0)">
-        <img src="data:image/png;base64,{{b7}}" alt="Zack">
+        <img id="seat-img-0" src="" alt="Zack">
       </div>
       <div class="seat" title="Jayden (Late Night Gaming)" onclick="openChatWith(1)">
-        <img src="data:image/png;base64,{{b8}}" alt="Jayden">
+        <img id="seat-img-1" src="" alt="Jayden">
       </div>
       <div class="seat" title="Caleb (Skater & Film Photo)" onclick="openChatWith(2)">
-        <img src="data:image/png;base64,{{b9}}" alt="Caleb">
+        <img id="seat-img-2" src="" alt="Caleb">
       </div>
       <div class="seat" title="Leo (Lo-Fi & Beatmaking)" onclick="openChatWith(3)">
-        <img src="data:image/png;base64,{{b10}}" alt="Leo">
+        <img id="seat-img-3" src="" alt="Leo">
       </div>
       <div class="seat" title="Nia (Boba & Study Session)" onclick="openChatWith(4)">
-        <img src="data:image/png;base64,{{b11}}" alt="Nia">
+        <img id="seat-img-4" src="" alt="Nia">
       </div>
       <div class="seat" title="Lexi (Thrift & Flip Fashion)" onclick="openChatWith(5)">
-        <img src="data:image/png;base64,{{b12}}" alt="Lexi">
+        <img id="seat-img-5" src="" alt="Lexi">
       </div>
     </div>
   </div>
@@ -622,43 +622,101 @@
 </footer>
 
 <script>
-let userLocation = null;
-window.addEventListener('load', () => { 
-  findNearbyTables(); 
-});
+// Configured with your JSONBin credentials
+const JSONBIN_BIN_ID = "6a601775f5f4af5e29aed669";
+const JSONBIN_API_KEY = "$2a$10$rhgHAtWG3VvafQAdqWRcLOaYR72b2SZ7RVeEN0sg6w8mxkkhNOgIG";
 
-const communityMembers = [
+// Fallback community members data with base64 placeholders / initial avatars
+let communityMembers = [
   { 
     name: "Zack", 
     table: "Indie Dev & Code", 
-    greeting: "sup bro! u working on any web apps or coding projects rn? lowkey need a build partner" 
+    greeting: "sup bro! u working on any web apps or coding projects rn? lowkey need a build partner",
+    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
   },
   { 
     name: "Jayden", 
     table: "Late Night Gaming", 
-    greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl" 
+    greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl",
+    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
   },
   { 
     name: "Caleb", 
     table: "Skater & Film Photo", 
-    greeting: "yo! u skating or shooting film at all this week? let's link up" 
+    greeting: "yo! u skating or shooting film at all this week? let's link up",
+    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
   },
   { 
     name: "Leo", 
     table: "Lo-Fi & Beatmaking", 
-    greeting: "yo check out this box hat drip lmao, u making beats or what?" 
+    greeting: "yo check out this box hat drip lmao, u making beats or what?",
+    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
   },
   { 
     name: "Nia", 
     table: "Boba & Study Session", 
-    greeting: "hey! omg are u pulling up to the boba study session this week? no cap it's so fun" 
+    greeting: "hey! omg are u pulling up to the boba study session this week? no cap it's so fun",
+    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
   },
   { 
     name: "Lexi", 
     table: "Thrift & Flip Fashion", 
-    greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr" 
+    greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr",
+    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
   }
 ];
+
+let userLocation = null;
+
+// Load data on startup from JSONBin
+window.addEventListener('load', async () => { 
+  await loadDataFromJSONBin();
+  renderAvatars();
+  findNearbyTables(); 
+});
+
+function renderAvatars() {
+  communityMembers.forEach((member, index) => {
+    const imgEl = document.getElementById(`seat-img-${index}`);
+    if (imgEl && member.avatar) {
+      imgEl.src = member.avatar;
+    }
+  });
+}
+
+// Load data and pictures from JSONBin
+async function loadDataFromJSONBin() {
+  try {
+    const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    const data = await response.json();
+    if (data && data.record && data.record.members) {
+      communityMembers = data.record.members;
+    } else {
+      // If bin is empty, initialize it with default members & pictures
+      await saveDataToJSONBin();
+    }
+  } catch (error) {
+    console.error("Error loading from JSONBin:", error);
+  }
+}
+
+// Save data and pictures to JSONBin
+async function saveDataToJSONBin() {
+  try {
+    await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY
+      },
+      body: JSON.stringify({ members: communityMembers })
+    });
+  } catch (error) {
+    console.error("Error saving to JSONBin:", error);
+  }
+}
 
 let currentMember = null;
 let chatOpen = false;
@@ -670,9 +728,9 @@ function openChatWith(index) {
   const box = document.getElementById('chat-box');
   box.style.display = 'flex';
   
-  const seatImg = document.querySelectorAll('.seat img')[index];
+  const seatImg = document.getElementById(`seat-img-${index}`);
   const randomMiles = (Math.random() * 1.5 + 0.1).toFixed(1);
-  document.getElementById('active-avatar').src = seatImg.src;
+  document.getElementById('active-avatar').src = seatImg ? seatImg.src : currentMember.avatar;
   document.getElementById('active-name').textContent = currentMember.name;
   document.getElementById('active-meta').textContent = `Active · ${randomMiles} miles away`;
   
@@ -767,7 +825,7 @@ function generateContextualReply(userText, memberName) {
     const replies = [
       "nah fr though! that's exactly why I joined this site, everyone's actually down to earth ngl",
       "no deadass, you should totally lock in a spot for this week. lowkey life changing bestie",
-      "W take ngl. let me node if u end up pulling up!",
+      "W take ngl. let me know if u end up pulling up!",
       "real. honestly best decision I made this month fr"
     ];
     return replies[Math.floor(Math.random() * replies.length)];
