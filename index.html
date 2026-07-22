@@ -1126,7 +1126,6 @@ function renderTableSeats() {
   const container = document.getElementById('table-visual-container');
   if (!container) return;
 
-  // Keep table top description
   const count = parseInt(siteConfig.seatCount) || 8;
   const currentSeats = container.querySelectorAll('.seat');
   currentSeats.forEach(s => s.remove());
@@ -1152,10 +1151,13 @@ function renderAvatars() {
   }
 }
 
-// Load data and pictures from JSONBin
+// Load data and pictures from JSONBin via CORS proxy (GitHub Pages compatible)
 async function loadDataFromJSONBin() {
   try {
-    const response = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`, {
+    const targetUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}/latest`;
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+
+    const response = await fetch(proxyUrl, {
       headers: { 'X-Master-Key': JSONBIN_KEY }
     });
     const data = await response.json();
@@ -1170,12 +1172,16 @@ async function loadDataFromJSONBin() {
   }
 }
 
-// Save data and pictures to JSONBin
+// Save data and pictures to JSONBin via CORS proxy (GitHub Pages compatible)
 async function saveDataToJSONBin() {
   const statusMsg = document.getElementById('sync-status-msg');
   if (statusMsg) statusMsg.textContent = "Status: Saving to JSONBin...";
+  
   try {
-    await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_ID}`, {
+    const targetUrl = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
+    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(targetUrl);
+
+    await fetch(proxyUrl, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
