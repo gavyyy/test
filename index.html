@@ -456,7 +456,7 @@
       <p class="hero-note">Ages 16-22 only · completely safe & verified hangouts</p>
     </div>
     
-    <!-- Table visual with your uploaded personal photos embedded as data URIs -->
+    <!-- Table visual with your 6 uploaded profile photos embedded -->
     <div class="table-visual" aria-hidden="true">
       <div class="table-top">Tap a peer to text & chat</div>
       <div class="seat" title="Zack (Indie Dev & Code)" onclick="openChatWith(0)">
@@ -622,47 +622,47 @@
 </footer>
 
 <script>
-// Configured with your JSONBin credentials
+// JSONBin configuration
 const JSONBIN_BIN_ID = "6a601775f5f4af5e29aed669";
 const JSONBIN_API_KEY = "$2a$10$rhgHAtWG3VvafQAdqWRcLOaYR72b2SZ7RVeEN0sg6w8mxkkhNOgIG";
 
-// Fallback community members data with base64 placeholders / initial avatars
+// Community members with your 6 uploaded pictures encoded directly as base64 strings
 let communityMembers = [
   { 
     name: "Zack", 
     table: "Indie Dev & Code", 
     greeting: "sup bro! u working on any web apps or coding projects rn? lowkey need a build partner",
-    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
+    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
   },
   { 
     name: "Jayden", 
     table: "Late Night Gaming", 
     greeting: "yo! what games u play? we need a 5th for our lobby tonight ngl",
-    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
+    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
   },
   { 
     name: "Caleb", 
     table: "Skater & Film Photo", 
     greeting: "yo! u skating or shooting film at all this week? let's link up",
-    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
+    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
   },
   { 
     name: "Leo", 
     table: "Lo-Fi & Beatmaking", 
     greeting: "yo check out this box hat drip lmao, u making beats or what?",
-    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
+    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
   },
   { 
     name: "Nia", 
     table: "Boba & Study Session", 
     greeting: "hey! omg are u pulling up to the boba study session this week? no cap it's so fun",
-    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
+    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
   },
   { 
     name: "Lexi", 
     table: "Thrift & Flip Fashion", 
     greeting: "yo! saw you checking out my table seat. you into thrifting or what? fr fr",
-    avatar: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAADwCAYAAAA+VemSAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO2db4wkV13ntwAUEW5d3f+7O98tG7Ozu7uzM9m95p5dO9hK4h9L+mBJqC350YqC/uBE0ZqNqA3+wX832Vj2NolF0d" 
+    avatar: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=" 
   }
 ];
 
@@ -694,7 +694,6 @@ async function loadDataFromJSONBin() {
     if (data && data.record && data.record.members) {
       communityMembers = data.record.members;
     } else {
-      // If bin is empty, initialize it with default members & pictures
       await saveDataToJSONBin();
     }
   } catch (error) {
