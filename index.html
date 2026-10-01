@@ -1,1 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b3069">
+<title>Chattanooga State · Class Schedule</title>
+<style>
+:root{
+  font-family:Arial,Helvetica,sans-serif;
+  --blue:#79a0ff;
+  --muted:#adb2c2;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:#191c1f;color:#f4f4f8;line-height:1.55;overflow-x:hidden}
+button,input,select{font:inherit}
+button,a,select{touch-action:manipulation}
+button{cursor:pointer}
+button:disabled{cursor:default;opacity:.55}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+  outline:3px solid #d7a7ff;outline-offset:3px
+}
+[hidden]{display:none!important}
 
+.mail{max-width:960px;margin:auto;padding:30px 40px 65px}
+.mail-nav{display:flex;justify-content:space-between;gap:15px;color:var(--muted);font-size:14px;margin-bottom:32px}
+.pill{border:1px solid #626877;border-radius:5px;padding:2px 8px;font-size:14px;color:var(--muted);white-space:nowrap}
+h1{font-weight:500;font-size:clamp(26px,3.5vw,38px);line-height:1.35;margin:0 0 32px}
+.sender{display:flex;gap:18px;align-items:center;margin-bottom:28px}
+.avatar{width:58px;height:58px;flex-shrink:0;background:#72767d;border-radius:50%;display:grid;place-items:center}
+.avatar svg{width:42px;height:42px}
+.sender-name{font-size:20px;font-weight:bold}
+.time{font-size:15px;color:var(--muted);margin-left:18px;font-weight:normal}
+.recipient{color:var(--muted);font-size:17px;margin-top:3px}
+.separator{height:20px;background:#303437}
+.message{padding:24px 44px;font-size:22px;line-height:1.48}
+.wordmark{text-align:center;font-family:Georgia,serif;color:#3979ef;font-size:49px;line-height:.82;font-weight:bold;font-variant:small-caps;letter-spacing:-2px;margin:4px auto 30px;width:max-content;max-width:100%}
+.wordmark span{display:block;border-bottom:3px solid #ed2939;padding-bottom:6px}
+.hello{font-size:28px}
+.text-link{background:none;border:0;padding:0;color:#ce91ff;text-decoration:underline;text-align:left;min-height:44px}
+.register{display:block;width:100%;background:#779bff;color:#101c35;border:0;border-radius:10px;padding:16px 22px;font-size:23px;line-height:1.4;margin:26px 0;min-height:54px}
+.message ul{padding-left:28px;margin-top:0}
+
+.schedule{color:#192d48;background:#f3f6fb;min-height:100vh;color-scheme:light}
+.site-header{background:#0b3069;color:white;padding:22px max(24px,calc((100vw - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{font-family:Georgia,serif;font-size:25px;font-weight:bold;line-height:1.1}
+.brand small{display:block;font:11px Arial,sans-serif;letter-spacing:2px;margin-top:8px;color:#c7d8f6}
+.back{background:transparent;border:1px solid #7893bb;color:white;border-radius:6px;padding:9px 14px;font-size:14px;min-height:44px}
+.schedule-main{max-width:1228px;margin:auto;padding:35px 24px 60px}
+.eyebrow{font-size:12px;font-weight:bold;letter-spacing:2px;color:#3d6599;margin-bottom:8px}
+.schedule h1{font-size:36px;font-weight:bold;margin:0 0 8px}
+.intro{margin:0 0 26px;color:#52637a}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px}
+.filters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;background:white;border:1px solid #d9e1ec;border-radius:10px;padding:20px;margin-bottom:22px}
+.filters label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:bold}
+.filters select,.filters input{width:100%;border:1px solid #a7b7cc;padding:10px;border-radius:5px;background:white;color:#192d48;min-width:0;min-height:44px}
+.filters .search{grid-column:1/-1}
+.result-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:14px 0}
+.result-heading h2{font-size:18px;margin:0}
+.reset{border:0;background:none;color:#205baa;font-size:14px;text-decoration:underline;min-height:44px}
+.cards{display:grid;gap:14px}
+.card{background:white;border:1px solid #d7e0eb;border-left:4px solid #2864b4;border-radius:8px;padding:20px}
+.course-top{display:flex;justify-content:space-between;gap:14px;align-items:start}
+.code{font-size:12px;font-weight:bold;letter-spacing:1px;color:#56708f}
+.card h3{font-size:20px;margin:5px 0 8px;line-height:1.3}
+.badge{font-size:12px;border-radius:20px;padding:3px 9px;background:#e6f4ee;color:#206647;white-space:nowrap}
+.badge.full{background:#f3e9e8;color:#8b4141}
+.metadata{font-size:14px;color:#52637a;margin-bottom:14px}
+.card-footer{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.add{background:#1553a1;color:white;border:0;border-radius:5px;padding:9px 16px;font-size:14px;font-weight:bold;min-height:44px}
+.add.selected{background:#e7effa;color:#1b528f}
+.details{margin-top:14px;font-size:14px;color:#53657b}
+.details summary{cursor:pointer;color:#215998}
+.plan{background:white;border:1px solid #d7e0eb;border-radius:10px;padding:22px;align-self:start;position:sticky;top:20px}
+.plan h2{font-size:21px;margin:0}
+.plan-sub{font-size:14px;color:#5f7188;margin:7px 0 20px}
+.total{display:flex;justify-content:space-between;border-top:1px solid #dce3ed;margin-top:20px;padding-top:16px;font-size:14px}
+.plan-item{border-top:1px solid #e1e7ee;padding:14px 0;font-size:14px}
+.plan-item strong{display:block}
+.remove{border:0;background:none;color:#a13636;padding:5px 0;font-size:13px;text-decoration:underline;min-height:44px}
+.empty{padding:22px;background:#f3f6fb;border-radius:6px;color:#60718a;font-size:14px}
+.notice{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#172f51;color:white;padding:12px 22px;border-radius:8px;box-shadow:0 4px 24px #0003;max-width:90vw;font-size:14px;z-index:3}
+.no-results{padding:35px;text-align:center;color:#52637a;background:white;border-radius:8px}
+.demo-bar{padding:18px 20px;text-align:center;background:#283044;color:#dbe5ff;font-size:13px;border-top:1px solid #414d68}
+.demo-bar strong{letter-spacing:1px;font-size:12px;margin-right:10px}
+
+@media(max-width:800px){
+  .layout{grid-template-columns:1fr}
+  .plan{position:static}
+  .filters{grid-template-columns:1fr 1fr}
+  .filters label:first-child{grid-column:1/-1}
+}
+
+@media(max-width:600px){
+  input,select,textarea{font-size:16px}
+  .mail{width:100%;padding:18px 15px 35px}
+  .mail-nav{font-size:11px;margin-bottom:20px}
+  .mail h1{font-size:24px;line-height:1.25;margin-bottom:24px}
+  .sender{gap:10px;align-items:flex-start;margin-bottom:20px}
+  .avatar{width:44px;height:44px}
+  .avatar svg{width:32px;height:32px}
+  .sender-name{font-size:16px}
+  .time{display:block;margin:2px 0 0;font-size:12px}
+  .recipient{font-size:13px}
+  .separator{height:12px;margin-left:-15px;margin-right:-15px}
+  .message{padding:22px 0;font-size:17px;line-height:1.55}
+  .wordmark{font-size:39px;margin-bottom:25px}
+  .hello{font-size:23px}
+  .register{padding:14px 16px;font-size:17px}
+  .message ul{padding-left:22px}
+  .site-header{padding:15px;gap:10px}
+  .brand{font-size:18px}
+  .brand small{font-size:8px;letter-spacing:1px;margin-top:5px}
+  .back{padding:8px 10px;font-size:12px;white-space:nowrap}
+  .schedule-main{width:100%;padding:22px 14px 45px}
+  .schedule h1{font-size:28px}
+  .intro{font-size:14px}
+  .layout{display:block}
+  .filters{grid-template-columns:1fr;gap:13px;padding:14px}
+  .filters label,.filters label:first-child,.filters .search{grid-column:1}
+  .result-heading h2{font-size:16px}
+  .card{padding:15px}
+  .course-top{display:block}
+  .card h3{font-size:18px}
+  .badge{display:inline-block;margin-bottom:10px}
+  .metadata{font-size:13px}
+  .card-footer{flex-direction:column;align-items:stretch}
+  .card-footer .pill{width:max-content}
+  .add{width:100%;font-size:15px}
+  .plan{width:100%;margin-top:22px;padding:17px}
+  .plan h2{font-size:19px}
+  .notice{bottom:15px;width:calc(100% - 28px);max-width:none;text-align:center;padding:11px 14px}
+  .demo-bar{font-size:11px;padding:12px}
+}
+</style>
+</head>
+<body>
+
+<main id="email" class="mail">
+  <div class="mail-nav"><span>MAIL / INBOX</span><span>Message preview</span></div>
+  <h1>🎉 You're In! Now Let's Get You Registered for Classes <span class="pill">Inbox</span></h1>
+
+  <div class="sender">
+    <div class="avatar" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="#d4d6dc">
+        <circle cx="24" cy="15" r="9"/>
+        <path d="M6 41c0-16 36-16 36 0a30 30 0 0 1-36 0"/>
+      </svg>
+    </div>
+    <div>
+      <div class="sender-name">Chattanooga State <span class="time">9:07 AM</span></div>
+      <div class="recipient">to gavin.dunaway, me</div>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <article class="message">
+    <div class="wordmark" aria-label="Chatt State">Chatt<span>State</span></div>
+    <p class="hello">Hello Gavin,</p>
+    <p>Welcome to Chattanooga State! It’s time to take the next step on your path. Register today for a <button type="button" class="text-link" data-open onclick="showSchedule(true)">Freshman Advising Workshop</button>.</p>
+
+    <button type="button" class="register" data-open onclick="showSchedule(true)">Register for Freshman Advising Workshop</button>
+
+    <p style="margin-bottom:0">At the workshop you will:</p>
+    <ul>
+      <li>Meet your Academic Advisor</li>
+      <li>Learn about your major</li>
+      <li>Review your academic plan</li>
+      <li>Ask any questions you have about classes</li>
+      <li>Register for your first semester</li>
+    </ul>
+  </article>
+</main>
+
+<section id="schedule" class="schedule" style="display:none" aria-label="Sample class schedule">
+  <header class="site-header">
+    <div class="brand">Chattanooga State<small>SAMPLE CLASS SCHEDULE</small></div>
+    <button type="button" class="back" id="back" onclick="showSchedule(false)">Back to email</button>
+  </header>
+
+  <div class="schedule-main">
+    <div class="eyebrow">PLAN YOUR FIRST SEMESTER</div>
+    <h1 id="schedule-title" tabindex="-1">Find your classes.</h1>
+    <p class="intro">Explore sample courses and build a practice schedule. Nothing here enrolls you in a class.</p>
+
+    <div class="layout">
+      <div>
+        <form class="filters" id="filters" onsubmit="return false">
+          <label>Term
+            <select id="term">
+              <option>Fall 2026</option>
+              <option>Spring 2027</option>
+            </select>
+          </label>
+
+          <label>Subject
+            <select id="subject">
+              <option value="all">All subjects</option>
+              <option value="ENGL">English</option>
+              <option value="MATH">Mathematics</option>
+              <option value="BIOL">Biology</option>
+              <option value="PSYC">Psychology</option>
+              <option value="COLS">College success</option>
+            </select>
+          </label>
+
+          <label>Format
+            <select id="format">
+              <option value="all">All formats</option>
+              <option>On campus</option>
+              <option>Online</option>
+            </select>
+          </label>
+
+          <label class="search">Search sample classes
+            <input id="query" type="search" placeholder="Course name or code" autocomplete="off">
+          </label>
+        </form>
+
+        <div class="result-heading">
+          <h2 id="count" aria-live="polite"></h2>
+          <button class="reset" id="reset">Reset filters</button>
+        </div>
+
+        <div class="cards" id="results"></div>
+      </div>
+
+      <aside class="plan">
+        <h2>My practice schedule</h2>
+        <p class="plan-sub" id="plan-term">Fall 2026 · Sample plan</p>
+        <div id="chosen"></div>
+        <div class="total"><span>Total credits</span><strong id="credits">0</strong></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<footer class="demo-bar">
+  <strong>Unofficial sample</strong>
+  Not affiliated with Chattanooga State. Classes and availability are fictional; no actual registration takes place. No personal information is collected.
+</footer>
+
+<div id="notice" class="notice" role="status" hidden></div>
+
+<script>
+const courses=[
+  {id:1,code:'ENGL 1010',name:'English Composition I',credits:3,format:'On campus',time:'Mon / Wed · 9:00–10:15 AM',room:'Humanities · Room 204',seats:12,desc:'Practice academic writing, develop arguments, and explore research skills.'},
+  {id:2,code:'MATH 1530',name:'Introductory Statistics',credits:3,format:'On campus',time:'Tue / Thu · 10:30–11:45 AM',room:'Math & Science · Room 112',seats:8,desc:'Explore data, probability, and statistical reasoning through practical examples.'},
+  {id:3,code:'PSYC 1030',name:'Introduction to Psychology',credits:3,format:'Online',time:'Flexible schedule · No set meeting time',room:'Online classroom',seats:20,desc:'Discover the foundations of human behavior, learning, memory, and development.'},
+  {id:4,code:'BIOL 1110',name:'General Biology I',credits:4,format:'On campus',time:'Mon / Wed · 1:00–2:50 PM',room:'Science Center · Room 108',seats:0,desc:'An introduction to cells, genetics, and biological systems. Sample lab time included.'},
+  {id:5,code:'COLS 1010',name:'College Success',credits:1,format:'Online',time:'Flexible schedule · No set meeting time',room:'Online classroom',seats:15,desc:'Build study habits, time management strategies, and a plan for college success.'}
+];
+
+const $=id=>document.getElementById(id);
+const plans={'Fall 2026':new Set(),'Spring 2027':new Set()};
+let timer;
+
+function notify(message){
+  $('notice').textContent=message;
+  $('notice').hidden=false;
+  clearTimeout(timer);
+  timer=setTimeout(()=>$('notice').hidden=true,3200);
+}
+
+function showSchedule(open){
+  var email=document.getElementById('email');
+  var schedule=document.getElementById('schedule');
+  if(open){
+    email.style.display='none';
+    schedule.style.display='block';
+    document.title='Sample Class Schedule';
+  }else{
+    schedule.style.display='none';
+    email.style.display='block';
+    document.title='Chattanooga State · Class Schedule';
+  }
+  window.scrollTo(0,0);
+}
+
+
+
+function render(){
+  const selected=plans[$('term').value];
+  const q=$('query').value.trim().toLowerCase();
+
+  const filtered=courses.filter(c=>
+    ($('subject').value==='all'||c.code.startsWith($('subject').value)) &&
+    ($('format').value==='all'||c.format===$('format').value) &&
+    (!q||(c.name+' '+c.code).toLowerCase().includes(q))
+  );
+
+  $('count').textContent=filtered.length+' sample '+(filtered.length===1?'class':'classes');
+
+  $('results').innerHTML=filtered.map(c=>`
+    <article class="card">
+      <div class="course-top">
+        <div>
+          <div class="code">${c.code} · ${c.credits} CREDITS</div>
+          <h3>${c.name}</h3>
+        </div>
+        <span class="badge ${c.seats?'':'full'}">${c.seats?c.seats+' sample seats':'Class full'}</span>
+      </div>
+
+      <div class="metadata">${c.time}<br>${c.room}</div>
+
+      <div class="card-footer">
+        <span class="pill" style="color:#4d6583;border-color:#cad6e6">${c.format}</span>
+        <button class="add ${selected.has(c.id)?'selected':''}" data-add="${c.id}" ${!c.seats?'disabled':''}>
+          ${selected.has(c.id)?'Remove from plan':c.seats?'Add to plan':'Unavailable'}
+        </button>
+      </div>
+
+      <details class="details">
+        <summary>Course details</summary>
+        <p>${c.desc}</p>
+        <p>Fictional section · ${$('term').value} · Sample only</p>
+      </details>
+    </article>
+  `).join('') || '<div class="no-results">No sample classes match these filters. Try another subject or clear your search.</div>';
+
+  $('plan-term').textContent=$('term').value+' · Sample plan';
+
+  const picked=courses.filter(c=>selected.has(c.id));
+
+  $('chosen').innerHTML=picked.map(c=>`
+    <div class="plan-item">
+      <strong>${c.code}</strong>
+      ${c.name}<br>
+      <span class="metadata">${c.time}</span><br>
+      <button class="remove" data-remove="${c.id}">Remove</button>
+    </div>
+  `).join('') || '<div class="empty">Your plan is empty.<br>Add a class to see it here.</div>';
+
+  $('credits').textContent=picked.reduce((n,c)=>n+c.credits,0);
+}
+
+$('results').addEventListener('click',e=>{
+  const b=e.target.closest('[data-add]');
+  if(!b)return;
+
+  const id=Number(b.dataset.add);
+  const set=plans[$('term').value];
+  const added=!set.has(id);
+
+  added?set.add(id):set.delete(id);
+  render();
+
+  notify(courses.find(c=>c.id===id).code+(added?' added to your practice schedule.':' removed from your practice schedule.'));
+});
+
+$('chosen').addEventListener('click',e=>{
+  const b=e.target.closest('[data-remove]');
+  if(!b)return;
+
+  plans[$('term').value].delete(Number(b.dataset.remove));
+  render();
+  notify('Class removed from your practice schedule.');
+});
+
+['term','subject','format'].forEach(id=>$(id).addEventListener('change',render));
+$('query').addEventListener('input',render);
+
+$('reset').addEventListener('click',()=>{
+  $('subject').value='all';
+  $('format').value='all';
+  $('query').value='';
+  render();
+});
+
+render();
+
+
+</script>
+</body>
+</html>
